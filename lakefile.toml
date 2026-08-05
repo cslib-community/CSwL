@@ -35,3 +35,25 @@ scope = "leanprover"
 name = "verso"
 git = "https://github.com/leanprover/verso"
 rev = "755ccbe968ad1b0255bee8b46d9cb2306486d6d8"
+
+# doc-gen4: gera a documentação de API (a referência: um HTML por declaração,
+# com tipo, docstring e links). Alvo: `lake build CSwL:docs`, saída em
+# `.lake/build/doc/` (veja `build-web.sh`).
+#
+# O Tao declara esta dependência só no ambiente "dev"
+# (`meta if get_config? env = some "dev" then require ...` no `lakefile.lean`),
+# para que quem só quer compilar o livro não baixe o doc-gen4. Isso NÃO tem
+# equivalente em TOML: `[[require]]` aceita apenas `name`/`scope`/`git`/`rev`/
+# `path`/`version`/`options` — não há campo de condição nem `meta if`. Ficar
+# incondicional (e manter o lakefile declarativo) custa, medido:
+#   - quatro repositórios extras clonados uma vez (doc-gen4, leansqlite,
+#     UnicodeBasic, BibtexQuery), sem mexer nas revisões já fixadas das outras;
+#   - `lake build` compila os objetos nativos do leansqlite (~2 s, uma vez só);
+#   - o doc-gen4 em si só é compilado quando o alvo `:docs` é pedido.
+#
+# Revisão fixada na tag que casa com o nosso `lean-toolchain` (v4.33.0-rc2).
+# Sendo incondicional, um `main` quebrado quebraria o build de todo mundo.
+[[require]]
+name = "doc-gen4"
+git = "https://github.com/leanprover/doc-gen4"
+rev = "v4.33.0-rc2"

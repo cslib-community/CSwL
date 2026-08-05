@@ -34,6 +34,7 @@ library = "CSwL"
 # Ordem dos capítulos na navegação: a numérica, não a alfabética.
 [order_children]
 "CSwL" = [
+  "CSwL.Chapter01",
   "CSwL.Chapter02",
   "CSwL.Chapter03",
 ]
@@ -45,6 +46,10 @@ library = "CSwL"
 [modules."CSwL"]
 title = "Apresentação"
 show_imports = false
+
+[modules."CSwL.Chapter01"]
+title = "1. O estudo formal da língua natural"
+url = "cap01"
 
 [modules."CSwL.Chapter02"]
 title = "2. Funções, tipos e abstração"

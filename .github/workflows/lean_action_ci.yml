@@ -1,7 +1,11 @@
+# Verificação rápida: o projeto compila?
+#
+# Só em pull request (e à mão). Os pushes em `main` são cobertos por
+# `pages.yml`, que compila tudo e publica o site — dois workflows fazendo o
+# mesmo build no mesmo evento seria desperdício de runner.
 name: Lean Action CI
 
 on:
-  push:
   pull_request:
   workflow_dispatch:
 

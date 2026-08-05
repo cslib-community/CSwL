@@ -16,21 +16,36 @@ próxima do original. Onde o livro deixa algo como exercício, aqui aparece um
 
 Cada capítulo existe em três formas, geradas do mesmo arquivo `.lean`:
 
-- **Página web** — para ler no navegador, sem instalar nada.
-- **Documentação** — a API do capítulo (definições, tipos, assinaturas).
-- **Fonte Lean** — para abrir no VS Code e editar, com o Lean respondendo
-  ao vivo.
+- **livro** — o texto para ler no navegador, sem instalar nada.
+- **documentação** — a referência de API: uma entrada por declaração, com
+  tipo e assinatura.
+- **fonte** — para abrir no VS Code e editar, com o Lean respondendo ao vivo.
 
 Para o ambiente local: [Install Lean](https://lean-lang.org/install), depois
 `lake build`. Sem instalar nada, dá para colar trechos em
 [live.lean-lang.org](https://live.lean-lang.org/).
 
+Para gerar as duas saídas web localmente:
+
+```bash
+./build-web.sh    # livro (Verso) + documentação (doc-gen4)
+./serve.py        # http://localhost:8000/  e  /docs/
+```
+
 ## Capítulos
 
-- *Capítulo 1: O estudo formal da língua natural — sem código*
-- Capítulo 2: Cálculo lambda, tipos e programação funcional —
+- **1. O estudo formal da língua natural** —
+  [livro](https://emap-nlp.github.io/CSwL/cap01/) ·
+  [documentação](https://emap-nlp.github.io/CSwL/docs/CSwL/Chapter01.html) ·
+  [fonte](CSwL/Chapter01.lean)
+- **2. Funções, tipos e abstração** —
+  [livro](https://emap-nlp.github.io/CSwL/cap02/) ·
+  [documentação](https://emap-nlp.github.io/CSwL/docs/CSwL/Chapter02.html) ·
   [fonte](CSwL/Chapter02.lean)
-- Capítulo 3: Programação funcional — [fonte](CSwL/Chapter03.lean)
+- **3. Programação funcional** —
+  [livro](https://emap-nlp.github.io/CSwL/cap03/) ·
+  [documentação](https://emap-nlp.github.io/CSwL/docs/CSwL/Chapter03.html) ·
+  [fonte](CSwL/Chapter03.lean)
 - Capítulo 4: Sintaxe formal de fragmentos — *a fazer*
 - Capítulo 5: Semântica formal de fragmentos — *a fazer*
 - Capítulo 6: Model checking com lógica de predicados — *a fazer*

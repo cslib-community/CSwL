@@ -1,3 +1,7 @@
 
 **/.DS_Store
 /.lake
+
+# Diretório onde o workflow de GitHub Pages junta o livro (Verso) e a
+# documentação (doc-gen4) antes de publicar.
+/_site

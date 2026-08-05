@@ -1,15 +1,12 @@
 /-!
 # 3. Programação funcional
 
-Este capítulo constrói o repertório de programação que o resto do texto usa:
-recursão, tipos definidos por casos, polimorfismo, classes de tipos, e o que
-fazer quando uma função não tem resposta para dar.
-
-Os exemplos são linguísticos desde o começo — plural do sueco, harmonia
-vocálica, quem escreveu o quê — porque as estruturas que aparecem aqui são as
-mesmas que reaparecem quando o assunto for sintaxe e significado. Um feixe de
-traços fonológicos e uma árvore sintática são o mesmo tipo de objeto: dados
-com forma, definidos por casos, percorridos por recursão.
+Um feixe de traços fonológicos e uma árvore sintática são o mesmo tipo de
+objeto: dados com forma, definidos por casos, percorridos por recursão. Quem
+sabe escrever o primeiro sabe escrever o segundo, e é por isso que os
+exemplos daqui — plural do sueco, harmonia vocálica, quem escreveu o quê —
+já são linguísticos, embora nenhuma teoria do significado tenha começado
+ainda.
 -/
 
 namespace Chapter03
@@ -115,8 +112,8 @@ def swedishVowels : List Char :=
   ['a','i','o','u','e','y', aUml, aRing, oUml, oSlash]
 
 /-- A forma do plural é determinada pela classe de declinação. Na terceira
-classe ela depende também de a palavra terminar ou não em vogal — o primeiro
-caso, neste texto, de uma regra morfológica sensível à forma fonológica. -/
+classe ela depende também de a palavra terminar ou não em vogal: uma regra
+morfológica que consulta a forma fonológica. -/
 def swedishPlural (noun : String) : DeclClass → String
   | .One   => initS noun ++ "or"
   | .Two   => initS noun ++ "ar"
