@@ -1,0 +1,37 @@
+name = "CSwL"
+version = "0.1.0"
+defaultTargets = ["cswl"]
+
+# Docstrings e module docstrings em formato Verso (e não Markdown): habilita a
+# marcação `{name}`f``, `{syntax term}`...``, etc., que na saída web vira link
+# para a definição. Vale para `/-- ... -/` e para `/-! ... -/`
+# (`doc.verso.module` cai para `doc.verso` quando não é dada explicitamente).
+leanOptions = {doc.verso = true}
+
+[[lean_lib]]
+name = "CSwL"
+# `doc.verso.suggestions` desliga o linter que, para cada `código` inline, sugere
+# um "role" mais específico (`{lean}`, `{name}`, `{syntax term}`, ...). Sem ele são
+# ~50 avisos por build nos capítulos — é o que o Tao desliga com
+# `set_option doc.verso.suggestions false` no topo de cada arquivo.
+# Ele fica aqui, e não junto de `doc.verso` acima, porque em TOML as duas chaves
+# colidiriam na mesma tabela (`doc.verso` não pode ser bool e tabela ao mesmo
+# tempo). Lake soma as duas: `leanOptions` da lib = pacote ++ lib.
+leanOptions = {doc.verso.suggestions = false}
+
+[[lean_exe]]
+name = "cswl"
+root = "Main"
+
+[[require]]
+name = "cslib"
+scope = "leanprover"
+
+# Verso: gera a versão web (HTML) dos mesmos arquivos `.lean`, no modo
+# "literate". Alvo: `lake build :literateHtml` (veja `build-web.sh`).
+# Revisão fixada porque o `lean-toolchain` do verso tem de bater com o nosso
+# (v4.33.0-rc2); `main` pode avançar para um toolchain mais novo.
+[[require]]
+name = "verso"
+git = "https://github.com/leanprover/verso"
+rev = "755ccbe968ad1b0255bee8b46d9cb2306486d6d8"
