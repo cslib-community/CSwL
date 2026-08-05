@@ -24,8 +24,15 @@ Cada capítulo existe em três formas, geradas do mesmo arquivo `.lean`:
 - **fonte** — para abrir no VS Code e editar, com o Lean respondendo ao vivo.
 
 Para o ambiente local: [Install Lean](https://lean-lang.org/install), depois
-`lake build`. Sem instalar nada, dá para colar trechos em
-[live.lean-lang.org](https://live.lean-lang.org/).
+`lake exe cache get` (baixa a Mathlib compilada — sem isso o `lake build`
+compilaria a biblioteca do zero) e `lake build`.
+
+Sem instalar nada, há dois caminhos: colar trechos em
+[live.lean-lang.org](https://live.lean-lang.org/), ou abrir o repositório num
+**Codespace** (botão *Code ▸ Codespaces*), que já vem com o Lean na versão do
+projeto, a extensão do VS Code e a Mathlib compilada. A configuração está em
+`.devcontainer/` e serve também para o **Reopen in Container** do VS Code
+local.
 
 Para gerar as duas saídas web localmente:
 
