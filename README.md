@@ -6,11 +6,13 @@ University Press, 2010). Material da disciplina **Processamento de Linguagem
 Natural**, EMAp/FGV, 2026.2 — o programa está em
 [emap-nlp/syllabus](https://github.com/emap-nlp/syllabus).
 
-Esta não é uma tradução linha a linha do livro, e não substitui o livro. É um
-companheiro anotado: o texto original é referenciado, não reproduzido, e as
-construções são reescritas na forma mais idiomática em Lean, não na mais
-próxima do original. Onde o livro deixa algo como exercício, aqui aparece um
-`sorry`.
+O texto é escrito para ser lido por si — os conceitos e suas implementações em
+Lean, na forma mais idiomática que a linguagem permite. Segue o percurso de
+van Eijck & Unger, capítulo por capítulo, mas não é uma tradução: nem do
+texto, que é original, nem do código, que é reescrito e não transliterado.
+
+Os exercícios avaliados não ficam aqui. Cada trabalho é um repositório
+próprio, `trabalho-NN`, autocontido.
 
 ## Como usar
 
