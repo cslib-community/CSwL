@@ -5,8 +5,7 @@ _No livro: capítulo 1._
 
 _Every student passed_ descreve um estado de coisas. Dizer o que a sentença
 significa é dizer em que situações ela é verdadeira: numa turma em que todos
-passaram, sim; numa em que alguém repetiu, não. O significado, então, é aquilo
-que decide entre as situações — e é isso que se vai construir.
+passaram, sim; numa em que alguém repetiu, não.
 
 ## Níveis de descrição
 

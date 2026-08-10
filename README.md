@@ -11,8 +11,8 @@ Lean, na forma mais idiomática que a linguagem permite. Segue o percurso de
 van Eijck & Unger, capítulo por capítulo, mas não é uma tradução: nem do
 texto, que é original, nem do código, que é reescrito e não transliterado.
 
-Os exercícios avaliados não ficam aqui. Cada trabalho é um repositório
-próprio, `trabalho-NN`, autocontido.
+Os exercícios ficam neste mesmo projeto, em `Exercises/`, um arquivo por
+capítulo — ver [Exercícios](#exercícios) abaixo.
 
 ## Como usar
 
@@ -84,8 +84,8 @@ se respondem em [`Exercises/RESPOSTAS.md`](Exercises/RESPOSTAS.md).
 | arquivo                     | capítulo                          | itens |
 |-----------------------------|-----------------------------------|------:|
 | `Exercises/Chapter01.lean`  | 1. Estudo formal da língua natural|    19 |
-| `Exercises/Chapter02.lean`  | 2. Programação funcional          |    33 |
-| `Exercises/Chapter03.lean`  | 3. Funções, tipos e abstração     |    28 |
+| `Exercises/Chapter02.lean`  | 2. Programação funcional          |    28 |
+| `Exercises/Chapter03.lean`  | 3. Funções, tipos e abstração     |    33 |
 
 ## Convenções
 

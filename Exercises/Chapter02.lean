@@ -1,5 +1,3 @@
-import Mathlib.Data.Set.Basic
-
 /-
 Exercícios do capítulo 2 — Programação funcional
 
@@ -245,66 +243,5 @@ def applyToAll (f : Nat → Nat) : List Nat → List Nat
   | x :: xs => sorry
 
 example : applyToAll double [1, 2, 3] = [2, 4, 6] := sorry
-
-/-! ## 11. Conjuntos
-
-Um conjunto de elementos de `α` é dado pela função que, para cada elemento,
-afirma se ele pertence. Isso não é analogia: é a definição em Lean.
--/
-
-#print Set
--- def Set : Type u → Type u := fun α => α → Prop
-
-/-! `Set` vem da Mathlib, e é por isso que este trabalho depende dela. Redefinir
-`Set` à mão daria uma cópia sem a notação (`∈`, `⊆`, `∪`, `∩`, `∅`) e sem os
-lemas já provados — e o hábito de procurar na biblioteca antes de escrever é
-parte do que se aprende aqui.
-
-Escrever `{n | n > 2}` constrói a função; escrever `x ∈ A` a aplica. -/
-
-def bigger : Set Nat := {n | n > 2}
-
-/-! Uma coisa a saber antes do primeiro exercício. `decide` **não** fecha
-`3 ∈ bigger`, e a mensagem é `failed to synthesize Decidable (3 ∈ bigger)`. O
-motivo é que `bigger` é um `def`, e `decide` não desdobra definições: para ele,
-o objetivo é opaco.
-
-A saída é pedir o desdobramento: `simp [bigger]` reduz o objetivo a `3 > 2`, e
-fecha. Passar o nome de uma definição para o `simp` é o gesto mais útil deste
-arquivo — vai ser preciso muitas vezes. -/
-
-example : 3 ∈ bigger := by simp [bigger]
-
-/-- **E0.15.** Prove que 5 pertence. -/
-example : 5 ∈ bigger := sorry
-
-/-- **E0.16.** Prove que 1 não pertence. `x ∉ A` é abreviação de `¬ (x ∈ A)`,
-que por sua vez é `x ∈ A → False`. -/
-example : 1 ∉ bigger := sorry
-
-/-! Inclusão não é operação nova: `A ⊆ B` afirma que todo elemento de `A` está
-em `B`. Provar começa com `intro`. -/
-
-def bigger5 : Set Nat := {n | n > 5}
-
-/-- **E0.17.** Prove a inclusão. Depois de `intro x h`, use
-`simp [bigger, bigger5] at *` para desdobrar as duas definições, e então
-`omega`. -/
-example : bigger5 ⊆ bigger := sorry
-
-/-! União e interseção são disjunção e conjunção elemento a elemento. As duas
-inclusões abaixo valem para conjuntos quaisquer, e as provas não precisam saber
-nada sobre eles. -/
-
-/-- **E0.18.** Todo conjunto está contido na sua união com outro. Depois do
-`intro`, `Or.inl` prova uma disjunção pelo lado esquerdo. -/
-example (A B : Set Nat) : A ⊆ A ∪ B := sorry
-
-/-- **E0.19.** E a interseção está contida em cada um dos dois. -/
-example (A B : Set Nat) : A ∩ B ⊆ A := sorry
-
-/-! A Mathlib tem esses dois lemas prontos, com os nomes `Set.subset_union_left`
-e `Set.inter_subset_left`. O exercício é escrever a prova, não encontrá-los —
-mas vale procurar depois, para ver como se chamam as coisas. -/
 
 end Exercises.Chapter02

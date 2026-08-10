@@ -75,7 +75,63 @@ example : {n : Nat | n < 3} ∩ {n : Nat | 1 < n} = {2} := by
   · intro (h : n = 2)
     exact ⟨show n < 3 by omega, show 1 < n by omega⟩
 
-/-! ### Exercício 2.1 (p. 17)
+/-! ### Aquecimento: conjuntos com nome
+
+Os dois exemplos acima escrevem `{n | …}` no lugar onde é usado. Quando o
+conjunto ganha nome, aparece uma dificuldade que vale conhecer antes de
+precisar dela.
+-/
+
+def bigger : Set Nat := {n | n > 2}
+
+/-! `decide` **não** fecha `3 ∈ bigger`: a mensagem é
+`failed to synthesize Decidable (3 ∈ bigger)`. O motivo é que `bigger` é um
+`def`, e `decide` não desdobra definições — para ele o objetivo é opaco.
+
+A saída é pedir o desdobramento: `simp [bigger]` reduz o objetivo a `3 > 2`, e
+fecha. Passar o nome de uma definição para o `simp` é o gesto mais útil deste
+arquivo, e vai ser preciso muitas vezes. -/
+
+example : 3 ∈ bigger := by simp [bigger]
+
+/-- **A1.** Prove que 5 pertence. -/
+example : 5 ∈ bigger := sorry
+
+/-- **A2.** Prove que 1 não pertence. `x ∉ A` abrevia `¬ (x ∈ A)`, que por sua
+vez é `x ∈ A → False`. -/
+example : 1 ∉ bigger := sorry
+
+/-! Inclusão não é operação nova: `A ⊆ B` afirma que todo elemento de `A` está
+em `B`, e provar começa com `intro`. -/
+
+def bigger5 : Set Nat := {n | n > 5}
+
+/-- **A3.** Prove a inclusão. Depois de `intro x h`, use
+`simp [bigger, bigger5] at *` para desdobrar as duas definições, e então
+`omega`. -/
+example : bigger5 ⊆ bigger := sorry
+
+/-! União e interseção são disjunção e conjunção elemento a elemento. As duas
+inclusões abaixo valem para conjuntos quaisquer, e as provas não precisam saber
+nada sobre eles. -/
+
+/-- **A4.** Todo conjunto está contido na sua união com outro. Depois do
+`intro`, `Or.inl` prova uma disjunção pelo lado esquerdo. -/
+example (A B : Set Nat) : A ⊆ A ∪ B := sorry
+
+/-- **A5.** E a interseção está contida em cada um dos dois. -/
+example (A B : Set Nat) : A ∩ B ⊆ A := sorry
+
+/-! A Mathlib tem esses dois últimos prontos, com os nomes
+`Set.subset_union_left` e `Set.inter_subset_left`. Aqui o exercício é escrever a
+prova, não encontrá-los — mas vale procurar depois, para ver como as coisas se
+chamam. Nos exercícios do livro, adiante, quando um lema da Mathlib *for* o
+enunciado, o texto diz qual é e proíbe usá-lo.
+
+Os itens marcados com **A** são aquecimento, e não vêm do livro. Os que vêm
+estão numerados como lá: `2.1`, `2.2`, e assim por diante.
+
+### Exercício 2.1 (p. 17)
 
 Explique por que `∅ ⊆ A` vale para todo conjunto `A`.
 
