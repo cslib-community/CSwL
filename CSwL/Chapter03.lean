@@ -1,4 +1,6 @@
 import Mathlib.Algebra.Group.Nat.Even
+import Mathlib.Data.Rel
+import Mathlib.Logic.Relation
 import Mathlib.Data.Set.Basic
 
 /-!
@@ -342,22 +344,89 @@ uma sentença é verdadeira num modelo será exatamente isso. -/
 
 /-! ## Relações
 
-Uma relação binária sobre `α` é uma função de dois argumentos que responde se
-o par está na relação. Vale aqui a mesma escolha de antes, entre calcular e
-enunciar.
+Um conjunto se apresenta pela função que responde se um elemento pertence. Uma
+relação binária faz o mesmo com _pares_: é a função que, dados dois elementos,
+responde se estão na relação. Em Lean isso não é analogia nenhuma — é a
+definição: -/
 
-A divisibilidade já vem na biblioteca, na versão que enuncia: `m ∣ n` afirma
-que existe um fator que leva de `m` a `n`, e provar é exibi-lo.
--/
+#print Rel
+
+/-! `Rel α β` é `α → β → Prop`. E aqui as duas metades deste capítulo se
+encontram: `TV`, o tipo do verbo transitivo da seção anterior, era
+`NP → NP → S`, isto é `Entity → Entity → Prop`. **O verbo transitivo denota uma
+relação binária, e seu tipo já dizia isso.**
+
+Para os exemplos, uma relação escrita por casos em vez de declarada `opaque`: -/
+
+def likesR : Entity → Entity → Prop
+  | .dorothy, .toto => True
+  | .toto, .dorothy => True
+  | _, _            => False
+
+#check (likesR : Rel Entity Entity)
+
+/-! ### Conversa
+
+A conversa de uma relação troca a ordem dos argumentos, e é `flip` quem faz
+isso. Em língua, é o que a voz passiva faz: _Dorothy likes Toto_ e _Toto is
+liked by Dorothy_ descrevem o mesmo par, em ordens opostas. -/
+
+#check (flip likesR)
+
+example : flip likesR .toto .dorothy = likesR .dorothy .toto := rfl
+
+/-! ### Composição
+
+Compor duas relações é encadeá-las por um elemento intermediário: `R` composta
+com `S` relaciona `x` a `z` quando existe um `y` com `x R y` e `y S z`. É
+`Relation.Comp`, e provar uma composição é exibir esse intermediário.
+
+Composição é o que define parentesco em cadeia: "avô" é "pai" composto com
+"pai". Aqui, quem gosta de quem gosta de quem: -/
+
+example : Relation.Comp likesR likesR .dorothy .dorothy :=
+  ⟨.toto, trivial, trivial⟩
+
+/-! ### Propriedades
+
+Reflexividade, simetria e transitividade se enunciam com quantificador e
+conectivo, e são afirmações sobre a relação inteira — não sobre um par. -/
+
+def Reflexive' (R : α → α → Prop) : Prop := ∀ x, R x x
+def Symmetric' (R : α → α → Prop) : Prop := ∀ x y, R x y → R y x
+def Transitive' (R : α → α → Prop) : Prop := ∀ x y z, R x y → R y z → R x z
+
+/-- `likesR` é simétrica, e a prova percorre os casos: `decide` não serve, porque
+`Prop` aqui não é decidível de graça, mas o casamento de padrão resolve. -/
+example : Symmetric' likesR := by
+  intro x y h
+  cases x <;> cases y <;> simp_all [likesR]
+
+/-! As três juntas dão uma _relação de equivalência_, e a biblioteca tem o nome
+pronto: `Equivalence`. A igualdade é o exemplo canônico. -/
+
+#check @Equivalence
+
+example : Equivalence (· = · : Entity → Entity → Prop) := eq_equivalence
+
+/-! ### Calcular ou enunciar, outra vez
+
+Vale a mesma escolha das seções anteriores. A divisibilidade vem na biblioteca
+na versão que enuncia — `m ∣ n` afirma que existe um fator que leva de `m` a
+`n`, e provar é exibi-lo — e ainda assim se calcula, porque a instância
+`Decidable` existe: -/
 
 example : (3 : Nat) ∣ 12 := ⟨4, rfl⟩
 
 #eval (3 ∣ 12 : Prop)
 #eval (5 ∣ 12 : Prop)
 
-/-- Relações em `Prop` se combinam com quantificadores e conectivos, e é assim
-que suas propriedades se enunciam. Reflexividade, por extenso: -/
 example : ∀ n : Nat, n ∣ n := fun _ => Nat.dvd_refl _
+
+/-! Relação é a estrutura que o capítulo 6 vai usar para dar modelo a um
+fragmento — um domínio de entidades e, para cada verbo, a relação que ele
+denota —, e o capítulo 10 volta a ela para tratar verbos de mais de dois
+lugares e o escopo entre eles. -/
 
 /-! ## Tipos como disciplina
 

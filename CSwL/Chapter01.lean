@@ -1,7 +1,7 @@
 /-!
 # 1. O estudo formal da língua natural
 
-_No livro: capítulo 1._
+Ref. CSwFP/1. Formal study of Natural Language.
 
 _Every student passed_ descreve um estado de coisas. Dizer o que a sentença
 significa é dizer em que situações ela é verdadeira: numa turma em que todos

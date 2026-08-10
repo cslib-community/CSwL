@@ -1,20 +1,19 @@
 /-!
 # 2. Programação funcional
 
-_No livro: capítulo 3 (`FPH`)._
+Ref. CSwFP/3 (`FPH`). Functional Programimg with Haskel. Adaptado para
+apresentar Lean.
 
 Um feixe de traços fonológicos e uma árvore sintática são o mesmo tipo de
 objeto: dados com forma, definidos por casos, percorridos por recursão. Quem
-sabe escrever o primeiro sabe escrever o segundo, e é por isso que os
-exemplos daqui — plural do sueco, harmonia vocálica, quem escreveu o quê —
-já são linguísticos, embora nenhuma teoria do significado tenha começado
-ainda.
+sabe escrever o primeiro sabe escrever o segundo, e é por isso que os exemplos
+daqui — plural do sueco, harmonia vocálica, quem escreveu o quê — já são
+linguísticos, embora nenhuma teoria do significado tenha começado ainda.
 
 Este é o capítulo em que Lean entra. Nada aqui pressupõe a linguagem: `def`,
-tipos, recursão e casamento de padrão se apresentam na hora. O capítulo 3
-retoma o mesmo material por outro lado — o que é uma função, o que é um tipo,
-o que é um conjunto — e é lá que o aparato ganha a leitura que a semântica
-vai usar.
+tipos, recursão e casamento de padrão se apresentam na hora. O capítulo 3 retoma
+o mesmo material por outro lado — o que é uma função, o que é um tipo, o que é
+um conjunto — e é lá que o aparato ganha a leitura que a semântica vai usar.
 -/
 
 namespace Chapter02
@@ -57,8 +56,9 @@ degrau: o tipo de `true` é `Bool`, o de `Bool` é `Type`, e o de `Type` é `Typ
 /-! A escada não para: há `Type 1`, `Type 2`, e assim por diante. Ela existe
 para que não exista um tipo de todos os tipos, o que produziria um paradoxo.
 Nada no curso vai depender de subir mais que um degrau; basta saber que a
-pergunta "qual o tipo disto?" tem sempre resposta.
+pergunta "qual o tipo disto?" tem sempre resposta. -/
 
+/-!
 ### O tipo das funções
 
 A seta `→` constrói um tipo novo a partir de dois. `Nat → String` é o tipo das
@@ -330,7 +330,92 @@ def story : Nat → String
 
 #eval IO.println (story 2)
 
-/-! ## Texto: `String` e `List Char`
+/-! ## Listas
+
+`List α` é o tipo das listas de elementos de `α`, e é um tipo indutivo como os
+da seção anterior: uma lista é vazia, `[]`, ou é um elemento seguido de uma
+lista, `x :: xs`. Nada mais. -/
+
+#print List
+
+/-! É por isso que a recursão sobre lista tem exatamente a forma da recursão
+sobre `Nat` — dois casos, e o segundo dá acesso a algo estritamente menor, aqui
+a cauda.
+
+### Polimorfismo
+
+O `α` em `List α` é um parâmetro: `List Nat` e `List String` são tipos
+diferentes, produzidos pelo mesmo `List`. Uma função que não olha para dentro
+dos elementos não tem por que se comprometer com um deles, e o tipo pode dizer
+isso.
+
+`{α : Type}` declara o parâmetro entre chaves, o que o torna _implícito_: Lean
+o descobre a partir do argumento, e quem chama não escreve. -/
+
+def size {α : Type} : List α → Nat
+  | []      => 0
+  | _ :: xs => 1 + size xs
+
+#eval size [10, 20, 30]
+#eval size ["Chomsky", "Montague"]
+
+/-! O mesmo `size` serve para as duas listas, sem conversão no meio. Essa é a
+forma que quase todo tipo do curso vai ter: o fragmento da língua se declara uma
+vez e vale para o domínio de entidades que o modelo fornecer.
+
+## Percorrer listas
+
+Quatro operações cobrem quase todo uso de lista no curso. Todas se escreveriam
+por recursão, como `size` acima, mas já existem — e o hábito a adquirir é
+procurar antes de escrever.
+
+`map` aplica uma função a cada elemento; `filter` guarda os que satisfazem uma
+condição. -/
+
+def entities : List String := ["Dorothy", "Toto", "Aunt Em", "Scarecrow"]
+
+#eval entities.map String.length
+#eval entities.filter (fun e => e.length > 4)
+
+/-! `all` e `any` perguntam se _todos_ os elementos satisfazem uma condição, ou
+se _algum_ satisfaz. Devolvem `Bool`, e portanto se calculam. -/
+
+#eval entities.all (fun e => e.length > 2)
+#eval entities.any (fun e => e.startsWith "T")
+
+/-! E a composição: `f ∘ g` é a função que aplica `g` e depois `f`, de modo que
+`(f ∘ g) x` é `f (g x)`. Ela produz função nova sem nomear argumento nenhum —
+`double ∘ double` é quadruplicar. -/
+
+#eval (double ∘ double) 5
+
+#eval entities.map (size ∘ String.toList)
+
+/-! ### Onde isso vai dar
+
+Vale parar aqui, porque `all` e `any` não são conveniência de programação: são
+como a quantificação vai ser **calculada**.
+
+Sobre um domínio finito, "todo `P` é `Q`" é: tome os elementos que são `P` e
+pergunte se todos são `Q` — `filter` seguido de `all`. E "algum `P` é `Q`" é
+`filter` seguido de `any`. Escrito, é isto: -/
+
+def every (p q : String → Bool) : Bool := (entities.filter p).all q
+def exists' (p q : String → Bool) : Bool := (entities.filter p).any q
+
+def isLong (e : String) : Bool := e.length > 4
+def hasSpace (e : String) : Bool := e.any (· == ' ')
+
+#eval every  isLong hasSpace
+#eval exists' isLong hasSpace
+
+/-! No capítulo 7 o determinante *every* é literalmente essa definição, com
+entidades no lugar de `String`. Que um quantificador seja uma função de dois
+predicados em um valor de verdade é a ideia central daquele capítulo; que ele se
+_calcule_ assim, percorrendo um domínio finito, é a do capítulo 6. Aqui basta ver
+que a operação é ordinária, e que já se sabe escrevê-la.
+
+## Texto: `String` e `List Char`
 
 `String` é uma sequência UTF-8 empacotada. Isso a torna eficiente para
 guardar texto e inadequada para percorrer: não há padrão `c :: cs` para casar
