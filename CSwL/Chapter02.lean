@@ -1,401 +1,603 @@
-import Mathlib.Algebra.Group.Nat.Even
-import Mathlib.Data.Set.Basic
-
 /-!
-# 2. Funções, tipos e abstração
+# 2. Programação funcional
 
-Construir o significado de uma sentença a partir do significado de suas
-partes exige quatro noções: função, aplicação, tipo e relação. Em Lean elas
-não são notação auxiliar em torno da linguagem — são a linguagem. Uma função
-é um valor que se pode nomear, passar adiante e aplicar parcialmente. Um tipo
-é uma afirmação sobre o que um valor pode ser, e o verificador de tipos a
-checa. Um conjunto é a função que decide a pertinência.
+_No livro: capítulo 3 (`FPH`)._
+
+Um feixe de traços fonológicos e uma árvore sintática são o mesmo tipo de
+objeto: dados com forma, definidos por casos, percorridos por recursão. Quem
+sabe escrever o primeiro sabe escrever o segundo, e é por isso que os
+exemplos daqui — plural do sueco, harmonia vocálica, quem escreveu o quê —
+já são linguísticos, embora nenhuma teoria do significado tenha começado
+ainda.
+
+Este é o capítulo em que Lean entra. Nada aqui pressupõe a linguagem: `def`,
+tipos, recursão e casamento de padrão se apresentam na hora. O capítulo 3
+retoma o mesmo material por outro lado — o que é uma função, o que é um tipo,
+o que é um conjunto — e é lá que o aparato ganha a leitura que a semântica
+vai usar.
 -/
 
 namespace Chapter02
 
+/-! ## Termos e tipos
+
+Tudo em Lean é um _termo_, e todo termo tem um _tipo_. Um tipo é uma coleção de
+termos; um termo é um elemento dela. `100` é um termo do tipo `Nat`, e
+`"Chomsky"` é um termo do tipo `String`.
+
+`def` dá nome a um termo. Os dois-pontos anunciam o tipo, e o `:=` dá o valor:
+-/
+
+def n : Nat := 100
+def author : String := "Chomsky"
+
+/-! Há dois comandos para interrogar o que se escreveu, e a diferença entre eles
+organiza tudo o que vem depois. `#eval` **calcula** o valor; `#check` **pergunta
+ou confirma o tipo**, sem calcular nada. -/
+
+#eval  n
+#check n
+
+#eval  author
+#check author
+
+/-! O tipo não precisa ser declarado quando Lean consegue descobri-lo sozinho.
+Escrever `def n := 100` funciona — mas escrever o tipo é conveniente e ajuda a
+tornar o código mais legível.
+
+Tipos também são termos, e portanto têm tipo. Perguntar pelo tipo sobe um
+degrau: o tipo de `true` é `Bool`, o de `Bool` é `Type`, e o de `Type` é `Type
+1`. -/
+
+#check true
+#check Bool
+#check Nat
+#check Type
+
+/-! A escada não para: há `Type 1`, `Type 2`, e assim por diante. Ela existe
+para que não exista um tipo de todos os tipos, o que produziria um paradoxo.
+Nada no curso vai depender de subir mais que um degrau; basta saber que a
+pergunta "qual o tipo disto?" tem sempre resposta.
+
+### O tipo das funções
+
+A seta `→` constrói um tipo novo a partir de dois. `Nat → String` é o tipo das
+funções que recebem um `Nat` e devolvem uma `String` — e é um tipo como qualquer
+outro, o que se confirma perguntando: -/
+
+#check Nat → String
+
+/-! Essa é a construção que o curso inteiro vai usar. No capítulo 3 ela
+reaparece como a operação básica da semântica: um verbo intransitivo é uma
+função de entidades em valores de verdade, e isso é literalmente um tipo com
+uma seta.
+
+## Uma primeira função
+
+O tipo vem primeiro. `Int → Int` é uma promessa, e o corpo da definição tem
+de cumpri-la; enquanto não cumprir, o arquivo não compila.
+
+Na definição abaixo, `(x : Int)` declara o parâmetro e o `: Int` final declara
+o resultado — juntos, dizem que `square` é uma função de `Int` em `Int`.
+
+-/
+
+def square (x : Int) : Int := x * x
+
+#eval square 7
+#eval square (-3)
+#eval square (square 7)
+
+/-! Perguntado sobre um nome que foi definido, o `#check` responde com a
+assinatura, e não com o tipo na forma de seta. Envolver o nome em parênteses
+força a segunda forma. As duas dizem o mesmo: -/
+
+#check square
+#check (square)
+
+
 /-! ## Funções são valores
 
-Uma função pode ser escrita sem receber nome. `fun x => e` é a função que
-leva `x` em `e`; essa notação é a abstração lambda, e é a operação básica
-para construir funções.
+O nome é acessório. Uma função pode ser escrita sem receber nenhum: `fun x => e`
+é a função que leva `x` em `e`, e essa notação — a abstração lambda — é a
+operação básica para construir funções. O `def` acima apenas deu nome ao valor
+que ela produz.
 
-`#check` mostra o tipo do que se escreveu, sem avaliar. `#eval` avalia.
--/
+A seta `↦` e o `=>` são a mesma coisa, como `λ` e `fun`; a escolha é de gosto.
+As duas linhas abaixo são, portanto, a mesma função: -/
+
+#check (λ x ↦ x * x)
+#check (fun x => x * x)
+
+/-! A resposta dessas duas é estranha, e vale entender por quê. Sem dizer o
+tipo de `x`, Lean não tem como saber em que `*` se está pensando — o de `Nat`,
+o de `Int`, o de qualquer outro tipo com multiplicação. O que aparece no lugar
+do tipo (`?m.7`, e coisas assim) é uma _metavariável_: um buraco que Lean
+deixa em aberto à espera de informação que decida a questão.
+
+Anotar o argumento resolve, e a resposta passa a ser o tipo esperado: -/
 
 #check fun (x : Nat) => x * x
+
+/-! O contexto também resolve, quando existe. Aplicada a `4`, a função não tem
+mais o que decidir: -/
+
 #eval (fun (x : Nat) => x * x) 4
 
-/-- Dar nome a uma função é nomear esse valor. -/
-def square : Nat → Nat := fun x => x * x
+/-! ### Funções que recebem e devolvem funções
 
-/-- Escrever o argumento à esquerda dos dois-pontos é a mesma definição, em
-forma mais curta. -/
-def square' (x : Nat) : Nat := x * x
+Se função é valor, então nada impede que ela seja _argumento_ de outra função.
+`g` recebe uma função de `Nat` em `Nat` e a aplica a um número: o primeiro
+parâmetro tem tipo com seta, e é isso que o torna uma função de ordem
+superior. -/
 
-/-- `rfl` prova uma igualdade que vale por cálculo: os dois lados reduzem ao
-mesmo valor. -/
-example : square 4 = square' 4 := rfl
+def g (f : Nat → Nat) (x : Nat) : Nat := f x
 
-/-! ## Aplicação parcial
+#eval g (λ x => x + 1) 10
 
-Uma função de dois argumentos é uma função que, aplicada ao primeiro,
-devolve uma função à espera do segundo. A seta em `Nat → Nat → Nat` associa
-à direita: leia como `Nat → (Nat → Nat)`.
+/-! Nem que ela seja _resultado_. `h` recebe um número e devolve uma função,
+como o tipo anuncia — o `(Nat → Nat)` à direita dos dois-pontos é o tipo do
+resultado. Para obter um número, é preciso aplicar duas vezes: -/
 
-Aplicar só o primeiro argumento é legítimo, e o tipo do resultado registra o
-que falta. É por isso que a composição de significados vai funcionar tão bem
-adiante: um verbo transitivo recebe seu objeto e fica esperando o sujeito.
--/
+def h (x : Nat) : (Nat → Nat) := fun y => x + y
+
+#check h 10
+#eval  (h 10) 10
+
+/-! ## Tudo é expressão
+
+Uma expressão tem valor e tipo; um comando faz algo e não devolve nada. Em
+Lean não há a segunda categoria — o que em outras linguagens é comando aqui é
+expressão, e portanto pode aparecer em qualquer lugar onde um valor cabe.
+
+`let` nomeia um valor dentro de uma expressão, e a expressão inteira tem
+valor: -/
+
+def twenty : Nat := (let a := 10; a) + (let b := 10; b)
+
+#eval twenty
+
+/-! O `if`-`then`-`else` também é expressão, e não desvio de fluxo: os dois
+ramos têm de ter o mesmo tipo, porque o `if` inteiro tem _um_ tipo. É por isso
+que o resultado pode ser atribuído: -/
+
+#eval
+  let a := if 5 < 10 then 1 else 0
+  a            -- 1
+
+/-! ## Uma primeira prova
+
+Que as duas grafias — o lambda e o argumento à esquerda dos dois-pontos — dão
+a mesma função não é analogia. As duas definições abaixo são o mesmo termo: -/
+
+def double : Nat → Nat := fun x => 2 * x
+def double' (x : Nat) : Nat := 2 * x
+
+/-! Afirmar isso é escrever uma igualdade, e uma igualdade é uma _proposição_:
+algo que se pode enunciar e demonstrar. O `#check` confirma que `double =
+double'` é uma proposição — note que perguntar pelo tipo não é o mesmo que
+decidir se ela é verdadeira: -/
+
+#check (double = double')
+
+/-! Provar é dar um termo cujo tipo é a proposição. Para uma igualdade em que
+os dois lados reduzem ao mesmo valor, o termo é `rfl` — de _reflexividade_,
+que é o princípio de que tudo é igual a si mesmo. Escrito com `by`, `rfl` é
+uma _tática_: uma instrução para construir a prova. -/
+
+theorem doubleFive : double 5 = 10 := by rfl
+
+/-! O que a tática construiu se pode inspecionar. `#print` mostra a prova como
+termo, e o termo é `Eq.refl` — a reflexividade da igualdade, aplicada aqui: -/
+
+#print doubleFive
+
+/-! E a igualdade das duas funções, que era o ponto: -/
+
+theorem doubleEqDouble : double = double' := rfl
+
+/-! Este é todo o aparato de prova que o capítulo usa. Ele volta no capítulo 3,
+com os tipos, e é assunto do capítulo 6, onde verificar se uma sentença é
+verdadeira num modelo passa a ser exatamente essa questão — enunciar algo
+versus calculá-lo.
+
+Quem quiser praticar Lean por si, fora do curso, o _Natural Number Game_
+(<https://adam.math.hhu.de/#/g/leanprover-community/nng4/>) é o caminho curto.
+Nada do que vem depois depende dele.
+
+## Aplicação parcial
+
+Uma função de dois argumentos é, na verdade, uma função de um argumento que
+devolve outra função. A seta associa à direita, e o tipo diz isso:
+`Nat → Nat → Nat` lê-se `Nat → (Nat → Nat)`.
+
+A consequência prática é que aplicar só o primeiro argumento é legítimo, e o
+tipo do resultado registra o que ainda falta. -/
 
 def add (m n : Nat) : Nat := m + n
 
-#check add          -- Nat → Nat → Nat
-#check add 3        -- Nat → Nat
+#check (add)
+#check add 3
 #eval  (add 3) 4
-#eval  add 3 4      -- a aplicação também associa à esquerda
+#eval  add 3 4      -- a aplicação associa à esquerda
 
-/-! ## O cálculo lambda
+/-! Guardar uma aplicação parcial num nome é o uso comum disso: -/
 
-A notação `fun x => e` não é invenção de linguagem de programação. Ela resolve
-uma ambiguidade real, e vale ver qual.
+def add3 : Nat → Nat := add 3
 
-A expressão `x² + y` não determina uma função. Ela pode ser lida como função de
-`x`, com `y` fixo; como função de `y`, com `x` fixo; ou como função dos dois. O
-que falta é dizer qual variável é o parâmetro — e o operador lambda é
-exatamente o marcador que diz isso. Em `λx ↦ x² + y`, o `x` está **ligado** e o
-`y` está **livre**.
+#eval add3 4
 
-O nome da variável ligada não importa: `λz ↦ z² + y` é a mesma função. E isso
-não é convenção — em Lean as duas são o mesmo termo, e o `rfl` prova:
+/-! ## Tipos definidos por casos
+
+`inductive` declara um tipo listando as formas que seus valores podem ter.
+Quando nenhuma forma carrega argumento, o tipo é uma enumeração; quando
+carrega, é um registro variante; quando a forma se refere ao próprio tipo
+sendo definido, é uma árvore. As três coisas são o mesmo mecanismo.
+
+Essa é a construção mais importante do curso. O capítulo 3 mostra que uma
+gramática escrita na notação usual — a Forma de Backus-Naur — é literalmente
+um tipo `inductive`, e do capítulo 4 em diante todo fragmento da língua é
+declarado assim.
+
+A enumeração é o caso mais simples: cinco formas, nenhuma com argumento.
+`deriving Repr, DecidableEq` pede que a exibição e o teste de igualdade sejam
+gerados em vez de escritos à mão.
 -/
 
-example : (fun (x : Nat) => x * x) = (fun (z : Nat) => z * z) := rfl
+/-- As cinco classes de declinação do plural em sueco. -/
+inductive DeclClass where
+  | One | Two | Three | Four | Five
+deriving Repr, DecidableEq
 
-/-! ### A gramática dos termos
+#check DeclClass.Three
+#eval  DeclClass.Three
 
-O cálculo lambda tem três formas de construir expressão, e nada mais. Escritas
-na notação usual para gramáticas — a Forma de Backus-Naur, ou BNF:
+/-! ### Os naturais são um tipo indutivo
 
-```
-E ::= v | (E E) | (λv ↦ E)
-```
+Isso não vale só para os tipos que se declara: os que vêm com a linguagem são
+declarados do mesmo modo, e `#print` mostra a declaração. `Bool` é a
+enumeração de duas formas; `Nat` é o caso em que uma das formas se refere ao
+próprio tipo que está sendo definido: -/
 
-Leia: uma expressão é uma variável, ou a justaposição de duas expressões
-(aplicação), ou um lambda seguido de variável e expressão (abstração). A última
-cláusula é implícita e importante: **nada além disso é expressão**.
+#print Bool
+#print Nat
 
-Uma gramática BNF é uma definição indutiva, e uma definição indutiva é um tipo
-`inductive`. As duas coisas são a mesma, escritas em notações diferentes:
+/-! Ou seja: um natural é `Nat.zero`, ou é `Nat.succ n` para algum natural
+`n`, e nada mais. O `2` que se escreve é notação para `Nat.succ (Nat.succ
+Nat.zero)` — o mesmo termo, como `rfl` verifica: -/
+
+example : 2 = Nat.succ (Nat.succ Nat.zero) := rfl
+
+/-! Duas consequências disso organizam a seção seguinte.
+
+A primeira: _casar padrão_ é perguntar por qual das formas um valor foi
+construído. Como as formas são conhecidas e são todas, Lean consegue conferir
+se uma definição por casos tratou o tipo inteiro.
+
+A segunda: como cada `Nat.succ n` guarda dentro de si um `n` menor, a recursão
+sobre naturais tem por onde descer.
+
+## Recursão
+
+Uma definição recursiva precisa de dois cuidados: ter caso base, e chegar
+nele. O segundo não é uma recomendação — é uma exigência que o compilador
+verifica, e a definição é rejeitada se ele não conseguir ver que a recursão
+termina.
+
+Em `Nat`, os dois casos do tipo dão as duas coisas de uma vez. Casar por `0` e
+`n + 1` — que é como se escreve `Nat.zero` e `Nat.succ n` — cobre o tipo
+inteiro: o caso base é `0`, e a chamada recursiva recebe o `n` que estava
+dentro do `succ`, necessariamente menor. Não há um terceiro caso a esquecer, e
+não há argumento para o qual a função não responda.
 -/
 
-/-- A gramática acima, como tipo. Cada cláusula da BNF virou um construtor. -/
-inductive Lam where
-  | var (name : String)
-  | app (fn arg : Lam)
-  | lam (binder : String) (body : Lam)
+/-- O fatorial é o exemplo mínimo dessa forma: um caso base e um caso que
+chama a si mesmo com um argumento menor. -/
+def factorial : Nat → Nat
+  | 0       => 1
+  | .succ n => (n + 1) * factorial n
 
-/-! Essa correspondência é o motor do curso. Do capítulo 4 em diante, cada
-fragmento da língua vai ser dado por uma gramática, e a gramática vai ser um
-tipo `inductive` — o que torna "esta expressão é bem formada" a mesma coisa
-que "este termo tem esse tipo".
+#eval factorial 5
+#eval factorial 0
 
-Aqui, `Lam` fica como ilustração e não será usado: o cálculo lambda que
-interessa é o próprio Lean, não uma cópia dele dentro de Lean.
+/-- A mesma função sem casar padrão, decidindo o caso base com um `if`. Funciona,
+e serve de contraste: aqui o argumento da chamada recursiva é `x - 1`, e que ele
+seja menor que `x` é um fato a ser verificado, não algo que a forma da definição
+já garanta. Neste caso Lean verifica sozinho; em definições menos óbvias, não —
+e aí a prova de terminação passa a ser trabalho do programador. Casar por `0` e
+`n + 1` dispensa a questão, e é por isso que é a forma preferida no texto. -/
+def factorial' (x : Nat) : Nat :=
+  if x = 0 then 1
+  else x * factorial' (x - 1)
 
-### Redução
+def gen : Nat → String
+  | 0     => "Sentences can go on"
+  | n + 1 => gen n ++ " and on"
 
-O que se faz com uma aplicação é substituir. A regra é uma só:
+def genS (n : Nat) : String := gen n ++ "."
 
-```
-(λx ↦ E) A  →  E[x := A]
-```
+#eval genS 3
 
-onde `E[x := A]` é `E` com toda ocorrência livre de `x` trocada por `A`. Isso é
-a β-redução, e é o único mecanismo de cálculo do cálculo lambda inteiro.
+/-- Recursão que encaixa uma fala dentro da outra: o chefe dos canibais
+repete, entre aspas, o discurso do chefe anterior. -/
+def story : Nat → String
+  | 0     => "Let's cook and eat that final missionary, and off to bed."
+  | k + 1 =>
+      "The night was pitch dark, mysterious and deep.\n"
+    ++ "Ten cannibals were seated around a boiling cauldron.\n"
+    ++ "Their leader got up and addressed them like this:\n'"
+    ++ story k ++ "'"
 
-Em Lean essa redução é o que o `#eval` executa e o que o `rfl` verifica:
+#eval IO.println (story 2)
+
+/-! ## Texto: `String` e `List Char`
+
+`String` é uma sequência UTF-8 empacotada. Isso a torna eficiente para
+guardar texto e inadequada para percorrer: não há padrão `c :: cs` para casar
+diretamente numa `String`.
+
+A divisão de trabalho é essa — `String` para armazenar, `List Char` para
+computar. Converte-se com `.toList`, faz-se a recursão na lista, onde o
+padrão existe, e volta-se com `String.ofList`.
 -/
 
-example : (fun (x : Nat) => x + 42) 5 = 5 + 42 := rfl
+def hword : List Char → Bool
+  | []      => false
+  | c :: cs => c == 'h' || hword cs
 
-/-! ### Captura de variável
+#eval hword "shrimptoast".toList
+#eval hword "antiquing".toList
 
-Substituir ingenuamente dá errado, e o exemplo clássico merece atenção porque
-o erro é silencioso. Considere aplicar `λyλx ↦ x + y` ao argumento `x`.
+def reversal : List Char → List Char
+  | []     => []
+  | c :: t => reversal t ++ [c]
 
-Trocando `y` por `x` sem cuidado, obtém-se `λx ↦ x + x` — a função que soma um
-número a si mesmo. Mas o resultado correto é a função que soma `x` a um número
-dado: o `x` que veio de fora foi **capturado** pelo `λx` que já estava lá. Que
-o resultado é outro se vê renomeando antes: `λyλz ↦ z + y` aplicado a `x` dá
-`λz ↦ z + x`, que é o certo.
+#eval String.ofList (reversal "Chomsky".toList)
 
-A saída é renomear a variável ligada quando houver risco de captura. Lean faz
-isso sozinho — internamente as variáveis ligadas não têm nome, e o problema não
-existe:
+/-- Remove o último caractere. -/
+def initS (s : String) : String := String.ofList s.toList.dropLast
+
+#eval initS "flicka"
+
+/-! ## O plural do sueco
+
+Com o `inductive` e a recursão em texto, dá para escrever uma regra
+morfológica de verdade. O sueco distribui os substantivos em cinco classes de
+declinação, e a forma do plural depende da classe — `DeclClass`, declarada
+acima, é exatamente esse tipo.
 -/
 
-example (x : Nat) : (fun y => fun z => z + y) x = (fun z => z + x) := rfl
+-- Vogais fora do ASCII: 'ä' = 228, 'å' = 229, 'ö' = 246, 'ø' = 248.
+def aUml   : Char := Char.ofNat 228
+def aRing  : Char := Char.ofNat 229
+def oUml   : Char := Char.ofNat 246
+def oSlash : Char := Char.ofNat 248
 
-/-! ### Funções são dados
+def swedishVowels : List Char :=
+  ['a','i','o','u','e','y', aUml, aRing, oUml, oSlash]
 
-Abstração e aplicação, como definidas, não distinguem dados de funções. Se
-tudo é expressão, então uma função pode receber função, devolver função, e ser
-aplicada a si mesma. Não há duas categorias de coisas.
+/-- A forma do plural é determinada pela classe de declinação. Na terceira
+classe ela depende também de a palavra terminar ou não em vogal: uma regra
+morfológica que consulta a forma fonológica. -/
+def swedishPlural (noun : String) : DeclClass → String
+  | .One   => initS noun ++ "or"
+  | .Two   => initS noun ++ "ar"
+  | .Three => if swedishVowels.contains noun.back then noun ++ "r"
+              else noun ++ "er"
+  | .Four  => noun ++ "n"
+  | .Five  => noun
 
-É isso que permite escrever uma função que aplica outra a um argumento fixo: -/
+#eval swedishPlural "flicka" .One
+#eval swedishPlural "pojke"  .Two
+#eval swedishPlural "rad"    .Three
+#eval swedishPlural "ko"     .Three
+#eval swedishPlural "hus"    .Five
 
-def applyToDragon (f : String → String) : String := f "dragon"
 
-def pluralize (w : String) : String := w ++ "s"
+/-! ## Quando não há resposta
 
-#eval applyToDragon pluralize
+Uma função de tipo `List α → α` promete devolver um elemento para qualquer
+lista que receba. Para a lista vazia não existe elemento nenhum, e a promessa
+é impossível — não por falta de cuidado do programador, mas porque o tipo
+afirma algo falso.
 
-/-! ### Por que isso serve à semântica
-
-Um verbo transitivo é uma função de dois lugares. *Likes* se escreve
-`λxλy ↦ y likes x`, onde `likes` é a função característica da relação de
-gostar: aplicada a duas entidades, responde se a primeira gosta da segunda.
-
-Repare no que a notação **não** diz. Ela não diz o que *likes* significa no
-mundo. Diz apenas com que outras expressões o verbo se combina e que papel
-desempenha na expressão maior — e é justamente por dizer só isso que o cálculo
-lambda serve à semântica composicional. A derivação do significado pode então
-acompanhar, passo a passo, a estrutura sintática da sentença.
-
-## Tipos
-
-No cálculo lambda como está, toda expressão se aplica a toda expressão. Nada
-impede escrever o número `4` aplicado a uma função, e o resultado não é falso —
-é sem sentido. Tipos existem para excluir isso.
-
-A gramática dos tipos também é uma BNF, com duas cláusulas:
-
-```
-τ ::= b | (τ → τ)
-```
-
-Há tipos básicos, e há tipos de função construídos a partir deles. Na
-semântica, os dois básicos costumam ser `e`, das entidades, e `t`, dos valores
-de verdade. Em Lean, `t` é `Prop`.
-
-E a atribuição de tipos a expressões se dá por três regras:
-
-* **variáveis** — para cada tipo há variáveis daquele tipo;
-* **abstração** — se `x : δ` e `E : τ`, então `(λx ↦ E) : δ → τ`;
-* **aplicação** — se `E₁ : δ → τ` e `E₂ : δ`, então `(E₁ E₂) : τ`.
-
-Não há mais nada. O `#check` do Lean é essas três regras rodando:
+A correção é no tipo, não no corpo: `List α → Option α` promete devolver _ou_
+um elemento (`some x`) _ou_ nada (`none`). Quem chama fica obrigado a tratar
+os dois casos. O ganho é que o caso sem resposta deixa de ser invisível: ele
+está na assinatura, e não há como esquecê-lo.
 -/
 
-/-- O domínio de entidades. Duas bastam para os exemplos desta seção. -/
-inductive Entity where
-  | dorothy | toto
-deriving DecidableEq
+def myLast {α : Type} : List α → Option α
+  | []      => none
+  | [x]     => some x
+  | _ :: xs => myLast xs
 
-/-- `happy` é uma propriedade de entidades: aplicada a uma, dá uma afirmação.
-`opaque` declara o nome com o tipo e sem corpo — aqui o assunto são os tipos,
-e qualquer definição serviria. -/
-opaque happy : Entity → Prop
+#eval myLast [1,2,3]
+#eval myLast ([] : List Nat)
+
+def average (xs : List Int) : Option Rat :=
+  if xs.isEmpty then none
+  else some ((xs.sum : Rat) / (xs.length : Rat))
+
+#eval average [1,2,3,4]
+#eval average []
+
+-- Nem toda função da biblioteca é honesta desse modo: algumas devolvem um
+-- valor default no caso ruim, em vez de `Option`. `String.back` é uma delas,
+-- e vale conhecer as que são assim.
+#eval "rad".back
+#eval "".back      -- não é erro, é o `Char` default
+
+
+/-! ## Classes de tipos
+
+`count` conta ocorrências em qualquer lista cujos elementos se possam
+comparar. Essa exigência entra na assinatura entre colchetes, `[BEq α]`: uma
+instância de igualdade para `α`, que Lean encontra sozinho no ponto de uso.
+
+Duas noções de igualdade convivem, e vale separá-las desde já:
+
+* `BEq α` devolve `Bool` e se escreve `==`. Serve para calcular.
+* `DecidableEq α` devolve uma _prova_ de igualdade ou de desigualdade.
+  Permite usar `=` num `if` e usar o resultado numa demonstração.
+
+Essa diferença — entre calcular uma resposta e afirmar algo que se prova —
+volta no capítulo 3 como a distinção entre `Bool` e `Prop`, e é o assunto do
+capítulo 6, onde verificar uma sentença num modelo será exatamente calcular
+o que em geral só se enunciaria.
+-/
+
+def count [BEq α] (x : α) : List α → Nat
+  | []      => 0
+  | y :: ys => if x == y then count x ys + 1 else count x ys
+
+#eval count 'e' "temperate".toList
+#eval count "thou" ["thou","art","thou"]
+
+/-! ### Declarar sem definir
+
+Com classes de tipos à mão, cabe explicar uma construção que o capítulo 3 vai
+usar muito. Às vezes interessa dizer que uma função _existe_, com um certo tipo,
+sem dizer qual função é. `opaque` faz isso: declara o nome com o tipo e não dá
+corpo.
+
+O uso tem conteúdo semântico. No capítulo 3, o verbo *likes* é declarado assim,
+porque o tipo do verbo diz com que expressões ele se combina — e é só disso que
+a sintaxe precisa. _Qual_ relação o verbo denota é assunto do modelo, e o
+capítulo 6 é que vai fixá-la. `opaque` é essa divisão posta em código. -/
+
+opaque triple : Int → Int
+
+#check triple
+#check triple 10
+
+/-! O `#check` responde, porque conferir tipo não precisa do corpo. O `#eval`
+não teria como calcular — e o que ele devolve merece atenção, porque não é erro
+e não é o valor da função: -/
+
+#eval triple 10
+
+/-! `0` é o valor _default_ de `Int`. Para aceitar um `opaque`, Lean exige que o
+tipo seja **habitado**: que exista pelo menos um valor nele, sem o quê a
+declaração afirmaria que existe algo impossível. E é uma classe de tipos que
+registra isso — `Inhabited α`, cuja instância fornece o valor default de `α`.
+Declarar `opaque bad : T` para um `T` vazio é recusado com
+`failed to synthesize 'Inhabited' or 'Nonempty' instance`; é a mesma busca de
+instância do `[BEq α]` acima, falhando por não haver o que encontrar. Como o
+corpo não existe, é esse valor default que o `#eval` acaba exibindo.
+
+A regra prática: `opaque` serve para raciocinar sobre tipos, não para calcular.
+Onde ele aparecer, `#eval` não é a pergunta certa — `#check` é. -/
+
+
+/-! ## Um primeiro fragmento linguístico
+
+Sujeito, predicado e sentença como tipos. A estrutura deixa de ser texto e
+passa a ser um valor, e o verificador de tipos passa a recusar as combinações
+que não são sentenças. Este é o embrião do capítulo 4.
+
+`ToString` é a instância que diz como exibir um valor para leitores. É
+distinta de `Repr`, que existe para depuração e mostra a estrutura interna.
+-/
+
+inductive Subject where
+  | Chomsky | Montague
+deriving Repr, DecidableEq
+
+inductive Predicate where
+  | Wrote (title : String)
+deriving Repr
+
+inductive Sentence where
+  | S (subj : Subject) (pred : Predicate)
+
+abbrev Sentences := List Sentence
+
+instance : ToString Subject where
+  toString
+    | .Chomsky  => "Chomsky"
+    | .Montague => "Montague"
+
+instance : ToString Predicate where
+  toString | .Wrote t => s!"wrote \"{t}\""
+
+instance : ToString Sentence where
+  toString | .S s p => s!"{s} {p}"
+
+def makeP (title : String) : Predicate := .Wrote title
+def makeS (s : Subject) (p : Predicate) : Sentence := .S s p
+
+#eval toString (makeS .Chomsky (makeP "Syntactic Structures"))
+
+/-! ## Fonemas como feixes de traços
+
+Harmonia vocálica é o fenômeno em que as vogais de uma palavra têm de
+concordar em algum traço — em turco e em finlandês, no traço de anterioridade.
+Descrevê-la como substituição de letras erra o alvo: o processo não vê letras,
+vê traços fonológicos, e a letra é só a realização de superfície.
+
+Então o fonema não é um `Char`. É um conjunto de traços, e cada traço é um par
+atributo/valor. Com essa representação, a harmonia vocálica é uma operação de
+uma linha: forçar um traço a um valor.
+
+Um `structure` diz melhor o que se quer aqui que um construtor com dois
+argumentos posicionais — os campos ganham nome, e `f.attr` e `f.value` passam
+a existir.
+-/
+
+inductive Attr where
+  | Back | High | Round | Cons
+deriving Repr, DecidableEq, BEq
+
+inductive Value where
+  | Plus | Minus
+deriving Repr, DecidableEq, BEq
+
+structure Feature where
+  attr  : Attr
+  value : Value
+deriving Repr, DecidableEq, BEq
+
+abbrev Phoneme := List Feature
 
 section
-variable (x : Entity)
+open Attr Value
 
--- regra da aplicação: `happy : Entity → Prop` e `x : Entity`, logo `happy x : Prop`
-#check happy x
-
--- regra da abstração: `x : Entity` e `happy x : Prop`, logo o lambda é `Entity → Prop`
-#check fun (y : Entity) => happy y
+def i : Phoneme := [⟨Cons, Minus⟩, ⟨High, Plus⟩,  ⟨Round, Minus⟩, ⟨Back, Minus⟩]
+def a : Phoneme := [⟨Cons, Minus⟩, ⟨High, Minus⟩, ⟨Round, Minus⟩, ⟨Back, Plus⟩]
+def u : Phoneme := [⟨Cons, Minus⟩, ⟨High, Plus⟩,  ⟨Round, Plus⟩,  ⟨Back, Plus⟩]
 
 end
 
-/-! ### Tipos e categorias sintáticas
+/-- Consulta o valor de um traço no feixe. `Option` outra vez: o traço pode
+não estar especificado. -/
+def fValue (attr : Attr) : Phoneme → Option Value
+  | []      => none
+  | f :: fs => if f.attr == attr then some f.value else fValue attr fs
 
-Aqui está a observação que amarra as duas metades do assunto. Tipos, em
-programação e no cálculo lambda, se comportam como **categorias sintáticas** em
-gramática.
+#eval fValue .High i
+#eval fValue .High a
+#eval fValue .Back ([] : Phoneme)
 
-Categorias como NP correspondem a tipos básicos: expressões completas, que
-carregam significado por si. Categorias como VP correspondem a tipos de função:
-expressões incompletas, cujo significado consiste na contribuição que dão à
-expressão em que aparecem.
+/-- Força um traço a um valor. É a operação da harmonia vocálica. -/
+def fMatch (attr : Attr) (value : Value) (fs : Phoneme) : Phoneme :=
+  fs.map fun f => if f.attr == attr then { f with value := value } else f
 
-Sob essa leitura, uma regra de reescrita como `S → NP VP` diz uma coisa sobre
-tipos: se `a : NP` e `b : VP`, então a concatenação de `a` e `b` é um `S`. E se
-o VP é o que combina com um NP para dar um S, então o próprio VP tem tipo
-`NP → S` — a categoria deixa de ser um rótulo e passa a ser uma função.
+#eval fMatch .Back .Plus i
 
-Essa é a ideia da **gramática categorial**, que vem de Ajdukiewicz. Um verbo
-transitivo, que combina com dois NPs, tem tipo `NP → (NP → S)`. A regra de
-combinação é uma só: uma expressão de categoria `A` combina com uma de
-categoria `A → B` e produz uma de categoria `B` — isto é, aplicação.
+/-- A realização de superfície: qual letra corresponde a este feixe.
 
-Em Lean isso se escreve diretamente, e o verificador de tipos passa a validar a
-derivação:
--/
+A função é total, e tem de ser: um feixe arbitrário pode não corresponder a
+nenhuma vogal do inventário, e `none` é a resposta correta nesse caso. O
+último exemplo mostra por que isso importa — forçar `Back` a `Plus` em `i`
+produz um feixe que nenhuma das três vogais realiza. -/
+def realize (x : Phoneme) : Option Char :=
+  if x == i then some 'i'
+  else if x == a then some 'a'
+  else if x == u then some 'u'
+  else none
 
-abbrev NP := Entity
-abbrev S := Prop
-abbrev VP := NP → S
-abbrev TV := NP → VP
-
-def dorothy : NP := .dorothy
-def toto : NP := .toto
-
-/-- O verbo, como função de dois lugares: recebe o objeto, depois o sujeito. -/
-opaque likes : TV
-
-/-- O VP: o verbo já recebeu o objeto e espera o sujeito. -/
-def likesToto : VP := likes toto
-
-/-- E a sentença, com o sujeito no lugar. -/
-def dorothyLikesToto : S := likesToto dorothy
-
-#check dorothyLikesToto
-
-/-! A derivação da sentença é uma sequência de duas aplicações, e cada passo
-é conferido pelos tipos. Uma combinação mal formada não chega a ser um termo.
-
-### Lean como cálculo lambda
-
-O que se descreveu acima é o cálculo lambda com tipos simples, e Lean o contém.
-Abstração, aplicação, β-redução, tipos de função: tudo o que foi dito vale
-literalmente, e os `#check` acima são as regras de tipagem sendo aplicadas.
-
-Lean vai além disso em pontos que o curso vai usar:
-
-* **tipos indutivos** — a BNF de uma gramática vira um tipo, com casamento de
-  padrão e recursão garantidamente terminante;
-* **tipos dependentes** — um tipo pode depender de um valor, o que permite
-  exigir na assinatura condições que aqui teriam de ser verificadas à parte;
-* **proposições como tipos** — `Prop` não é um tipo básico opaco: uma prova de
-  `P` é um termo de tipo `P`, e é por isso que o mesmo verificador serve para
-  checar programas e demonstrações;
-* **universos** — `Type`, `Type 1`, e assim por diante, o que evita os paradoxos
-  que apareceriam se houvesse um tipo de todos os tipos.
-
-Para o que vem pela frente, a leitura útil é essa: o aparato da semântica de
-Montague é um fragmento do que Lean oferece, e o excedente é o que vai permitir
-demonstrar coisas sobre os significados, e não apenas calculá-los.
-
-## Conjuntos como funções
-
-Um conjunto de elementos de `α` se apresenta pela sua função característica:
-a função que, dado um elemento, responde se ele pertence.
-
-Há duas maneiras de responder, e as duas serão usadas:
-
-* `α → Bool` **calcula** a resposta. O resultado é `true` ou `false`, e
-  pode-se rodar.
-* `α → Prop` **enuncia** a resposta. O resultado é uma afirmação, que se
-  pode provar.
-
-Isso não é uma analogia. A segunda versão é, literalmente, como conjunto se
-define em Lean:
--/
-
-#print Set
--- def Set : Type u → Type u := fun α => α → Prop
-
-/-! Um `Set α` **é** uma função `α → Prop`, e nada mais. A notação de
-conjunto que se escreve na prática é açúcar para construir essa função, e
-pertencer é aplicá-la — as duas coisas são a mesma, e o `rfl` prova: -/
-
-example : {n : Nat | n > 2} = Set.ofPred (fun n => n > 2) := rfl
-
-example (p : Nat → Prop) (x : Nat) : (x ∈ {n | p n}) = p x := rfl
-
-/-! Escrever `x ∈ A` em vez de `A x` é comodidade de leitura. Vale saber disso
-porque, quando uma prova sobre conjuntos empacar, desdobrar a notação até a
-aplicação costuma destravar. -/
-
-example : (3 : Nat) ∈ {n : Nat | n > 2} := by decide
-
-/-! ## Conjuntos e a escolha entre calcular e enunciar
-
-Definido assim, um conjunto herda a escolha da seção anterior: `α → Prop`
-enuncia a pertinência. Existe também `α → Bool`, que a calcula, e é o que se
-usa quando o conjunto é finito e a resposta tem de sair rodando — é o caso do
-capítulo 6, onde verificar uma sentença num modelo é percorrer um domínio
-finito.
--/
-
-/-- Ser par, na versão que se calcula. -/
-def isEven (n : Nat) : Bool := n % 2 == 0
-
-#eval isEven 4
-#eval isEven 5
-
-/-! A versão que se enuncia já existe na biblioteca: `Even n` afirma que `n`
-é o dobro de algum número, sem dizer como encontrá-lo.
-
-```
-Even (a : α) : Prop := ∃ r, a = r + r
-```
-
-Aqui está a distinção em ato. `isEven` é um algoritmo — divide e compara o
-resto. `Even` é uma condição de verdade — existe um `r` tal que `n = r + r`.
-São conteúdos diferentes, e por isso vale a pena que sejam objetos
-diferentes.
--/
-
-/-- Provar `Even 4` é exibir o `r` que a afirmação promete, junto com a
-verificação de que ele serve. -/
-example : Even 4 := ⟨2, rfl⟩
-
-/-! ## As duas versões concordam
-
-Nada obriga, a priori, uma afirmação e um algoritmo a dizerem a mesma coisa.
-Que estes dois digam é um fato sobre os naturais, e como tal se enuncia e se
-prova. A biblioteca já traz a prova, sob o nome `Nat.even_iff`:
--/
-
-example (n : Nat) : Even n ↔ n % 2 = 0 := Nat.even_iff
-
-/-! Provado isso, `Even n` passa a ser uma afirmação que se pode *calcular*
-para um `n` dado — e o Lean faz isso sem que se peça nada: -/
-
-#eval Even 4
-#eval Even 5
-
-/-! Vale reparar no que acabou de acontecer. `Even 4` é uma afirmação, não um
-programa; ainda assim o `#eval` respondeu `true`. Há um mecanismo por trás
-disso, que registra quais afirmações admitem esse cálculo e como fazê-lo. Ele
-depende de classes de tipos, que aparecem no capítulo 3, e é o assunto do
-capítulo 6 — onde verificar se uma sentença é verdadeira num modelo será
-exatamente isso. -/
-
-/-! ## Relações
-
-Uma relação binária sobre `α` é uma função de dois argumentos que responde se
-o par está na relação. Vale aqui a mesma escolha de antes, entre calcular e
-enunciar.
-
-A divisibilidade já vem na biblioteca, na versão que enuncia: `m ∣ n` afirma
-que existe um fator que leva de `m` a `n`, e provar é exibi-lo.
--/
-
-example : (3 : Nat) ∣ 12 := ⟨4, rfl⟩
-
-#eval (3 ∣ 12 : Prop)
-#eval (5 ∣ 12 : Prop)
-
-/-- Relações em `Prop` se combinam com quantificadores e conectivos, e é assim
-que suas propriedades se enunciam. Reflexividade, por extenso: -/
-example : ∀ n : Nat, n ∣ n := fun _ => Nat.dvd_refl _
-
-/-! ## Tipos como disciplina
-
-O tipo de uma função diz o que ela aceita e o que devolve, e Lean recusa a
-aplicação que não respeite isso — ao escrever, antes de rodar.
-
-Essa recusa é o instrumento central do texto. As árvores sintáticas do
-capítulo 4 serão tipos, e os significados do capítulo 7 também; daí em
-diante, "esta combinação de palavras não é bem formada" e "este programa não
-tipa" passam a ser a mesma frase.
-
-Para ver a recusa acontecer, aplique `square` a uma `String`:
-`#eval square "quatro"` não compila, e o erro aponta o argumento.
--/
+#eval realize i
+#eval realize (fMatch .Back .Plus i)
 
 end Chapter02

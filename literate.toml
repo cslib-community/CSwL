@@ -52,11 +52,11 @@ title = "1. O estudo formal da língua natural"
 url = "cap01"
 
 [modules."CSwL.Chapter02"]
-title = "2. Funções, tipos e abstração"
+title = "2. Programação funcional"
 url = "cap02"
 
 [modules."CSwL.Chapter03"]
-title = "3. Programação funcional"
+title = "3. Funções, tipos e abstração"
 url = "cap03"
 
 [metadata]

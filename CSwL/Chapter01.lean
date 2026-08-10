@@ -1,6 +1,8 @@
 /-!
 # 1. O estudo formal da língua natural
 
+_No livro: capítulo 1._
+
 _Every student passed_ descreve um estado de coisas. Dizer o que a sentença
 significa é dizer em que situações ela é verdadeira: numa turma em que todos
 passaram, sim; numa em que alguém repetiu, não. O significado, então, é aquilo
@@ -22,7 +24,7 @@ em níveis, cada um tomando como átomo o que o nível anterior produziu:
 Deste ponto em diante, os dois primeiros níveis ficam de fora. A palavra é o
 átomo, e não se pergunta do que ela é feita. É uma escolha de escopo, não uma
 tese: harmonia vocálica e declinação são fenômenos reais, e vão aparecer no
-capítulo 3 como exercício de programação — mas como dados, não como teoria.
+capítulo 2 como exercício de programação — mas como dados, não como teoria.
 
 O que se exige de uma gramática, nos dois níveis que restam, são três coisas:
 que ela construa exatamente as expressões bem formadas da língua em questão,

@@ -47,11 +47,11 @@ Para gerar as duas saídas web localmente:
   [livro](https://emap-nlp.github.io/CSwL/cap01/) ·
   [documentação](https://emap-nlp.github.io/CSwL/docs/CSwL/Chapter01.html) ·
   [fonte](CSwL/Chapter01.lean)
-- **2. Funções, tipos e abstração** —
+- **2. Programação funcional** —
   [livro](https://emap-nlp.github.io/CSwL/cap02/) ·
   [documentação](https://emap-nlp.github.io/CSwL/docs/CSwL/Chapter02.html) ·
   [fonte](CSwL/Chapter02.lean)
-- **3. Programação funcional** —
+- **3. Funções, tipos e abstração** —
   [livro](https://emap-nlp.github.io/CSwL/cap03/) ·
   [documentação](https://emap-nlp.github.io/CSwL/docs/CSwL/Chapter03.html) ·
   [fonte](CSwL/Chapter03.lean)
@@ -68,9 +68,17 @@ Para gerar as duas saídas web localmente:
 
 ## Convenções
 
-- **Um módulo por capítulo do livro**, `CSwL/ChapterNN.lean`, com
-  `namespace ChapterNN`. O namespace por capítulo é necessário: o livro
-  redefine os mesmos nomes em capítulos diferentes.
+- **Um módulo por capítulo**, `CSwL/ChapterNN.lean`, com `namespace ChapterNN`.
+  O namespace por capítulo é necessário: o livro redefine os mesmos nomes em
+  capítulos diferentes.
+- **A numeração é a daqui, não a do livro.** Os capítulos 2 e 3 estão
+  invertidos em relação a van Eijck & Unger: lá o cap. 2 é a teoria de
+  funções, tipos e conjuntos, sem código, e o cap. 3 introduz a programação
+  funcional. Aqui a programação vem primeiro, porque a teoria do cap. 3 é
+  escrita *em* Lean — usa `inductive`, `Prop` e classes de tipos — e o livro
+  não tinha esse problema, já que o cap. 2 dele não tem Haskell nenhum. Cada
+  capítulo abre declarando a que capítulo do livro corresponde; quando o texto
+  diz "capítulo N", é o N daqui.
 - O cabeçalho de cada capítulo aponta o módulo Haskell correspondente do
   livro (`CSwFP/src/*.hs`) como referência, mas o código aqui não é uma
   transliteração dele.
