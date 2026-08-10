@@ -5,3 +5,12 @@
 # Diretório onde o workflow de GitHub Pages junta o livro (Verso) e a
 # documentação (doc-gen4) antes de publicar.
 /_site
+
+# GABARITOS — NUNCA VERSIONAR.
+#
+# Este repositório é público. Um gabarito comitado aqui não se apaga: `git rm`
+# tira do próximo commit, não do histórico, e o histórico é público. Por isso a
+# proibição é do diretório inteiro, e não de arquivo por arquivo.
+#
+# Se precisar conferir antes de comitar:  git status --ignored
+/Solutions/

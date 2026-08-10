@@ -66,11 +66,36 @@ Para gerar as duas saídas web localmente:
 - Capítulo 12: Representação de discurso e contexto — *a fazer*
 - Capítulo 13: Comunicação como ação informativa — *a fazer*
 
+## Exercícios
+
+Os exercícios ficam neste mesmo projeto, em `Exercises/ChapterNN.lean`, um
+arquivo por capítulo. Cada `sorry` é um item a completar, e o aviso que o Lean
+emite para ele é a sua lista do que falta:
+
+```bash
+lake build              # só o livro; tem de passar sem nenhum aviso
+lake build Exercises    # os enunciados; cada aviso de `sorry` é um item aberto
+```
+
+`Exercises` fica fora do alvo padrão justamente por isso — se entrasse, o build
+do livro nunca ficaria limpo. As questões marcadas com **✎** são discursivas e
+se respondem em [`Exercises/RESPOSTAS.md`](Exercises/RESPOSTAS.md).
+
+| arquivo                     | capítulo                          | itens |
+|-----------------------------|-----------------------------------|------:|
+| `Exercises/Chapter01.lean`  | 1. Estudo formal da língua natural|    19 |
+| `Exercises/Chapter02.lean`  | 2. Programação funcional          |    33 |
+| `Exercises/Chapter03.lean`  | 3. Funções, tipos e abstração     |    28 |
+
 ## Convenções
 
 - **Um módulo por capítulo**, `CSwL/ChapterNN.lean`, com `namespace ChapterNN`.
   O namespace por capítulo é necessário: o livro redefine os mesmos nomes em
-  capítulos diferentes.
+  capítulos diferentes. Os exercícios espelham isso em
+  `Exercises/ChapterNN.lean`, com `namespace Exercises.ChapterNN`.
+- **`CSwL/` e `Exercises/` são árvores separadas**, e o texto dos capítulos
+  nunca se edita para resolver exercício. É o que permite atualizar o material
+  sem conflitar com o que você escreveu: capítulo novo só *acrescenta* arquivo.
 - **A numeração é a daqui, não a do livro.** Os capítulos 2 e 3 estão
   invertidos em relação a van Eijck & Unger: lá o cap. 2 é a teoria de
   funções, tipos e conjuntos, sem código, e o cap. 3 introduz a programação

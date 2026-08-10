@@ -19,6 +19,24 @@ name = "CSwL"
 # tempo). Lake soma as duas: `leanOptions` da lib = pacote ++ lib.
 leanOptions = {doc.verso.suggestions = false}
 
+[[lean_lib]]
+name = "Exercises"
+# `doc.verso = false` desfaz, só para esta lib, o que o pacote liga acima. Os
+# enunciados não entram no site: são lidos no VS Code, e seus docstrings estão
+# em Markdown comum. Sob o Verso, `/-! ## Exercício 1.1 -/` é erro de
+# aninhamento de título (um `##` exige um `#` antes, no mesmo módulo) — eram 43
+# erros. Como o Lake soma as opções (pacote ++ lib), a da lib vence.
+leanOptions = {doc.verso = false}
+
+# Fora de `defaultTargets` de propósito: os enunciados são cheios de `sorry`, e
+# `sorry` emite aviso. Se esta lib entrasse no alvo padrão, `lake build` nunca
+# passaria limpo — e a regra do projeto é que o livro compile sem avisos. Quem
+# quiser conferir os enunciados pede o alvo pelo nome: `lake build Exercises`.
+#
+# Os gabaritos ficam em `Solutions/`, que o `.gitignore` proíbe versionar (o
+# repositório é público). Por não ser versionado, não tem lib declarada aqui:
+# para conferir um gabarito, `lake env lean Solutions/Solution02.lean`.
+
 [[lean_exe]]
 name = "cswl"
 root = "Main"
