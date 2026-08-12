@@ -275,9 +275,9 @@ def likesR : Entity → Entity → Prop
 
 #check (likesR : Rel Entity Entity)
 
-/-! ### Conversa
+/-! ### Inversa
 
-A conversa de uma relação troca a ordem dos argumentos, e é `flip` quem faz
+A inversa de uma relação troca a ordem dos argumentos, e é `flip` quem faz
 isso. Em língua, é o que a voz passiva faz: _Dorothy likes Toto_ e _Toto is
 liked by Dorothy_ descrevem o mesmo par, em ordens opostas. -/
 

@@ -98,11 +98,14 @@ fica marcado com **✎**: enunciado e resposta ficam juntos, no mesmo bloco
 - **Um módulo por capítulo**, `CSwL/ChapterNN.lean`, com `namespace ChapterNN`.
   O namespace por capítulo é necessário: o livro redefine os mesmos nomes em
   capítulos diferentes.
-- **As seções são numeradas conforme o `CSwFP`** — `## 3.1 Conjuntos e
-  notação de conjuntos`, por exemplo — quando há correspondência direta.
-  Seções que existem só no `CSwL`, sem contrapartida no livro, ficam sem
-  número. A numeração é a do capítulo do `CSwL` (`Chapter03.lean` usa `3.N`),
-  não a do livro por si — ver o próximo ponto.
+- **As seções são numeradas por capítulo do `CSwL`, não pelo número da
+  seção do livro** — `## 3.1 Conjuntos e notação de conjuntos`, por
+  exemplo. Cada `##` leva uma linha `Ref. CSwFP/N §N.M` apontando para a
+  seção correspondente, quando existe uma. Uma seção sem correspondência
+  direta no livro (motivada por necessidade de apresentação, não por
+  conteúdo do `CSwFP`) ainda ganha número, desde que caiba na sequência
+  ascendente do capítulo — é o caso de "Proposições e provas" em
+  `Chapter02.lean` (`## 2.2`, sem `Ref.`).
 - **A numeração é a daqui, não a do livro.** Os capítulos 2 e 3 estão
   invertidos em relação a van Eijck & Unger: lá o cap. 2 é a teoria de
   funções, tipos e conjuntos, sem código, e o cap. 3 introduz a programação
@@ -131,9 +134,13 @@ capítulos 2/3, já registrada em **Convenções** acima.
 | Cap. 1–3 | build sem nenhum aviso | `sorry` é permitido em `CSwL/`, não só em exercícios, quando deixado de propósito | decisão do professor — alguns exemplos do capítulo ficam de propósito com `sorry`, para resolver em aula, ao vivo, em vez de já vir prontos |
 | Cap. 1–3 | exercícios num arquivo `Exercises/` separado, um por capítulo | exercícios movidos para dentro do capítulo, na posição da seção a que correspondem | decisão do professor — reduz repetição entre o capítulo e o arquivo de exercícios, e mostra a dependência entre o exercício e a seção que o motiva |
 | Cap. 1–2 | seções sem numeração explícita, ou numeradas só no arquivo de exercícios | `## N.M Título`, alinhado à seção do `CSwFP` correspondente; seções só do `CSwL`, sem contrapartida no livro, ficam sem número | decisão do professor — facilita conferir a correspondência entre capítulo e livro; a numeração é a do capítulo do `CSwL` (ver Convenções), não a numeração absoluta do livro |
-| Cap. 2 | §3.9 Type Classes vem antes de §3.11 Finnish Vowel Harmony no livro | "Classes de tipos" (`## 3.9`) precede "Harmonia vocálica do finlandês" (`## 3.11`) — mesma ordem | sem desvio — registrado porque a ordem só ficou visível depois de numerar; antes da Fase A, "Classes de tipos" vinha depois do plural sueco no arquivo, fora de ordem com o livro, e foi corrigida nesta passada |
-| Cap. 2 | "User-defined Data Types" (§3.13) introduz `data`/`inductive` | "Tipos Indutivos" (o `inductive` geral) fica sem número, antes de §3.5 Recursão | Lean vs Haskell — a recursão sobre `Nat`/`List` precisa que `inductive` já tenha sido apresentado; o livro pode adiar isso para §3.13 porque Haskell não exige declarar o tipo indutivo primeiro |
-| Cap. 2 | `opaque`/`Option` não têm seção própria no livro | `opaque` entra em §3.3 (junto com tipos e termos); `Option` entra em §3.6 (junto com tipos indutivos e listas) | decisão do professor — segue o padrão de apresentação do `logical_verification_2026/lean/LoVe/LoVe01_TypesAndTerms_Demo.lean` para `opaque`, e agrupa `Option` com o `inductive` que o `Option α` é |
+| Cap. 2 | seções numeradas pela numeração do livro (`## 3.3`–`## 3.14`) | renumeradas `## 2.1`–`## 2.15`, própria do `CSwL` — cada `##` leva uma linha `Ref. CSwFP/3 §3.N` apontando para a seção do livro | decisão do professor — a numeração do livro colidia textualmente com a de `Chapter03.lean` (ambos usavam `## 3.N`, referindo-se a capítulos diferentes do livro); alinha o capítulo 2 ao mesmo padrão que os capítulos 1 e 4 já seguiam |
+| Cap. 2 | §3.9 Type Classes / §3.11 Harmonia vocálica / §3.14 Fonemas, na ordem do livro (§3.9 antes de §3.11 e §3.14) | "Harmonia vocálica do finlandês e plural sueco" (`## 2.14`) e "Aplicação: representando fonemas" (`## 2.15`) movidas para o fim da sequência numerada, depois de "Classes de tipos" (`## 2.11`) | decisão do professor — os dois exemplos de PLN concentram-se no fim do capítulo, como aplicação do que vem antes, em vez de intercalados na ordem do livro |
+| Cap. 2 | livro não trata `Prop` nem prova formal neste capítulo | seção nova "Proposições e provas" (`## 2.2`), sem `Ref.` a CSwFP/3 | decisão do professor — `Chapter03.lean` usa `Prop` desde as primeiras linhas sem explicá-lo; a seção cobre o mínimo necessário para lê-lo, com tabela de táticas e exercícios de construção de termo modelados em `FAA2025/Lectures/Week01-02/Sheet*.lean` e `logical_verification_2026/lean/LoVe/LoVe01_TypesAndTerms_Demo.lean` |
+| Cap. 2 | 14 dos exercícios do capítulo eram rotulados `E0.n`, fora de ordem sequencial no arquivo | todos os 14 recebem `### Exercício\* — <título>`, sem número | correção de registro — conferido em `CSwFP/txt/chapter-03.txt` que nenhum dos 14 corresponde a um exercício real do livro (que tem `Exercise 3.1`–`3.19`); eram placeholders do professor, herdados de quando o material morava em `Exercises/` |
+| Cap. 2 | Exercícios 3.18 (p. 54) e 3.19 (p. 61), reais do livro | promovidos a `### Exercício 3.18`/`### Exercício 3.19`, antes ausentes do capítulo | correção de registro — o material de apoio (`fValue`/`fMatch`) já estava escrito; faltava só abrir o exercício |
+| Cap. 2 | "User-defined Data Types" (§3.13) introduz `data`/`inductive` | "Tipos indutivos" (`## 2.5`, o `inductive` geral) vem antes de "Recursão" (`## 2.6`) | Lean vs Haskell — a recursão sobre `Nat`/`List` precisa que `inductive` já tenha sido apresentado; o livro pode adiar isso para §3.13 porque Haskell não exige declarar o tipo indutivo primeiro |
+| Cap. 2 | `opaque`/`Option` não têm seção própria no livro | `opaque` entra em `## 2.1` (junto com tipos e termos); `Option` entra em `## 2.8` (depois de tipos indutivos e listas) | decisão do professor — segue o padrão de apresentação do `logical_verification_2026/lean/LoVe/LoVe01_TypesAndTerms_Demo.lean` para `opaque`, e agrupa `Option` com o `{α : Type}` que `Option α` usa |
 | Cap. 4 | §4.4 dá `Cnj [Form]`/`Dsj [Form]` (Haskell) sobre uma BNF binária | `Form` com construtores binários (`conj`, `disj`) + `Form.conjs`/`Form.disjs : List Form → Form` para a notação n-ária | Lean vs Haskell — lista dentro do próprio tipo é *nested*: perde `deriving DecidableEq` e a tática `induction`, que os Exercícios 4.11/4.15 (leitura única) exigem; medido, não suposto |
 | Cap. 4 | `Cnj []`/`Dsj []` mostrados como `"true"`/`"false"` (§4.6, comentário do livro) | `Form` ganha construtores próprios `top`/`bot`, não átomos de nome `"⊤"`/`"⊥"` | decisão do professor — um átomo nomeado dependeria da atribuição de valores do capítulo 5; `top`/`bot` são constantes, sempre `true`/`false` |
 | Cap. 4 | linhas do tabuleiro numeradas de 1 a 10 | `Row := Fin 10`, 0 a 9 — linha do livro é `Row` menos 1 | Lean vs Haskell — `Fin 10` não rejeita o literal `10` (`OfNat` embrulha para `0`); só a construção validada (`⟨n, by omega⟩`) recusa `n ≥ 10`; a prosa do capítulo nomeia o deslocamento explicitamente |

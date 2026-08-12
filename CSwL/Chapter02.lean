@@ -4,21 +4,19 @@
 Ref. CSwFP/3 (`FPH`). Functional Programming with Haskell. Adaptado para
 apresentar Lean.
 
-Um feixe de traços fonológicos e uma árvore sintática são o mesmo tipo de
-objeto: dados com forma, definidos por casos, percorridos por recursão. Quem
-sabe escrever o primeiro sabe escrever o segundo, e é por isso que os exemplos
-daqui — plural do sueco, harmonia vocálica, quem escreveu o quê — já são
-linguísticos, embora nenhuma teoria do significado tenha começado ainda.
+Neste capítulo, apresentamos o conjunto de ferramentas computacionais que
+usaremos ao longo de todo o livro: a linguagem de programação Lean. Outros
+conceitos de Lean serão apresentados ao longo do texto.
 
-Este é o capítulo em que Lean entra. Nada aqui pressupõe a linguagem: `def`,
-tipos, recursão e casamento de padrão se apresentam na hora. O capítulo 3 retoma
-o mesmo material por outro lado — o que é uma função, o que é um tipo, o que é
-um conjunto — e é lá que o aparato ganha a leitura que a semântica vai usar.
+Cada seção leva uma linha `Ref.` apontando para a seção correspondente de
+CSwFP/3, quando existe uma.
 -/
 
 namespace Chapter02
 
-/-! ## 3.3 Primeiros experimentos
+/-! ## 2.1 Primeiros experimentos
+
+Ref. CSwFP/3 §3.3 (p. 35–38).
 
 ### Termos e tipos
 
@@ -58,11 +56,13 @@ de `Bool` é `Type`, e o de `Type` é `Type 1`. -/
 tipos, o que produziria um paradoxo. Para nós, em geral, basta saber que a
 pergunta "qual o tipo disto?" tem sempre resposta.
 
-**E0.1.** Escreva uma expressão que calcule 42, usando ao menos uma
-multiplicação e uma soma.
+### Exercício' — Calculando 42
+
+Escreva uma expressão que calcule 42, usando ao menos uma multiplicação e uma
+soma.
 -/
 
-def fortyTwo : Nat := sorry
+def fortyTwo : Nat := 2 * 21
 
 example : fortyTwo = 42 := sorry
 
@@ -115,10 +115,6 @@ O tipo vem primeiro. `Nat → Nat` é uma promessa, e o corpo da definição tem
 de cumpri-la; enquanto não cumprir, o arquivo não compila.
 
 Na definição abaixo, `square` é uma função de `Nat` em `Nat`.
-
-**E0.2.** Depois disso, defina `triple n`, o triplo de `n`.
-
-**E0.3.** Defina `sumOfSquares m n`, que devolve `m² + n²`.
 -/
 
 def square (x : Nat) : Nat := x * x
@@ -126,9 +122,10 @@ def square (x : Nat) : Nat := x * x
 #eval square 7
 #eval square (square 7)
 
-def triple (n : Nat) : Nat := sorry
+/-! ### Exercício' — Soma de quadrados
 
-example : triple 5 = 15 := sorry
+Defina `sumOfSquares m n`, que devolve `m² + n²`.
+-/
 
 def sumOfSquares (m n : Nat) : Nat := sorry
 
@@ -140,7 +137,6 @@ força a segunda forma. Mas as duas dizem o mesmo. -/
 
 #check square
 #check (square)
-
 
 /-! ### Funções são valores
 
@@ -179,7 +175,7 @@ def g (f : Nat → Nat) (x : Nat) : Nat := f x
 
 #eval g (λ x => x + 1) 10
 
-/-! Uma função também pode ser produzida como resultad _resultado_. `h` recebe
+/-! Uma função também pode ser produzida como resultado. `h` recebe
 um número e devolve uma função, como o tipo anuncia — o `(Nat → Nat)` à direita
 dos dois-pontos é o tipo do resultado. Para obter um número, é preciso aplicar
 duas vezes: -/
@@ -190,22 +186,30 @@ def h (x : Nat) : (Nat → Nat) :=
 #check h 10
 #eval (h 10) 10
 
-/-! Acima afirmamos que duas funções 'são a mesma coisa', mas em Lean podemos
-provar esta afirmação.-/
+/-! ### Exercício' — Construindo termos
 
-example : ∀ (z : Nat), (λ x ↦ x * x) z = (fun y => y * y) z := by
- intro z
- rfl
+Adaptado de
+`logical_verification_2026/lean/LoVe/LoVe01_TypesAndTerms_ExerciseSheet.lean`
+— o original deixa `α β γ` como `variable` implícita no topo do arquivo;
+aqui cada `def` declara `{α β γ : Type}` explicitamente, sem esse contexto
+prévio. Um tipo diz o que existe; um termo é uma testemunha disso. As quatro funções
+abaixo pedem só isso: dado o tipo, construa um termo — nenhuma usa tática, é
+aplicação e abstração lambda, como `g`/`h` acima. `projFst` e `projSnd` têm o
+mesmo tipo e têm de ser funções diferentes: o tipo por si não escolhe qual
+argumento devolver.
+-/
 
-/-! **E0.14.** `applyToAll` aplica `f` a cada elemento da lista, por
-recursão. (Existe uma função da biblioteca que faz isso, `List.map` — mas o
-exercício é escrever a sua.) -/
+def C {α β γ : Type} : (α → β → γ) → β → α → γ := sorry
 
-def applyToAll (f : Nat → Nat) : List Nat → List Nat
-  | []      => sorry
-  | x :: xs => sorry
+def projFst {α : Type} : α → α → α := sorry
 
-example : applyToAll (· + 1) [1, 2, 3] = [2, 3, 4] := sorry
+def projSnd {α : Type} : α → α → α := sorry
+
+def someNonsense {α β γ : Type} : (α → β → γ) → α → (α → γ) → β → γ := sorry
+
+example : C (· - ·) 3 10 = 7 := sorry
+example : projFst 5 9 = 5 := sorry
+example : projSnd 5 9 = 9 := sorry
 
 /-! ### Tudo é expressão
 
@@ -218,35 +222,71 @@ valor: -/
 
 def twenty : Nat := (let a := 10; a) + (let b := 10; b)
 
+/-- info: 20 -/
+#guard_msgs in
 #eval twenty
 
 /-! O `if`-`then`-`else` também é expressão, e não desvio de fluxo: os dois
 ramos têm de ter o mesmo tipo, porque o `if` inteiro tem _um_ tipo. É por isso
 que o resultado pode ser atribuído: -/
 
+/-- info: 1-/
+#guard_msgs in
 #eval
   let a := if 5 < 10 then 1 else 0
-  a            -- 1
+  a
 
-/-! **E0.4.** `isPositive n` responde se `n` é maior que zero. -/
+/-! ### Exercício' — isPositive
+
+`isPositive n` responde se `n` é maior que zero.
+-/
 
 def isPositive (n : Nat) : Bool := sorry
 
 example : isPositive 5 = true := sorry
 example : isPositive 0 = false := sorry
 
-/-! ### Uma primeira prova
+/-! ## 2.2 Proposições e provas
 
-Que as duas grafias — o lambda e o argumento à esquerda dos dois-pontos — dão
-a mesma função não é analogia. As duas definições abaixo são o mesmo termo: -/
+Seção sem `Ref.` a CSwFP/3 — o livro não trata prova formal neste capítulo.
+Referência externa: FAA2025 `Lectures/Week01/Sheet1.lean`,
+`Lectures/Week01/Sheet2.lean`, `Lectures/Week02/Sheet1-2.lean`, e
+`logical_verification_2026/lean/LoVe/LoVe01_TypesAndTerms_Demo.lean`. Motivo
+de existir: `Chapter03.lean` usa `Prop` desde as primeiras linhas, sem
+explicá-lo; esta seção dá o mínimo necessário para lê-lo — mas "mínimo" aqui
+é o repertório de fato usado nas referências acima, não uma amostra solta.
+
+Uma proposição é um enunciado que pode ser verdadeiro ou falso — `1 = 1` é
+uma, `1 = 2` também (falsa). `Prop` é o tipo de todos os enunciados desse
+tipo: -/
+
+def p1 : Prop := 1 = 1
+
+#check p1
+
+/-! Toda proposição verdadeira tem uma prova, e uma prova é um _termo_: um
+elemento do tipo que a proposição é. Provar `1 = 1` é exibir um termo de
+tipo `1 = 1`, exatamente como construir um termo de tipo `Nat → Nat` na
+seção anterior. -/
+
+example : (1 : Nat) = 1 := rfl
+
+/-! A mesma ideia vale para dizer que duas funções são a mesma coisa — não é
+analogia, é a proposição `f = g`, provável do mesmo jeito: -/
+
+example : ∀ (z : Nat), (λ x ↦ x * x) z = (fun y => y * y) z := by
+  intro z
+  rfl
+
+/-! Que as duas grafias de `double` abaixo — o lambda e o argumento à
+esquerda dos dois-pontos — dão a mesma função também se prova assim: -/
 
 def double : Nat → Nat := fun x => 2 * x
 def double' (x : Nat) : Nat := 2 * x
 
-/-! Afirmar isso é escrever uma igualdade, e uma igualdade é uma _proposição_:
-algo que se pode enunciar e demonstrar. O `#check` confirma que `double =
-double'` é uma proposição — note que perguntar pelo tipo não é o mesmo que
-decidir se ela é verdadeira: -/
+/-! Afirmar isso é escrever uma igualdade, e uma igualdade é uma _proposição_.
+O `#check` confirma que `double = double'` é uma proposição — note que
+perguntar pelo tipo não é o mesmo que decidir se ela é verdadeira: -/
 
 #check (double = double')
 
@@ -266,53 +306,168 @@ termo, e o termo é `Eq.refl` — a reflexividade da igualdade, aplicada aqui: -
 
 theorem doubleEqDouble : double = double' := rfl
 
-/-! Este é todo o aparato de prova que o capítulo usa até aqui. Além de
-`rfl`, algumas táticas resolvem sozinhas objetivos que a máquina pode
-calcular, e outras constroem prova a partir de hipóteses:
+/-! Além de `rfl`, um pequeno repertório de táticas resolve o que os
+capítulos 3 e 4 precisam — conferido nos próprios arquivos, não escolhido a
+priori. A ordem abaixo é a de `FAA2025/Lectures/Week01/Sheet1-3.lean`, que
+apresenta as táticas nesta sequência; `decide`, `omega`, `obtain`, `cases`,
+`simp` e `induction` não vêm de lá (o curso os introduz onde a necessidade
+aparece) e ficam ao final, fora da ordem do FAA2025:
 
-    rfl          fecha `a = b` quando os dois lados calculam o mesmo
-    decide       fecha um objetivo decidível calculando a resposta
-    omega        resolve aritmética linear em `Nat` e `Int`
-    intro h      introduz uma hipótese, para provar uma implicação
-    exact e      fornece o termo que é a prova
-    constructor  parte um `∧` ou um `↔` em dois objetivos
+    `rfl`          fecha `a = b` quando os dois lados calculam o mesmo
+    `exact e`      fornece o termo que é a prova
+    `intro h`      introduz uma hipótese, para provar uma implicação
+    `constructor`  parte um `∧` ou um `↔` em dois objetivos
+    `apply f`      aplica uma implicação ou lema, deixando a(s) premissa(s) como novo(s) objetivo(s)
+    `unfold nome`  desdobra uma definição, antes de continuar
+    `rw [h]`      reescreve o objetivo usando a igualdade `h`, da esquerda para a direita
+    `assumption`   fecha o objetivo com uma hipótese já disponível
+    `decide`       fecha um objetivo decidível calculando a resposta
+    `omega`        resolve aritmética linear em `Nat` e `Int`
+    `obtain ⟨_,_⟩ := h` desmonta uma hipótese composta (conjunção, existencial)
+    `cases h`      dado `h : P ∨ Q`, parte a prova em dois casos
+    `simp [...]`   reescreve com um conjunto de lemas até não haver mais o que simplificar
+    `induction x`  prova por casos sobre a forma como `x` foi construído
 
 Duas notações de prova não são táticas: `⟨t, h⟩` monta um par (para provar
 uma conjunção ou exibir a testemunha de um existencial), e `h.1`/`h.2`
 desmontam um par que está numa hipótese.
 
-**E0.9.** Prove, escolhendo a tática. **E0.10.** Prove
-`double n = n + n`; uma variável aparece, então `rfl` não basta. -/
+### Exercício' — Escolha a tática (inventado)
+
+Prove, escolhendo a tática.
+-/
 
 example : 7 * 6 = 42 := sorry
+
+/-! ### Exercício' — `double n = n + n` (inventado)
+
+Prove que `double n = n + n`; uma variável aparece, então `rfl` não basta.
+Dica: `omega`.
+-/
 
 example (n : Nat) : double n = n + n := sorry
 
 /-! Provar `P → Q` é: suponha `P`, derive `Q`. Provar `P ∧ Q` é provar as duas
-coisas. Provar `∃ x, P x` é exibir um `x` e mostrar que ele serve.
+coisas.
 
-**E0.11.** Prove `imp_trans`, notando que há duas hipóteses a introduzir.
-**E0.12.** Prove `and_comm'`. **E0.13.** Prove `exists_even` exibindo a
-testemunha. -/
+### Exercício' — `P → P`
 
-example (P Q R : Prop) : (P → Q) → (Q → R) → (P → R) := sorry
+Fonte: `FAA2025/Lectures/Week01/Sheet1.lean:74`. Dica: `intro`.
+-/
 
-example (P Q : Prop) : P ∧ Q → Q ∧ P := sorry
+example (P : Prop) : P → P := sorry
+
+/-! ### Exercício' — `P → (Q → P)`
+
+Fonte: `FAA2025/Lectures/Week01/Sheet1.lean:76`. Dica: `intro`, duas
+vezes.
+-/
+
+example (P Q : Prop) : P → (Q → P) := sorry
+
+/-! ### Exercício' — Conjunção a partir das partes
+
+Fonte: `FAA2025/Lectures/Week01/Sheet1.lean:78`. Dica: `constructor`
+parte o objetivo `P ∧ Q` em dois; cada um se fecha com `exact`.
+-/
+
+example (P Q : Prop) (hP : P) (hQ : Q) : P ∧ Q := sorry
+
+/-! ### Exercício' — Comutatividade da conjunção
+
+Fonte: `FAA2025/Lectures/Week01/Sheet1.lean:80-83`. Dica: um `↔` se
+parte em dois objetivos com `constructor`; em cada um, `intro h` seguido de
+`obtain ⟨_,_⟩ := h` desmonta a conjunção da hipótese, e `constructor`
+reconstrói a conjunção invertida.
+-/
+
+example (P Q : Prop) : P ∧ Q ↔ Q ∧ P := sorry
+
+/-! ### Exercício' — Transitividade da implicação
+
+Fonte: `FAA2025/Lectures/Week01/Sheet2.lean:28`. Dica: `intro`, depois
+`apply` duas vezes, encadeando as duas hipóteses.
+-/
+
+example (P Q R : Prop) (h : P → Q) (h2 : Q → R) : P → R := sorry
+
+/-! ### Exercício' — `apply` com várias premissas
+
+Adaptado de `FAA2025/Lectures/Week01/Sheet2.lean:36` — a hipótese `S` era
+implícita (`{S : Prop}`) no original; aqui fica explícita, como as demais.
+Dica: `apply h` deixa como objetivos as premissas de `h` — aqui `P`, `Q` e
+`R` — e cada uma sai de `h0` com `.1`/`.2.1`/`.2.2`.
+-/
+
+example (P Q R S : Prop) (h0 : P ∧ Q ∧ R) (h : P → Q → R → S) : S := sorry
+
+/-! Nem toda prova precisa de lógica proposicional abstrata — às vezes o que
+falta é desdobrar uma definição local antes de concluir.
+
+### Exercício' — Prova direta com `unfold`
+
+Fonte: `FAA2025/Lectures/Week01/Sheet3.lean:43`, com `f` definida
+localmente igual ao arquivo. Dica: `intro h`, `unfold f at h` (ou
+`rw [f] at h`), depois concluir por `omega` ou `assumption`.
+-/
+
+def f (x y : Nat) : Prop := x = y
+
+example (x : Nat) : f x 1 → x ≠ 2 := sorry
+
+/-! ### Exercício' — Desmontando uma conjunção com `unfold`
+
+Fonte: `FAA2025/Lectures/Week01/Sheet3.lean:45`. Dica: `intro h`,
+`obtain ⟨h1, h2⟩ := h`, `unfold f at h1 h2`, depois `omega`.
+-/
+
+example (x y : Nat) : f 0 x ∧ f 0 y → x = y := sorry
+
+/-! O que segue não vem do FAA2025 — são as táticas que o curso precisa e o
+FAA2025 não cobre (existencial concreto, `cases` sobre `∨`, `simp`,
+`induction`).
+
+### Exercício' — Existe um par par (inventado)
+
+Prove que `∃ n : Nat, n + n = 10`, exibindo a testemunha com `⟨_, _⟩`.
+-/
 
 example : ∃ n : Nat, n + n = 10 := sorry
 
+/-! ### Exercício' — Casos sobre `∨` (inventado)
+
+Prove que `P ∨ Q → Q ∨ P`, usando `cases` sobre a hipótese.
+-/
+
+example (P Q : Prop) : P ∨ Q → Q ∨ P := sorry
+
+/-! A última tática da tabela, `induction`, prova algo para **todo** valor
+de um tipo indutivo, e não para um valor de cada vez — é o que o capítulo 4
+usa para a Proposição 4.2 (número de parênteses), com `simp` fechando os
+casos indutivos.
+
+### Exercício' — Indução sobre `Nat` (inventado)
+
+Prove que `n + 0 = n` para todo `n`, usando `induction n`. No caso `0`,
+`rfl` fecha; no caso `n + 1`, a hipótese de indução (`ih`) resolve com
+`simp [ih]` ou `omega`.
+-/
+
+example (n : Nat) : n + 0 = n := sorry
+
 /-! Este é todo o aparato de prova que o capítulo usa. Ele volta no capítulo 3,
-com os tipos, e é assunto do capítulo 6, onde verificar se uma sentença é
-verdadeira num modelo passa a ser exatamente essa questão — enunciar algo
-versus calculá-lo.
+com os tipos, e no capítulo 4, com `induction` sobre `Form`; é também o
+assunto do capítulo 6, onde verificar se uma sentença é verdadeira num
+modelo passa a ser exatamente essa questão — enunciar algo versus
+calculá-lo.
 
 Quem quiser praticar Lean por si, fora do curso, o _Natural Number Game_
 (<https://adam.math.hhu.de/#/g/leanprover-community/nng4/>) é o caminho curto.
 Nada do que vem depois depende dele.
 
-## 3.4 Polimorfismo de tipos
+## 2.4 Aplicação parcial
 
-### Aplicação parcial
+Ref. CSwFP/3 §3.3 (p. 38).
 
 Uma função de dois argumentos é, na verdade, uma função de um argumento que
 devolve outra função. A seta associa à direita, e o tipo diz isso:
@@ -334,7 +489,11 @@ def add3 : Nat → Nat := add 3
 
 #eval add3 4
 
-/-! ## Tipos Indutivos
+/-! ## 2.5 Tipos indutivos
+
+Ref. CSwFP/3 §3.13 (p. 55) — adiantado para antes da recursão, por
+necessidade Lean-vs-Haskell: em Lean a recursão se apresenta por casamento
+de padrão sobre um `inductive`, então o tipo indutivo tem de vir primeiro.
 
 `inductive` declara um tipo listando as formas que seus valores podem ter.
 Quando nenhuma forma carrega argumento, o tipo é uma enumeração; quando
@@ -346,25 +505,22 @@ gramática escrita na notação usual — a Forma de Backus-Naur — é literalm
 um tipo `inductive`, e do capítulo 4 em diante todo fragmento da língua é
 declarado assim.
 
-A enumeração é o caso mais simples: cinco formas, nenhuma com argumento.
-`deriving Repr, DecidableEq` pede que a exibição e o teste de igualdade sejam
-gerados em vez de escritos à mão.
+A enumeração é o caso mais simples. `deriving Repr, DecidableEq` pede que a
+exibição e o teste de igualdade sejam gerados em vez de escritos à mão.
 -/
 
-/-- As cinco classes de declinação do plural em sueco. -/
-inductive DeclClass where
-  | One | Two | Three | Four | Five
-deriving Repr, DecidableEq
-
-#check DeclClass.Three
-#eval  DeclClass.Three
-
-/-! **E0.8.** Complete o tipo `Day` com os três dias que faltam, e depois
-`isWeekend`, que responde se o dia é sábado ou domingo. -/
-
+/-- Os dias da semana, com a distinção que interessa: fim de semana ou não. -/
 inductive Day where
-  | monday | tuesday | wednesday
+  | monday | tuesday | wednesday | thursday | friday | saturday | sunday
 deriving Repr, DecidableEq
+
+#check Day.monday
+#eval  Day.monday
+
+/-! ### Exercício' — Day
+
+Complete `isWeekend`, que responde se o dia é sábado ou domingo.
+-/
 
 def isWeekend : Day → Bool := sorry
 
@@ -393,7 +549,9 @@ se uma definição por casos tratou o tipo inteiro.
 A segunda: como cada `Nat.succ n` guarda dentro de si um `n` menor, a recursão
 sobre naturais tem por onde descer.
 
-## 3.5 Recursão
+## 2.6 Recursão
+
+Ref. CSwFP/3 §3.5 (p. 40).
 
 Uma definição recursiva precisa de dois cuidados: ter caso base, e chegar
 nele. O segundo não é uma recomendação — é uma exigência que o compilador
@@ -450,7 +608,10 @@ def story : Nat → String
 
 #eval IO.println <| story 2
 
-/-! **E0.5.** `sumTo n` devolve `0 + 1 + ... + n`. -/
+/-! ### Exercício' — sumTo
+
+`sumTo n` devolve `0 + 1 + ... + n`.
+-/
 
 def sumTo : Nat → Nat
   | 0 => sorry
@@ -458,9 +619,9 @@ def sumTo : Nat → Nat
 
 example : sumTo 4 = 10 := sorry
 
-/-! ## 3.6 Listas e compreensão de listas
+/-! ## 2.7 Listas e polimorfismo
 
-### Listas e Polimorfismo
+Ref. CSwFP/3 §3.6 (p. 41) + §3.4 (p. 39, polimorfismo genérico).
 
 `List α` é o tipo das listas de elementos do tipo  `α`, e é um tipo indutivo
 como os da seção anterior: uma lista é vazia, `[]`, ou é um elemento seguido de
@@ -491,8 +652,9 @@ def size {α : Type} : List α → Nat
 forma que quase todo tipo do curso vai ter: o fragmento da língua se declara uma
 vez e vale para o domínio de entidades que o modelo fornecer.
 
-**E0.6.** `sumList` soma os elementos de uma lista. **E0.7.** `countZeros`
-conta quantos zeros a lista tem.
+### Exercício' — sumList
+
+`sumList` soma os elementos de uma lista.
 -/
 
 def sumList : List Nat → Nat
@@ -501,13 +663,31 @@ def sumList : List Nat → Nat
 
 example : sumList [1, 2, 3, 4] = 10 := sorry
 
+/-! ### Exercício' — countZeros
+
+`countZeros` conta quantos zeros a lista tem.
+-/
+
 def countZeros : List Nat → Nat
   | []      => sorry
   | x :: xs => sorry
 
 example : countZeros [0, 1, 0, 2, 0] = 3 := sorry
 
-/-! ### Quando não há resposta
+/-! ### Exercício' — applyToAll
+
+`applyToAll` aplica `f` a cada elemento da lista, por recursão. (Existe uma
+função da biblioteca que faz isso, `List.map` — mas o exercício é escrever a
+sua.)
+-/
+
+def applyToAll (f : Nat → Nat) : List Nat → List Nat
+  | []      => sorry
+  | x :: xs => sorry
+
+example : applyToAll (· + 1) [1, 2, 3] = [2, 3, 4] := sorry
+
+/-! ## 2.8 Quando não há resposta: Option
 
 Uma função de tipo `List α → α` promete devolver um elemento para qualquer
 lista que receba. Para a lista vazia não existe elemento nenhum, e a promessa
@@ -541,7 +721,9 @@ def average (xs : List Int) : Option Rat :=
 #eval "rad".back
 #eval "".back      -- não é erro, é o `Char` default
 
-/-! ## 3.7 Processamento de listas com map e filter
+/-! ## 2.9 Processamento de listas com map e filter
+
+Ref. CSwFP/3 §3.7 (p. 42–43).
 
 Quatro operações cobrem quase todo uso de lista no curso. Todas se escreveriam
 por recursão, como `size` acima, mas já existem — e o hábito a adquirir é
@@ -569,9 +751,9 @@ se _algum_ satisfaz. Devolvem `Bool`, e portanto se calculam. -/
 
 #eval entities.map (size ∘ String.toList)
 
-/-! ## 3.8 Composição, conjunção, disjunção, quantificação
+/-! ## 2.10 Composição, conjunção, disjunção, quantificação
 
-### Onde isso vai dar
+Ref. CSwFP/3 §3.8 (p. 44–45).
 
 Vale parar aqui, porque `all` e `any` não são conveniência de programação: são
 como a quantificação vai ser **calculada**.
@@ -595,7 +777,9 @@ predicados em um valor de verdade é a ideia central daquele capítulo; que ele 
 _calcule_ assim, percorrendo um domínio finito, é a do capítulo 6. Aqui basta ver
 que a operação é ordinária, e que já se sabe escrevê-la.
 
-## 3.9 Classes de tipos
+## 2.11 Classes de tipos
+
+Ref. CSwFP/3 §3.9 (p. 45).
 
 `count` conta ocorrências em qualquer lista cujos elementos se possam
 comparar. Essa exigência entra na assinatura entre colchetes, `[BEq α]`: uma
@@ -620,7 +804,9 @@ def count [BEq α] (x : α) : List α → Nat
 #eval count 2 [1, 2, 2, 3]
 #eval count "thou" ["thou","art","thou"]
 
-/-! ## 3.10 Cadeias e textos
+/-! ## 2.12 Cadeias e textos
+
+Ref. CSwFP/3 §3.10 (p. 47–48).
 
 `String` é uma sequência UTF-8 empacotada. Isso a torna eficiente para
 guardar texto e inadequada para percorrer: não há padrão `c :: cs` para casar
@@ -649,49 +835,9 @@ def initS (s : String) : String := String.ofList s.toList.dropLast
 
 #eval initS "flicka"
 
-/-! ## 3.11 Harmonia vocálica do finlandês
+/-! ## 2.13 Um fragmento linguístico
 
-O livro apresenta a harmonia vocálica finlandesa e o plural sueco na mesma
-seção, como dois exemplos do mesmo fenômeno: uma regra morfológica que
-depende de um traço que a palavra já carrega. Aqui fica só o plural sueco —
-o finlandês não muda a análise.
-
-Com o `inductive` e a recursão em texto, dá para escrever uma regra
-morfológica de verdade. O sueco distribui os substantivos em cinco classes de
-declinação, e a forma do plural depende da classe — `DeclClass`, declarada
-acima, é exatamente esse tipo.
--/
-
--- Vogais fora do ASCII: 'ä' = 228, 'å' = 229, 'ö' = 246, 'ø' = 248.
-def aUml   : Char := Char.ofNat 228
-def aRing  : Char := Char.ofNat 229
-def oUml   : Char := Char.ofNat 246
-def oSlash : Char := Char.ofNat 248
-
-def swedishVowels : List Char :=
-  ['a','i','o','u','e','y', aUml, aRing, oUml, oSlash]
-
-/-- A forma do plural é determinada pela classe de declinação. Na terceira
-classe ela depende também de a palavra terminar ou não em vogal: uma regra
-morfológica que consulta a forma fonológica. -/
-def swedishPlural (noun : String) : DeclClass → String
-  | .One   => initS noun ++ "or"
-  | .Two   => initS noun ++ "ar"
-  | .Three => if swedishVowels.contains noun.back then noun ++ "r"
-              else noun ++ "er"
-  | .Four  => noun ++ "n"
-  | .Five  => noun
-
-#eval swedishPlural "flicka" .One
-#eval swedishPlural "pojke"  .Two
-#eval swedishPlural "rad"    .Three
-#eval swedishPlural "ko"     .Three
-#eval swedishPlural "hus"    .Five
-
-
-/-! ## 3.13 Tipos de dados definidos pelo usuário e casamento de padrão
-
-### Um primeiro fragmento linguístico
+Ref. CSwFP/3 §3.13 (p. 56–57).
 
 Sujeito, predicado e sentença como tipos. A estrutura deixa de ser texto e
 passa a ser um valor, e o verificador de tipos passa a recusar as combinações
@@ -730,7 +876,100 @@ def makeS (s : Subject) (p : Predicate) : Sentence := .S s p
 
 #eval IO.println $ toString (makeS .Chomsky (makeP "Syntactic Structures"))
 
-/-! ## 3.14 Aplicação: representando fonemas
+/-! ## 2.14 Harmonia vocálica do finlandês e plural sueco
+
+Ref. CSwFP/3 §3.11 (p. 52–55). Movida para o fim da sequência numerada —
+desvio de ordem, decisão do professor, registrado em
+`CSwL/README.md` § Desvios de CSwFP.
+
+O livro apresenta a harmonia vocálica finlandesa e o plural sueco na mesma
+seção, como dois exemplos do mesmo fenômeno: uma regra morfológica que
+depende de um traço que a palavra já carrega.
+
+Em finlandês, as vogais de uma palavra concordam em anterioridade: um sufixo
+adicionado a um radical "posterior" (`a`, `o`, `u`) usa a forma posterior de
+cada vogal que varia por esse traço; a um radical "anterior" (`ä`, `ö`, `y`),
+a forma anterior. `front`/`back` traduzem uma vogal para a forma do outro
+lado do par; `vh` decide qual delas aplicar, olhando o radical inteiro. -/
+
+-- Vogais fora do ASCII: 'ä' = 228, 'å' = 229, 'ö' = 246, 'ø' = 248.
+def aUml   : Char := Char.ofNat 228
+def aRing  : Char := Char.ofNat 229
+def oUml   : Char := Char.ofNat 246
+def oSlash : Char := Char.ofNat 248
+
+def front : Char → Char
+  | 'a' => aUml
+  | 'o' => oUml
+  | 'u' => 'y'
+  | c   => c
+
+def back : Char → Char
+  | c => if c == aUml then 'a'
+         else if c == oUml then 'o'
+         else if c == 'y' then 'u'
+         else c
+
+/-- Sufixa `suffix` ao radical `stem`, ajustando cada vogal do sufixo pela
+harmonia vocálica do radical. -/
+def appendSuffixF (stem suffix : String) : String :=
+  let vh : Char → Char :=
+    if stem.toList.any (fun c => c == 'a' || c == 'o' || c == 'u') then back
+    else if stem.toList.any (fun c => c == aUml || c == oUml || c == 'y') then front
+    else id
+  stem ++ String.ofList (suffix.toList.map vh)
+
+#eval appendSuffixF "talo" "ssa"    -- radical posterior: sufixo fica posterior
+#eval appendSuffixF "kylä" "ssa"    -- radical anterior: sufixo vira "ssä"
+
+/-! Com o `inductive` e a recursão em texto, dá para escrever também uma
+regra de plural de verdade. O sueco distribui os substantivos em cinco
+classes de declinação, e a forma do plural depende da classe.
+-/
+
+/-- As cinco classes de declinação do plural em sueco. -/
+inductive DeclClass where
+  | One | Two | Three | Four | Five
+deriving Repr, DecidableEq
+
+#check DeclClass.Three
+#eval  DeclClass.Three
+
+def swedishVowels : List Char :=
+  ['a','i','o','u','e','y', aUml, aRing, oUml, oSlash]
+
+/-- A forma do plural é determinada pela classe de declinação. Na terceira
+classe ela depende também de a palavra terminar ou não em vogal: uma regra
+morfológica que consulta a forma fonológica. -/
+def swedishPlural (noun : String) : DeclClass → String
+  | .One   => initS noun ++ "or"
+  | .Two   => initS noun ++ "ar"
+  | .Three => if swedishVowels.contains noun.back then noun ++ "r"
+              else noun ++ "er"
+  | .Four  => noun ++ "n"
+  | .Five  => noun
+
+#eval swedishPlural "flicka" .One
+#eval swedishPlural "pojke"  .Two
+#eval swedishPlural "rad"    .Three
+#eval swedishPlural "ko"     .Three
+#eval swedishPlural "hus"    .Five
+
+/-! ### Exercício 3.18 (p. 54) ✎
+
+Que tipo tem `vh`, a função interna que `appendSuffixF` escolhe (`front`,
+`back` ou `id`) para aplicar a cada vogal do sufixo?
+
+**Resposta:** `Char → Char`. A função recebe uma vogal e devolve a vogal do
+mesmo traço no outro membro do par harmônico — de vogal para vogal, não de
+palavra para palavra. A harmonia vocálica se aplica letra a letra dentro de
+uma palavra, e é por isso que a assinatura não menciona `String` nem `List`.
+-/
+
+/-! ## 2.15 Aplicação: representando fonemas
+
+Ref. CSwFP/3 §3.14 (p. 58–61). Movida para o fim da sequência numerada —
+mesmo desvio de ordem que a seção anterior.
 
 Harmonia vocálica é o fenômeno em que as vogais de uma palavra têm de
 concordar em algum traço — em turco e em finlandês, no traço de anterioridade.
@@ -800,5 +1039,16 @@ def realize (x : Phoneme) : Option Char :=
 
 #eval realize i
 #eval realize (fMatch .Back .Plus i)
+
+/-! ### Exercício 3.19 (p. 61)
+
+`appendSuffixY` aplica a harmonia vocálica em Yawelmani: sufixa `-y` à
+palavra, forçando o traço `Round` do sufixo a concordar com o `Round` da
+última vogal do radical (as auxiliares `fValue`/`fMatch` acima já fazem o
+trabalho — falta compor).
+-/
+
+def appendSuffixY (stem : List Phoneme) (suffixVowel : Phoneme) : List Phoneme :=
+  sorry
 
 end Chapter02

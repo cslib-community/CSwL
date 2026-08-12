@@ -10,7 +10,7 @@ O capítulo começa com uma visão geral do estudo formal da linguagem. As área
 abrangentes da sintaxe, semântica e pragmática são distinguidas, e o conceito de
 significado é discutido.
 
-Como iremos nos concentrará na linguagem como uma ferramenta para descrever
+Como iremos nos concentrar na linguagem como uma ferramenta para descrever
 estados de coisas e transmitir informações, e como os lógicos desenvolveram
 ferramentas específicas para essas tarefas, a lógica será importante para nós. O
 capítulo enfatiza as semelhanças entre as línguas naturais e as linguagens
@@ -37,7 +37,8 @@ em níveis, cada um tomando como átomo o que o nível anterior produziu:
 Deste ponto em diante, os dois primeiros níveis ficam de fora. A palavra é o
 átomo, e não se pergunta do que ela é feita. É uma escolha de escopo, não uma
 tese: harmonia vocálica e declinação são fenômenos reais, e vão aparecer no
-capítulo 2 como exercício de programação — mas como dados, não como teoria.
+capítulo 2 como exemplos resolvidos de programação — mas como dados, não como
+teoria.
 
 O que se exige de uma gramática, nos dois níveis que restam, são três coisas:
 que ela construa exatamente as expressões bem formadas da língua em questão, que
