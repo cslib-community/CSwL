@@ -3,11 +3,25 @@
 
 Ref. CSwFP/1. Formal study of Natural Language.
 
-_Every student passed_ descreve um estado de coisas. Dizer o que a sentença
-significa é dizer em que situações ela é verdadeira: numa turma em que todos
-passaram, sim; numa em que alguém repetiu, não.
+Este capítulo introduz a semântica computacional como a arte e a ciência de
+computar os significados das expressões de uma língua.
 
-## Níveis de descrição
+O capítulo começa com uma visão geral do estudo formal da linguagem. As áreas
+abrangentes da sintaxe, semântica e pragmática são distinguidas, e o conceito de
+significado é discutido.
+
+Como iremos nos concentrará na linguagem como uma ferramenta para descrever
+estados de coisas e transmitir informações, e como os lógicos desenvolveram
+ferramentas específicas para essas tarefas, a lógica será importante para nós. O
+capítulo enfatiza as semelhanças entre as línguas naturais e as linguagens
+formais que foram desenvolvidas por lógicos e cientistas da computação. O
+capítulo termina com uma discussão sobre a utilidade da programação funcional
+para a semântica computacional e com uma visão geral do restante do livro.
+-/
+
+namespace Chapter01
+
+/-! ## 1.1 O estudo da língua natural
 
 Uma língua encadeia estruturas dentro de estruturas, e a descrição se organiza
 em níveis, cada um tomando como átomo o que o nível anterior produziu:
@@ -26,31 +40,32 @@ tese: harmonia vocálica e declinação são fenômenos reais, e vão aparecer n
 capítulo 2 como exercício de programação — mas como dados, não como teoria.
 
 O que se exige de uma gramática, nos dois níveis que restam, são três coisas:
-que ela construa exatamente as expressões bem formadas da língua em questão,
-que ela determine os constituintes de uma expressão e sua estrutura interna, e
-que essa estrutura seja suficiente para atribuir significado.
+que ela construa exatamente as expressões bem formadas da língua em questão, que
+ela determine os constituintes de uma expressão e sua estrutura interna, e que
+essa estrutura seja suficiente para atribuir significado.
 
-## Competência e desempenho
+Falantes aplicam as regras da própria língua corretamente e, perguntados, quase
+nunca conseguem enunciá-las. O conhecimento é implícito. Uma gramática é uma
+descrição explícita dele, e vale como modelo desse conhecimento — não como
+descrição do que acontece na cabeça de alguém, que ninguém sabe. A idealização
+que torna o estudo possível separa duas coisas.
 
-Falantes aplicam as regras da própria língua corretamente e, perguntados,
-quase nunca conseguem enunciá-las. O conhecimento é implícito. Uma gramática é
-uma descrição explícita dele, e vale como modelo desse conhecimento — não como
-descrição do que acontece na cabeça de alguém, que ninguém sabe.
+- **Competência** é a capacidade de reconhecer as sentenças da própria língua.
 
-A idealização que torna o estudo possível separa duas coisas. **Competência** é
-a capacidade de reconhecer as sentenças da própria língua; **desempenho** é o
-que de fato se produz, sujeito a limites de memória, distração e erro. Um
-falante que troca uma concordância no meio de uma frase longa não revogou a
-gramática do português.
+- **Desempenho** é o que de fato se produz, sujeito a limites de memória,
+  distração e erro. Um falante que troca uma concordância no meio de uma frase
+  longa não revogou a gramática do português.
 
 A distinção é de Chomsky, e é ela que autoriza tratar uma língua como um
 **conjunto de sentenças** — objeto matemático, sobre o qual se pode provar
 coisas.
+-/
 
-## Forma, conteúdo e uso
+
+/-! ## 1.2 Sintaxe, semântica e pragmática
 
 Sobre a mesma expressão cabem três perguntas, e elas se encaixam: a segunda
-pressupõe a primeira, e a terceira pressupõe as duas.
+pressupõe a primeira, e a terceira pressupõe as duas anteriores.
 
 * **sintaxe** estuda a forma;
 * **semântica** estuda a forma mais o conteúdo;
@@ -59,54 +74,55 @@ pressupõe a primeira, e a terceira pressupõe as duas.
 A semântica é o objeto central daqui em diante, e a sintaxe entra na medida em
 que ela é necessária — não se calcula o significado de uma sentença sem antes
 saber como ela se divide em partes. A pragmática reaparece no capítulo 13,
-quando o assunto for o que dois interlocutores sabem um sobre o
-conhecimento do outro.
+quando o assunto for o que dois interlocutores sabem um sobre o conhecimento do
+outro.
 
-## Como o conjunto de sentenças é dado
-
-Tratar uma língua como conjunto de cadeias aproxima língua natural de
-linguagem formal, e é uma aproximação deliberada. Mas há uma assimetria entre
-as duas, e ela não é pequena.
+Tratar uma língua como conjunto de estruturas aproxima língua natural de
+linguagem formal, e é uma aproximação deliberada. Mas há uma assimetria entre as
+duas, e ela não é pequena.
 
 Uma linguagem formal é dada por estipulação: uma cadeia pertence a ela se a
 gramática a produz. Não há como a definição estar errada — ela é a definição.
-Uma gramática de língua natural, ao contrário, **pode estar errada**: se ela
-gera uma sentença que os falantes rejeitam, ou rejeita uma que eles aceitam, é
-a gramática que cede. O juiz é a intuição de quem fala a língua, e isso faz da
+Uma gramática de língua natural, ao contrário, pode estar errada: se ela gera
+uma sentença que os falantes rejeitam, ou rejeita uma que eles aceitam, é a
+gramática que cede. O juiz é a intuição de quem fala a língua, e isso faz da
 linguística uma ciência empírica onde o estudo de linguagens formais é
 matemática.
 
 A escolha do que conta como "forma" também não é única. Aqui serão cadeias de
-palavras, e depois árvores de constituintes. Quem trabalha com reconhecimento
-de fala parte de cadeias de fonemas, ou de reticulados que registram
-alternativas com suas probabilidades.
+palavras, e depois árvores de constituintes. Quem trabalha com reconhecimento de
+fala parte de cadeias de fonemas, ou de reticulados que registram alternativas
+com suas probabilidades.
 
-## Saber que e saber como
+### Saber "que" e "como"
 
 Há duas maneiras de explicar o que uma expressão significa, e a diferença entre
 elas organiza todo o resto.
 
 Explicar _turn right at the next traffic light_ é, em parte, dizer o que a
 pessoa tem de saber fazer: identificar qual semáforo é o próximo, qual lado é o
-direito. Significado como **saber como**. Mas é também dizer quando a instrução
-é verdadeira e quando é falsa — a instrução classifica situações, e em algumas
-ela acerta. Significado como **saber que**, ou significado denotacional.
+direito. Significado operacional que se formaliza como algoritmo.
 
-O primeiro se formaliza como algoritmo; o segundo, como condição de verdade. A
-distinção é familiar em computação, e mostrar que as duas versões coincidem
+Mas é também dizer quando a instrução é verdadeira e quando é falsa — a
+instrução classifica situações, e em algumas ela acerta. Significado
+denotacional, que se formaliza como condição de verdade.
+
+A distinção é familiar em computação, e mostrar que as duas versões coincidem
 costuma dar trabalho.
 
-E o significado operacional é frequentemente **mais fino** que o denotacional.
+E o significado operacional é frequentemente mais fino que o denotacional.
 _Seven plus five_ e _two times six_ denotam o mesmo número: a denotação não os
 distingue. As receitas para chegar lá são duas, e é isso que o operacional vê.
 
-Essa é a razão de haver dois modos de perguntar se algo é verdadeiro.
-Verificar uma sentença contra uma situação dada é calcular: a resposta é `true`
-ou `false`, e sai em tempo finito. Concluir uma sentença a partir de outras é
+Essa é a razão de haver dois modos de perguntar se algo é verdadeiro. Verificar
+uma sentença contra uma situação dada é calcular: a resposta é `true` ou
+`false`, e sai em tempo finito. Concluir uma sentença a partir de outras é
 demonstrar: a resposta é uma prova. Os dois modos aparecem adiante, e Lean é
-incomum entre as linguagens de programação por hospedar ambos.
+incomum entre as linguagens de programação por hospedar ambos. -/
 
-## Informação é eliminar possibilidades
+example : 7 + 5 = 2 * 6 := by rfl
+
+/-! ## 1.3 Os propósitos da comunicação
 
 Comunicar serve a muitas coisas — encontrar a verdade em conjunto, convencer,
 confundir, ironizar. Uma delas interessa particularmente aqui: descrever
@@ -123,7 +139,7 @@ imagem que sustenta tanto a verificação de sentenças contra modelos, no
 capítulo 6, quanto a teoria de comunicação do capítulo 13, onde uma afirmação
 pública elimina possibilidades para todos os presentes ao mesmo tempo.
 
-## A escada dos instrumentos
+### A escada dos instrumentos
 
 O fragmento mínimo capaz de sustentar essa conversa tem fatos básicos, negação,
 conjunção, disjunção e implicação. É a **lógica proposicional**, e Boole já
@@ -139,7 +155,7 @@ sabe, exige **lógica epistêmica**.
 Essa escada é o índice do curso. Cada degrau é um capítulo, e cada um entra
 quando o anterior deixa de dar conta de um fenômeno.
 
-## O método dos fragmentos
+### O método dos fragmentos
 
 Nenhuma dessas lógicas cobre uma língua inteira, e o programa não é esse. O
 método é recortar: escolher o conjunto de sentenças que se traduz numa lógica
@@ -154,9 +170,36 @@ chamada de semântica formal.
 O objetivo, então, é um modelo adequado de _partes_ da competência
 linguística. Adequado significa realista quanto a complexidade e a
 aprendibilidade. Não se afirma que o modelo espelhe processos cognitivos; o que
-se afirma é que ele restringe o que esses processos podem ser.
+se afirma é que ele restringe o que esses processos podem ser. -/
 
-## O que separa língua humana
+/-! ### Exercício 1.1 (p. 6)
+
+A ignorância completa sobre a verdade ou falsidade de dois fatos se modela como
+incerteza entre quatro possibilidades. Com dez fatos básicos, quantas
+possibilidades? E no caso geral de `n` fatos?
+-/
+
+def possibilities : Nat → Nat
+  | 0 => 1
+  | n + 1 => 2 * possibilities n
+
+/--
+info: 1024
+-/
+#guard_msgs in
+#eval possibilities 10
+
+/--
+A prova é por indução. No passo indutivo é preciso desdobrar a potência, e há
+dois lemas para isso: `Nat.pow_succ'` e `Nat.pow_succ`. Um dos dois dá uma prova
+mais curta. -/
+example (n : Nat) : possibilities n = 2 ^ n := by
+ induction n with
+  | zero => rfl
+  | succ k ih => rw [possibilities, ih, Nat.pow_succ']
+
+
+/-! ## 1.4 Línguas naturais e línguas formais
 
 Comparada a sistemas de comunicação animal, a língua humana tem três traços de
 projeto que valem nomear:
@@ -174,9 +217,60 @@ Os dois primeiros explicam a economia criativa da língua: infinitas sentenças 
 partir de finitos sons e finitas regras. Sem isso, nenhuma criança aprenderia a
 falar no tempo em que aprende — não haveria o que decorar.
 
-O terceiro é o que vai dar trabalho, e o trabalho começa no capítulo 12.
+O terceiro é o que vai dar trabalho, e o trabalho começa no capítulo 12. -/
 
-## Composicionalidade
+/-! ### Exercício 1.2 (p. 8)
+
+Pollard e Sag dão este exemplo de recursão que estende sentenças:
+
+    Sentences can go on.
+    Sentences can go on and on.
+    Sentences can go on and on and on.
+    Sentences can go on and on and on and on.
+    ...
+
+Dê uma descrição concisa do padrão de recursão — isto é, escreva o gerador.
+`sentence n` deve produzir a sentença com `n` repetições de "and on".
+
+Uma observação que economiza tempo: a recursão **não** cabe direto em
+`sentence`, porque o ponto final tem de ficar sempre no fim. O que se repete é
+o pedaço `" and on"`, e é ele que merece a função recursiva. Por isso o
+esqueleto vem em duas partes.
+-/
+
+/-- `andOn n` são as `n` repetições de `" and on"`, sem mais nada. -/
+def andOn : Nat → String
+  | 0 => ""
+  | n + 1 => s!" and on" ++ andOn n
+
+/-- E a sentença é o começo, mais as repetições, mais o ponto. -/
+def sentence (n : Nat) : String :=
+  s!"Sentences can go on{andOn n}."
+
+/--
+info: "Sentences can go on and on and on."
+-/
+#guard_msgs in
+#eval sentence 2
+
+
+/-! ### Exercício 1.3 (p. 8)
+
+Segue do exercício 1.2 que há infinitas sentenças em inglês? Ou segue que
+sentenças em inglês podem ter comprimento infinito? Ou as duas coisas?
+
+De fato, segue-se do exemplo que há infinitas frases. Ainda assim, cada frase
+tem comprimento finito.
+
+Conjuntos finitos de coisas infinitas são diferentes de conjuntos infinitos de
+coisas finitas. O conjunto de frases da língua inglesa é um exemplo de um
+conjunto infinito de coisas finitas. Portanto, “As frases podem continuar
+indefinidamente” não significa que uma única frase possa continuar
+indefinidamente, mas sim que o processo de construir frases cada vez mais longas
+pode continuar indefinidamente.
+-/
+
+/-! ### Composicionalidade
 
 Se as sentenças são infinitas, uma lista de significados não serve. O princípio
 de Frege dá a saída: o significado de uma expressão composta é determinado
@@ -198,8 +292,8 @@ duas reações possíveis: abandonar a composicionalidade, ou enriquecer a teori
 até que o fenômeno caiba nela. O caminho escolhido aqui é o segundo, e os
 capítulos 12 e 13 são o resultado.
 
-Em termos de programação, o princípio diz: **a interpretação é uma função
-recursiva sobre a estrutura sintática**. Cada construção da gramática tem um
+Em termos de programação, o princípio diz: a interpretação é uma função
+recursiva sobre a estrutura sintática. Cada construção da gramática tem um
 caso na definição, e o caso combina os resultados obtidos para os filhos. É a
 forma exata dos programas que percorrem tipos indutivos.
 
@@ -207,27 +301,66 @@ Daí em diante as duas metades do assunto passam a ter a mesma forma. Um
 fragmento da língua é um tipo; sua semântica é uma função definida por casos
 sobre esse tipo; uma construção mal formada é um termo que não tipa.
 
-## A objeção do exercício de tipografia
+Abaixo está a sintaxe de um fragmento minúsculo — expressões aritméticas.
+Escreva a interpretação.
+-/
+
+inductive Expr where
+  | num (n : Nat)
+  | plus (a b : Expr)
+  | times (a b : Expr)
+deriving Repr
+
+/-- A interpretação: um caso por construção da sintaxe, cada caso combinando
+os resultados obtidos para as partes. -/
+def eval : Expr → Nat
+ | .num n => n
+ | .plus a b => eval a + eval b
+ | .times a b => eval a * eval b
+
+def sevenPlusFive : Expr := .plus (.num 7) (.num 5)
+def twoTimesSix : Expr := .times (.num 2) (.num 6)
+
+/-- info: 12 -/
+#guard_msgs in
+#eval eval sevenPlusFive
+
+/-- Estruturas sintáticas diferentes, mesma denotação. -/
+example : eval sevenPlusFive = eval twoTimesSix := rfl
+
+
+/-! ## 1.5 O que a semântica formal não é
 
 Há uma objeção antiga contra tudo isso, e ela merece resposta. Explicar que o
-significado de _Toto barked and Dorothy smiled_ é `A` **e** `B` parece não
-explicar nada: trocou-se a palavra _and_ pelo símbolo **e**, e o que se ganhou
-foi tipografia.
+significado de _Toto barked and Dorothy smiled_ é `A ∧ B` parece não explicar
+nada: trocou-se a palavra _and_ pelo símbolo `∧`.
 
-A resposta é que o símbolo não está sozinho. Ele nomeia uma operação
-determinada — o encontro numa álgebra booleana — e essa operação tem
-propriedades que se conhecem independentemente, e que permitem calcular e
-demonstrar. Se se sabe o que é uma estrutura booleana, houve explicação; se se
-está aprendendo o que é uma estrutura booleana pela semântica da conjunção,
-então de fato nada aconteceu, e a objeção acerta.
+A resposta é que o símbolo não está isolado. Ele nomeia uma operação determinada
+— o `meet` da álgebra booleana. Se se sabe o que é uma estrutura booleana, houve
+explicação; se se está aprendendo o que é uma estrutura booleana pela semântica
+da conjunção, então de fato nada aconteceu, e a objeção acerta.
 
 O problema de fundo é que não há como referir significado sem símbolo nenhum.
 Explicar _bicycle_ desenhando uma bicicleta funciona, mas o desenho também é um
-símbolo — só um símbolo mais fácil de reconhecer. A conta se fecha do mesmo
-modo aqui: o ganho não está em ter trocado de notação, está em a notação nova
-vir com uma teoria matemática atrás.
+símbolo — só um símbolo mais fácil de reconhecer. A conta se fecha do mesmo modo
+aqui: o ganho não está em ter trocado de notação, está em a notação nova vir com
+uma teoria matemática atrás.
 
-## O que a máquina faz
+Por que uma linguagem funcional, e não uma linguagem lógica como o Prolog? O que
+se ganha em separar a *construção* da representação de significado das
+*operações* sobre ela?
+
+A programação funcional preserva pureza lógica sem precisar dos operadores de
+controle (`assert`, `retract`, `cut`) que o Prolog exige para ser uma linguagem
+completa, e que comprometem a leitura dos programas. Separar construção de
+operação importa porque a primeira pode ser vista como tradução sistemática
+(forma → representação), e a segunda como cálculo sobre o resultado (model
+checking, inferência); sem essa segunda parte, a representação construída não
+serve para nada — não há como usá-la para responder a uma pergunta ou verificar
+algo.
+
+
+## 1.6 Semântica computacional e programação funcional
 
 Duas tarefas, e vale separá-las porque exigem coisas diferentes.
 
@@ -256,3 +389,5 @@ O que se ganha em troca é que tudo fica explícito — a gramática, o signific
 de cada palavra, a regra de composição. Onde houver ambiguidade, ela aparece
 como mais de um resultado. Onde houver lacuna, o verificador de tipos a aponta.
 -/
+
+end Chapter01

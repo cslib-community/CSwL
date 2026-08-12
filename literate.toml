@@ -37,6 +37,7 @@ library = "CSwL"
   "CSwL.Chapter01",
   "CSwL.Chapter02",
   "CSwL.Chapter03",
+  "CSwL.Chapter04",
 ]
 
 # `title` é o rótulo na navegação e no `<title>` da aba; sem ele o Verso usa o
@@ -58,6 +59,10 @@ url = "cap02"
 [modules."CSwL.Chapter03"]
 title = "3. Funções, tipos e abstração"
 url = "cap03"
+
+[modules."CSwL.Chapter04"]
+title = "4. Sintaxe formal de fragmentos"
+url = "cap04"
 
 [metadata]
 title = "Semântica computacional com Lean"

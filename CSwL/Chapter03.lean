@@ -2,29 +2,555 @@ import Mathlib.Algebra.Group.Nat.Even
 import Mathlib.Data.Rel
 import Mathlib.Logic.Relation
 import Mathlib.Data.Set.Basic
+import Mathlib.Data.Set.Insert
+import Mathlib.Data.Finset.Prod
+import Mathlib.Data.Fintype.Prod
+import Mathlib.Data.Setoid.Basic
+import Mathlib.Tactic
 
 /-!
-# 3. Funções, tipos e abstração
+# 3. Conjuntos e Relações, Lambda Calculus e Tipos
 
-_No livro: capítulo 2._
-
-Construir o significado de uma sentença a partir do significado de suas
-partes exige quatro noções: função, aplicação, tipo e relação. Em Lean elas
-não são notação auxiliar em torno da linguagem — são a linguagem. Uma função
-é um valor que se pode nomear, passar adiante e aplicar parcialmente. Um tipo
-é uma afirmação sobre o que um valor pode ser, e o verificador de tipos a
-checa. Um conjunto é a função que decide a pertinência.
-
-O capítulo anterior usou tudo isso para programar: escreveu lambdas, aplicou
-funções parcialmente, declarou tipos. Aqui o mesmo material é retomado como
-teoria — de onde vem a notação `fun x => e`, o que é exatamente um tipo, e por
-que essas duas coisas bastam para sustentar a semântica composicional que
-começa no capítulo 4.
+Ref. CSwFP/2. Lambda Calculus, Type Theory, and Functional Programming. No livro
+é teoria sem código; aqui formalizamos o possível em Lean.
 -/
 
 namespace Chapter03
 
-/-! ## O cálculo lambda
+open Set
+
+/-! ## 3.1 Conjuntos e notação de conjuntos
+
+Um conjunto de elementos de `α` por sua função característica: a função que,
+dado um elemento, responde se ele pertence ao conjunto. Há duas maneiras de
+responder:
+
+* `α → Bool` calcula a resposta. O resultado é `true` ou `false`, e pode-se
+  rodar.
+* `α → Prop` enuncia a resposta. O resultado é uma afirmação, que se pode
+  provar.
+
+A segunda versão é, literalmente, como conjuntos são definidos no Lean.
+-/
+
+#print Set
+
+def S1 : Set ℕ := {10}
+def S2 : Set ℕ := {10, 20}
+
+#check S1
+#check 10 ∈ S1
+#check S1 ⊆ S2
+
+example : (10 ∈ S1) = (S1 10) := rfl
+
+/-! Um `Set α` é uma função `α → Prop`, e nada mais. A notação de conjunto que
+se escreve na prática é açúcar para construir essa função, e pertencer é
+aplicá-la — as duas coisas são a mesma, e o `rfl` prova: -/
+
+example : {n : Nat | n > 2} = Set.ofPred (λ n ↦ n > 2) := rfl
+
+example (p : Nat → Prop) (x : Nat) : (x ∈ {n | p n}) = p x := rfl
+
+
+/-! conjunto vazio e conjunto universal -/
+
+def my_emptyset : Set ℕ := fun _ ↦ False
+example: my_emptyset = ∅  := by rfl
+
+def my_univ : Set ℕ := fun _ ↦ True
+example: my_univ = Set.univ := by rfl
+
+
+/-! Escrever `x ∈ A` em vez de `A x` é comodidade de leitura. Vale saber disso
+porque, quando uma prova sobre conjuntos empacar, desdobrar a notação até a
+aplicação costuma destravar — e o desdobramento é `rfl`, não um passo que
+precise de justificativa. Então `above2`, aplicado, é o predicado aplicado — e
+`above2 3` é literalmente `3 > 2`, sem nenhuma camada de conjunto no meio: -/
+
+def above2 : Set Nat := {n | n > 2}
+
+example : (3 ∈ above2) = above2 3 := rfl
+example : above2 3 = (3 > 2) := rfl
+
+/-! `decide` sozinho **não** fecha `3 ∈ above2`: a mensagem é
+`failed to synthesize Decidable (3 ∈ above2)`. O motivo é que `above2` é um
+`def`, e `decide` não desdobra definições — para ele o objetivo é opaco.
+`unfold` faz esse desdobramento manualmente, e depois `decide` calcula: -/
+
+example : 3 ∈ above2 := by
+  unfold above2
+  decide
+
+/-! ### Aquecimento: conjuntos com nome -/
+
+def above5 : Set Nat := {n | n > 5}
+
+/-- **A1.** Prove que 5 pertence a `above2`. -/
+example : 5 ∈ above2 := sorry
+
+/-- **A2.** Prove que 1 não pertence a `above2`. `x ∉ A` abrevia `¬ (x ∈ A)`,
+que por sua vez é `x ∈ A → False`. -/
+example : 1 ∉ above2 := sorry
+
+/-- **A3.** Prove a inclusão. `unfold above2 above5` desdobra as duas
+definições; `simp only [Set.mem_ofPred_eq] at h` desdobra a pertinência em `h`
+até a desigualdade, que `omega` então resolve. -/
+example : above5 ⊆ above2 := sorry
+
+/-! União e interseção são disjunção e conjunção elemento a elemento. As duas
+inclusões abaixo valem para conjuntos quaisquer, e as provas não precisam
+saber nada sobre eles. -/
+
+/-- **A4.** Todo conjunto está contido na sua união com outro. Depois do
+`intro`, `Or.inl` prova uma disjunção pelo lado esquerdo. -/
+example (A B : Set Nat) : A ⊆ A ∪ B := sorry
+
+/-- **A5.** E a interseção está contida em cada um dos dois. -/
+example (A B : Set Nat) : A ∩ B ⊆ A := sorry
+
+/-! A Mathlib tem esses dois últimos prontos, com os nomes
+`Set.subset_union_left` e `Set.inter_subset_left`. Aqui o exercício é escrever
+a prova, não encontrá-los — mas vale procurar depois, para ver como as coisas
+se chamam.
+
+### Mais teoria dos conjuntos -/
+
+section
+variable {α : Type} (A B C D : Set α)
+
+example : A ⊆ A := by
+  rw [subset_def]
+  intro x h
+  assumption
+
+example (A B : Set ℕ) : (A ⊆ B) = (∀ x, x ∈ A → x ∈ B) := rfl
+
+#check mem_inter_iff
+
+example : A ∩ B ⊆ B := by
+  intro x h
+  rw [mem_inter_iff] at h
+  obtain ⟨xA,xB⟩ := h
+  exact xB
+
+#check subset_def
+
+/-- **A6.** Transitividade da inclusão. -/
+example : A ⊆ B → B ⊆ C → A ⊆ C := sorry
+
+#check Set.inter_def
+
+/-- **A7.** Se `A` está contido em `B` e em `C`, está contido na interseção. -/
+example : A ⊆ B → A ⊆ C → A ⊆ B ∩ C := sorry
+
+/-! ### Exercício 3.1 (p. 17)
+
+Explique por que `∅ ⊆ A` vale para todo conjunto `A`. Prove-o. O argumento é
+vacuoso, e a prova deve exibir isso.
+
+**Não vale usar `Set.empty_subset`** (nem `simp`, que o encontra): esse lema é
+exatamente o enunciado, e citá-lo apagaria o exercício.
+-/
+
+example : ∅ ⊆ A := sorry
+
+/-! ### Exercício 3.2 (p. 17) ✎
+
+Explique a diferença entre `∅` e `{∅}`.
+
+`∅` é o conjunto que não tem elemento nenhum; `{∅}` é um conjunto que tem
+exatamente um elemento, e esse elemento é o conjunto vazio. São, portanto,
+objetos distintos: um está vazio, o outro não. A confusão vem de olhar para o
+"conteúdo do conteúdo" — o único elemento de `{∅}` é ele mesmo vazio, mas isso
+não faz o recipiente ficar vazio.
+
+Cardinalidades: `|∅| = 0` e `|{∅}| = 1`. (A prova abaixo explora justamente
+isso: `∅ ∈ {∅}` vale por `rfl`, e transportar essa pertinência pela igualdade
+suposta daria `∅ ∈ ∅`, isto é, `False`.)
+
+**Não vale usar `Set.singleton_ne_empty`, `Set.empty_ne_singleton` nem
+`simp`.**
+-/
+
+example : (∅ : Set (Set α)) ≠ ({∅} : Set (Set α)) := sorry
+
+/-! ### Exercício 3.3 (p. 17) ✎
+
+Verifique que o complemento do complemento de `A` é `A`.
+
+Use `Set.ext`. Uma das duas direções precisa de raciocínio clássico: vale
+`Classical.byContradiction`, `Classical.em` ou `Classical.byCases`.
+
+**Não vale usar `compl_compl`** (nem `simp`, nem `tauto`, nem `grind`): a
+Mathlib prova esse lema para qualquer álgebra de Boole, e conjuntos são uma.
+Aqui o exercício é o argumento sobre elementos.
+
+**Qual inclusão precisou do argumento clássico?** A direção que precisa é
+`Aᶜᶜ ⊆ A`, isto é, `¬¬(x ∈ A) → x ∈ A` (eliminação da dupla negação). A
+outra, `A ⊆ Aᶜᶜ`, ou seja `x ∈ A → ¬¬(x ∈ A)`, é construtiva: dados
+`hx : x ∈ A` e `hnx : x ∈ Aᶜ`, basta aplicar `hnx hx` para obter `False`. A
+razão é que, na leitura construtiva, `¬ P` é `P → False`; de uma função que
+transforma "refutações de `P`" em absurdo não se extrai, por meios
+construtivos, uma *prova* de `P`. Passar de `¬¬P` para `P` é exatamente o
+conteúdo do terceiro excluído.
+-/
+
+example : Aᶜᶜ = A := sorry
+
+end
+
+
+/-! ### Calcular ou enunciar
+
+`α → Prop` enuncia a pertinência. Existe também `α → Bool`, que a calcula, e é o
+que se usa quando o conjunto é finito e a resposta tem que ser computada — é o
+caso do capítulo 6, onde verificar uma sentença num modelo é percorrer um
+domínio finito.
+-/
+
+/-- Ser par, na versão que se calcula. -/
+def isEven (n : Nat) : Bool := n % 2 == 0
+
+#eval isEven 4
+#eval isEven 5
+
+/-! A versão que se enuncia já existe na biblioteca: `Even n` afirma que `n` é o
+dobro de algum número, sem dizer como encontrá-lo. Aqui está a distinção em ato.
+`isEven` é um algoritmo — divide e compara o resto. `Even` é uma condição de
+verdade — existe um `r` tal que `n = r + r`. São conteúdos diferentes, e por
+isso vale a pena que sejam objetos diferentes. -/
+
+#print Even
+
+/-- Provar `Even 4` é exibir o `r` que a afirmação promete, junto com a
+verificação de que ele serve. -/
+example : Even 4 := by
+  unfold Even
+  apply Exists.intro 2   -- alternative `use`
+  rfl
+
+/-!
+Nada obriga, a priori, uma afirmação e um algoritmo a dizerem a mesma coisa. Que
+estes dois digam é um fato sobre os naturais, Mathlib já traz a prova, sob o
+nome `Nat.even_iff`:
+-/
+
+example (n : Nat) : Even n ↔ n % 2 = 0 := Nat.even_iff
+
+/-! Provado isso, `Even n` passa a ser uma afirmação que se pode calcular
+para um `n` dado — e o Lean faz isso sem que se peça nada: -/
+
+#eval Even 4
+
+/-! Vale reparar no que acabou de acontecer. `Even 4` é uma afirmação, não um
+programa; ainda assim o `#eval` respondeu `true`. Há um mecanismo por trás
+disso, que registra quais afirmações admitem esse cálculo e como fazê-lo — e ele
+é uma classe de tipos, como o `BEq` e o `DecidableEq` do capítulo 2. A classe se
+chama `Decidable`. -/
+
+
+/-! ## 3.2 Relações
+
+Um conjunto representa a função que responde se um elemento pertence. Uma
+relação binária faz o mesmo com _pares_: é a função que, dados dois elementos,
+responde se estão na relação. Em Lean isso não é analogia nenhuma — é a
+definição: -/
+
+#print Rel
+
+/-! `Rel α β` é `α → β → Prop`. É a primeira vez neste capítulo que o
+domínio deixa de ser um tipo qualquer e passa a ter conteúdo linguístico: um
+domínio de duas entidades, e a relação de gostar entre elas. -/
+
+/-- O domínio de entidades. Duas bastam para os exemplos deste capítulo. -/
+inductive Entity where
+  | dorothy | toto
+deriving DecidableEq
+
+def likesR : Entity → Entity → Prop
+  | .dorothy, .toto => True
+  | .toto, .dorothy => True
+  | _, _            => False
+
+#check (likesR : Rel Entity Entity)
+
+/-! ### Conversa
+
+A conversa de uma relação troca a ordem dos argumentos, e é `flip` quem faz
+isso. Em língua, é o que a voz passiva faz: _Dorothy likes Toto_ e _Toto is
+liked by Dorothy_ descrevem o mesmo par, em ordens opostas. -/
+
+#check (flip likesR)
+
+example : flip likesR .toto .dorothy = likesR .dorothy .toto := rfl
+
+/-! ### Composição
+
+Compor duas relações é encadeá-las por um elemento intermediário: `R` composta
+com `S` relaciona `x` a `z` quando existe um `y` com `x R y` e `y S z`. É
+`Relation.Comp`, e provar uma composição é exibir esse intermediário.
+
+Composição é o que define parentesco em cadeia: "avô" é "pai" composto com
+"pai". Aqui, quem gosta de quem gosta de quem: -/
+
+example : Relation.Comp likesR likesR .dorothy .dorothy :=
+  ⟨.toto, trivial, trivial⟩
+
+/-! ### Propriedades
+
+Reflexividade, simetria e transitividade se enunciam com quantificador e
+conectivo, e são afirmações sobre a relação inteira — não sobre um par. -/
+
+def Reflexive' (R : α → α → Prop) : Prop := ∀ x, R x x
+def Symmetric' (R : α → α → Prop) : Prop := ∀ x y, R x y → R y x
+def Transitive' (R : α → α → Prop) : Prop := ∀ x y z, R x y → R y z → R x z
+
+/-- `likesR` é simétrica, e a prova percorre os casos: `decide` não serve, porque
+`Prop` aqui não é decidível de graça, mas o casamento de padrão resolve. -/
+example : Symmetric' likesR := by
+  intro x y h
+  cases x <;> cases y <;> simp_all [likesR]
+
+/-! As três juntas dão uma _relação de equivalência_, e a biblioteca tem o nome
+pronto: `Equivalence`. A igualdade é o exemplo canônico. -/
+
+#check @Equivalence
+
+example : Equivalence (· = · : Entity → Entity → Prop) := eq_equivalence
+
+/-! ### Calcular ou enunciar, outra vez
+
+Vale a mesma escolha da seção de conjuntos. A divisibilidade vem na biblioteca
+na versão que enuncia — `m ∣ n` afirma que existe um fator que leva de `m` a
+`n`, e provar é exibi-lo — e ainda assim se calcula, porque a instância
+`Decidable` existe: -/
+
+example : (3 : Nat) ∣ 12 := ⟨4, rfl⟩
+
+#eval (3 ∣ 12 : Prop)
+#eval (5 ∣ 12 : Prop)
+
+example : ∀ n : Nat, n ∣ n := fun _ => Nat.dvd_refl _
+
+/-! Relação é a estrutura que o capítulo 6 vai usar para dar modelo a um
+fragmento — um domínio de entidades e, para cada verbo, a relação que ele
+denota —, e o capítulo 10 volta a ela para tratar verbos de mais de dois
+lugares e o escopo entre eles.
+
+### Exercício 3.4 (p. 18)
+
+Tome `A` como o conjunto `{Kasparov, Karpov, Anand}`. Encontre `A × A`.
+
+Como `A` é finito, o produto cartesiano é finito e a Mathlib o calcula:
+`Finset` é o tipo dos conjuntos finitos, `Fintype α` é a evidência de que `α`
+tem finitos elementos (e dá `Finset.univ`, o conjunto de todos eles), e
+`s ×ˢ t` é o produto cartesiano de dois `Finset`. Construa `A × A` e prove
+que tem nove elementos.
+-/
+
+inductive Player where
+  | kasparov | karpov | anand
+deriving Repr, DecidableEq
+
+/-- A evidência de que `Player` é finito: a lista dos seus elementos, mais a
+prova de que não falta ninguém. (O normal seria `deriving Fintype`, mas o
+gerador automático está quebrado nesta versão da Mathlib — então a instância
+vai à mão, o que também mostra o que um `Fintype` é.) -/
+instance : Fintype Player :=
+  ⟨{.kasparov, .karpov, .anand}, fun x => by cases x <;> decide⟩
+
+/-- Todos os pares de players, como conjunto finito. -/
+def playerPairs : Finset (Player × Player) := sorry
+
+example : playerPairs.card = 9 := sorry
+
+/-! ### Exercício 3.5 (p. 18)
+
+Qual é a composição de `{(n, n + 2) | n ∈ ℕ}` com ela mesma?
+
+Enuncie a resposta e prove.
+-/
+
+def plusTwo : Rel Nat Nat := fun a b => b = a + 2
+
+example (a c : Nat) : Relation.Comp plusTwo plusTwo a c ↔ c = a + 4 := sorry
+
+/-! ### Exercício 3.6 (p. 18)
+
+Mostre que de `R˘ ⊆ R` segue que `R = R˘`.
+
+A Mathlib tem `Std.Symm.flip_eq : flip r = r` para relações simétricas. Usá-lo
+é permitido — mas então o trabalho é seu de construir a instância `Std.Symm R`
+a partir de `h`, que é o mesmo argumento. A prova direta é mais curta.
+-/
+
+example {α : Type} (R : Rel α α) (h : flip R ≤ R) : R = flip R := sorry
+
+/-! ### Exercício 3.7 (p. 19)
+
+Quais das relações seguintes são transitivas?
+
+1. `{(1,2), (2,3), (3,4)}`
+2. `{(1,2), (2,3), (3,4), (1,3), (2,4)}`
+3. `{(1,2), (2,3), (3,4), (1,3), (2,4), (1,4)}`
+4. `{(1,2), (2,1)}`
+5. `{(1,1), (2,2)}`
+
+Estas relações são finitas, e por isso podem ser dadas como o `Finset` dos
+seus pares — e aí a transitividade *se decide*: escreva-a como uma
+proposição sobre os pares do `Finset` e o `decide` calcula a resposta.
+
+Complete `isTransitive` e depois decida os cinco casos. É `abbrev`, e não
+`def`, para que a instância `Decidable` seja encontrada através da definição
+— trocar por `def` faz o `decide` falhar com `failed to synthesize Decidable
+(isTransitive r3)`, porque a busca de instâncias não desdobra um `def`.
+-/
+
+abbrev isTransitive (r : Finset (Nat × Nat)) : Prop := sorry
+
+def r1 : Finset (Nat × Nat) := {(1,2), (2,3), (3,4)}
+def r2 : Finset (Nat × Nat) := {(1,2), (2,3), (3,4), (1,3), (2,4)}
+def r3 : Finset (Nat × Nat) := {(1,2), (2,3), (3,4), (1,3), (2,4), (1,4)}
+def r4 : Finset (Nat × Nat) := {(1,2), (2,1)}
+def r5 : Finset (Nat × Nat) := {(1,1), (2,2)}
+
+example : ¬ isTransitive r1 := sorry
+example : ¬ isTransitive r2 := sorry
+example :   isTransitive r3 := sorry
+example : ¬ isTransitive r4 := sorry
+example :   isTransitive r5 := sorry
+
+/-! ### Exercício 3.8 (p. 19)
+
+Verifique que uma relação `R` é transitiva se e somente se `R ∘ R ⊆ R`.
+
+**Não vale usar `SetRel.isTrans_iff_comp_subset_self`**, que é este enunciado
+na versão "relação como conjunto de pares" (vale abrir
+`Mathlib/Data/Rel.lean` e ver: o exercício aparece lá provado, com esse
+nome). Prove as duas direções.
+-/
+
+example {α : Type} (R : Rel α α) : IsTrans α R ↔ Relation.Comp R R ≤ R := sorry
+
+/-! ### Exercício 3.9 (p. 19)
+
+Você pode dar um exemplo de relação transitiva `R` para a qual `R ∘ R = R`
+não vale?
+
+Exiba a testemunha completando `counterexample` e prove as duas coisas: que
+ela é transitiva, e que a composição com ela mesma não lhe é igual.
+-/
+
+def counterexample : Rel Nat Nat := sorry
+
+example : IsTrans Nat counterexample := sorry
+example :
+    Relation.Comp counterexample counterexample ≠ counterexample := sorry
+
+/-! ## 3.3 Funções
+
+Uma função é uma relação com uma restrição: para cada `a`, no máximo um `b`
+está relacionado a ele. `Rel α β`, do jeito que ficou definido acima, não
+impõe isso — `likesR` bem poderia relacionar `dorothy` a duas entidades
+diferentes. Uma função é o caso particular em que a resposta é única, e é
+justamente essa unicidade que permite escrever `f x` em vez de "algum `b` tal
+que `(x, b) ∈ f`".
+
+Uma função admite duas leituras, e as duas importam:
+
+* **extensional** — a função como tabela: o conjunto de pares
+  entrada/saída. Uma conversão de Celsius para Fahrenheit é a tabela
+  `{(0, 32), (100, 212), …}`, ponto.
+* **intensional** — a função como instrução de cálculo. A mesma conversão é
+  `x ↦ x * 9 / 5 + 32`, uma receita que produz a tabela sem precisar
+  listá-la.
+
+Em Lean, `def` escreve sempre a versão intensional — a instrução —, mas duas
+instruções diferentes podem ser a mesma função, no sentido extensional, se
+produzem a mesma tabela. É isso que `funext` verifica: duas funções são
+iguais quando concordam em todo ponto do domínio.
+-/
+
+def celsiusToFahrenheit (c : Int) : Int := c * 9 / 5 + 32
+
+#eval celsiusToFahrenheit 0     -- 32
+#eval celsiusToFahrenheit 100   -- 212
+
+/-! ### Composição
+
+Componhamos duas conversões: de Kelvin para Celsius, depois de Celsius para
+Fahrenheit. `∘` é `Function.comp`, e `(f ∘ g) x = f (g x)` — primeiro `g`,
+depois `f`, na ordem em que a leitura da notação sugere o contrário. -/
+
+def kelvinToCelsius (k : Int) : Int := k - 273
+
+def kelvinToFahrenheit : Int → Int := celsiusToFahrenheit ∘ kelvinToCelsius
+
+#eval kelvinToFahrenheit 373   -- 212, o ponto de ebulição da água
+
+/-! ### Função característica
+
+Toda relação, vista como conjunto de pares, tem uma função característica: a
+função que decide se um par está nela. Reaproveitando `likesR` de acima —
+que já é a própria função característica da relação de gostar, escrita como
+`Entity → Entity → Prop`: dados `x` e `y`, `likesR x y` é a afirmação "x
+gosta de y", nem mais nem menos. Isto prepara a leitura da seção seguinte:
+conjunto e relação **são** funções para `Prop` (ou `Bool`), não apenas
+"correspondem" a elas.
+
+### Exercício 3.10 (p. 21)
+
+A função sucessor `s : ℕ → ℕ` é dada por `n ↦ n + 1`. Qual é a composição de
+`s` com ela mesma?
+
+`∘` é `Function.comp`, e duas funções são iguais quando concordam em todo
+ponto — é o que `funext` diz.
+-/
+
+def s : Nat → Nat := fun n => n + 1
+
+example : s ∘ s = fun n => n + 2 := sorry
+
+/-! ### Exercício 3.11 (p. 21)
+
+`≤` é uma relação binária sobre os naturais. Qual é a função característica
+correspondente?
+
+Escreva a função e prove que ela é adequada — que responde `true` exatamente
+quando a relação vale.
+
+Aqui `Prop` e `Bool` se encontram: `m ≤ n` é uma proposição, `leChar m n` é
+um cálculo. A ponte é `decide`, e os lemas que a atravessam são
+`decide_eq_true_iff`, `of_decide_eq_true` e `decide_eq_true`.
+-/
+
+def leChar : Nat → Nat → Bool := sorry
+
+example (m n : Nat) : leChar m n = true ↔ m ≤ n := sorry
+
+/-! ### Exercício 3.12 (p. 21)
+
+Seja `f : A → B` uma função. Mostre que a relação `R` dada por `(x, y) ∈ R`
+se e somente se `f x = f y` é uma relação de equivalência sobre `A`.
+
+`Equivalence R` é a estrutura com os três campos `refl`, `symm` e `trans`;
+`Setoid α` é a mesma coisa empacotada com a relação, e é o que a Mathlib usa
+para quocientes.
+
+**Não vale usar `Setoid.ker`**: é exatamente esta relação, já construída na
+Mathlib com a prova de que é de equivalência. Prove os três campos.
+-/
+
+def kernel {α β : Type} (f : α → β) : Rel α α := fun x y => f x = f y
+
+theorem ex_3_12 {α β : Type} (f : α → β) : Equivalence (kernel f) := sorry
+
+/-- O mesmo fato, empacotado: um `Setoid` é uma relação mais a prova de que
+ela é de equivalência. Reaproveite `ex_3_12`. -/
+def kernelSetoid {α β : Type} (f : α → β) : Setoid α := sorry
+
+/-! ## 3.4 Cálculo lambda
 
 A notação `fun x => e` não é invenção de linguagem de programação. Ela resolve
 uma ambiguidade real, e vale ver qual.
@@ -126,7 +652,8 @@ def pluralize (w : String) : String := w ++ "s"
 
 Um verbo transitivo é uma função de dois lugares. *Likes* se escreve
 `λxλy ↦ y likes x`, onde `likes` é a função característica da relação de
-gostar: aplicada a duas entidades, responde se a primeira gosta da segunda.
+gostar — a mesma `likesR` da seção de relações, só que agora vista como
+instrução curried em vez de par de argumentos.
 
 Aqui a aplicação parcial do capítulo 2 deixa de ser conveniência de
 programação e passa a ter conteúdo linguístico. `add 3` era uma função à
@@ -140,7 +667,62 @@ desempenha na expressão maior — e é justamente por dizer só isso que o cál
 lambda serve à semântica composicional. A derivação do significado pode então
 acompanhar, passo a passo, a estrutura sintática da sentença.
 
-## Tipos
+### Exercício 3.13 (p. 26)
+
+Outro exemplo de função de ordem superior é `λf λx ↦ f (f x)`, que aplica uma
+função duas vezes a uma entrada dada. Ponha-a para trabalhar reduzindo:
+`(λf λx ↦ f (f x)) (λy ↦ 1 + y)`.
+-/
+
+def twice {α : Type} (f : α → α) : α → α := sorry
+
+/-- O resultado da redução. -/
+example : twice (fun y => 1 + y) = fun x => 2 + x := sorry
+
+example : twice (fun y => 1 + y) 0 = 2 := sorry
+
+/-! ### Exercício 3.14 (p. 26–27) ✎
+
+Um aspecto do cálculo lambda é que reduções podem não terminar. Observe o
+comportamento de redução de `(λx ↦ x x) (λx ↦ x x)`, e depois de
+`(λx ↦ x x x) (λx ↦ x x x)`.
+
+Este exercício não se enuncia em Lean, e a razão é o assunto da questão:
+
+**1. Um passo de redução.** Substituindo `x` por `(λx ↦ x x)` no corpo `x x`,
+obtém-se `(λx ↦ x x) (λx ↦ x x)` — o mesmo termo de partida. A redução é
+portanto um laço: qualquer número de passos devolve o termo original, e a
+normalização nunca termina. Este termo é o combinador tradicionalmente
+chamado `Ω`. Já `(λx ↦ x x x) (λx ↦ x x x)` reduz a
+`(λx ↦ x x x) (λx ↦ x x x) (λx ↦ x x x)`: além de não terminar, cada passo
+produz um termo *maior* que o anterior, então nem mesmo o tamanho fica
+estável.
+
+**2. A mensagem do Lean.** Descomentando
+`def omega := (fun x => x x) (fun x => x x)` abaixo, o Lean acusa dois erros:
+a auto-aplicação `x x` exige que `x` seja função de algum tipo `?m → ?n`, mas
+o argumento é o próprio `x`, que teria então de ter simultaneamente o tipo
+`?m`. O elaborador precisa resolver `?m = ?m → ?n`, e não existe tipo que
+satisfaça isso (falha o *occurs check*: `?m` ocorreria dentro de si mesmo).
+Como não há atribuição de tipos possível, o termo não pode nem ser *escrito*
+em Lean.
+
+**3. Relação entre não terminar e não ter tipo.** O cálculo lambda *tipado*
+(simplesmente tipado, e também o de Lean) é fortemente normalizante: todo
+termo bem tipado tem forma normal, e a redução sempre termina. A
+contrapositiva é o que se observa aqui: um termo cuja redução não termina
+não pode ser bem tipado. Os dois fenômenos têm a mesma raiz — a
+auto-aplicação `x x` — e o sistema de tipos funciona como um filtro que
+rejeita exatamente esses termos. É por isso que Lean pode ser ao mesmo tempo
+uma linguagem de programação e uma lógica consistente: a terminação é
+garantida pelos tipos, não pela boa vontade do programador. (O preço é que
+Lean também rejeita programas que terminam, mas cuja terminação ele não sabe
+verificar; daí a necessidade de provar terminação em definições recursivas.)
+-/
+
+-- def omega := (fun x => x x) (fun x => x x)
+
+/-! ## 3.5 Tipos na gramática e na computação
 
 No cálculo lambda como está, toda expressão se aplica a toda expressão. Nada
 impede escrever o número `4` aplicado a uma função, e o resultado não é falso —
@@ -165,11 +747,6 @@ E a atribuição de tipos a expressões se dá por três regras:
 Não há mais nada. O `#check` do Lean é essas três regras rodando:
 -/
 
-/-- O domínio de entidades. Duas bastam para os exemplos desta seção. -/
-inductive Entity where
-  | dorothy | toto
-deriving DecidableEq
-
 /-- `happy` é uma propriedade de entidades: aplicada a uma, dá uma afirmação.
 `opaque` declara o nome com o tipo e sem corpo — aqui o assunto são os tipos,
 e qualquer definição serviria. -/
@@ -186,11 +763,9 @@ variable (x : Entity)
 
 end
 
-/-! ### Tipos e categorias sintáticas
-
-Aqui está a observação que amarra as duas metades do assunto. Tipos, em
-programação e no cálculo lambda, se comportam como **categorias sintáticas** em
-gramática.
+/-! Tipos, em programação e no cálculo lambda, se comportam como
+**categorias sintáticas** em gramática — e essa observação amarra as duas
+metades do argumento acima.
 
 Categorias como NP correspondem a tipos básicos: expressões completas, que
 carregam significado por si. Categorias como VP correspondem a tipos de função:
@@ -203,12 +778,16 @@ o VP é o que combina com um NP para dar um S, então o próprio VP tem tipo
 `NP → S` — a categoria deixa de ser um rótulo e passa a ser uma função.
 
 Essa é a ideia da **gramática categorial**, que vem de Ajdukiewicz. Um verbo
-transitivo, que combina com dois NPs, tem tipo `NP → (NP → S)`. A regra de
-combinação é uma só: uma expressão de categoria `A` combina com uma de
-categoria `A → B` e produz uma de categoria `B` — isto é, aplicação.
+transitivo, que combina com dois NPs, tem tipo `NP → (NP → S)` — e é
+justamente o tipo de `likesR`, `Entity → Entity → Prop`, lido com `NP :=
+Entity` e `S := Prop`. A relação binária da seção anterior já era, sem que se
+precisasse dizer, um verbo transitivo em potencial: **o verbo transitivo
+denota uma relação binária, e o tipo de `likesR` já dizia isso.**
 
-Em Lean isso se escreve diretamente, e o verificador de tipos passa a validar a
-derivação:
+A regra de combinação é uma só: uma expressão de categoria `A` combina com
+uma de categoria `A → B` e produz uma de categoria `B` — isto é, aplicação.
+Em Lean isso se escreve diretamente, e o verificador de tipos passa a validar
+a derivação:
 -/
 
 abbrev NP := Entity
@@ -256,179 +835,98 @@ Para o que vem pela frente, a leitura útil é essa: o aparato da semântica de
 Montague é um fragmento do que Lean oferece, e o excedente é o que vai permitir
 demonstrar coisas sobre os significados, e não apenas calculá-los.
 
-## Conjuntos como funções
+### Exercício 3.15 (p. 28) ✎
 
-Um conjunto de elementos de `α` se apresenta pela sua função característica:
-a função que, dado um elemento, responde se ele pertence.
+Atribua tipos às expressões lambda do exemplo (2.6) da página 27:
 
-Há duas maneiras de responder, e as duas serão usadas:
+    S  = Dorothy likes Toto
+    NP = Dorothy
+    VP = λy ↦ y likes Toto
+    V  = λx λy ↦ y likes x
+    NP = Toto
 
-* `α → Bool` **calcula** a resposta. O resultado é `true` ou `false`, e
-  pode-se rodar.
-* `α → Prop` **enuncia** a resposta. O resultado é uma afirmação, que se
-  pode provar.
+Com os dois tipos básicos já em uso acima, `NP := Entity` e `S := Prop`
+(o `e`/`t` da semântica de Montague):
 
-Isso não é uma analogia. A segunda versão é, literalmente, como conjunto se
-define em Lean:
+* S — `Dorothy likes Toto` — tipo `S` (= `t`)
+* NP — `Dorothy` — tipo `NP` (= `e`)
+* VP — `λy ↦ y likes Toto` — tipo `NP → S`
+* V — `λx λy ↦ y likes x` — tipo `NP → (NP → S)`
+* NP — `Toto` — tipo `NP` (= `e`)
+
+A operação que leva do tipo de `V` ao tipo de `VP` é a **aplicação de
+função**: aplicar `likes : NP → (NP → S)` ao objeto `toto : NP` satura o
+primeiro argumento e devolve `NP → S`, que é o tipo de `VP` — é exatamente
+`likesToto` acima. O mesmo passo, aplicado outra vez com o sujeito
+`dorothy : NP`, leva até `S` — é `dorothyLikesToto`. Em suma, a árvore
+sintática é lida como uma cadeia de aplicações, e cada combinação de nós
+consome um argumento; a frase completa é o ponto em que não falta mais
+nada, e é por isso que seu tipo é `S` e não uma função.
+
+Observação sobre convenção: como o léxico escreve `V = λx λy ↦ y likes x`, o
+*objeto* é o primeiro argumento e o *sujeito* o segundo — é o que
+`likesToto := likes toto` e `dorothyLikesToto := likesToto dorothy` acima já
+fazem, na ordem certa.
+
+### Exercício 3.16 (p. 28) ✎
+
+E o termo `(λx ↦ x x) (λx ↦ x x)` do exercício 3.14? Você consegue achar um
+tipo para ele?
+
+**Não.** Nenhuma atribuição de tipos funciona, e a maneira de mostrar isso é
+tentar construí-la e ver onde ela quebra.
+
+Suponha que `λx ↦ x x` tenha tipo. Chame de `σ` o tipo de `x`. No corpo
+`x x`, o `x` da esquerda está em posição de função aplicada a um argumento,
+logo `σ` tem de ser um tipo de função: `σ = σ₁ → τ` para algum `σ₁` e `τ`. O
+`x` da direita é o argumento dessa aplicação, então seu tipo tem de ser o
+domínio: `σ = σ₁`. Combinando as duas exigências, `σ = σ → τ`. Não há tipo
+simples que satisfaça essa equação: qualquer solução teria de ser um tipo
+estritamente maior que si mesmo (a árvore de `σ → τ` contém a de `σ` como
+subárvore própria), e não existe tipo finito assim. É precisamente o
+*occurs check* que o unificador do Lean reporta ao dizer que `x` tem tipo
+`?m → ?n` mas se espera `?m` (Exercício 3.14).
+
+Portanto `λx ↦ x x` já é intipável, e a fortiori a aplicação dele a si mesmo
+também. Vale notar que a impossibilidade não é um defeito do Lean: ela é
+consequência de o sistema ser fortemente normalizante. Sistemas que admitem
+tipos recursivos (`σ ≅ σ → τ`, via `μ`-tipos) conseguem tipar esse termo, mas
+ao preço de perder a garantia de terminação — e, se usados como lógica, a
+consistência.
+
+### Exercício 3.17 (p. 30)
+
+Adjetivos combinam com nomes para formar nomes complexos: *friendly* combina
+com *wizard* para formar *friendly wizard*. Adjetivos são, portanto, de tipo
+`N → N`.
+
+Ache um tipo para o advérbio *very*, tal que se possa construir *very
+friendly wizard* e *very very friendly wizard*. (Assuma que as expressões se
+estruturam como `(very friendly) wizard` e `(very (very friendly)) wizard`.)
 -/
 
-#print Set
+abbrev N := String
+abbrev Adj := N → N
 
-/-! Um `Set α` **é** uma função `α → Prop`, e nada mais. A notação de
-conjunto que se escreve na prática é açúcar para construir essa função, e
-pertencer é aplicá-la — as duas coisas são a mesma, e o `rfl` prova: -/
+def wizard : N := "wizard"
+def friendly : Adj := fun n => "friendly " ++ n
 
-example : {n : Nat | n > 2} = Set.ofPred (fun n => n > 2) := rfl
+/-- `very : Adj → Adj`: um advérbio de grau não modifica um nome, modifica um
+*adjetivo*, e devolve outro adjetivo. É exatamente isso que permite as duas
+construções pedidas — como o resultado de `very` é de novo um `Adj`, ele
+serve como argumento de si mesmo. -/
+def very : Adj → Adj := fun a => fun n => "very " ++ a n
 
-example (p : Nat → Prop) (x : Nat) : (x ∈ {n | p n}) = p x := rfl
+example : very friendly wizard = "very friendly wizard" := by rfl
+example : very (very friendly) wizard = "very very friendly wizard" := by rfl
 
-/-! Escrever `x ∈ A` em vez de `A x` é comodidade de leitura. Vale saber disso
-porque, quando uma prova sobre conjuntos empacar, desdobrar a notação até a
-aplicação costuma destravar. -/
+/-! O ponto teórico é que o tipo de `very` é *endomórfico* na categoria dos
+adjetivos (entra `Adj`, sai `Adj`), e por isso a iteração é ilimitada com um
+único tipo, sem precisar de um tipo novo para cada nível de encaixe. As duas
+verificações por `rfl` acima compilam — o que faz do próprio verificador de
+tipos a confirmação da resposta.
 
-example : (3 : Nat) ∈ {n : Nat | n > 2} := by decide
-
-/-! ## Conjuntos e a escolha entre calcular e enunciar
-
-Definido assim, um conjunto herda a escolha da seção anterior: `α → Prop`
-enuncia a pertinência. Existe também `α → Bool`, que a calcula, e é o que se
-usa quando o conjunto é finito e a resposta tem de sair rodando — é o caso do
-capítulo 6, onde verificar uma sentença num modelo é percorrer um domínio
-finito.
--/
-
-/-- Ser par, na versão que se calcula. -/
-def isEven (n : Nat) : Bool := n % 2 == 0
-
-#eval isEven 4
-#eval isEven 5
-
-/-! A versão que se enuncia já existe na biblioteca: `Even n` afirma que `n`
-é o dobro de algum número, sem dizer como encontrá-lo.
-
-```
-Even (a : α) : Prop := ∃ r, a = r + r
-```
-
-Aqui está a distinção em ato. `isEven` é um algoritmo — divide e compara o
-resto. `Even` é uma condição de verdade — existe um `r` tal que `n = r + r`.
-São conteúdos diferentes, e por isso vale a pena que sejam objetos
-diferentes.
--/
-
-/-- Provar `Even 4` é exibir o `r` que a afirmação promete, junto com a
-verificação de que ele serve. -/
-example : Even 4 := ⟨2, rfl⟩
-
-/-! ## As duas versões concordam
-
-Nada obriga, a priori, uma afirmação e um algoritmo a dizerem a mesma coisa.
-Que estes dois digam é um fato sobre os naturais, e como tal se enuncia e se
-prova. A biblioteca já traz a prova, sob o nome `Nat.even_iff`:
--/
-
-example (n : Nat) : Even n ↔ n % 2 = 0 := Nat.even_iff
-
-/-! Provado isso, `Even n` passa a ser uma afirmação que se pode *calcular*
-para um `n` dado — e o Lean faz isso sem que se peça nada: -/
-
-#eval Even 4
-#eval Even 5
-
-/-! Vale reparar no que acabou de acontecer. `Even 4` é uma afirmação, não um
-programa; ainda assim o `#eval` respondeu `true`. Há um mecanismo por trás
-disso, que registra quais afirmações admitem esse cálculo e como fazê-lo — e
-ele é uma classe de tipos, como o `BEq` e o `DecidableEq` do capítulo 2. A
-classe se chama `Decidable`, e é o assunto do capítulo 6, onde verificar se
-uma sentença é verdadeira num modelo será exatamente isso. -/
-
-/-! ## Relações
-
-Um conjunto se apresenta pela função que responde se um elemento pertence. Uma
-relação binária faz o mesmo com _pares_: é a função que, dados dois elementos,
-responde se estão na relação. Em Lean isso não é analogia nenhuma — é a
-definição: -/
-
-#print Rel
-
-/-! `Rel α β` é `α → β → Prop`. E aqui as duas metades deste capítulo se
-encontram: `TV`, o tipo do verbo transitivo da seção anterior, era
-`NP → NP → S`, isto é `Entity → Entity → Prop`. **O verbo transitivo denota uma
-relação binária, e seu tipo já dizia isso.**
-
-Para os exemplos, uma relação escrita por casos em vez de declarada `opaque`: -/
-
-def likesR : Entity → Entity → Prop
-  | .dorothy, .toto => True
-  | .toto, .dorothy => True
-  | _, _            => False
-
-#check (likesR : Rel Entity Entity)
-
-/-! ### Conversa
-
-A conversa de uma relação troca a ordem dos argumentos, e é `flip` quem faz
-isso. Em língua, é o que a voz passiva faz: _Dorothy likes Toto_ e _Toto is
-liked by Dorothy_ descrevem o mesmo par, em ordens opostas. -/
-
-#check (flip likesR)
-
-example : flip likesR .toto .dorothy = likesR .dorothy .toto := rfl
-
-/-! ### Composição
-
-Compor duas relações é encadeá-las por um elemento intermediário: `R` composta
-com `S` relaciona `x` a `z` quando existe um `y` com `x R y` e `y S z`. É
-`Relation.Comp`, e provar uma composição é exibir esse intermediário.
-
-Composição é o que define parentesco em cadeia: "avô" é "pai" composto com
-"pai". Aqui, quem gosta de quem gosta de quem: -/
-
-example : Relation.Comp likesR likesR .dorothy .dorothy :=
-  ⟨.toto, trivial, trivial⟩
-
-/-! ### Propriedades
-
-Reflexividade, simetria e transitividade se enunciam com quantificador e
-conectivo, e são afirmações sobre a relação inteira — não sobre um par. -/
-
-def Reflexive' (R : α → α → Prop) : Prop := ∀ x, R x x
-def Symmetric' (R : α → α → Prop) : Prop := ∀ x y, R x y → R y x
-def Transitive' (R : α → α → Prop) : Prop := ∀ x y z, R x y → R y z → R x z
-
-/-- `likesR` é simétrica, e a prova percorre os casos: `decide` não serve, porque
-`Prop` aqui não é decidível de graça, mas o casamento de padrão resolve. -/
-example : Symmetric' likesR := by
-  intro x y h
-  cases x <;> cases y <;> simp_all [likesR]
-
-/-! As três juntas dão uma _relação de equivalência_, e a biblioteca tem o nome
-pronto: `Equivalence`. A igualdade é o exemplo canônico. -/
-
-#check @Equivalence
-
-example : Equivalence (· = · : Entity → Entity → Prop) := eq_equivalence
-
-/-! ### Calcular ou enunciar, outra vez
-
-Vale a mesma escolha das seções anteriores. A divisibilidade vem na biblioteca
-na versão que enuncia — `m ∣ n` afirma que existe um fator que leva de `m` a
-`n`, e provar é exibi-lo — e ainda assim se calcula, porque a instância
-`Decidable` existe: -/
-
-example : (3 : Nat) ∣ 12 := ⟨4, rfl⟩
-
-#eval (3 ∣ 12 : Prop)
-#eval (5 ∣ 12 : Prop)
-
-example : ∀ n : Nat, n ∣ n := fun _ => Nat.dvd_refl _
-
-/-! Relação é a estrutura que o capítulo 6 vai usar para dar modelo a um
-fragmento — um domínio de entidades e, para cada verbo, a relação que ele
-denota —, e o capítulo 10 volta a ela para tratar verbos de mais de dois
-lugares e o escopo entre eles. -/
-
-/-! ## Tipos como disciplina
+## Tipos como disciplina
 
 O tipo de uma função diz o que ela aceita e o que devolve, e Lean recusa a
 aplicação que não respeite isso — ao escrever, antes de rodar.
