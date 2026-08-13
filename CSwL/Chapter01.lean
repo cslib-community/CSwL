@@ -1,7 +1,7 @@
 /-!
 # 1. O estudo formal da língua natural
 
-Ref. CSwFP/1. Formal study of Natural Language.
+Ref. CSwFP/1. Formal Study of Natural Language.
 
 Este capítulo introduz a semântica computacional como a arte e a ciência de
 computar os significados das expressões de uma língua.
@@ -21,12 +21,13 @@ para a semântica computacional e com uma visão geral do restante do livro.
 
 namespace Chapter01
 
-/-! ## 1.1 O estudo da língua natural
+/-!
+## 1.1 O estudo da língua natural
 
 Uma língua encadeia estruturas dentro de estruturas, e a descrição se organiza
 em níveis, cada um tomando como átomo o que o nível anterior produziu:
 
-* **fonologia** — quais são as menores unidades de som que distinguem
+* **fonologia** - quais são as menores unidades de som que distinguem
   significado, e como elas se combinam nas menores unidades que carregam
   significado;
 * **morfologia** — como essas unidades se combinam em palavras;
@@ -63,7 +64,8 @@ coisas.
 -/
 
 
-/-! ## 1.2 Sintaxe, semântica e pragmática
+/-!
+## 1.2 Sintaxe, semântica e pragmática
 
 Sobre a mesma expressão cabem três perguntas, e elas se encaixam: a segunda
 pressupõe a primeira, e a terceira pressupõe as duas anteriores.
@@ -123,7 +125,8 @@ incomum entre as linguagens de programação por hospedar ambos. -/
 
 example : 7 + 5 = 2 * 6 := by rfl
 
-/-! ## 1.3 Os propósitos da comunicação
+/-!
+## 1.3 Os propósitos da comunicação
 
 Comunicar serve a muitas coisas — encontrar a verdade em conjunto, convencer,
 confundir, ironizar. Uma delas interessa particularmente aqui: descrever
@@ -173,7 +176,8 @@ linguística. Adequado significa realista quanto a complexidade e a
 aprendibilidade. Não se afirma que o modelo espelhe processos cognitivos; o que
 se afirma é que ele restringe o que esses processos podem ser. -/
 
-/-! ### Exercício 1.1 (p. 6)
+/-!
+### Exercício 1.1 (p. 6)
 
 A ignorância completa sobre a verdade ou falsidade de dois fatos se modela como
 incerteza entre quatro possibilidades. Com dez fatos básicos, quantas
@@ -190,17 +194,18 @@ info: 1024
 #guard_msgs in
 #eval possibilities 10
 
-/--
+/-!
 A prova é por indução. No passo indutivo é preciso desdobrar a potência, e há
-dois lemas para isso: `Nat.pow_succ'` e `Nat.pow_succ`. Um dos dois dá uma prova
-mais curta. -/
+dois lemas para isso: `Nat.pow_succ'` e `Nat.pow_succ`. -/
+
 example (n : Nat) : possibilities n = 2 ^ n := by
  induction n with
   | zero => rfl
   | succ k ih => rw [possibilities, ih, Nat.pow_succ']
 
 
-/-! ## 1.4 Línguas naturais e línguas formais
+/-!
+## 1.4 Línguas naturais e línguas formais
 
 Comparada a sistemas de comunicação animal, a língua humana tem três traços de
 projeto que valem nomear:
@@ -220,7 +225,8 @@ falar no tempo em que aprende — não haveria o que decorar.
 
 O terceiro é o que vai dar trabalho, e o trabalho começa no capítulo 12. -/
 
-/-! ### Exercício 1.2 (p. 8)
+/-!
+### Exercício 1.2 (p. 8)
 
 Pollard e Sag dão este exemplo de recursão que estende sentenças:
 
@@ -242,11 +248,11 @@ esqueleto vem em duas partes.
 /-- `andOn n` são as `n` repetições de `" and on"`, sem mais nada. -/
 def andOn : Nat → String
   | 0 => ""
-  | n + 1 => s!" and on" ++ andOn n
+  | n + 1 => " and on" ++ andOn n
 
 /-- E a sentença é o começo, mais as repetições, mais o ponto. -/
 def sentence (n : Nat) : String :=
-  s!"Sentences can go on{andOn n}."
+  "Sentences can go on" ++ andOn n ++ "."
 
 /--
 info: "Sentences can go on and on and on."
@@ -255,7 +261,8 @@ info: "Sentences can go on and on and on."
 #eval sentence 2
 
 
-/-! ### Exercício 1.3 (p. 8)
+/-!
+### Exercício 1.3 (p. 8)
 
 Segue do exercício 1.2 que há infinitas sentenças em inglês? Ou segue que
 sentenças em inglês podem ter comprimento infinito? Ou as duas coisas?
@@ -271,11 +278,12 @@ indefinidamente, mas sim que o processo de construir frases cada vez mais longas
 pode continuar indefinidamente.
 -/
 
-/-! ### Composicionalidade
+/-!
+### Composicionalidade
 
 Se as sentenças são infinitas, uma lista de significados não serve. O princípio
-de Frege dá a saída: o significado de uma expressão composta é determinado
-pelos significados de suas partes e pelo modo como estão combinadas.
+de Frege dá a saída: o significado de uma expressão composta é determinado pelos
+significados de suas partes e pelo modo como estão combinadas.
 
 Enunciado assim, o princípio é vago — não diz o que são significados, nem o que
 conta como parte, nem que tipo de dependência está em jogo. Ele só ganha
@@ -285,25 +293,29 @@ _brown elk_ tem de saber, sem nada mais, o que significam _brown unicorn_ e
 _white elk_.
 
 Vale insistir num ponto que se perde com facilidade. Composicionalidade não é
-uma afirmação empírica sobre línguas humanas, a ser verificada. É uma decisão
-de método: a pergunta não é se a língua satisfaz o princípio, mas se se
-consegue — e se se quer — montar a atribuição de significado de modo que ele
-seja respeitado. Onde o fenômeno resiste, como em pronomes e pressuposições, há
-duas reações possíveis: abandonar a composicionalidade, ou enriquecer a teoria
-até que o fenômeno caiba nela. O caminho escolhido aqui é o segundo, e os
-capítulos 12 e 13 são o resultado.
+uma afirmação empírica sobre línguas humanas, a ser verificada. É uma decisão de
+método: a pergunta não é se a língua satisfaz o princípio, mas se se consegue —
+e se se quer — montar a atribuição de significado de modo que ele seja
+respeitado. Onde o fenômeno resiste, como em pronomes e pressuposições, há duas
+reações possíveis: abandonar a composicionalidade, ou enriquecer a teoria até
+que o fenômeno caiba nela. O caminho escolhido aqui é o segundo, e os capítulos
+12 e 13 são o resultado.
 
 Em termos de programação, o princípio diz: a interpretação é uma função
-recursiva sobre a estrutura sintática. Cada construção da gramática tem um
-caso na definição, e o caso combina os resultados obtidos para os filhos. É a
-forma exata dos programas que percorrem tipos indutivos.
+recursiva sobre a estrutura sintática. Cada construção da gramática tem um caso
+na definição, e o caso combina os resultados obtidos para os filhos. É a forma
+exata dos programas que percorrem tipos indutivos.
 
 Daí em diante as duas metades do assunto passam a ter a mesma forma. Um
 fragmento da língua é um tipo; sua semântica é uma função definida por casos
 sobre esse tipo; uma construção mal formada é um termo que não tipa.
 
-Abaixo está a sintaxe de um fragmento minúsculo — expressões aritméticas.
-Escreva a interpretação.
+Abaixo está a sintaxe de um fragmento de uma linguagem sobre expressões
+aritméticas e a função de interpretação de 'frases' desta linguagem em termos do
+Lean. A [BNF](https://en.wikipedia.org/wiki/Backus%E2%80%93Naur_form)
+correspondente seria:
+
+Expr := | num Nat | plus Expr Expr | times Expr Expr
 -/
 
 inductive Expr where
@@ -312,25 +324,30 @@ inductive Expr where
   | times (a b : Expr)
 deriving Repr
 
+def sevenPlusFive : Expr := .times (.plus (.num 7) (.num 5)) (.num 1)
+def twoTimesSix : Expr := .times (.num 2) (.num 6)
+
 /-- A interpretação: um caso por construção da sintaxe, cada caso combinando
 os resultados obtidos para as partes. -/
+
 def eval : Expr → Nat
  | .num n => n
  | .plus a b => eval a + eval b
  | .times a b => eval a * eval b
-
-def sevenPlusFive : Expr := .plus (.num 7) (.num 5)
-def twoTimesSix : Expr := .times (.num 2) (.num 6)
 
 /-- info: 12 -/
 #guard_msgs in
 #eval eval sevenPlusFive
 
 /-- Estruturas sintáticas diferentes, mesma denotação. -/
-example : eval sevenPlusFive = eval twoTimesSix := rfl
+example : eval sevenPlusFive = eval twoTimesSix := by
+  unfold sevenPlusFive twoTimesSix
+  repeat rewrite [eval]
+  rfl -- ou simplesmente `rfl`
 
 
-/-! ## 1.5 O que a semântica formal não é
+/-!
+## 1.5 O que a semântica formal não é
 
 Há uma objeção antiga contra tudo isso, e ela merece resposta. Explicar que o
 significado de _Toto barked and Dorothy smiled_ é `A ∧ B` parece não explicar

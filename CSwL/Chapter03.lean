@@ -11,8 +11,8 @@ import Mathlib.Tactic
 /-!
 # 3. Conjuntos e Relações, Lambda Calculus e Tipos
 
-Ref. CSwFP/2. Lambda Calculus, Type Theory, and Functional Programming. No livro
-é teoria sem código; aqui formalizamos o possível em Lean.
+Ref. CSwFP/2. Lambda Calculus, Type Theory, and Functional Programming. No CSwFP
+é prosa sem código; aqui formalizamos o possível em Lean.
 -/
 
 namespace Chapter03
