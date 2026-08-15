@@ -28,13 +28,56 @@ leanOptions = {doc.verso.suggestions = false}
 # repositório é público). Por não ser versionado, não tem lib declarada aqui:
 # para conferir um gabarito, `lake env lean Solutions/Solution02.lean`.
 
+# Camada própria de metadados do livro (variantes `student`/`solutions`/`terse`/
+# `grading`, `:::exercise`, `solution!`, `::::quiz`, `:::gradeTheorem` e o
+# extrator que gera os `.lean` de cada variante). Adaptada de
+# `sf-in-lean/SFLMeta/*`; ver `CSwLMeta.lean`.
+#
+# `doc.verso = false` desfaz, só para esta biblioteca, o `doc.verso = true` do
+# pacote acima: os módulos de infraestrutura usam `/-! ## ... -/` como divisória
+# interna de arquivo, e com a marcação Verso ligada o primeiro cabeçalho de um
+# módulo tem de ser `#` — regra que faz sentido para um capítulo do livro e
+# nenhum para um arquivo de código. Aqui não há prosa a publicar.
+[[lean_lib]]
+name = "CSwLMeta"
+leanOptions = {doc.verso = false}
+
+# Bibliografia como `def`s Lean (o que era `references.bib`): uma chave errada
+# em `{citep Bib.xyz}[]` vira erro de compilação, não `[Xyz]` pendurado no HTML.
+[[lean_lib]]
+name = "Bib"
+leanOptions = {doc.verso = false}   # infraestrutura, como a lib `CSwLMeta`
+
+# Raiz do livro no gênero `Manual`: um `#doc (Manual)` que inclui um capítulo
+# por `{include CSwL.ChapterNN}`. Enquanto os capítulos ainda estiverem no
+# gênero `Literate`, esta raiz carrega apenas o `CSwL.Placeholder` temporário.
+[[lean_lib]]
+name = "Book"
+
 [[lean_exe]]
 name = "cswl"
 root = "Main"
 
+# Gera o livro: `lake exe cswl-book <variante>` escreve
+# `_out/<variante>/{html-multi,lean}`. Use o `Makefile` (`make student`, ...).
+# O `lean4-autograder-main` NÃO entra aqui de propósito: ele exige o toolchain
+# `v4.33.0` e colide com o Mathlib que o `cslib` traz (medido: quebra o
+# `lake exe cache get`). Ele é dependência apenas do projeto Lake autônomo que
+# `CSwLMeta/Save/Project.lean` gera em `_out/grading/lean/`.
+[[lean_exe]]
+name = "cswl-book"
+root = "BookMain"
+leanOptions = {doc.verso = false}   # infraestrutura, como a lib `CSwLMeta`
+
+# Revisão fixada pelo mesmo motivo que `verso` e `doc-gen4` abaixo: sem `rev`,
+# o `[[require]]` seguia `main`, e um `lake update` qualquer arrasta o toolchain
+# do projeto para o que o `main` do `cslib` exigir no momento (aconteceu em
+# 14/08: foi para `v4.34.0-rc1`). Esta é a revisão que o `lake-manifest.json` já
+# resolvia — fixá-la não muda nada do que hoje compila.
 [[require]]
 name = "cslib"
 scope = "leanprover"
+rev = "3951377e5a3f5772737f11cd62bc5bb6a72f95d1"
 
 # Verso: gera a versão web (HTML) dos mesmos arquivos `.lean`, no modo
 # "literate". Alvo: `lake build :literateHtml` (veja `build-web.sh`).
@@ -65,4 +108,14 @@ rev = "755ccbe968ad1b0255bee8b46d9cb2306486d6d8"
 [[require]]
 name = "doc-gen4"
 git = "https://github.com/leanprover/doc-gen4"
-rev = "v4.33.0-rc2"
+rev = "v4.33.0"
+
+# Mathlib já entra transitivamente via `cslib`, mas sem um `[[require]]` direto
+# aqui o Lake não dá prioridade às escolhas de versão do Mathlib para
+# dependências compartilhadas (`plausible`, `Cli`) — fica pinado a versões mais
+# antigas dessas duas, e `lake exe cache get` recusa buscar cache pré-compilado
+# do Mathlib porque os hashes não bateriam. Precisa ficar por último no arquivo.
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+rev = "db584cd6d46c92f209a44c0f1c829460d327499d"

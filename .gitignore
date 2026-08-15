@@ -6,6 +6,12 @@
 # documentação (doc-gen4) antes de publicar.
 /_site
 
+# Saída do `make` / `lake exe cswl-book <variante>`: uma árvore por variante,
+# `_out/<variante>/{html-multi,lean}`. É tudo material gerado — e `solutions/`
+# e `grading/` contêm gabarito, que este repositório não versiona (veja a
+# proibição de `/Solutions/` abaixo).
+/_out
+
 # GABARITOS — NUNCA VERSIONAR.
 #
 # Este repositório é público. Um gabarito comitado aqui não se apaga: `git rm`
