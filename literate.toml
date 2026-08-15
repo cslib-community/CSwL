@@ -33,15 +33,16 @@ library = "CSwL"
 
 # Ordem dos capítulos na navegação: a numérica, não a alfabética.
 #
-# Os caps. 1-3 saíram daqui (14-15/08): viraram `#doc (Manual)` (`Book.lean`,
-# `make student`/`make solutions`/...) e não são mais importados por
-# `CSwL.lean` — este `literate.toml` (`[[targets]] library = "CSwL"`) só varre
-# o que é alcançável a partir da raiz da lib, então listá-los aqui sem o
-# import corresponderia a módulos inexistentes no alvo.
+# Os quatro capítulos saíram daqui (14-15/08): viraram `#doc (Manual)`
+# (`Book.lean`, `make student`/`make solutions`/...) e não são mais
+# importados por `CSwL.lean` — este `literate.toml`
+# (`[[targets]] library = "CSwL"`) só varre o que é alcançável a partir da
+# raiz da lib, então listá-los aqui sem o import corresponderia a módulos
+# inexistentes no alvo. `order_children` fica vazio: só resta a landing
+# page. Ver pendência no README da raiz sobre aposentar este pipeline
+# inteiro, já que não há mais capítulo nenhum para ele mostrar.
 [order_children]
-"CSwL" = [
-  "CSwL.Chapter04",
-]
+"CSwL" = []
 
 # `title` é o rótulo na navegação e no `<title>` da aba; sem ele o Verso usa o
 # nome cru do módulo (`CSwL.Chapter02`). O `<h1>` da página vem do `# ...` do
@@ -50,10 +51,6 @@ library = "CSwL"
 [modules."CSwL"]
 title = "Apresentação"
 show_imports = false
-
-[modules."CSwL.Chapter04"]
-title = "4. Sintaxe formal de fragmentos"
-url = "cap04"
 
 [metadata]
 title = "Semântica computacional com Lean"
