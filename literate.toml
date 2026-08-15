@@ -33,14 +33,13 @@ library = "CSwL"
 
 # Ordem dos capítulos na navegação: a numérica, não a alfabética.
 #
-# O cap. 1 saiu daqui em 2026-08-15: virou `#doc (Manual)` (`Book.lean`,
-# `make student`/`make solutions`/...) e não é mais importado por `CSwL.lean`
-# — este `literate.toml` (`[[targets]] library = "CSwL"`) só varre o que é
-# alcançável a partir da raiz da lib, então listá-lo aqui sem o import
-# corresponde a um módulo inexistente no alvo.
+# Os caps. 1-2 saíram daqui (14-15/08): viraram `#doc (Manual)` (`Book.lean`,
+# `make student`/`make solutions`/...) e não são mais importados por
+# `CSwL.lean` — este `literate.toml` (`[[targets]] library = "CSwL"`) só varre
+# o que é alcançável a partir da raiz da lib, então listá-los aqui sem o
+# import corresponderia a módulos inexistentes no alvo.
 [order_children]
 "CSwL" = [
-  "CSwL.Chapter02",
   "CSwL.Chapter03",
   "CSwL.Chapter04",
 ]
@@ -52,10 +51,6 @@ library = "CSwL"
 [modules."CSwL"]
 title = "Apresentação"
 show_imports = false
-
-[modules."CSwL.Chapter02"]
-title = "2. Programação funcional"
-url = "cap02"
 
 [modules."CSwL.Chapter03"]
 title = "3. Funções, tipos e abstração"

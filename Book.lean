@@ -2,6 +2,7 @@ import CSwLMeta
 import Bib
 
 import CSwL.Chapter01
+import CSwL.Chapter02
 
 import VersoManual
 
@@ -12,8 +13,9 @@ open Verso Genre Manual
 -- ordem do livro. (O corpo do `#doc` não tem sintaxe de comentário — não
 -- escreva comentários entre os `{include}`.)
 --
--- Só o cap. 1 foi convertido até agora; os capítulos 2–4 continuam no gênero
--- `Literate`, saindo pelo `literate.toml` / `build-web.sh` até serem
+-- Só os caps. 1–2 foram convertidos até agora; os capítulos 3–4 continuam no
+-- gênero `Literate`, saindo pelo `literate.toml` / `build-web.sh` até serem
 -- convertidos, um a um.
 #doc (Manual) "Semântica computacional com Lean" =>
 {include CSwL.Chapter01}
+{include CSwL.Chapter02}
