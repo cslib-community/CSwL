@@ -32,9 +32,14 @@ docstrings_as_text = true
 library = "CSwL"
 
 # Ordem dos capítulos na navegação: a numérica, não a alfabética.
+#
+# O cap. 1 saiu daqui em 2026-08-15: virou `#doc (Manual)` (`Book.lean`,
+# `make student`/`make solutions`/...) e não é mais importado por `CSwL.lean`
+# — este `literate.toml` (`[[targets]] library = "CSwL"`) só varre o que é
+# alcançável a partir da raiz da lib, então listá-lo aqui sem o import
+# corresponde a um módulo inexistente no alvo.
 [order_children]
 "CSwL" = [
-  "CSwL.Chapter01",
   "CSwL.Chapter02",
   "CSwL.Chapter03",
   "CSwL.Chapter04",
@@ -47,10 +52,6 @@ library = "CSwL"
 [modules."CSwL"]
 title = "Apresentação"
 show_imports = false
-
-[modules."CSwL.Chapter01"]
-title = "1. O estudo formal da língua natural"
-url = "cap01"
 
 [modules."CSwL.Chapter02"]
 title = "2. Programação funcional"

@@ -49,8 +49,8 @@ name = "Bib"
 leanOptions = {doc.verso = false}   # infraestrutura, como a lib `CSwLMeta`
 
 # Raiz do livro no gênero `Manual`: um `#doc (Manual)` que inclui um capítulo
-# por `{include CSwL.ChapterNN}`. Enquanto os capítulos ainda estiverem no
-# gênero `Literate`, esta raiz carrega apenas o `CSwL.Placeholder` temporário.
+# por `{include CSwL.ChapterNN}`. Só o cap. 1 foi convertido até agora; os
+# demais continuam no gênero `Literate` até serem convertidos, um a um.
 [[lean_lib]]
 name = "Book"
 
