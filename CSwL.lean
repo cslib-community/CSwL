@@ -1,4 +1,3 @@
-import CSwL.Chapter03
 import CSwL.Chapter04
 
 /-!

@@ -33,14 +33,13 @@ library = "CSwL"
 
 # Ordem dos capítulos na navegação: a numérica, não a alfabética.
 #
-# Os caps. 1-2 saíram daqui (14-15/08): viraram `#doc (Manual)` (`Book.lean`,
+# Os caps. 1-3 saíram daqui (14-15/08): viraram `#doc (Manual)` (`Book.lean`,
 # `make student`/`make solutions`/...) e não são mais importados por
 # `CSwL.lean` — este `literate.toml` (`[[targets]] library = "CSwL"`) só varre
 # o que é alcançável a partir da raiz da lib, então listá-los aqui sem o
 # import corresponderia a módulos inexistentes no alvo.
 [order_children]
 "CSwL" = [
-  "CSwL.Chapter03",
   "CSwL.Chapter04",
 ]
 
@@ -51,10 +50,6 @@ library = "CSwL"
 [modules."CSwL"]
 title = "Apresentação"
 show_imports = false
-
-[modules."CSwL.Chapter03"]
-title = "3. Funções, tipos e abstração"
-url = "cap03"
 
 [modules."CSwL.Chapter04"]
 title = "4. Sintaxe formal de fragmentos"
