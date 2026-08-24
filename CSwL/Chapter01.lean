@@ -13,8 +13,7 @@ file := "Chapter01"
 
 Ref. CSwFP/1. Formal Study of Natural Language.
 
-Este capítulo introduz a semântica computacional como a arte e a ciência de
-computar os significados das expressões de uma língua.
+Este capítulo introduz semântica computacional.
 
 O capítulo começa com uma visão geral do estudo formal da linguagem. As áreas
 abrangentes da sintaxe, semântica e pragmática são distinguidas, e o conceito de
@@ -184,7 +183,9 @@ linguística. Adequado significa realista quanto a complexidade e a
 aprendibilidade. Não se afirma que o modelo espelhe processos cognitivos; o que
 se afirma é que ele restringe o que esses processos podem ser.
 
-## Exercício 1.1 (p. 6)
+::::exercise (rating := 1) (name := "possibilities")
+
+Ref. CSwFP/1, exercício 1.1 (p. 6).
 
 A ignorância completa sobre a verdade ou falsidade de dois fatos se modela como
 incerteza entre quatro possibilidades. Com dez fatos básicos, quantas
@@ -196,15 +197,13 @@ def possibilities : Nat → Nat
   | n + 1 => 2 * possibilities n
 ```
 
-```lean (name := possibilitiesEval)
+```lean
 #eval possibilities 10
 ```
 
-```leanOutput possibilitiesEval
-1024
-```
-
-A prova é por indução. No passo indutivo é preciso desdobrar a potência, e há
+Em Lean, podemos provar proriedades sobre funções, embora óbvio para este caso,
+sabemos que a função `possibilities` computa basicamente a expressão $2^n$.
+No passo indutivo é preciso desdobrar a potência, e há
 dois lemas para isso: `Nat.pow_succ'` e `Nat.pow_succ`.
 
 ```lean
@@ -213,6 +212,8 @@ example (n : Nat) : possibilities n = 2 ^ n := by
   | zero => rfl
   | succ k ih => rw [possibilities, ih, Nat.pow_succ']
 ```
+
+::::
 
 # Línguas naturais e línguas formais
 
@@ -234,7 +235,9 @@ falar no tempo em que aprende — não haveria o que decorar.
 
 O terceiro é o que vai dar trabalho, e o trabalho começa no capítulo 12.
 
-## Exercício 1.2 (p. 8)
+::::exercise (rating := 1) (name := "sentence-go-on")
+
+Ref. CSwFP/1, exercício 1.2 (p. 8).
 
 Pollard e Sag dão este exemplo de recursão que estende sentenças:
 
@@ -246,7 +249,7 @@ Sentences can go on and on and on and on.
 ...
 ```
 
-Dê uma descrição concisa do padrão de recursão — isto é, escreva o gerador.
+Dê uma descrição descrição concisa do padrão de recursão — isto é, escreva o gerador.
 `sentence n` deve produzir a sentença com `n` repetições de "and on".
 
 Uma observação que economiza tempo: a recursão *não* cabe direto em
@@ -269,19 +272,17 @@ def sentence (n : Nat) : String :=
   "Sentences can go on" ++ andOn n ++ "."
 ```
 
-```lean (name := sentenceEval)
+```lean
 #eval sentence 2
 ```
 
-```leanOutput sentenceEval
-"Sentences can go on and on and on."
-```
+::::
 
-## Exercício 1.3 (p. 8)
-
-Segue do exercício 1.2 que há infinitas sentenças em inglês? Ou segue que
+::::quiz
+Há infinitas sentenças em inglês? Ou segue que
 sentenças em inglês podem ter comprimento infinito? Ou as duas coisas?
 
+:::quizSolution
 De fato, segue-se do exemplo que há infinitas frases. Ainda assim, cada frase
 tem comprimento finito.
 
@@ -291,6 +292,8 @@ conjunto infinito de coisas finitas. Portanto, "As frases podem continuar
 indefinidamente" não significa que uma única frase possa continuar
 indefinidamente, mas sim que o processo de construir frases cada vez mais longas
 pode continuar indefinidamente.
+:::
+::::
 
 ## Composicionalidade
 
@@ -355,12 +358,8 @@ def eval : Expr → Nat
  | .times a b => eval a * eval b
 ```
 
-```lean (name := evalSevenPlusFive)
+```lean
 #eval eval sevenPlusFive
-```
-
-```leanOutput evalSevenPlusFive
-12
 ```
 
 Estruturas sintáticas diferentes, mesma denotação.

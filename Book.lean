@@ -15,9 +15,9 @@ open Verso Genre Manual
 -- ordem do livro. (O corpo do `#doc` não tem sintaxe de comentário — não
 -- escreva comentários entre os `{include}`.)
 --
--- Os quatro capítulos do livro estão todos convertidos. O `literate.toml`/
--- `build-web.sh` (gênero `Literate`) ainda existe, mas sem capítulo nenhum
--- para varrer — ver pendência no README da raiz sobre aposentar o pipeline.
+-- Os quatro capítulos do livro estão todos convertidos. O pipeline
+-- `Literate`/`build-web.sh` foi aposentado em 16/08 (ver `CSwL.lean`); o livro
+-- sai só por aqui, nas quatro variantes de `make all`/`Makefile`.
 #doc (Manual) "Semântica computacional com Lean" =>
 {include CSwL.Chapter01}
 {include CSwL.Chapter02}

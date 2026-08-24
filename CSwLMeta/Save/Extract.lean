@@ -3,7 +3,8 @@
 -- o CSwL não portou (veja `CSwLMeta.lean`):
 --
 -- * fora os casos de `walkBlock` para Bnf/DisplayMath/Details/Terse+Full/
---   SlideBreak/DevComment -- os módulos correspondentes não existem aqui;
+--   SlideBreak -- os módulos correspondentes não existem aqui;
+--   (DevComment foi portado -- ver o caso `Block.devcomment` abaixo);
 -- * fora o módulo de apoio (`SFLCompat.lean`), que serve para levar as macros
 --   `sf_experiment`/`sf_expect_failure` ao projeto extraído: os capítulos do
 --   CSwL usam só blocos ` ```lean ` simples (extractionMode = .code);
@@ -11,12 +12,14 @@
 --
 -- Todo o resto -- SaveBuffers, o formatador de texto, o controle de
 -- walkBlocks/walkBlock/walkSection/walkOuter e os casos leanSaved/exercise/
--- quiz/quizSolution/gradeTheorem -- é cópia literal, até onde o corte permite.
--- Ao portar um dos módulos que faltam, o caso de `walkBlock` correspondente
--- tem de voltar junto, senão o bloco cai no ramo genérico e vira prosa.
+-- quiz/quizSolution/gradeTheorem/devcomment -- é cópia literal, até onde o
+-- corte permite. Ao portar um dos módulos que faltam, o caso de `walkBlock`
+-- correspondente tem de voltar junto, senão o bloco cai no ramo genérico e
+-- vira prosa.
 
 import VersoManual
 
+import CSwLMeta.Comment
 import CSwLMeta.Exercise
 import CSwLMeta.Quiz
 import CSwLMeta.Grade
@@ -243,6 +246,16 @@ private def asModuleDoc (s : String) : String :=
       if line.all (·.isWhitespace) then "" else "-- " ++ line)
   commented ++ "\n\n"
 
+/-- Render a shown `:::dev` note as one contiguous `--` comment block, visually
+set off from surrounding prose: the label line first, body lines indented 4
+spaces under it, and interior blank lines kept as bare `--` (not truly blank)
+so the note reads as a single unit. -/
+private def devNoteComment (label body : String) : String :=
+  let indented := String.intercalate "\n"
+    ((body.trimAscii.toString.splitOn "\n").map fun l =>
+      if l.all (·.isWhitespace) then "--" else "--     " ++ l)
+  "-- " ++ label ++ ":\n" ++ indented ++ "\n\n"
+
 section
 
 /-- Decode a `Block.exercise` payload `(rating, name, level, manual)`, tolerating
@@ -381,6 +394,18 @@ partial def walkBlock (width : Nat) (file : String) (b : Verso.Doc.Block Manual)
     if name == ``Block.quizSolution then
       -- A quiz answer is elided from every generated `.lean` build product —
       -- it surfaces only in the HTML book, as a click-to-reveal button.
+      return buf
+    if name == ``Block.devcomment then
+      -- A `:::dev` note (marking a deviation from the CSwFP presentation)
+      -- passes through as a labelled comment when its urgency makes it shown
+      -- (`devNoteShown`: `NOW`, `BeforeNextRelease`, or none); otherwise
+      -- nothing is emitted.
+      if let some (author, urgency, year) := decodeDevData? which.data then
+        if devNoteShown urgency then
+          let body := String.intercalate "\n\n"
+            (contents.toList.map (blockToText (width - 4)))
+          return buf.appendAll file
+            (devNoteComment (devNoteLabel author urgency year) body)
       return buf
     if name == ``Block.gradeTheorem then
       let ⟨points, names⟩ := decodeGradeTheoremData which.data

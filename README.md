@@ -34,11 +34,11 @@ projeto, a extensão do VS Code e a Mathlib compilada. A configuração está em
 `.devcontainer/` e serve também para o **Reopen in Container** do VS Code
 local.
 
-Para gerar as duas saídas web localmente:
+Para gerar e ver o livro localmente:
 
 ```bash
-./build-web.sh    # livro (Verso) + documentação (doc-gen4)
-./serve.py        # http://localhost:8000/  e  /docs/
+make all     # gera as quatro variantes em _out/
+make serve   # serve em http://127.0.0.1:8000/
 ```
 
 ## Capítulos

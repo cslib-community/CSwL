@@ -13,39 +13,42 @@ file := "Chapter04"
 
 Ref. CSwFP/4 (`FSynF`). Formal Syntax for Fragments.
 
+Neste capítulo apresentamos definições de algumas linguagens simples para jogos, linguagens lógicas, fragmentos de linguagens de programação e fragmentos de inglês. Quando passarmos à semântica de fragmentos de inglês, usaremos a lógica de predicados como ferramenta básica. Como preparação para isso, introduzimos a lógica proposicional e a lógica de predicados, observamos como elas podem ser usadas para representar o significado de sentenças em linguagem natural, e mostramos como implementar sua sintaxe em Lean.
+
 ```lean
 namespace Chapter04
 ```
 
-# Gramáticas de jogos
+# Gramáticas para jogos
 
-O capítulo trata de como definir uma língua — no sentido amplo: um
-conjunto de strings bem formadas — por meio de uma gramática. O primeiro
-exemplo é um jogo, a Batalha Naval: um tabuleiro 10×10 (colunas `A` a
-`J`, linhas `1` a `10`) e uma frota de navios. O livro dá a gramática em
-BNF:
+## Batalha Naval
 
+Vamos considerar o jogo _Batalha Naval_ e como representa-lo como uma linguagem.
+
+Batalha naval é um jogo de tabuleiro de dois jogadores, no qual os jogadores têm de adivinhar em que quadrados estão os navios do oponente.
+
+Cada jogador tem dois tabuleiros, `10×10` (colunas `A..J`, linhas `0..9`). Um tabuleiro representa a disposição dos navios do jogador e onde ele irá registrar os 'tiros' do seu oponente, o outro representa a tabuleiro do seu oponente, onde ele marca os 'tiros' que realizou, que podem acertar ou erras parte dos navios do oponente. O objetivo de cada jogador é revelar o tabuleiro do oponente, afundando todos os navios a frota adversária.
+
+Modelar o jogo como uma linguagem `L` significa determinarmos quais são as sentenças válidas de nossa linguagem. Como o jogo é jogado em turnos, cada participante faz um ataque, marca a reação do oponente e depois recebe um ataque, indicando a consequência. Desta forma, a sentença `A 10` representa um ataque na posição `A × 10` do tabuleiro adversário. A sentença `hit frigate` representa uma reação a um 'tiro' indicando ele ter atingido parte de uma fragata. A gramática a seguir captura esta idéia.
+
+:::dev "Alexandre Rademaker" (year := 2026)
+CSwFP numera as linhas do tabuleiro `1..10` mas na implementação Haskell usar `Int`, o que não corresponde os valores possíveis como esperado. Usamos `0..9` para corresponder os valores possíveis para o tipo `Fin 10` que melhor captura a idéia dos naturais menores que 10.
+:::
+
+```bnf
+column   ::= "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H" | "I" | "J" ;
+row      ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;
+attack   ::= column row ;
+ship     ::= "battleship" | "frigate" | "submarine" | "destroyer" ;
+reaction ::= "missed" | "hit" ship | "sunk" ship | "lost_battle" ;
+turn     ::= attack reaction ;
 ```
-column   −→ A | B | C | D | E | F | G | H | I | J
-row      −→ 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10
-attack   −→ column row
-ship     −→ battleship | frigate | submarine | destroyer
-reaction −→ missed | hit ship | sunk ship | lost battle
-turn     −→ attack reaction
-```
 
-Cada regra reescreve um símbolo não-terminal (à esquerda) numa sequência
-de símbolos (à direita); repetindo o processo a partir de `turn` até só
-restarem terminais, obtém-se uma jogada válida, como `B 2 missed`. O
-livro chama esse passo de reescrita de `⇒`, e sua repetição de `⇒*` —
-`turn ⇒* B 2 missed`.
-
-Em Lean, um `inductive` já é essa gramática: cada construtor é uma regra
-de produção, e um valor do tipo já é uma sequência de reescritas
-aplicada até o fim — não há passo intermediário a formalizar, o termo
-_é_ o resultado do processo.
+A imlementação desta gramática é mostrada a seguir, cada construtor é uma regra de produção.
 
 ```lean
+namespace Battleship
+
 inductive Column where
   | A | B | C | D | E | F | G | H | I | J
   deriving DecidableEq, Repr
@@ -63,215 +66,228 @@ inductive Reaction where
   | missed
   | hit (s : Ship)
   | sunk (s : Ship)
-  | lostBattle
+  | lost
   deriving DecidableEq, Repr
 
 structure Turn where
   attack : Attack
   reaction : Reaction
   deriving DecidableEq, Repr
+
+end Battleship
 ```
 
-Como no capítulo 2 (`Attack` como `structure`, não como par
-posicional): os campos nomeados dizem o que cada componente significa,
-o par `Column × Fin 10` não diria.
-
-*Ressalva sobre `Fin 10`.* O livro numera as linhas de `1` a `10`; `Fin
-10` numera de `0` a `9` — um desvio de representação, não só de
-notação: a linha `1` do livro é `Row` `0` aqui, e a linha `10` do livro
-é `Row` `9`. Quem digitar `(10 : Fin 10)` não erra de tipo, recebe de
-volta `0` (`10 % 10`, via `OfNat`) — a linha 10 do livro "some" nesse
-literal, reaparecendo só como `9`. O erro de tipo aparece apenas na
-construção explícita e verificada, `⟨n, by omega⟩` com `n ≥ 10`; um
-literal solto não passa por ali. Os exemplos abaixo, por segurança,
-sempre nomeiam a linha do livro na prosa e escrevem o índice `Fin 10`
-já convertido (`linha 2` do livro é `⟨1, by omega⟩`).
+O tipo `Fin 10` corresponde os números naturais menores que 10. O termo `(10 : Fin 10)` corresponde ao `0` (`10 % 10`, via `OfNat`), mas isso só vale para o literal `10` interpretado nesse tipo. A instância `OfNat (Fin 10) 10` (usada ao escrever `10 : Fin 10`) normaliza o literal por `% 10` antes de guardá-lo. O construtor `⟨n, prova⟩` (`Fin.mk`) exige uma prova de `n < 10` como dado — para `n = 10` essa prova não existe (`10 < 10` é falso), então `⟨10, by omega⟩` sequer elabora. Ou seja, `(10 : Fin 10)` sempre existe via módulo, e `(⟨10, _⟩ : Fin 10)` só existe para `n` de fato menor que `10`.
 
 ```lean
-example : (Attack.mk .B ⟨1, by omega⟩).row = 1 := rfl
--- ⟨1, ...⟩ é a linha *2* do tabuleiro do livro
--- (linha do livro − 1).
+#eval (10 : Fin 10)
+#eval (11 : Fin 10)
+
+example : (11 : Fin 10) = 1 := rfl
+example : ⟨0, by omega⟩ = (0 : Fin 10) := rfl
 ```
 
-Depois do primeiro exercício, o livro estende a gramática para o jogo
-completo, permitindo repetir jogadas:
+Cada regra reescreve um símbolo não-terminal (à esquerda) numa sequência
+de símbolos (à direita); repetindo o processo a partir de `turn` (símbolo inicial)
+até só restarem terminais, obtém-se uma jogada válida, como `B 2 missed`.
+
+Chamamos cada passo de reescrita de `⇒` e nele temos os vários estados intermediários para geração de uma sentença válida:
 
 ```
-game −→ turn | turn game
+ turn ⇒ attack reaction ⇒ attack missed ⇒ ... ⇒ B 2 missed
 ```
 
-E comenta: exigir explicitamente que o jogo termine quando um lado é
-derrotado é uma decisão semântica que se refletiu na sintaxe — a
-gramática por si só (a definição acima) não impede jogadas depois do
-fim do jogo.
+ A repetição de passos é o feixo transitivo e reflexivo que representamos por `⇒*`:
+
+```
+turn ⇒* B 2 missed
+```
+
+Uma possível extensão de nossa gramática seria representar como sentença um jogo completo entre dois jogadores.
+
+```bnf
+game ::= turn | turn game ;
+```
+
+Uma forma conveniente de formalizar em Lean esta extensão seria usar o tipo parametrizado `List`. E naturalmente temos uma sequencia de `Turn` de qualquer comprimento.
 
 ```lean
+namespace Battleship
+
 abbrev Game := List Turn
+
+def game1 : Game :=
+  [⟨⟨.B, 2⟩, .missed⟩,
+   ⟨⟨.B, 3⟩, .hit .battleship⟩,
+   ⟨⟨.B, 4⟩, .sunk .battleship⟩
+  ]
+
+end Battleship
 ```
 
-## Exercício\* — Fim de jogo
+Note que `game1` não representa um jogo completo. A expressão `B 2 missed` pode ou não ser verdade para um determinado tabuleiro. Ou seja, só temos a _sintaxe_, não temos a _semântica_ do jogo. Existir que o jogo termine quando um dos jogadores é derrotado é também uma questão semântica. Uma regra para "não atacar duas vezes a mesma posição" vai para além da sintaxe ou semântica, refere-se a pragmática do jogo. Até aqui temos uma forma de representar o jogo, não nada falamos sobre o funcionamento do jogo ou como ele deve ser jogado.
 
-Revise `Reaction`/`Game` de modo que um jogo termine (a lista de `Turn`
-pare de crescer) quando `lostBattle` ocorrer. Uma abordagem: um tipo
-`GameEnd` separado de `Reaction`, e `Game := List Turn × Option
-GameEnd`.
+## Mastermind (Jogo Senha)
 
-Em `4.1`–`4.3`, cada `def ... : Type := sorry` é um placeholder de
-gramática: a tarefa é apagar o `def` e escrever no lugar o `inductive`
-(ou `structure`/`abbrev`) que a gramática pedida exige — não substituir
-só o `sorry`. Já em `4.4` em diante, o `sorry` marca uma função a
-implementar com o tipo já dado (`def opsNr : Form → Nat := sorry`) — aí
-a tarefa é só a definição, o tipo já está certo.
+Outra linguagem bem simples é a do Mastermind (Jogo Senha). O Mastermind é um jogo de dois jogadores em que um deles tenta descobrir o código escolhido pelo outro. Um dos jogadores decide uma sequência de quatro pinos coloridos, com as cores escolhidas dentro de um conjunto fixo. O outro jogador (quem tenta decifrar) tenta adivinhar o padrão de cores. Depois de cada palpite, quem propôs o código dá uma resposta indicando sua correção. Essa resposta consiste numa sequência de pinos pretos e brancos: um pino preto para cada pino da cor certa na posição certa, e um pino branco para cada pino adicional da cor certa, mas na posição errada. Se o código secreto é vermelho, azul, verde, amarelo, e o palpite é verde, azul, vermelho, laranja, a resposta é um preto (o azul está na posição certa) e dois brancos (verde e vermelho aparecem no palpite, mas nas posições erradas). Os palpites e as respostas se alternam até que o padrão seja descoberto. O desafio é adivinhar o padrão no menor número de tentativas.
+
+```bnf
+colour ::= "red" | "yellow" | "blue" | "green" | "orange" ;
+answer ::= "black" | "white" ;
+guess ::= colour colour colour colour ;
+reaction ::= answer
+  | answer answer
+  | answer answer answer
+  | answer answer answer answer ;
+turn ::= guess reaction ;
+game ::= turn | turn game ;
+```
+
+Note que os pinos pretos e brancos são colocados em qualquer ordem, não correspondem a uma sinalização por posição. Uma desvantagem da implementação a seguir é que dois diferentes termos do tipo `Reaction` poderiam representar a mesma _resposta_  para uma tentativa. Sobre a definição de `Subtypes`, ver {citep Bib.love2026}[Seção 12.4].
 
 ```lean
-def GameEnd : Type := sorry
+namespace Mastermind
 
-def Game' : Type := sorry
-```
-
-## Exercício 4.1 (p. 65)
-
-Revise a gramática de modo que fique explícito, nas próprias regras,
-que o jogo termina quando um dos jogadores é derrotado.
-
-```lean
-def SeaBattleReaction : Type := sorry
-
-def SeaBattleGame : Type := sorry
-```
-
-::::exercise (rating := 1) (name := "4.2")
-
-Ref. CSwFP/4, exercício 4.2 (p. 67).
-
-Revise a gramática para garantir que um jogo tenha no máximo quatro
-jogadas.
-
-```lean
-def SeaBattleGameMax4 : Type :=
-  solution!(Option Turn × Option Turn × Option Turn ×
-    Option Turn)
-```
-
-::::
-
-## Exercício 4.3 (p. 67)
-
-Escreva suas próprias gramáticas para xadrez e para bingo.
-
-```lean
-def ChessGame : Type := sorry
-
-def BingoGame : Type := sorry
-```
-
-## Exercício 4.4 (p. 67)
-
-Confira: todas essas gramáticas geram línguas infinitas. Em seguida,
-altere a definição de `reaction` no Exercício 4.2 de modo que a
-gramática revisada gere uma língua finita.
-
-```lean
-def SeaBattleReactionFinite : Type := sorry
-```
-
-::::exercise (rating := 1) (name := "4.5")
-
-Ref. CSwFP/4, exercício 4.5 (p. 68).
-
-Dê uma gramática para strings que também gera a string vazia. Use `ε`
-como símbolo para a string vazia.
-
-```lean
-def StringWithEmpty : Type := solution!(List Char)
-
-example : (StringWithEmpty) := ([] : List Char)
-```
-
-::::
-
-## Mastermind
-
-Segundo exemplo do livro: no Mastermind, um jogador esconde uma
-sequência de 4 pinos coloridos e o outro tenta adivinhá-la, recebendo
-como resposta uma contagem de acertos (pino certo na posição certa) e
-presenças (cor certa, posição errada) — sem dizer quais posições.
-Gramática em EBNF (`{ }` para repetição zero-ou-mais):
-
-```
-colour   −→ red | yellow | blue | green | orange
-answer   −→ black | white
-guess    −→ colour colour colour colour
-reaction −→ { answer }
-turn     −→ guess reaction
-game     −→ turn | turn game
-```
-
-```lean
 inductive Colour where
   | red | yellow | blue | green | orange
   deriving DecidableEq, Repr
-
-def Colour.all : List Colour :=
-  [.red, .yellow, .blue, .green, .orange]
 
 inductive Answer where
   | black | white
   deriving DecidableEq, Repr
 
-abbrev Pattern := Colour × Colour × Colour × Colour
+abbrev Guess := Vector Colour 4
 
-abbrev Feedback := List Answer
+/-- uma alternativa `Vector (Option Answer) 4` -/
+abbrev Reaction := { r : List Answer // r.length ≤ 4 }
+
+structure Turn where
+  guess : Guess
+  reaction : Reaction
+  deriving DecidableEq, Repr
+
+abbrev Game := List Turn
+
+def turn1 : Turn :=
+  ⟨#v[.green, .blue, .red, .orange],
+   (⟨[.black, .white], by simp⟩ : Reaction) ⟩
+
+end Mastermind
 ```
 
-`Colour.all` substitui o `deriving (Bounded, Enum)` do Haskell do livro
-— não há equivalente no núcleo do Lean, mas a lista explícita cumpre o
-mesmo papel (enumerar todos os valores) e será usada quando o jogo
-precisar gerar ou percorrer todas as cores.
+::::exercise (rating := 1) (name := "mastermind-4-passos")
+
+Revise a gramática para garantir que um jogo tenha no máximo quatro
+jogadas.
+
+```lean
+namespace Mastermind
+
+abbrev Game₄ := solution!(Vector Turn 4)
+
+end Mastermind
+```
+::::
+
+
+::::exercise (rating := 1) (name := "chess-grammar")
+
+Escreva suas próprias gramáticas para o xadrez e em seguida sua implementação no Lean.
+
+```bnf
+figure ::= "King" | "Queen" | "Knight"
+  | "Rook" | "Bishop" | "Pawn" ;
+row    ::= "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" ;
+column ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" ;
+move   ::= figure row column ;
+turn   ::= move move ;
+game   ::= turn | turn game ;
+```
+
+```lean
+namespace Chess
+
+inductive Figure where
+  | king | queen | knight | rook | bishop | pawn
+  deriving DecidableEq, Repr
+
+inductive Row where
+  | a | b | c | d | e | f | g | h
+  deriving DecidableEq, Repr
+
+structure Move where
+  figure : Figure
+  row : Row
+  column : Fin 8
+  deriving DecidableEq, Repr
+
+structure Turn where
+  white : Move
+  black : Move
+  deriving DecidableEq, Repr
+
+abbrev Game := List Turn
+
+end Chess
+```
+::::
+
+::::quiz
+Todas as gramáticas que discutimos geram linguagens infinitas?
+
+:::quizSolution
+O sinal claro de uma linguagem livre de contexto infinita é uma regra de produção da forma `A → W A V`, em que `W` e `V` não são ambos vazios. Um exemplo é a regra `game → turn game`. Isso é chamado de uso recursivo de um não-terminal. A recursão também pode ser indireta, passando por um ou mais outros não-terminais: `A → W B V`, `B → Y A Z`. Basta procurar esse tipo de recursão nas gramáticas para identificar quais delas geram linguagens infinitas.
+:::
+::::
+
+A partir das discussões acima, poderíamos sugerir uma primeira gramática para um fragmennto do inglês talvez um tanto quanto permissiva. Qualquer sequencia de caracteres ASCII.
+
+```bnf
+ character ::= _ascii ;
+ string ::= character | character string ;
+```
 
 # Um fragmento do inglês
 
-O terceiro exemplo do capítulo — e o que interessa ao curso — é uma
-gramática para um fragmento do inglês. O livro dá primeiro a BNF:
+Em seguida, vamos implementar um fragmento um pouco mais realistico do inglês.  Ela é deliberadamente básica e grosseira, queremos capturar a sintaxe de sentenças como:
 
+1. The girl laughed.
+2. No dwarf admired some princess that shuddered.
+3. Every girl that some boy loved cheered.
+4. The wizard that helped Snow White defeated the giant.
+
+Então o que precisamos é uma regra para uma sentença sujeito-predicado. Uma regra para a estrutura interna de um sintagma nominal. Uma regra para substantivos com ou sem clausulas relativas. Nossa gramática poderia ser:
+
+```bnf
+S    ::= NP VP ;
+NP   ::= "Snow White" | "Alice" | "Dorothy" | "Goldilocks" | "Little Mook" | "Atreyu"
+      | DET CN | DET RCN ;
+DET  ::= "the" | "a" | "every" | "some" | "no" | "most" ;
+CN   ::= "girl" | "boy" | "princess" | "dwarf" | "giant" | "wizard" | "sword" | "dagger" ;
+RCN  ::= CN "that" VP | CN "that" NP TV ;
+VP   ::= "laughed" | "cheered" | "shuddered" | TV NP | DV NP NP ;
+TV   ::= "loved" | "admired" | "helped" | "defeated" | "caught" ;
+DV   ::= "gave" ;
 ```
-S    −→ NP VP
-NP   −→ Snow White | Alice | Dorothy | Goldilocks | Little Mook | Atreyu
-            | DET CN | DET RCN
-DET  −→ the | every | some | no
-CN   −→ girl | boy | princess | dwarf | giant | wizard | sword | dagger
-RCN  −→ CN that VP | CN that NP TV
-VP   −→ laughed | cheered | shuddered
-            | TV NP | DV NP NP
-TV   −→ loved | admired | helped | defeated | caught
-DV   −→ gave
-```
 
-com a ressalva de que é "muito básica e grosseira demais", mas serve
-para dar uma ideia do formato. Depois estende essa BNF para uma
-implementação que soma catorze tipos de dado — os oito não-terminais
-da BNF mais seis tipos auxiliares (`Sent`, `ADJ`, `That`, `AV`, `INF`,
-`TINF`, `To`) que existem só na versão Haskell, introduzidos para
-ilustrar intensionalidade mais adiante (§8.3 do livro).
+A implementação abaixo acrescenta tipos auxiliares aos oito não-terminais da BNF, introduzidos para ilustrar intensionalidade mais adiante.
 
-A tradução para Lean é direta: cada categoria sintática é um construtor
-de um `inductive` mutuamente recursivo — a árvore de análise de uma
-sentença _é_ um termo desse tipo, sem passo de tradução string→árvore a
-definir.
+A tradução para Lean é direta: cada categoria sintática é um construtor de um `inductive` mutuamente recursivo — a árvore de análise de uma sentença é um termo desse tipo, sem passo de tradução string→árvore a definir.
 
 ```lean
 inductive DET where
-  | the | every | some | no | most
-  deriving DecidableEq, Repr
+  | a | the | every | some | no | most
+  deriving Repr
 
 instance : ToString DET :=
-  ⟨fun | .the => "the" | .every => "every" | .some => "some"
+  ⟨fun | .a => "a" | .the => "the"
+       | .every => "every" | .some => "some"
        | .no => "no" | .most => "most"⟩
 
 inductive CN where
   | girl | boy | princess | dwarf | giant | wizard | sword
   | dagger
-  deriving DecidableEq, Repr
+  deriving Repr
 
 instance : ToString CN :=
   ⟨fun | .girl => "girl" | .boy => "boy"
@@ -281,17 +297,17 @@ instance : ToString CN :=
 
 inductive ADJ where
   | fake
-  deriving DecidableEq, Repr
+  deriving Repr
 
 instance : ToString ADJ := ⟨fun | .fake => "fake"⟩
 
 inductive That where
   | that
-  deriving DecidableEq, Repr
+  deriving Repr
 
 inductive TV where
   | loved | admired | helped | defeated | caught
-  deriving DecidableEq, Repr
+  deriving Repr
 
 instance : ToString TV :=
   ⟨fun | .loved => "loved" | .admired => "admired"
@@ -300,20 +316,20 @@ instance : ToString TV :=
 
 inductive DV where
   | gave
-  deriving DecidableEq, Repr
+  deriving Repr
 
 instance : ToString DV := ⟨fun | .gave => "gave"⟩
 
 inductive AV where
   | hoped | wanted
-  deriving DecidableEq, Repr
+  deriving Repr
 
 instance : ToString AV :=
   ⟨fun | .hoped => "hoped" | .wanted => "wanted"⟩
 
 inductive TINF where
   | love | admire | help | defeat | catch
-  deriving DecidableEq, Repr
+  deriving Repr
 
 instance : ToString TINF :=
   ⟨fun | .love => "love" | .admire => "admire"
@@ -322,19 +338,20 @@ instance : ToString TINF :=
 
 inductive To where
   | to
-  deriving DecidableEq, Repr
+  deriving Repr
 ```
 
 Estes nove tipos não se referem uns aos outros nem a
 `NP`/`VP`/`RCN`/`INF`/`Sent` — cada um é um enum simples ou tem campos
 só desses enums, então não precisam entrar no bloco `mutual` abaixo.
 Isolá-los deixa visível qual é a recursão real do fragmento: só `NP`,
-`RCN`, `VP` e `INF` se chamam entre si (e a `Sent` que os fecha).
+`RCN`, `VP` e `INF` se referenciam (e a `Sent` que os fecha).
 
 ```lean
 mutual
   inductive Sent where
     | sent (np : NP) (vp : VP)
+  deriving Repr
 
   inductive NP where
     | snowWhite | alice | dorothy | goldilocks | littleMook
@@ -342,26 +359,28 @@ mutual
     | everyone | someone
     | np1 (det : DET) (cn : CN)
     | np2 (det : DET) (rcn : RCN)
+  deriving Repr
 
   inductive RCN where
     | rcn1 (cn : CN) (compl : That) (vp : VP)
     | rcn2 (cn : CN) (compl : That) (np : NP) (tv : TV)
     | rcn3 (adj : ADJ) (cn : CN)
+  deriving Repr
 
   inductive VP where
     | laughed | cheered | shuddered
     | vp1 (tv : TV) (np : NP)
     | vp2 (dv : DV) (np1 np2 : NP)
     | vp3 (av : AV) (marker : To) (inf : INF)
+  deriving Repr
 
   inductive INF where
     | laugh | cheer | shudder
     | inf1 (tinf : TINF) (np : NP)
+  deriving Repr
 end
-
-deriving instance Repr for Sent, NP, RCN, VP, INF
-
 mutual
+
 def Sent.toStringImpl : Sent → String
   | .sent np vp => s!"{np.toStringImpl} {vp.toStringImpl}"
 
@@ -395,15 +414,10 @@ end
 instance : ToString Sent := ⟨Sent.toStringImpl⟩
 ```
 
-`That` e `To` são tipos com um único construtor, sem informação nenhuma
-— existem porque o capítulo 9 (parsing) os quer como palavras da
-gramática, não como marcadores internos. `catch` colide com a palavra
-reservada do Lean para captura de exceções; o construtor de `TINF` fica
-`catch` mesmo assim, dentro do namespace `TINF`, sem conflito (o Lean
-resolve pelo namespace, `TINF.catch` não é `catch` do núcleo).
+`That` e `To` são tipos com um único construtor. `catch` colide com a palavra reservada do Lean para captura de exceções; o construtor de `TINF` fica `catch` mesmo assim, dentro do namespace `TINF`, sem conflito (o Lean resolve pelo namespace, `TINF.catch` não é `catch` do núcleo).
 
-A Figura 4.1 do livro mostra a árvore de análise de _"The dwarf that
-Snow White helped admired every princess"_:
+A árvore de análise de "The dwarf that Snow White helped admired every
+princess" é como segue, construir esta árvore a partir da string é o que chamamos de _parsing_.
 
 ```
 S
@@ -421,87 +435,307 @@ S
         └── CN — princess
 ```
 
-pareada com o termo Lean correspondente — a árvore acima não é uma
-estrutura auxiliar, é a _notação_ deste termo. Três coisas coincidem: a
-árvore, o termo Lean que a constrói, e a sentença em inglês que ele
-denota sintaticamente — `Repr` imprime o termo (a árvore, por extenso);
-`ToString`, definido abaixo, faz o caminho inverso do parsing (assunto
-do capítulo 9): devolve, a partir do termo, a sentença de superfície.
+O termo Lean correspondente segue. Note que a sentença em inglês é uma sequencia de caracteres em um alfabeto, uma string no computador. A árvore é a representação abstrata da estrutura da sentença, o termo Lean é a formalização desta representação. `Repr` imprime o termo; `ToString` faz o caminho inverso do _parsing_, devolve, a partir do termo, a sentença de superfície.
 
 ```lean
-def figure4_1 : Sent :=
+def snowWhile : Sent :=
   .sent (.np2 .the (.rcn2 .dwarf .that .snowWhite .helped))
         (.vp1 .admired (.np1 .every .princess))
+
+#eval snowWhile
+#eval toString snowWhile
 ```
 
-```lean (name := c4eval1)
-#eval figure4_1
-```
-
-```leanOutput c4eval1
-Chapter04.Sent.sent
-  (Chapter04.NP.np2
-    (Chapter04.DET.the)
-    (Chapter04.RCN.rcn2 (Chapter04.CN.dwarf) (Chapter04.That.that) (Chapter04.NP.snowWhite) (Chapter04.TV.helped)))
-  (Chapter04.VP.vp1 (Chapter04.TV.admired) (Chapter04.NP.np1 (Chapter04.DET.every) (Chapter04.CN.princess)))
-```
-
-```lean (name := c4eval2)
-#eval toString figure4_1
-```
-
-```leanOutput c4eval2
-"the dwarf that Snow White helped admired every princess"
-```
-
-## Uma categoria, duas leituras
-
-`NP`, `VP` e (aqui) `Sent` reaparecem em `Chapter03.lean` como `abbrev
-NP := Entity`, `abbrev VP := NP → S` e `abbrev S := Prop` — mas ali são
-tipos *semânticos*: a categoria lida como o tipo do significado, na
-leitura categorial de Ajdukiewicz que o capítulo 3 estabeleceu. Aqui
-`NP`/`VP`/`Sent` são construtores de um `inductive` *sintático*: a
-categoria lida como nó de uma árvore.
-
-Não é coincidência de nome nem confusão a evitar — é o próprio ponto de
-Montague. Uma categoria sintática determina um tipo semântico:
-`NP`-nó da árvore e `NP`-tipo do significado são as duas faces da mesma
-categoria, ligadas pela leitura categorial. Os capítulos 5 a 7 vão
-definir a função que lê um termo como o de `figure4_1` (sintaxe) e
-devolve um valor do tipo semântico correspondente (`S`, `VP`, ...) —
-essa função é a semântica composicional do fragmento.
-
-## Exercício 4.6 (p. 69)
-
-Estenda este fragmento com os adjetivos `happy` e `evil`.
-
-```lean
-def CNWithAdjectives : Type := sorry
-```
-
-## Exercício 4.7 (p. 69)
+::::exercise (rating := 1) (name := "preposition-phrase")
 
 Estenda o fragmento com sintagmas preposicionais, de modo que a
-sentença _A dwarf defeated a giant with a sword_ seja gerada de duas
-formas estruturalmente diferentes, enquanto _A dwarf defeated Little
-Mook with a sword_ só tenha uma forma de ser gerada.
+sentença "A dwarf defeated a giant with a sword" seja gerada de duas
+formas estruturalmente diferentes, enquanto "A dwarf defeated Little
+Mook with a sword" só tenha uma forma de ser gerada.
 
-```lean
-def NPWithPP : Type := sorry
+Primeiro acrescentamos duas regras para construir PPs a partir de uma
+preposição e um NP. Em seguida estendemos a regra de NPs, para gerar NPs
+como a giant with a sword. Note que não simplesmente acrescentamos uma
+produção recursiva `NP → NP PP`. Se fizéssemos isso, não só permitiríamos
+um número arbitrário de PPs como modificadores de NP, mas também
+geraríamos NPs como "Little Mook with a sword" (o que queremos excluir).
+Por fim, também estendemos a regra de VP para construir VPs com sintagmas
+preposicionais.
 
-def VPWithPP : Type := sorry
+```bnf
+P   ::= "with" ;
+PP  ::= P NP ;
+NP  ::= _NP | DET CN PP ;
+VP  ::= _VP | TV NP PP ;
 ```
 
-## Exercício 4.8 (p. 69)
-
-Estenda o fragmento com orações relativas complexas, em que a oração
-relativa pode ser uma conjunção de sentenças. O fragmento deve gerar,
-entre outras, a sentença _The dwarf that Snow White helped and
-Goldilocks admired cheered._ Que problemas você encontra?
+Como `inductive` em Lean é fechado — não dá para acrescentar construtores a um tipo já definido —, a extensão exige redefinir todo o agrupamento mutuamente recursivo (`Sent`, `NP`, `RCN`, `VP`, `INF`), acrescentando `PP` a ele, em vez de simplesmente estender `NP`/`VP` originais. Isolamos o restante num namespace próprio, para não afetar o fragmento original de `NP`/`VP` sem PPs.
 
 ```lean
-def RCNWithCoordination : Type := sorry
+namespace WithPP
+
+inductive P where
+  | «with»
+  deriving Repr
+
+instance : ToString P := ⟨fun | .with => "with"⟩
+
+mutual
+  inductive Sent where
+    | sent (np : NP) (vp : VP)
+  deriving Repr
+
+  inductive NP where
+    | snowWhite | alice | dorothy | goldilocks | littleMook
+    | atreyu
+    | everyone | someone
+    | np1 (det : DET) (cn : CN)
+    | np2 (det : DET) (rcn : RCN)
+    | np3 (det : DET) (cn : CN) (pp : PP)
+  deriving Repr
+
+  inductive RCN where
+    | rcn1 (cn : CN) (compl : That) (vp : VP)
+    | rcn2 (cn : CN) (compl : That) (np : NP) (tv : TV)
+    | rcn3 (adj : ADJ) (cn : CN)
+  deriving Repr
+
+  inductive VP where
+    | laughed | cheered | shuddered
+    | vp1 (tv : TV) (np : NP)
+    | vp2 (dv : DV) (np1 np2 : NP)
+    | vp3 (av : AV) (marker : To) (inf : INF)
+    | vp4 (tv : TV) (np : NP) (pp : PP)
+  deriving Repr
+
+  inductive INF where
+    | laugh | cheer | shudder
+    | inf1 (tinf : TINF) (np : NP)
+  deriving Repr
+
+  inductive PP where
+    | pp1 (p : P) (np : NP)
+  deriving Repr
+end
+
+mutual
+
+def Sent.toStringImpl : Sent → String
+  | .sent np vp => s!"{np.toStringImpl} {vp.toStringImpl}"
+
+def NP.toStringImpl : NP → String
+  | .snowWhite => "Snow White"
+  | .alice => "Alice"
+  | .dorothy => "Dorothy"
+  | .goldilocks => "Goldilocks"
+  | .littleMook => "Little Mook"
+  | .atreyu => "Atreyu"
+  | .everyone => "everyone" | .someone => "someone"
+  | .np1 det cn => s!"{det} {cn}"
+  | .np2 det rcn => s!"{det} {rcn.toStringImpl}"
+  | .np3 det cn pp => s!"{det} {cn} {pp.toStringImpl}"
+
+def RCN.toStringImpl : RCN → String
+  | .rcn1 cn _ vp => s!"{cn} that {vp.toStringImpl}"
+  | .rcn2 cn _ np tv => s!"{cn} that {np.toStringImpl} {tv}"
+  | .rcn3 adj cn => s!"{adj} {cn}"
+
+def VP.toStringImpl : VP → String
+  | .laughed => "laughed" | .cheered => "cheered"
+  | .shuddered => "shuddered"
+  | .vp1 tv np => s!"{tv} {np.toStringImpl}"
+  | .vp2 dv np1 np2 =>
+    s!"{dv} {np1.toStringImpl} {np2.toStringImpl}"
+  | .vp3 av _ inf => s!"{av} to {inf.toStringImpl}"
+  | .vp4 tv np pp =>
+    s!"{tv} {np.toStringImpl} {pp.toStringImpl}"
+
+def INF.toStringImpl : INF → String
+  | .laugh => "laugh" | .cheer => "cheer"
+  | .shudder => "shudder"
+  | .inf1 tinf np => s!"{tinf} {np.toStringImpl}"
+
+def PP.toStringImpl : PP → String
+  | .pp1 p np => s!"{p} {np.toStringImpl}"
+
+end
+
+instance : ToString Sent := ⟨Sent.toStringImpl⟩
 ```
+
+A ambiguidade pedida está em `giantWithSword1`/`giantWithSword2`: o PP
+`with a sword` pode se ligar dentro do NP (modificando `a giant`) ou
+direto na VP (modificando o evento de derrotar); as duas árvores são
+diferentes, mas produzem a mesma sentença de superfície. Já
+`mookWithSword` só admite a segunda leitura, porque `NP ::= DET CN PP`
+exige um determinante e `CN`, e "Little Mook" é um nome próprio sem
+determinante — não há como formar `Little Mook with a sword` como um
+único NP.
+
+```lean
+-- PP dentro do NP objeto ("a giant with a sword" é um NP).
+def giantWithSword1 : Sent :=
+  .sent (.np1 .a .dwarf)
+    (.vp1 .defeated
+      (.np3 .a .giant (.pp1 .with (.np1 .a .sword))))
+
+-- mesma sentença, PP ligado à VP em vez do NP.
+def giantWithSword2 : Sent :=
+  .sent (.np1 .a .dwarf)
+    (.vp4 .defeated (.np1 .a .giant)
+      (.pp1 .with (.np1 .a .sword)))
+
+-- única leitura possível
+def mookWithSword : Sent :=
+  .sent (.np1 .a .dwarf)
+    (.vp4 .defeated .littleMook
+      (.pp1 .with (.np1 .a .sword)))
+
+end WithPP
+```
+
+```lean (name := c4evalPP1)
+#eval toString WithPP.giantWithSword1
+#eval toString WithPP.giantWithSword2
+#eval toString WithPP.mookWithSword
+```
+
+As duas árvores diferentes imprimem a mesma sentença de superfície,
+a ambiguidade pedida.
+::::
+
+::::exercise (rating := 1) (name := "complex-relative-clauses")
+
+Estenda o fragmento com orações relativas complexas, em que a oração relativa coordena duas VPs paralelas ou dois pares NP-TV paralelos (não sentenças completas). O fragmento deve gerar, entre outras, a sentença "The dwarf that Snow White helped and Goldilocks admired cheered". Que problemas você encontra?
+
+Acrescentamos `COORD` e duas regras para `RCN`, cada uma coordenando
+duas ocorrências da mesma forma — ou duas VPs, ou dois pares NP-TV:
+
+```bnf
+COORD ::= "and" ;
+RCN   ::= _RCN | CN "that" VP COORD VP
+               | CN "that" NP TV COORD NP TV ;
+```
+
+Como antes, `inductive` fechado obriga a redefinir todo o agrupamento
+mutual só para acrescentar construtores a `RCN`.
+
+```lean
+namespace WithCoord
+
+inductive COORD where
+  | and
+  deriving Repr
+
+instance : ToString COORD := ⟨fun | .and => "and"⟩
+
+mutual
+  inductive Sent where
+    | sent (np : NP) (vp : VP)
+  deriving Repr
+
+  inductive NP where
+    | snowWhite | alice | dorothy | goldilocks | littleMook
+    | atreyu
+    | everyone | someone
+    | np1 (det : DET) (cn : CN)
+    | np2 (det : DET) (rcn : RCN)
+  deriving Repr
+
+  inductive RCN where
+    | rcn1 (cn : CN) (compl : That) (vp : VP)
+    | rcn2 (cn : CN) (compl : That) (np : NP) (tv : TV)
+    | rcn3 (adj : ADJ) (cn : CN)
+    | rcn4 (cn : CN) (compl : That)
+        (vp1 : VP) (coord : COORD) (vp2 : VP)
+    | rcn5 (cn : CN) (compl : That)
+        (np1 : NP) (tv1 : TV) (coord : COORD)
+        (np2 : NP) (tv2 : TV)
+  deriving Repr
+
+  inductive VP where
+    | laughed | cheered | shuddered
+    | vp1 (tv : TV) (np : NP)
+    | vp2 (dv : DV) (np1 np2 : NP)
+    | vp3 (av : AV) (marker : To) (inf : INF)
+  deriving Repr
+
+  inductive INF where
+    | laugh | cheer | shudder
+    | inf1 (tinf : TINF) (np : NP)
+  deriving Repr
+end
+
+mutual
+
+def Sent.toStringImpl : Sent → String
+  | .sent np vp => s!"{np.toStringImpl} {vp.toStringImpl}"
+
+def NP.toStringImpl : NP → String
+  | .snowWhite => "Snow White" | .alice => "Alice"
+  | .dorothy => "Dorothy" | .goldilocks => "Goldilocks"
+  | .littleMook => "Little Mook" | .atreyu => "Atreyu"
+  | .everyone => "everyone" | .someone => "someone"
+  | .np1 det cn => s!"{det} {cn}"
+  | .np2 det rcn => s!"{det} {rcn.toStringImpl}"
+
+def RCN.toStringImpl : RCN → String
+  | .rcn1 cn _ vp => s!"{cn} that {vp.toStringImpl}"
+  | .rcn2 cn _ np tv => s!"{cn} that {np.toStringImpl} {tv}"
+  | .rcn3 adj cn => s!"{adj} {cn}"
+  | .rcn4 cn _ vp1 coord vp2 =>
+    s!"{cn} that {vp1.toStringImpl} {coord} " ++
+      s!"{vp2.toStringImpl}"
+  | .rcn5 cn _ np1 tv1 coord np2 tv2 =>
+    s!"{cn} that {np1.toStringImpl} {tv1} {coord} " ++
+      s!"{np2.toStringImpl} {tv2}"
+
+def VP.toStringImpl : VP → String
+  | .laughed => "laughed" | .cheered => "cheered"
+  | .shuddered => "shuddered"
+  | .vp1 tv np => s!"{tv} {np.toStringImpl}"
+  | .vp2 dv np1 np2 =>
+    s!"{dv} {np1.toStringImpl} {np2.toStringImpl}"
+  | .vp3 av _ inf => s!"{av} to {inf.toStringImpl}"
+
+def INF.toStringImpl : INF → String
+  | .laugh => "laugh" | .cheer => "cheer"
+  | .shudder => "shudder"
+  | .inf1 tinf np => s!"{tinf} {np.toStringImpl}"
+
+end
+
+instance : ToString Sent := ⟨Sent.toStringImpl⟩
+
+end WithCoord
+```
+
+Dois exemplos: a sentença do enunciado usa `rcn5` (coordenação de
+pares NP-TV, a RCN é sobre o objeto em ambos os ramos); a outra usa
+`rcn4` (coordenação de VPs, a RCN é sobre o sujeito em ambos os ramos).
+
+```lean (name := c4evalCoord1)
+#eval toString (WithCoord.Sent.sent
+  (.np2 .the  (.rcn5 .dwarf .that .snowWhite .helped
+     .and .goldilocks .admired))
+  .cheered)
+```
+
+```lean (name := c4evalCoord2)
+#eval toString (WithCoord.Sent.sent
+  (.np2 .the (.rcn4 .dwarf .that
+    (.vp1 .helped .goldilocks) .and
+    (.vp1 .admired .snowWhite)))
+  .laughed)
+```
+
+`rcn4` e `rcn5` só coordenam formas paralelas (VP com VP, ou NP-TV com NP-TV), exatamente porque são regras separadas; misturá-las produziria "the dwarf that Goldilocks helped and admired Snow White", que é agramatical: na primeira RCN o vazio (_gap_) está no objeto ("Goldilocks helped ␣"), na segunda está no sujeito ("␣ admired Snow White"), e não há como coordenar as duas leituras numa só sentença. Coordenar `Sent` inteiras em vez de VPs/pares NP-TV geraria justamente essa mistura, por isso o fragmento não faz isso.
+
+O _gap_ é a posição, dentro da `RCN`, onde entraria o `CN` que ela modifica — em `rcn1` (`CN "that" VP`) o gap é o sujeito da VP; em `rcn2` (`CN "that" NP TV`) é o objeto do TV. `rcn4` sempre coordena dois gaps-sujeito e `rcn5` dois gaps-objeto; nenhuma das duas mistura um tipo de gap com o outro.
+
+O problema é que `rcn4`/`rcn5` não são recursivas: cada uma coordena exatamente duas ocorrências. Não é possível gerar "the dwarf that helped Goldilocks and admired the princess that shuddered and laughed" sem acrescentar mais uma regra para RCNs de três coordenadas, depois quatro, e assim por diante — o fragmento não captura a generalização "coordenação de qualquer número de VPs paralelas".
+::::
+
 
 # Uma língua para falar de classes
 
@@ -547,8 +781,8 @@ inductive Query where
 
 # Lógica proposicional
 
-A gramática de lógica proposicional do livro usa primos para gerar
-infinitos átomos:
+Uma gramática de lógica proposicional usa primos para gerar infinitos
+átomos:
 
 ```
 atom −→ p | q | r | atom′
@@ -563,17 +797,15 @@ bonita ou depravada".
 
 Como no capítulo 2, a lista infinita de átomos (`p, q, r, p′, q′, ...`)
 se traduz melhor em Lean como um átomo com nome (`String`), não como
-uma enumeração de primos — o "infinitas letras proposicionais" do
-livro é só "qualquer string serve de átomo".
+uma enumeração de primos: "infinitas letras proposicionais" vira só
+"qualquer string serve de átomo".
 
-Diferente do fragmento de inglês (§4.2), aqui a BNF do próprio livro já
-é *binária*: `(F ∧ F)`, não uma lista de conjunctos. A implementação
-Haskell troca para `Cnj [Form]`/`Dsj [Form]` — o livro justifica:
-"listas Haskell permitem uma solução elegante". Em Lean a lista custa
-caro: um `inductive` com `List Form` dentro de si mesmo (`Cnj (fs :
-List Form)`) é _nested_, e perde tanto `deriving DecidableEq` quanto a
-tática `induction` (que os Exercícios 4.11/4.15 do próprio livro pedem,
-mais adiante). Fica-se com a BNF binária do livro, ao pé da letra:
+A gramática é *binária*: `(F ∧ F)`, não uma lista de conjunctos.
+Mantemos essa forma binária ao pé da letra porque, em Lean, uma lista
+custa caro aqui: um `inductive` com `List Form` dentro de si mesmo
+(`Cnj (fs : List Form)`) é _nested_, e perde tanto `deriving
+DecidableEq` quanto a tática `induction` (que os Exercícios 4.11/4.15
+pedem, mais adiante).
 
 ```lean
 inductive Form where
@@ -592,13 +824,13 @@ falsa. Diferente de um átomo de nome `"⊤"` (que a valoração do
 capítulo 5, `(String → Bool) → Form → Bool`, poderia mandar para
 `false`, dependendo da atribuição de átomos), `top`/`bot` são
 construtores próprios: a valoração vai tratá-los como constantes,
-sempre `true`/`false`, sem depender de nenhuma atribuição — é a mesma
-razão pela qual o livro mostra `Conj []` como `"true"` e `Disj []`
-como `"false"` (comentário do livro em §4.6, p. 81).
+sempre `true`/`false`, sem depender de nenhuma atribuição — por isso a
+conjunção vazia imprime `"true"` e a disjunção vazia `"false"` (ver
+`toStringPolish` abaixo).
 
-Notação n-ária recuperada por duas funções, para os capítulos 5–7 (que
-usam `Cnj`/`Dsj` do livro quase sempre com dois elementos, e uma única
-vez com mais — `lfDET The`, no capítulo 8):
+Notação n-ária recuperada por duas funções, para os capítulos 5–7 (uma
+conjunção/disjunção quase sempre de dois elementos, e uma única vez com
+mais — `lfDET The`, no capítulo 8):
 
 ```lean
 def Form.conjs : List Form → Form
@@ -612,7 +844,7 @@ def Form.disjs : List Form → Form
   | f :: fs => .disj f (Form.disjs fs)
 ```
 
-`ToString` em notação polonesa (prefixa), como o livro:
+`ToString` em notação polonesa (prefixa):
 
 ```lean
 def Form.toStringPolish : Form → String
@@ -654,11 +886,11 @@ def form2 : Form :=
 "v[p1,v[p2,v[p3,p4]]]"
 ```
 
-`form2` não é `v[p1,p2,p3,p4]` como no livro — lá `Dsj` toma uma lista
-de uma vez; aqui, binário, quatro disjuntos exigem três `disj`
-encadeados. É exatamente o preço da escolha binária, e a razão de
-existir `Form.disjs`: `disjs` _constrói_ esses `disj` encadeados, não
-achata a saída — o mesmo `form2` de novo, desta vez a partir da lista:
+`form2` não é `v[p1,p2,p3,p4]` — sendo `Form` binário, quatro disjuntos
+exigem três `disj` encadeados, não uma lista achatada. É exatamente o
+preço da escolha binária, e a razão de existir `Form.disjs`: `disjs`
+_constrói_ esses `disj` encadeados, não achata a saída — o mesmo
+`form2` de novo, desta vez a partir da lista:
 
 ```lean
 example :
@@ -680,7 +912,7 @@ example :
   rfl
 ```
 
-Abreviações do livro: `F1 → F2` para `¬(F1 ∧ ¬F2)` ("implicação"), e
+Duas abreviações usuais: `F1 → F2` para `¬(F1 ∧ ¬F2)` ("implicação"), e
 `F1 ↔ F2` para `(F1 → F2) ∧ (F2 → F1)` ("equivalência").
 
 ```lean
@@ -760,15 +992,14 @@ tipo indutivo _é_ a árvore, e o Lean já sabe, para todo `inductive`,
 que construtores diferentes produzem valores diferentes, e que um
 mesmo construtor com argumentos diferentes produz valores diferentes.
 É a mesma observação de "Indução estrutural", abaixo — não à toa a
-versão Lean deste exercício é quase vazia: o livro precisa da indução
-porque define fórmula como _string_ e prova que a árvore de análise é
-única. Aqui não há string a analisar: o termo Lean é a árvore.
+versão Lean deste exercício é quase vazia: provar leitura única para
+uma gramática dada como _string_ exige indução estrutural genuína;
+aqui não há string a analisar, o termo Lean já é a árvore.
 
 ## Sintaxe e proposição são coisas diferentes
 
-Um contraste que o livro não precisa fazer, mas Lean exige. O capítulo
-3 definiu `abbrev S := Prop` — uma proposição semântica, sem estrutura
-interna que se possa inspecionar. `Form`, acima, é um segundo
+O capítulo 3 definiu `abbrev S := Prop` — uma proposição semântica, sem
+estrutura interna que se possa inspecionar. `Form`, acima, é um segundo
 `inductive` de *sintaxe*: um valor de `Form` é dado, no sentido do
 capítulo 2 — casa padrão, conta operadores, mede profundidade, coleta
 os átomos que ocorrem nele (Exercícios 4.12–4.14, mais abaixo). Nada
@@ -785,29 +1016,29 @@ um `inductive` de fórmulas —, mas o que se faz com ela é dedução
 natural (`Γ ⊢ A`), não valoração. Três respostas, três pontos de
 vista: `Prop` é a proposição em si, sem estrutura; `Proposition` do
 `cslib` é sintaxe mais um sistema de prova; `Form` daqui é sintaxe mais
-uma função `Form → Bool`. O capítulo 5 segue a terceira, porque é a
-que o livro segue.
+uma função `Form → Bool`. Este capítulo e o capítulo 5 seguem a
+terceira.
 
 `Proposition` fica como leitura complementar, não como base do
-capítulo, por um motivo de vocabulário: a BNF de §4.4 tem `¬`/`∧`/`∨`
+capítulo, por um motivo de vocabulário: a BNF acima tem `¬`/`∧`/`∨`
 primitivos e introduz `→` só depois, como abreviação; `Proposition`
 faz o caminho inverso — `imp` é primitivo, `neg` deriva de `imp ·⊥`,
 exigindo uma instância `[Bot Atom]` no tipo dos átomos que não tem
 motivação linguística, só satisfaz a typeclass. Adotar `Proposition`
 obrigaria `opsNr`/`depth` (Exercícios 4.12–4.13) a passar primeiro por
-essa tradução de vocabulário, antes de bater com os números que o
-livro dá. Quem quiser ver como um curso de teoria da prova trataria
-fórmulas proposicionais em Lean, com dedução natural completa,
-encontra em `Cslib.Logic.PL.Proposition`.
+essa tradução de vocabulário, antes de bater com os números esperados.
+Quem quiser ver como um curso de teoria da prova trataria fórmulas
+proposicionais em Lean, com dedução natural completa, encontra em
+`Cslib.Logic.PL.Proposition`.
 
 ## Indução estrutural
 
-O livro precisa enunciar o Teorema 4.1 (Princípio da Indução
-Estrutural) porque raciocina sobre fórmulas como _strings_: para
+O Princípio da Indução Estrutural (Teorema 4.1 de CSwFP) diz: para
 provar algo de toda fórmula, basta provar da base (átomos) e do passo
-indutivo (que a propriedade passa por `¬`, `∧`, `∨`). Em Lean isso não
-é um teorema a enunciar — é o recursor que `inductive Form` já gera de
-graça:
+indutivo (que a propriedade passa por `¬`, `∧`, `∨`). Isso é necessário
+enunciar como teorema separado quando se raciocina sobre fórmulas como
+_strings_; em Lean não é um teorema a enunciar — é o recursor que
+`inductive Form` já gera de graça:
 
 ```lean (name := c4check1)
 #check @Form.rec
@@ -825,9 +1056,9 @@ graça:
 
 `Form.rec` — e a tática `induction`, construída sobre ele — já *são* o
 princípio de indução estrutural, sem que o capítulo precise declará-lo.
-Onde o livro prova a Proposição 4.2 (número igual de parênteses em toda
-fórmula) e a Proposição 4.3 (leitura única — o Exercício 4.11 acima é
-essa prova), a versão Lean só precisa de `induction`:
+A Proposição 4.2 de CSwFP (número igual de parênteses em toda fórmula)
+e a Proposição 4.3 (leitura única — o Exercício 4.11 acima é essa
+prova) viram, aqui, só `induction`:
 
 ```lean
 def Form.leftParens : Form → Nat
@@ -862,13 +1093,12 @@ theorem Form.leftParens_eq_rightParens (f : Form) :
 Essa é a Proposição 4.2 traduzida — mas com uma ressalva: `Form`
 binário já garante um parêntese de abertura por `conj`/`disj`, contado
 igualmente nas duas funções por construção; a prova formaliza essa
-contagem, não descobre nada de novo sobre a gramática. Já as
-Proposições 4.3 e os Exercícios 4.11/4.15 (leitura única) são o caso
-mais extremo dessa observação: no livro, precisam de indução
-estrutural genuína, porque provam algo sobre _strings_ que a gramática
-gera; em Lean, um termo de `Form` já é a árvore, não uma string a
-analisar — não há uma segunda leitura possível a excluir, e a prova
-(Exercício 4.11 acima) se reduz a `injection`.
+contagem, não descobre nada de novo sobre a gramática. A Proposição 4.3
+e os Exercícios 4.11/4.15 (leitura única) são o caso mais extremo dessa
+observação: provar leitura única para uma gramática dada como _string_
+exige indução estrutural genuína; em Lean, um termo de `Form` já é a
+árvore, não uma string a analisar — não há uma segunda leitura possível
+a excluir, e a prova (Exercício 4.11 acima) se reduz a `injection`.
 
 ::::exercise (rating := 1) (name := "4.12")
 
@@ -1016,9 +1246,9 @@ príncipe viu", formalizadas respectivamente como
 ```
 
 — repare que a leitura universal usa `→` como conectivo principal, e
-a existencial usa `∧`; vale a pena perguntar por quê (o livro retoma
-isso no Exercício 5.17). Já _"Algum príncipe viu uma dama bonita"_ não
-é ambígua: `∃x∃y(Prince x ∧ Lady y ∧ Beautiful y ∧ Saw x y)`.
+a existencial usa `∧`; vale a pena perguntar por quê (retomamos isso no
+Exercício 5.17). Já _"Algum príncipe viu uma dama bonita"_ não é
+ambígua: `∃x∃y(Prince x ∧ Lady y ∧ Beautiful y ∧ Saw x y)`.
 
 ## Exercício 4.15 (p. 77) ✎
 
@@ -1026,8 +1256,8 @@ Prove que as fórmulas desta língua têm a propriedade de leitura única.
 
 *Resposta.* Como no Exercício 4.11 (§4.4): em Lean, um termo de tipo
 indutivo _é_ a árvore de análise — a prova é `injection` sobre os
-construtores, não indução estrutural genuína sobre strings. O livro
-precisa da indução porque define fórmula como string e prova que a
+construtores, não indução estrutural genuína sobre strings. Provar
+leitura única para uma gramática dada como string exige mostrar que a
 função string → árvore é bem definida (dá exatamente uma árvore, nunca
 duas ou nenhuma); a versão Lean não tem essa função a definir, então a
 "leitura única" vira a afirmação, quase vazia, de que construtores
@@ -1042,8 +1272,8 @@ infinitos símbolos de predicado para cada aridade finita. (Dica: use
 `‴P`, `‴P′`, `‴P″`, ... para o conjunto de predicados de três lugares,
 e assim por diante.)
 
-*Resposta.* A gramática do livro, estendida com um prefixo de primos
-por aridade:
+*Resposta.* A gramática de lógica de predicados acima, estendida com um
+prefixo de primos por aridade:
 
 ```
 P0 −→ P0 | P0′        (predicados de aridade 0)
@@ -1057,8 +1287,8 @@ Em Lean, indexar por aridade é mais natural do que empilhar primos: um
 `structure PredSymbol` com campos `name : String` e `arity : Nat` já
 representa "infinitos predicados de cada aridade finita" sem precisar
 de uma família de gramáticas, uma por aridade. Fica como observação —
-o capítulo não adota `PredSymbol` como base de `Formula` (abaixo), que
-segue o livro e limita a aridade por construção.
+`Formula` (abaixo) não adota `PredSymbol`, e limita a aridade por
+construção (`atom`, `eq`, ...).
 
 ## Exercício 4.17 (p. 78) ✎
 
@@ -1125,13 +1355,13 @@ inductive Formula (α : Type) where
 ```
 
 Por que `Formula` toma lista de fórmulas (`conj`/`disj`), diferente do
-`Form` binário de §4.4? Porque, aqui, o livro mostra `Conj []` como
-`"true"` e `Disj []` como `"false"` — a conjunção/disjunção vazia é a
-motivação para tomar lista desde o início, não uma escolha de
-implementação a evitar. `Form` binário funciona bem porque o capítulo
-4.4 nunca precisa de conjunções de tamanho variável; aqui, o próprio
-ponto do livro (§4.6, no comentário sobre `Show (Formula a)`, p. 81)
-depende da lista vazia existir.
+`Form` binário de §4.4? Porque a conjunção/disjunção vazia — `conj []`
+como `"true"`, `disj []` como `"false"` — é a motivação para tomar
+lista desde o início, não uma escolha de implementação a evitar.
+`Form` binário funciona bem porque §4.4 nunca precisa de conjunções de
+tamanho variável; aqui, a conjunção/disjunção vazia como valor sensato
+(ver `toStringImpl` abaixo, e a semântica do capítulo 5) depende da
+lista vazia existir.
 
 Diferente do fragmento de inglês (§4.2) — onde `NP`/`VP`/`RCN`/`INF`/
 `Sent` são *mutuamente recursivos*, mas nenhum toma lista de si
@@ -1139,13 +1369,13 @@ mesmo, e por isso mantêm `induction` funcionando — `Formula` é
 _nested_: a lista `List (Formula α)` dentro do próprio tipo tira
 tanto `deriving DecidableEq` quanto `induction` automática. É a mesma
 restrição que levou `Form` a ser binário em §4.4; aqui a lista é
-essencial ao ponto do livro, então o custo se paga, e as funções
-abaixo são recursão explícita.
+essencial, então o custo se paga, e as funções abaixo são recursão
+explícita.
 
-`ToString`, como o livro — inclusive a escolha de mostrar `conj []`
-como `"true"` e `disj []` como `"false"` (a razão fica clara na
-semântica do capítulo 5: são a base neutra de `∧`/`∨`, e como
-constantes independem de qualquer atribuição de valores aos átomos):
+`ToString` — inclusive a escolha de mostrar `conj []` como `"true"` e
+`disj []` como `"false"` (a razão fica clara na semântica do capítulo
+5: são a base neutra de `∧`/`∨`, e como constantes independem de
+qualquer atribuição de valores aos átomos):
 
 ```lean
 def Formula.toStringImpl [ToString α] : Formula α → String
@@ -1290,7 +1520,7 @@ arbitrárias em vez de fixar "menor que" como primitivo.
 Termos complexos, com símbolo de função e lista de argumentos — outro
 `inductive` nested (a lista de `Term` dentro do próprio `Term`), então
 sem `deriving DecidableEq`/`induction`, como `Form` teria sido se a
-gramática do livro não fosse binária em §4.4:
+gramática de §4.4 não fosse binária:
 
 ```lean
 inductive Term where

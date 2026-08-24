@@ -12,87 +12,40 @@ htmlSplit := .never
 file := "Chapter02"
 %%%
 
-Ref. CSwFP/3. Functional Programming with Haskell. Adaptado para apresentar
-Lean.
-
-Neste capítulo, apresentamos o essencial sobre a linguagem de programação Lean.
-Outros conceitos de Lean serão apresentados ao longo do texto.
-
-Em algumas seções, a linha `Ref.` aponta para a seção correspondente de
-CSwFP/3, quando existe uma.
+Neste capítulo, apresentamos o essencial sobre a linguagem de programação Lean. Nosso objetivo é apresentar o suficiente para que o leitor possa acompanhar os exemplos do restante do livro. Para uma apresentação completa, sugerimos a leitura de {citep Bib.FPiL}[] e {citep Bib.LLR}[].
 
 ```lean
 namespace Chapter02
 ```
 
-# Primeiros experimentos
+# Termos e Tipos
 
-Ref. CSwFP/3 §3.3 (p. 35–38).
+Em Lean, um termo é uma expressão sintaticamente válida que representa um objeto e possui um tipo.
 
-## Termos e Tipos
+Semanticamente, tipos como conjuntos, mas eles não são conjuntos. Podemos pensar em tipos como classes para classificarmos termos. Com tipos podemos impor uma disciplina que a matemática segue apenas implicitamente. No papel podemos escrever `1 ∈ 2`, mas em Lean a tipagem marca a expressão como um erro.
 
-Tudo em Lean é um _termo_ (ou _expressão_), e todo termo tem um _tipo_.
+Alguns tipos básicos já estão definidos no sistema como `ℕ`, `ℤ`, `ℚ` ou `Bool`. Se `σ` e `τ` são tipos, `σ → τ` representa o tipo das funções de `σ` em `τ`. Um tipo é de ordem superior quando tem `→` aninhada à esquerda de outra `→`, como em `(ℤ → ℤ) → ℚ`: o tipo das funções que recebem uma função de `ℤ` em `ℤ` e devolvem um `ℚ`.
 
-Um tipo pode ser básico - `ℤ`, `ℚ` ou `Bool` — ou uma função total `σ → τ`, onde
-`σ` e `τ` são, eles mesmos, tipos. O tipo diz quais valores uma expressão pode
-assumir, impondo uma disciplina que a matemática segue apenas implicitamente:
-nada impede escrever `1 ∈ 2`, mas em Lean a tipagem marca a expressão como o
-erro que provavelmente é.
+Ao abrir um arquivo Lean, podemos além de escrever declarações, podemos interagir diretamente com o sistema através de comandos. Comandos são prefixados com `#`. O comando `#eval` calcula o valor de um termo.
 
-Semanticamente, um tipo pode ser visto como um conjunto — mas Lean e a
-matemática são linguagens distintas, e os tipos de Lean não são conjuntos.
+```lean
+#eval 1 + 2
+#eval "Olá, " ++ "mundo"
+```
 
-Um tipo é de ordem superior quando tem `→` aninhada à esquerda de outra `→`,
-como em `(ℤ → ℤ) → ℚ`: o tipo das funções que recebem uma função de `ℤ` em `ℤ` e
-devolvem um `ℚ`.
-
-Um termo, nesse sentido básico, é:
-
-- uma constante `c`;
-- uma variável `x`;
-- uma aplicação `t u`;
-- uma função anônima `fun x → t` (também chamada de _expressão λ_).
-
-Aqui `t` e `u` denotam termos arbitrários, e `t : σ` diz que o termo `t` tem o
-tipo `σ`. Ver mais em {citep Bib.love2026}[].
-
-Uma `def`inição introduz um termo (constante). Os dois-pontos anunciam o tipo,
+Uma `def`inição introduz um nome no ambiente. Os dois-pontos anunciam o tipo,
 e o `:=` dá o valor. `100` é um termo do tipo `Nat`, e `"Chomsky"` é um termo
 do tipo `String`. Em alguns contextos, o tipo não precisa ser declarado quando
 Lean consegue descobri-lo sozinho. Escrever `def n := 100` funciona, porque
 Lean irá interpretar `100 : ℕ` e logo estabelecer que a constante `n : ℕ` —
-mas escrever o tipo é conveniente e ajuda a tornar o código mais legível.
+mas escrever o tipo é conveniente e ajuda a tornar o código mais legível. O comando `#check` pergunta ou confirma o tipo, sem calcular nada.
 
 ```lean
-def n : Nat := 100
 def author : String := "Chomsky"
-```
 
-O comando `#eval` calcula o valor; `#check` pergunta ou confirma o tipo, sem
-calcular nada.
-
-```lean (name := c2eval1)
 #eval  author
-```
-
-```leanOutput c2eval1
-"Chomsky"
-```
-
-```lean (name := c2check1)
 #check author
-```
-
-```leanOutput c2check1
-Chapter02.author : String
-```
-
-```lean (name := c2check2)
-#check (1 + n : Nat)
-```
-
-```leanOutput c2check2
-1 + n : ℕ
+#check (author : String)
 ```
 
 Tipos também são termos, e portanto têm tipo. O tipo de `true` é `Bool`, o
@@ -101,56 +54,23 @@ universos existe para que não exista um tipo de todos os tipos, o que
 produziria um paradoxo. Para nós, em geral, basta saber que a pergunta "qual o
 tipo disto?" tem sempre resposta.
 
-```lean (name := c2check3)
+```lean
 #check true
-```
-
-```leanOutput c2check3
-Bool.true : Bool
-```
-
-```lean (name := c2check4)
 #check Bool
-```
-
-```leanOutput c2check4
-Bool : Type
-```
-
-```lean (name := c2check5)
 #check Nat
-```
-
-```leanOutput c2check5
-Nat : Type
-```
-
-```lean (name := c2check6)
 #check Type
 ```
 
-```leanOutput c2check6
-Type : Type 1
+# Funções
+
+O tipo `Nat → Nat` representa todas as funções que recebem um número natual e devolvem um número natural. O termo `fun x => x * x : Nat → Nat` é uma particular função deste tipo. Ao aplicar o termo `12 : Nat`, temos o `144 : Nat` como resposta. Ao invés de `fun` podemos usar `λ` e ao invés de `=>` podemos usar `↦`, em Lean podemos usar os caracteres unicode.
+
+```lean
+#check (λ x ↦ x * x) 12
+#eval (λ x ↦ x * x) 12
 ```
 
-## Funções
-
-Um termo do tipo `Nat → Nat` é construído por abstração. E a aplicação
-corresponde a passarmos um valor para esta abstração. Isto é o que chamamos
-de `λ-abstraction` ou _função anônima_
-
-```lean (name := c2eval2)
-#eval (fun x => x * x) 12
-```
-
-```leanOutput c2eval2
-144
-```
-
-Mas podemos associarmos abstrações a novas constantes, principalmente quando
-queremos que elas possam ser reusadas. A segunda privilegiando o uso de
-caracteres Unicode (passe o Mouse sobre os caracteres para aprender como
-digitá-los no VS Code).
+Mas podemos nomear abstrações, principalmente quando queremos que elas possam ser reusadas. E em Lean podemos usar caracteres unicode como mostramos a seguir.
 
 ```lean
 def square₁ : Nat → Nat :=
@@ -160,19 +80,12 @@ def square₂ : ℕ → ℕ :=
   λ x ↦ x * x
 ```
 
-Mas a sintaxe para declaração de funções pode nomear explicitamente os
-parâmetros e normalmente é mais conveniente. A seguir, parâmetros de mesmo
-tipo podem ser agrupados.
-
-Nomes são definidos em `namespaces`. As definições deste capítulo estarão no
-namespace `Chapter02`. A notação `name.length` infere pelo tipo de `name` que
-estamos falando da função `length` definida no namespace `String` mesmo nome
-do tipo `String`. Ver {citep Bib.FPiL}[].
+Normalmente pode ser conveniente nomear os parâmetros de uma função. A seguir, parâmetros de mesmo tipo podem ser agrupados.
 
 ```lean
-def square₃ (x : Nat) : Nat := x * x
+def square₃ (x : ℕ) : ℕ := x * x
 
-def agePlusNameSize (age : Nat) (name : String) : Nat :=
+def agePlusNameSize (age : ℕ) (name : String) : ℕ :=
   age * name.length
 
 def maximum (n k : Nat) : Nat :=
@@ -181,204 +94,107 @@ def maximum (n k : Nat) : Nat :=
   else n
 ```
 
+Nomes são definidos em `namespaces`. As definições deste capítulo estarão no
+namespace `Chapter02`. A notação `name.length` acima infere pelo tipo de `name` que
+estamos falando da função `length` definida no namespace `String` mesmo nome
+do tipo `String`. Ver {citep Bib.FPiL}[].
+
 Perguntado sobre um nome que foi definido, o `#check` responde com a
 assinatura, e não com o tipo seta. Envolver o nome em parênteses força a
 segunda forma. Mas as duas dizem o mesmo. As três versões de `square` tem o
-mesmo tipo e como veremos logo a seguir, podemos provar que são iguais.
+mesmo tipo e como veremos, podemos provar que são iguais.
 
-```lean (name := c2check7)
-#check square₁
-```
-
-```leanOutput c2check7
-Chapter02.square₁ : ℕ → ℕ
-```
-
-```lean (name := c2check8)
-#check square₂
-```
-
-```leanOutput c2check8
-Chapter02.square₂ : ℕ → ℕ
-```
-
-```lean (name := c2check9)
+```lean
 #check square₃
-```
-
-```leanOutput c2check9
-Chapter02.square₃ (x : ℕ) : ℕ
-```
-
-```lean (name := c2check10)
 #check (square₃)
 ```
 
-```leanOutput c2check10
-square₃ : ℕ → ℕ
-```
-
-Às vezes interessa dizer que uma função _existe_, com um certo tipo, sem
-dizer qual função é. `opaque` declara o nome com o tipo e não dá corpo.
-Exemplos de {citep Bib.love2026}[].
+As vezes podemos querer introduzir uma constante ou tipo sem especificar seu comportamento o valor. Para isso usamos `opaque`, um símbolo com o tipo mas sem implementação. Exemplos de {citep Bib.love2026}[].
 
 ```lean
-opaque someF₁ : Nat → Nat
-opaque someF₂ {α : Type} [Inhabited α] : α → α
+opaque a : ℕ
+opaque b : ℕ
+opaque f : ℕ → ℕ
+opaque g : ℕ → ℕ → ℕ
 ```
 
-```lean (name := c2check11)
-#check someF₂
+Conferir tipo não demanda computação, logo o comando `#check` funciona retornando o tipo da expressão sem avaliá-la.
+
+```lean
+#check g a
 ```
 
-```leanOutput c2check11
-Chapter02.someF₂ {α : Type} [Inhabited α] : α → α
-```
+::::exercise (rating := 1) (name := "sumOfSquares")
 
-O `#check` responde, porque conferir tipo não precisa do corpo. O `#eval`
-não teria como calcular — e o que ele devolve merece atenção, porque não é
-erro e não é o valor calculado pela função. `0` é o valor _default_ de
-`Nat`. Para aceitar um `opaque`, Lean exige que o tipo seja _habitado_, que
-exista pelo menos um valor nele. E é uma classe de tipos que registra isso —
-`Inhabited α`, cuja instância fornece o valor default de `α`. O `{α : Type}`
-declara um parâmetro implicito, o Lean não precisa receber este valor do
-usuário, pode inferir. O uso dos colchetes indica que o tipo deve ter uma
-instância para a class `Inhabited`.
-
-## Exercício' — Soma de quadrados
-
-Defina `sumOfSquares m n`, que devolve `m² + n²`.
+Defina `sumOfSquares` que recebe dois naturais e devolve `m² + n²`.
 
 ```lean
 def sumOfSquares (m n : Nat) : Nat :=
+ solution!
   (square₁ m) + (square₁ n)
+
+
+example : sumOfSquares 3 4 = 25 := by
+ solution!
+  rfl
+```
+::::
+
+Lean é uma linguagem muito extensiva, na verdade, boa parte de Lean é escrita em Lean, usando os recursos de _meta programação_. Os operadores `+` ou `*` entre outros são símbolos sintáticos associados a definições. Lean tem um mecanismo de `classes` para definir operadores polimorficos como o `+` para os naturais (interpretado como a função `Nat.add`) ou para números de ponto flutuante.
+
+```lean
+#eval Nat.add 2 2
+#eval Float.add 2.1 2
+#eval 2.1 + 2
 ```
 
-```lean (name := c2eval3)
-#eval sumOfSquares 3 4
+Podemos forçar o tipo do primeiro argumento, definimos qual multiplicação estamos interessados. O segundo argumento, `10`, recebe o tipo correspondente.
+
+```lean
+#eval (1 : Int) * 10
+#eval (1 : Float) * 10
 ```
 
-```leanOutput c2eval3
-25
+No comando abaixo, o tipo de `x` é algo como `?m.7`. Isto significa que Lean sem dizer o tipo de `x`, Lean não tem como saber qual o `*` desejado, `Nat`, `Int`, ou qualquer outro tipo com multiplicação. O `?m.7` é uma _metavariável_: um buraco que Lean deixa em aberto à espera de informação que decida a questão.
+
+```lean
+#check fun x => x * x
 ```
-
-## Funções são valores
-
-A abstração lambda — é a operação básica para construir funções. O `def`
-acima apenas deu nome ao valor que ela produz. A seta `↦` e o `=>` são a
-mesma coisa, como `λ` e `fun`; a escolha é de gosto.
-
-```lean (name := c2check12)
-#check (fun x => x * x)
-```
-
-```leanOutput c2check12
-fun x => x * x : (x : ?m.7) → ?m.8 x
-```
-
-Sem dizer o tipo de `x`, Lean não tem como saber em que `*` se está pensando
-— o de `Nat`, o de `Int`, o de qualquer outro tipo com multiplicação. O que
-aparece no lugar do tipo (`?m.7`, e coisas assim) é uma _metavariável_: um
-buraco que Lean deixa em aberto à espera de informação que decida a questão.
 
 Anotar o argumento resolve, e a resposta passa a ser o tipo esperado. O
-contexto também resolve, quando existe. Aplicada a `4`, a função não tem
-mais o que decidir.
+contexto também resolve. Aplicada a `4`, a função agora é sobre `Nat` assumida a interpretação padrão de números como `Nat`.
 
-```lean (name := c2check13)
+```lean
 #check fun (x : Nat) => x * x
-```
-
-```leanOutput c2check13
-fun x => x * x : ℕ → ℕ
-```
-
-```lean (name := c2check14)
 #check (fun x => x * x) 4
 ```
 
-```leanOutput c2check14
-(fun x => x * x) 4 : ℕ
-```
-
 Se função é valor, então nada impede que ela seja _argumento_ de outra
-função. `g` recebe uma função de `Nat → Nat` e um valor, e é isso que o
+função. `h` recebe uma função de `Nat → Nat` e um valor, e é isso que o
 torna uma função de ordem superior.
 
 ```lean
-def g (f : Nat → Nat) (x : Nat) : Nat := f x
+def h (f : Nat → Nat) (x : Nat) : Nat := f x
+#eval h (λ x => x + 1) 10
 ```
 
-```lean (name := c2eval4)
-#eval g (λ x => x + 1) 10
-```
-
-```leanOutput c2eval4
-11
-```
-
-```lean (name := c2check15)
-#check (g)
-```
-
-```leanOutput c2check15
-g : (ℕ → ℕ) → ℕ → ℕ
-```
-
-Uma função também pode ser produzida como resultado. Ou podemos pensar que
-funções podem receber seus argumentos de forma parcial.
+Uma função também pode ser produzida como resultado. O que é equivalente a uma avaliação parcial. Abaixo, a função `h₁` recebe dois naturais para produzir a saída. A função `h₂` recebe um natural, para então devolver a função que ao receber um natural irá produzir como saída a soma dos dois valores recebidos. O interessante que não preciso escrever `h₁` como `h₂`, é perfeitamente aceitável passar apenas um dos argumentos para `h₁` e ver que o tipo da expressão resultante.
 
 ```lean
-def h₁ (x : Nat) : (Nat → Nat) :=
+def h₁ (x y : Nat) : Nat :=
+  x + y
+
+def h₂ (x : Nat) : (Nat → Nat) :=
   fun y => x + y
 
-def h₂ (x y : Nat) : Nat :=
-  x + y
-```
-
-```lean (name := c2check16)
-#check (h₁)
-```
-
-```leanOutput c2check16
-h₁ : ℕ → ℕ → ℕ
-```
-
-```lean (name := c2check17)
-#check (h₁ 1)
-```
-
-```leanOutput c2check17
-h₁ 1 : ℕ → ℕ
-```
-
-```lean (name := c2check18)
-#check (h₂ 1)
-```
-
-```leanOutput c2check18
-h₂ 1 : ℕ → ℕ
-```
-
-```lean (name := c2check19)
-#check (agePlusNameSize 1)
-```
-
-```leanOutput c2check19
-agePlusNameSize 1 : String → ℕ
+#check h₁ 1
 ```
 
 ::::exercise (rating := 1) (name := "construindo-termos")
 
-Adaptado de {citep Bib.love2026}[]. Cada `def` declara `{α β γ : Type}`, são
-funções polimórficas (parametrizadas por tipo). Um tipo diz o que existe; um
-termo é uma testemunha disso. As quatro funções abaixo pedem só isso: dado o
-tipo, construa um termo. Dica, use `_` para identificar no _InfoView_ qual
-tipo o termo na posição deverá ter.
+Adaptado de {citep Bib.love2026}[]. Cada `def` declara `{α β γ : Type}`, são funções parametrizadas por tipo. Para as quatro funções abaixo, cujo tipo foi definido, pede-se fornecer o termo para o tipo correspondente. Dica, use `_` para identificar no _InfoView_ qual tipo o termo na posição deverá ter.
 
-O `section` permite que possamos criar uma seção, onde definições podem
-compartilhar, por exemplo, a declaração de variáveis. Veja o tipo de
-`projFst`.
+O `section` permite criar uma seção, onde definições podem compartilhar, por exemplo, a declaração de variáveis. Veja o tipo de `projFst`.
 
 ```lean
 section
@@ -391,63 +207,46 @@ def K : α → β → α :=
   fun a _b ↦ a
 
 def C : (α → β → γ) → β → α → γ :=
-  λ f => λ b => λ a => f a b
+  solution!(λ f => λ b => λ a => f a b)
 
 def projFst : α → α → α :=
-  fun a _b => a
+  solution!(fun a _b => a)
 
-def projSnd : α → α → α := solution!(fun _a b => b)
+def projSnd : α → α → α :=
+  solution!(fun _a b => b)
 
 def someNonsense : (α → β → γ) → α → (α → γ) → β → γ :=
   solution!(fun f a _g b => f a b)
 
 end
 ```
-
 ::::
 
-## Expressões são termos
+# Expressões
 
-Uma expressão tem valor e tipo; um comando faz algo e não devolve nada. Em
-Lean não há a segunda categoria — o que em outras linguagens é comando aqui
-é expressão, e portanto pode aparecer em qualquer lugar onde um valor cabe.
+Uma _expressão_ é  uma construção sintática da linguagem. Toda expressão é um termo. Um _termo canônico_ é um termo que já está na forma final de sua computação, não podendo ser reduzido. Construções sintáticas que normalmente não tem valor em linguagens imperativas, também são termos em Lean.
 
-`let` nomeia um valor dentro de uma expressão, e a expressão inteira tem
-valor. O ponto-e-vírgula é uma alternativa a quebra de linha e alinhamento
-de identação.
+O `let` nomeia um valor dentro de uma expressão, e a expressão inteira tem valor. O ponto-e-vírgula é uma alternativa a quebra de linha e alinhamento de identação.
 
 ```lean
-def twenty : Nat := (let a := 10; a) + (let b := 10; b)
+#eval
+  let a := (let a := 10; a) + (let b := 10; b)
+  a
 ```
 
-```lean (name := c2eval5)
-#eval twenty
-```
+O `if-then-else` também é expressão. Os dois ramos têm de ter o mesmo tipo. É por isso que o resultado pode ser atribuído:
 
-```leanOutput c2eval5
-20
-```
-
-O `if-then-else` também é expressão, e não desvio de fluxo: os dois ramos
-têm de ter o mesmo tipo. É por isso que o resultado pode ser atribuído:
-
-```lean (name := c2eval6)
+```lean
 #eval
   let a := if 5 < 10 then 1 else 0
   a
 ```
 
-```leanOutput c2eval6
-1
-```
-
-# Structures
-
-Seção sem `Ref.` a CSwFP/3 — o livro não usa `structure`. Ver {citep Bib.FPiL}[].
+# Estruturas
 
 Uma `structure` agrupa vários valores num só, dando nome a cada campo.
 `Point` tem dois campos, `x` e `y`, ambos `Float`. E a estrutura introduz um
-novo tipo chamado `Point`.
+novo tipo chamado `Point` e um `namespace` de mesmo nome.
 
 ```lean
 structure Point where
@@ -456,55 +255,27 @@ structure Point where
 deriving Repr
 ```
 
-`Point.mk` é o construtor — o nome vem de `Point` seguido de `.mk`, a menos
-que a `structure` declare outro nome. Os dois jeitos de construir um
-`Point` são equivalentes:
+Além do tipo, algumas definições como `Point.mk`, função (construtor) que cria termos do tipo `Point` também são criadas pela declaração acima. Também podemos usar a sintaxe com chaves. Para mais detalhes, ver {citep Bib.FPiL}[capítulo~1].
 
 ```lean
-def origin : Point := { x := 0.0, y := 0.0 }
-def origin' : Point := Point.mk 0.0 0.0
-```
+def origin₁ : Point := { x := 0.0, y := 0.0 }
+def origin₂ : Point := Point.mk 0.0 0.0
 
-```lean (name := c2eval7)
-#eval origin
-```
-
-```leanOutput c2eval7
-{ x := 0.000000, y := 0.000000 }
-```
-
-```lean (name := c2check20)
+#eval origin₁
 #check Point.mk
 ```
 
-```leanOutput c2check20
-Chapter02.Point.mk (x y : Float) : Point
-```
-
-Cada campo tem uma função de projeção — `Point.x` e `Point.y` — acessível
-também pela notação `.`:
-
-```lean (name := c2eval8)
-#eval origin.x
-```
-
-```leanOutput c2eval8
-0.000000
-```
-
-```lean (name := c2eval9)
-#eval Point.x origin
-```
-
-```leanOutput c2eval9
-0.000000
-```
-
-`⟨_, _⟩` é a *notação de anônima* para o construtor: serve quando o tipo
-esperado já deixa claro qual construtor usar, sem repetir `Point.mk`.
+Cada campo tem uma função de projeção. No exemplo, `Point.x` e `Point.y`. Todas as funções introduzidas na declaração da estrutura ficam no namespace criado pelo comando `structure`.
 
 ```lean
-def origin'' : Point := ⟨0.0, 0.0⟩
+#eval origin₁.x
+```
+
+A notação `⟨_, _⟩` é a *notação de anônima* para o construtor: serve quando o tipo
+esperado já deixa claro qual construtor usar.
+
+```lean
+def origin₃ : Point := ⟨0.0, 0.0⟩
 ```
 
 Uma função sobre `Point` também pode desmontar o argumento com `⟨_, _⟩`, em
@@ -513,94 +284,58 @@ vez de projetar campo a campo:
 ```lean
 def addPoints (p1 p2 : Point) : Point :=
   ⟨p1.x + p2.x, p1.y + p2.y⟩
+
+#eval addPoints origin₁ ⟨1.0, 2.0⟩
 ```
 
-```lean (name := c2eval10)
-#eval addPoints origin ⟨1.0, 2.0⟩
-```
-
-```leanOutput c2eval10
-{ x := 1.000000, y := 2.000000 }
-```
-
-`with` cria uma cópia alterando só alguns campos — útil quando a `structure`
-tem muitos campos.
+Também podemos usar `with` para criar uma cópia da estrutura alterando só alguns campos. Isti é útil quando a `structure` tem muitos campos.
 
 ```lean
 def scaleX (p : Point) (factor : Float) : Point :=
   { p with x := p.x * factor }
-```
 
-```lean (name := c2eval11)
 #eval scaleX ⟨2.0, 3.0⟩ 10.0
 ```
 
-```leanOutput c2eval11
-{ x := 20.000000, y := 3.000000 }
+# O tipo Prop e Provas
+
+O que diferencia Lean de outras linguagens como Python e Java é a capacidade de na mesma linguagem que usamos para 'programar' funções, escrevermos 'provas' sobre estas funções.
+
+Nesta 'Exemplos extraídos de {citep Bib.FAA2025}[]. Uma proposição é um enunciado que pode ser verdadeiro ou falso. O enunciado `1 = 1` é verdadeiro, enquanto `square₁ 12 = 2` é falso. Toda proposição é todo tipo `Prop`.
+
+```lean
+#check square₁ 12 = 2
 ```
 
-# O tipo Prop e provas
-
-Seção sem `Ref.` a CSwFP/3 — o livro não trata prova formal neste capítulo.
-Exemplos extraídos de {citep Bib.FAA2025}[]. No `Chapter03.lean` vamos usar
-`Prop` desde as primeiras linhas, sem explicá-lo; esta seção dá o mínimo
-necessário.
-
-Uma proposição é um enunciado que pode ser verdadeiro ou falso, como `1 = 1`
-(verdadeiro) ou `1 = 2` (falso). A constante `p1 : Prop`, um nome para a
-proposição `(1 = 1) : Prop`.
+Podemos declarar proposições como a seguir e verificar que `1 = 1 : Prop`, mas não podemos _avaliar_ uma proposição.
 
 ```lean
 def p1 : Prop := 1 = 1
-```
 
-```lean (name := c2check21)
-#check (1 = 1)
-```
-
-```leanOutput c2check21
-1 = 1 : Prop
-```
-
-```lean (name := c2check22)
 #check p1
 ```
 
-```leanOutput c2check22
-Chapter02.p1 : Prop
-```
-
-Toda proposição verdadeira tem uma prova, e uma prova é um _termo_: um
-elemento do tipo da proposição. Provar `1 = 1` é exibir um termo de tipo `1
-= 1`, exatamente como construir um termo de tipo `Nat → Nat` na seção
-anterior. A seguir iremos entender `rfl`. O `example` é um `theorem` sem
-nome.
+Toda proposição verdadeira tem uma prova, e uma prova é um _termo_ do tipo da proposição que testemunha a verdade da proposição. Provar `1 = 1` é exibir um termo de tipo `1 = 1`, exatamente o que o termo `Eq.refl 1` faz abaixo. Declarar um teorema é muito parecido com declarar uma função.
 
 ```lean
-example : 1 = 1 := rfl
+theorem OneEqSelf : 1 = 1 := Eq.refl 1
 ```
 
 A mesma ideia vale para dizer que duas funções são a mesma coisa — não é
 analogia, é a proposição `f = g`, provável do mesmo jeito. Agora usando o
-modo `tactic` iniciado com `by`. Além da `rfl`, usamos `intro` que também
-iremos explicar a diante.
+modo `tactic` iniciado com `by`. Usamos as taticas `rfl` e `intro` que iremos explicar a seguir. Com `example` não precisamos dar nomes a teoremas que não serão reusados.
 
 ```lean
 example :
-    ∀ (z : Nat), (λ x ↦ x * x) z = (fun y => y * y) z := by
-  intro z
+  ∀ (z : Nat), (λ x ↦ x * x) z = (fun y => y * y) z := by
+  intro n
   rfl
 ```
 
-Uma igualdade é uma _proposição_. Note que perguntar pelo tipo não é o
-mesmo que decidir se ela é verdadeira:
+Note que perguntar pelo tipo não é o mesmo que decidir se ela é verdadeira:
 
-```lean (name := c2check23)
+```lean
 #check (square₁ = square₂)
-```
-
-```leanOutput c2check23
-square₁ = square₂ : Prop
 ```
 
 Provar é dar um termo cujo tipo é a proposição. Para uma igualdade em que
@@ -688,7 +423,7 @@ example (P : Prop) : P → P := by
 
 ::::exercise (rating := 1) (name := "p-implica-q-implica-p")
 
-Fonte: {citep Bib.FAA2025}[]
+Complete a prova abaixo. Fonte: {citep Bib.FAA2025}[]
 
 ```lean
 example (P Q : Prop) : P → (Q → P) := by
@@ -785,12 +520,12 @@ Dica: `intro h`, `unfold f at h` (ou `rw [f] at h`), depois concluir por
 `omega` ou `assumption`.
 
 ```lean
-def f (x y : Nat) : Prop := x = y
+def f₁ (x y : Nat) : Prop := x = y
 
-example (x : Nat) : f x 1 → x ≠ 2 := by
+example (x : Nat) : f₁ x 1 → x ≠ 2 := by
   solution!
     intro h
-    unfold f at h
+    unfold f₁ at h
     omega
 ```
 
@@ -801,11 +536,11 @@ example (x : Nat) : f x 1 → x ≠ 2 := by
 Fonte: {citep Bib.FAA2025}[].
 
 ```lean
-example (x y : Nat) : f 0 x ∧ f 0 y → x = y := by
+example (x y : Nat) : f₁ 0 x ∧ f₁ 0 y → x = y := by
   solution!
     intro h
     obtain ⟨h1, h2⟩ := h
-    unfold f at h1 h2
+    unfold f₁ at h1 h2
     omega
 ```
 
@@ -1477,8 +1212,6 @@ def initS (s : String) : String :=
 
 # Um fragmento linguístico
 
-Ref. CSwFP/3 §3.13 (p. 56–57).
-
 Vamos construir uma sentença a partir de um sujeito e um predicado. Não se
 trata da concatenação de strings, é um construtor de sentenças que
 respeitam uma estrutura esperada. O verificador de tipos passa a recusar
@@ -1587,8 +1320,6 @@ Chomsky wrote "Syntactic Structures"
 ```
 
 # Harmonia vocálica do finlandês
-
-Ref. CSwFP/3 §3.11 (p. 52–55).
 
 A morfologia é a parte da gramática que estuda a estrutura, formação,
 flexão e a classificação das palavras de forma isolada.
@@ -1769,6 +1500,8 @@ um feixe de traços — o que importa ainda mais quando o padrão de harmonia
 representação.
 
 ```lean
+namespace Phonema
+
 inductive Attr where
   | Back
   | High
@@ -1834,7 +1567,6 @@ sem elas os exemplos abaixo confundem mais do que ensinam:
   possa ter mais de uma.
 
 ```lean
-section
 open Attr Value
 
 def a : Phoneme :=
@@ -1854,24 +1586,19 @@ def u : Phoneme :=
    ⟨Round, Plus⟩, ⟨Back, Plus⟩]
 
 def yawelmaniVowels := [i,a,o,u,e]
-end
+end Phonema
 ```
 
 ```lean
+namespace Phonema
+
 example : fValue .High i = some .Plus := by rfl
 example : fValue .High a = some .Minus := by rfl
 example : fValue .Back ([] : Phoneme) = none := by rfl
 ```
 
-```lean (name := c2eval43)
-#eval fMatch .Back .Plus i
-```
-
-```leanOutput c2eval43
-[{ attr := Chapter02.Attr.Cons, value := Chapter02.Value.Minus },
- { attr := Chapter02.Attr.High, value := Chapter02.Value.Plus },
- { attr := Chapter02.Attr.Round, value := Chapter02.Value.Minus },
- { attr := Chapter02.Attr.Back, value := Chapter02.Value.Plus }]
+```lean
+#eval Phonema.fMatch .Back .Plus Phonema.i
 ```
 
 A seção só se ocupa da harmonia entre vogais — o que a regra de Yawelmani
@@ -2094,6 +1821,7 @@ gatilho e alvo já são o mesmo `a`
 theorem appendSuffix_test5 :
     appendSuffix "xat" "al" = some "xatal" :=
   solution!(by rfl)
+
 ```
 
 :::gradeTheorem "1" appendSuffix_test1 appendSuffix_test2 appendSuffix_test3 appendSuffix_test4 appendSuffix_test5
@@ -2101,5 +1829,6 @@ theorem appendSuffix_test5 :
 ::::
 
 ```lean
+end Phonema
 end Chapter02
 ```

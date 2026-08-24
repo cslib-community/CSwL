@@ -79,18 +79,23 @@ name = "cslib"
 scope = "leanprover"
 rev = "3951377e5a3f5772737f11cd62bc5bb6a72f95d1"
 
-# Verso: gera a versão web (HTML) dos mesmos arquivos `.lean`, no modo
-# "literate". Alvo: `lake build :literateHtml` (veja `build-web.sh`).
+# Verso: gera a versão web (HTML) do livro, gênero `Manual` (`Book.lean`,
+# alvo `lake exe cswl-book <variante>` — ver `Makefile`) e o `lake exe
+# verso-serve` que serve `_out/` localmente (`verso-serve.toml`). O gênero
+# `Literate` (`:literateHtml`, `build-web.sh`) foi aposentado em 16/08.
 # Revisão fixada porque o `lean-toolchain` do verso tem de bater com o nosso
 # (v4.33.0-rc2); `main` pode avançar para um toolchain mais novo.
 [[require]]
 name = "verso"
 git = "https://github.com/leanprover/verso"
-rev = "755ccbe968ad1b0255bee8b46d9cb2306486d6d8"
+rev = "4ac03644305a17f32139766b9ceb625ad046b85e"
 
 # doc-gen4: gera a documentação de API (a referência: um HTML por declaração,
 # com tipo, docstring e links). Alvo: `lake build CSwL:docs`, saída em
-# `.lake/build/doc/` (veja `build-web.sh`).
+# `.lake/build/doc/`. Não tem mais script próprio desde que o `build-web.sh`
+# foi aposentado (16/08); ficou fora de uso ativo até a questão de escopo
+# (`CSwL:docs` só documenta a lib vazia; `Book:docs` traz Mathlib inteiro)
+# ser resolvida — ver https://github.com/emap-nlp/CSwL/issues/1.
 #
 # O Tao declara esta dependência só no ambiente "dev"
 # (`meta if get_config? env = some "dev" then require ...` no `lakefile.lean`),

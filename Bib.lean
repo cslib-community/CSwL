@@ -3,12 +3,8 @@ import VersoManual
 open Verso.Genre.Manual
 
 /-!
-Bibliografia do livro, transcrita de `references.bib`.
-
-A partir daqui o `.bib` deixa de ser a fonte de verdade (fica como registro/
-export): quem cita usa `{citep Bib.chave}[]` ou `{citet Bib.chave}[]`, e uma
-chave inexistente vira erro de compilação em vez de `[Chave]` pendurado no
-texto.
+Quem cita usa `{citep Bib.chave}[]` ou `{citet Bib.chave}[]`, e uma chave
+inexistente vira erro de compilação em vez de `[Chave]` pendurado no texto.
 
 O Verso oferece quatro tipos citáveis (`VersoManual/Bibliography.lean`):
 `InProceedings`, `Thesis`, `ArXiv` e `Article`. Não há tipo para `@book` nem
@@ -41,9 +37,6 @@ def love2026 : Article where
   number  := inlines!""
   url     := "https://github.com/lean-forward/logical_verification_2026"
 
-/-- O `.bib` não registra ano para o FPiL (é um livro online, atualizado
-continuamente). 2023 é o ano da primeira edição publicada — conferir com o
-professor antes de a data aparecer impressa em alguma citação. -/
 def FPiL : Article where
   title   := inlines!"Functional Programming in Lean"
   authors := #[inlines!"David Thrane Christiansen"]
@@ -54,8 +47,16 @@ def FPiL : Article where
   number  := inlines!""
   url     := "https://lean-lang.org/functional_programming_in_lean/"
 
-/-- Ano tirado do próprio título da entrada ("Autumn 2025"); o `.bib` não tem
-campo `year`. -/
+def LLR : Article where
+  title   := inlines!"The Lean Language Reference"
+  authors := #[inlines!"Lean FRO"]
+  journal := inlines!"Manuscrito não publicado"
+  year    := 2026
+  month   := none
+  volume  := inlines!""
+  number  := inlines!""
+  url     := "https://lean-lang.org/doc/reference/latest/"
+
 def FAA2025 : Article where
   title   := inlines!"Formalizing Analysis of Algorithms, Autumn 2025"
   authors := #[inlines!"Sorrachai Yingchareonthawornchai"]

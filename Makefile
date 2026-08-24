@@ -20,9 +20,8 @@
 # `grading` — nunca do `lakefile.toml` do CSwL, onde colidiria com o Mathlib
 # que o `cslib` traz.
 #
-# A saída web dos capítulos que ainda estão no gênero `Literate` continua
-# saindo pelo `./build-web.sh` (`literate.toml`), fora deste Makefile, até que
-# todos sejam convertidos.
+# O pipeline `Literate`/`build-web.sh` foi aposentado em 16/08: os quatro
+# capítulos já estão todos no gênero `Manual`, e o livro sai só por aqui.
 
 .PHONY: all student solutions terse grading build serve clean
 
@@ -47,10 +46,12 @@ terse: build
 grading: build
 	lake exe cswl-book grading
 
-# Serve as quatro variantes em http://localhost:8000/ (cada uma em
-# `<variante>/html-multi/`).
+# Serve as quatro variantes em http://127.0.0.1:8000/ (cada uma em
+# `<variante>/html-multi/`), com o servidor do próprio Verso — configurado em
+# `verso-serve.toml`. Substitui o antigo `python3 -m http.server -d _out/`.
 serve: all
-	python3 -m http.server 8000 -d _out/
+	lake build verso-serve
+	lake exe verso-serve
 
 clean:
 	rm -rf _out/

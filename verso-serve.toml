@@ -1,0 +1,16 @@
+# Serve local das quatro variantes do livro geradas por `make all`
+# (`_out/<variante>/{html-multi,lean}`), com `lake exe verso-serve`.
+#
+# Uso:
+#
+#     make all              # gera _out/
+#     lake exe verso-serve  # serve em http://127.0.0.1:8000/
+#
+# Substitui `python3 -m http.server 8000 -d _out/` (mesmo layout: cada
+# variante aparece como subpasta em /, com listagem de diretório).
+
+banner = "CSwL — semântica computacional com Lean (variantes geradas)"
+
+[[mounts]]
+path = "/"
+dir = "_out"
