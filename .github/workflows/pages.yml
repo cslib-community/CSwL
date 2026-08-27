@@ -1,37 +1,40 @@
-# Publica no GitHub Pages as duas saídas do projeto:
+# Publishes the book's `student` variant to GitHub Pages:
 #
-#   <pages>/            o livro (Verso, modo "literate")  — `lake build :literateHtml`
-#   <pages>/docs/       a referência de API (doc-gen4)     — `lake build CSwL:docs`
+#   <pages>/            the book (Verso, `Manual` genre) — `lake exe cswl-book student`
 #
-# Este arquivo NÃO se chama `verso-literate-pages.yml` de propósito: o Verso
-# compara aquele nome com o seu próprio modelo e, se o conteúdo divergir,
-# `lake build :literateHtml` passa a emitir um aviso a cada build. Como aqui o
-# modelo precisa de ajustes (doc-gen4, cache do Mathlib), usamos outro nome.
+# `student` (full prose, answer keys elided as `sorry`) is the variant
+# published here — it's the one meant for a public audience; `solutions`
+# would leak answer keys before submissions are due. API docs (doc-gen4)
+# are intentionally left out for now — see the scope issue tracked at
+# https://github.com/cslib-community/CSwL/issues/1.
 #
-# Base: `.lake/packages/verso/gh-setup/verso-literate-pages.yml` (o modelo do
-# `lake exe verso setup-literate`) somado ao workflow do Tao em
-# https://github.com/teorth/analysis, de onde vem o esquema de cache.
+# Base: `.lake/packages/verso/gh-setup/verso-literate-pages.yml` (the
+# template from `lake exe verso setup-literate`), adapted to this repo's
+# `Manual`-genre build (`Makefile`, `CSwLMeta/Run.lean`) instead of the
+# retired `Literate` genre; cache scheme from Tao's workflow at
+# https://github.com/teorth/analysis.
 
 name: GitHub Pages
 
 on:
   push:
     branches: [main]
-  # Permite disparar o deploy à mão, pela aba "Actions".
+  # Allows triggering the deploy by hand, from the "Actions" tab.
   workflow_dispatch:
 
-# Permissões exigidas pelo deploy de Pages:
-#   contents: read   — para dar checkout no repositório
-#   pages: write     — para publicar
-#   id-token: write  — autenticação OIDC com a API de Pages (tokens de vida
-#                      curta, em vez de segredos permanentes)
+# Permissions required by the Pages deploy:
+#   contents: read   — to check out the repository
+#   pages: write     — to publish
+#   id-token: write  — OIDC authentication with the Pages API (short-lived
+#                      tokens instead of permanent secrets)
 permissions:
   contents: read
   pages: write
   id-token: write
 
-# Um deploy por vez. `cancel-in-progress: false` porque cancelar um deploy no
-# meio pode deixar o site publicado em estado inconsistente: o novo push espera.
+# One deploy at a time. `cancel-in-progress: false` because canceling a
+# deploy mid-flight could leave the published site in an inconsistent
+# state: the new push waits instead.
 concurrency:
   group: pages
   cancel-in-progress: false
@@ -42,12 +45,13 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      # Instala o elan e o toolchain indicado em `lean-toolchain`.
-      # `build`/`test` desligados: os alvos são pedidos explicitamente abaixo.
-      # `use-mathlib-cache` desligado porque o `lake exe cache get` é rodado
-      # depois de restaurar o `.lake` (senão ele baixaria o Mathlib inteiro
-      # antes da restauração, a cada execução).
-      # `use-github-cache` desligado porque o cache é gerido nos passos abaixo.
+      # Installs elan and the toolchain named in `lean-toolchain`.
+      # `build`/`test` are off: the targets are requested explicitly below.
+      # `use-mathlib-cache` is off because `lake exe cache get` runs after
+      # restoring `.lake` (otherwise it would download all of Mathlib
+      # before the restore, on every run).
+      # `use-github-cache` is off because the cache is handled in the steps
+      # below.
       - uses: leanprover/lean-action@v1
         with:
           build: false
@@ -55,67 +59,50 @@ jobs:
           use-mathlib-cache: false
           use-github-cache: false
 
-      # O cache é gerido à mão, e não pelo `lean-action`, porque ele salva o
-      # cache ANTES da geração do site: os artefatos do Verso e do doc-gen4
-      # nunca seriam cacheados.
-      - name: Restaurar cache do Lake
+      # The cache is handled by hand, not by `lean-action`, because that
+      # action saves the cache BEFORE the site is generated: Verso's
+      # artifacts would never be cached.
+      - name: Restore Lake cache
         uses: actions/cache/restore@v4
         with:
           path: .lake
           key: lake-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('lean-toolchain') }}-${{ hashFiles('lake-manifest.json') }}-${{ github.sha }}
           restore-keys: lake-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('lean-toolchain') }}-${{ hashFiles('lake-manifest.json') }}
 
-      # Um pacote cacheado pela metade (sem `.git` utilizável) faz o Lake falhar
-      # na resolução das dependências; é mais barato reclonar.
-      - name: Remover pacotes cacheados corrompidos
+      # A half-cached package (with no usable `.git`) makes Lake fail to
+      # resolve dependencies; it's cheaper to re-clone.
+      - name: Remove corrupted cached packages
         run: |
           if [ -d .lake/packages ]; then
             find .lake/packages -mindepth 1 -maxdepth 1 -type d | while read -r package; do
               if ! git -C "$package" rev-parse HEAD >/dev/null 2>&1; then
-                echo "Removendo pacote cacheado corrompido: $package"
+                echo "Removing corrupted cached package: $package"
                 rm -rf "$package"
               fi
             done
           fi
 
-      # Baixa os `.olean` do Mathlib já compilados. Sem isso o build estoura o
-      # tempo do runner.
-      - name: Cache do Mathlib
+      # Downloads Mathlib's precompiled `.olean`s. Without this the build
+      # blows past the runner's time budget.
+      - name: Mathlib cache
         run: lake exe cache get
 
-      - name: Compilar o projeto
-        run: lake build
-
-      # Referência de API. Saída em `.lake/build/doc/`.
-      - name: Gerar a documentação (doc-gen4)
-        run: lake build CSwL:docs
-
-      # `lake query` compila e imprime o caminho da saída.
-      - name: Gerar o livro (Verso)
+      - name: Build the book (student variant)
         id: build-site
         run: |
-          SITE_PATH="$(lake query :literateHtml)"
-          echo "Site gerado em: $SITE_PATH"
+          lake build cswl-book
+          lake exe cswl-book student
           mkdir -p _site
-          cp -r "$SITE_PATH/." _site
+          cp -r _out/student/html/. _site
 
-      - name: Juntar a documentação ao site, em docs/
-        run: cp -r .lake/build/doc _site/docs
-
-      # Restos do Lake que não interessam ao site publicado.
-      - name: Limpar arquivos de controle do Lake
-        run: |
-          find _site/docs -name "*.trace" -delete
-          find _site/docs -name "*.hash" -delete
-
-      - name: Salvar cache do Lake
+      - name: Save Lake cache
         if: success()
         uses: actions/cache/save@v4
         with:
           path: .lake
           key: lake-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('lean-toolchain') }}-${{ hashFiles('lake-manifest.json') }}-${{ github.sha }}
 
-      - name: Enviar o artefato do Pages
+      - name: Upload the Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: _site
@@ -123,13 +110,13 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
-    # Só `main` vai ao ar: um `workflow_dispatch` disparado em outro branch
-    # compila (útil para conferir), mas não publica.
+    # Only `main` goes live: a `workflow_dispatch` triggered on another
+    # branch builds (useful to check), but doesn't publish.
     if: github.ref == 'refs/heads/main'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Publicar no GitHub Pages
+      - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

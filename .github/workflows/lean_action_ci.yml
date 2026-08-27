@@ -1,8 +1,9 @@
-# Verificação rápida: o projeto compila?
+# Quick check: does the project build?
 #
-# Só em pull request (e à mão). Os pushes em `main` são cobertos por
-# `pages.yml`, que compila tudo e publica o site — dois workflows fazendo o
-# mesmo build no mesmo evento seria desperdício de runner.
+# Only on pull request (and by hand). Pushes to `main` are covered by
+# `pages.yml`, which builds everything and publishes the site — two
+# workflows doing the same build on the same event would waste runner
+# time.
 name: Lean Action CI
 
 on:
