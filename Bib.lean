@@ -57,6 +57,15 @@ def LLR : Article where
   number  := inlines!""
   url     := "https://lean-lang.org/doc/reference/latest/"
 
+def grice1975 : Article where
+  title   := inlines!"Logic and Conversation"
+  authors := #[inlines!"H. Paul Grice"]
+  journal := inlines!"Syntax and Semantics, Vol. 3: Speech Acts (P. Cole e J. Morgan, eds.), Academic Press, p. 41–58"
+  year    := 1975
+  month   := none
+  volume  := inlines!"3"
+  number  := inlines!""
+
 def FAA2025 : Article where
   title   := inlines!"Formalizing Analysis of Algorithms, Autumn 2025"
   authors := #[inlines!"Sorrachai Yingchareonthawornchai"]

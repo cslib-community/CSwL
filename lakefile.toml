@@ -1,6 +1,11 @@
 name = "CSwL"
 version = "0.1.0"
-defaultTargets = ["cswl"]
+# `CSwLCompat` entra aqui (e não só como `[[lean_lib]]`) porque nada no
+# fecho de `import` de `cswl` (que só chega a `CSwL.IntroL`) o alcança — sem
+# isso, um `lake build` comum não recompila esse módulo depois de mexer nele,
+# e um erro nele só apareceria quando um capítulo citasse
+# `import CSwLCompat`.
+defaultTargets = ["cswl", "CSwLCompat"]
 
 # Docstrings e module docstrings em formato Verso (e não Markdown): habilita a
 # marcação `{name}`f``, `{syntax term}`...``, etc., que na saída web vira link
@@ -47,6 +52,22 @@ leanOptions = {doc.verso = false}
 [[lean_lib]]
 name = "Bib"
 leanOptions = {doc.verso = false}   # infraestrutura, como a lib `CSwLMeta`
+
+# Macros `sf_experiment`/`sf_expect_failure`/`sf_expect_failure?` usadas pelos
+# fences ` ```lean -keep ` e ` ```lean +error ` (veja `CSwLMeta/Save/Extract.lean`,
+# `walkBlock`, e `CSwLMeta/Save/Lean.lean`, `LeanSaved.Data.extractionMode`).
+# Módulo próprio (não dentro de `CSwLMeta`) porque ele também é copiado,
+# verbatim, para dentro de cada projeto Lean extraído em `_out/<variante>/lean/`
+# — veja `CSwLMeta/Save/Project.lean`, `bundleCompatSeed`.
+# `doc.verso = false`, como `CSwLMeta`/`Bib`: as docstrings usam `/-! ## ... -/`
+# como divisória interna e blocos ```lean``` de exemplo dentro de `/-- ... -/`
+# (para os próprios `sf_experiment`/`sf_expect_failure`), e a marcação Verso
+# rejeita os dois (título de nível `##` sem `#` antes, "Incorrect header
+# nesting"; e cada identificador vira sugestão de role). Não é conteúdo do
+# livro, é infraestrutura como as outras duas.
+[[lean_lib]]
+name = "CSwLCompat"
+leanOptions = {doc.verso = false}
 
 # Raiz do livro no gênero `Manual`: um `#doc (Manual)` que inclui um capítulo
 # por `{include CSwL.ChapterNN}`. Só o cap. 1 foi convertido até agora; os

@@ -43,22 +43,25 @@ make serve   # serve em http://127.0.0.1:8000/
 
 ## Capítulos
 
-- **1. O estudo formal da língua natural** —
-  [livro](https://emap-nlp.github.io/CSwL/cap01/) ·
-  [documentação](https://emap-nlp.github.io/CSwL/docs/CSwL/Chapter01.html) ·
-  [fonte](CSwL/Chapter01.lean)
-- **2. Programação funcional** —
-  [livro](https://emap-nlp.github.io/CSwL/cap02/) ·
-  [documentação](https://emap-nlp.github.io/CSwL/docs/CSwL/Chapter02.html) ·
-  [fonte](CSwL/Chapter02.lean)
-- **3. Funções, tipos e abstração** —
-  [livro](https://emap-nlp.github.io/CSwL/cap03/) ·
-  [documentação](https://emap-nlp.github.io/CSwL/docs/CSwL/Chapter03.html) ·
-  [fonte](CSwL/Chapter03.lean)
-- **4. Sintaxe formal de fragmentos** —
-  [livro](https://emap-nlp.github.io/CSwL/cap04/) ·
-  [documentação](https://emap-nlp.github.io/CSwL/docs/CSwL/Chapter04.html) ·
-  [fonte](CSwL/Chapter04.lean)
+Os links de "livro"/"documentação" abaixo (herdados do pipeline `Literate`
+aposentado) apontam para uma URL que hoje não é gerada por nenhum workflow —
+`.github/workflows/pages.yml` ainda roda `lake build :literateHtml`, alvo que
+não existe mais. Fica como pendência separada, anterior a esta
+reorganização: decidir qual das quatro variantes (`make all`) o Pages deve
+publicar, e então reescrever o workflow. Por ora, só o link de "fonte" é
+confiável.
+
+- **1. O estudo formal da língua natural** — [fonte](CSwL/IntroCS.lean)
+- **2. Programação funcional** — [fonte](CSwL/IntroL.lean)
+- **Aplicações** (harmonia vocálica do finlandês, plural do sueco,
+  fonemas) — [fonte](CSwL/Applications.lean) (seções em
+  [`CSwL/Applications/`](CSwL/Applications))
+- **3. Funções, tipos e abstração** — [fonte](CSwL/Foundation.lean)
+- **Gramáticas para jogos** (Batalha Naval, Mastermind) —
+  [fonte](CSwL/Games.lean) (seções em [`CSwL/Games/`](CSwL/Games))
+- **Um fragmento de inglês** — [fonte](CSwL/English.lean)
+- **Lógica** (proposicional e de predicados) —
+  [fonte](CSwL/Logic.lean) (seções em [`CSwL/Logic/`](CSwL/Logic))
 - Capítulo 5: Semântica formal de fragmentos — *a fazer*
 - Capítulo 6: Model checking com lógica de predicados — *a fazer*
 - Capítulo 7: A composição do significado — *a fazer*
@@ -71,8 +74,9 @@ make serve   # serve em http://127.0.0.1:8000/
 
 ## Exercícios
 
-Os exercícios ficam dentro do capítulo, `CSwL/ChapterNN.lean`, imediatamente
-após a seção do livro a que correspondem. Cada `sorry` é um item a completar
+Os exercícios ficam dentro do arquivo da seção a que correspondem (ver
+[Capítulos](#capítulos) e [Convenções](#convenções)), imediatamente depois
+da seção do livro. Cada `sorry` é um item a completar
 (ou `example`, para o que não é reaproveitado depois no próprio capítulo), e
 o aviso que o Lean emite para ele é a sua lista do que falta:
 
@@ -95,9 +99,15 @@ fica marcado com **✎**: enunciado e resposta ficam juntos, no mesmo bloco
 
 ## Convenções
 
-- **Um módulo por capítulo**, `CSwL/ChapterNN.lean`, com `namespace ChapterNN`.
-  O namespace por capítulo é necessário: o livro redefine os mesmos nomes em
-  capítulos diferentes.
+- **Nomes de arquivo mnemônicos, não `ChapterNN`.** Um capítulo curto é um
+  arquivo único (`CSwL/Foundation.lean`, `namespace Foundation`); um capítulo
+  com seções longas o bastante para merecer arquivo próprio é um arquivo
+  "cola" (`CSwL/Games.lean`) que só reúne, via `{include 1 ...}`, seções num
+  diretório de mesmo nome (`CSwL/Games/SeaBattle.lean`,
+  `CSwL/Games/Mastermind.lean`) — o mesmo padrão de
+  [*Functional Programming in Lean*](https://lean-lang.org/functional_programming_in_lean/).
+  Cada arquivo de conteúdo tem seu próprio `namespace`, mnemônico e
+  necessário: o livro redefine os mesmos nomes em capítulos diferentes.
 - **As seções são numeradas por capítulo do `CSwL`, não pelo número da
   seção do livro** — `## 3.1 Conjuntos e notação de conjuntos`, por
   exemplo. Cada `##` leva uma linha `Ref. CSwFP/N §N.M` apontando para a

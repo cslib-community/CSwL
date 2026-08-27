@@ -7,27 +7,46 @@
 -- no `lakefile.toml` do `CSwL` o autograder não entra (colide com o Mathlib que
 -- o `cslib` traz; veja o comentário do `[[lean_exe]] cswl-book`).
 --
--- Quatro cortes deliberados em relação ao original do `sf-in-lean`, todos por
--- não ter equivalente no `CSwL`:
+-- Três cortes deliberados em relação ao original do `sf-in-lean`, todos por
+-- não ter equivalente no `CSwL` (um quarto corte, sobre o módulo de apoio
+-- `SFLCompat`, foi REVERTIDO — ver nota abaixo):
 --
--- 1. Sem módulo de apoio (`SFLCompat.lean`): ele existe para levar as macros
---    `sf_experiment`/`sf_expect_failure` ao projeto gerado, e o `CSwL` não usa
---    nenhuma das duas. ATENÇÃO ao converter um capítulo: o extrator ainda tem
---    os ramos que envolvem o código nessas macros, para blocos escritos como
---    ` ```lean -keep ` ou ` ```lean +error ` (veja `Save/Extract.lean`). Um
---    bloco assim geraria, no projeto extraído, uma macro sem definição. Ou não
---    se usam esses dois modificadores, ou é preciso portar o `SFLCompat.lean`
---    do `sf-in-lean` junto.
--- 2. Sem `crossVol`: o `sf-in-lean` tem três volumes, e capítulos de um
+-- 1. Sem `crossVol`: o `sf-in-lean` tem três volumes, e capítulos de um
 --    importam capítulos de outro. O `CSwL` é um livro só.
--- 3. Sem `bundleLoop`: o original copia, verbatim, o fonte de um módulo
---    pré-requisito que não seja capítulo nem pacote externo (no `sf-in-lean`,
---    coisas como `LF/CustomTactics.lean`). O `CSwL` não tem nenhum módulo
---    assim: um capítulo importa Mathlib e mais nada. Em vez de portar o
---    empacotamento, um `import` desses vira erro de build do livro — falha
---    ruidosa, em vez de um projeto gerado com `import` que não resolve.
--- 4. Sem `mergeAdjacentModuleDocs`: o original junta blocos `/-! … -/`
+-- 2. Sem `bundleLoop` genérico: o original copia, verbatim, o fonte de
+--    QUALQUER módulo pré-requisito que não seja capítulo nem pacote externo
+--    (no `sf-in-lean`, coisas como `LF/CustomTactics.lean`, além do próprio
+--    `SFLCompat`). O `CSwL` não tem módulo pré-requisito nenhum fora do
+--    próprio livro: um capítulo importa Mathlib, seções em arquivo próprio do
+--    mesmo capítulo (`CSwL.Applications.…`, descartadas silenciosamente por
+--    `isIntraBookSection` — o conteúdo delas já foi mesclado no buffer do
+--    capítulo, não há módulo separado a importar no projeto extraído), o
+--    módulo de apoio `CSwLCompat` (ver abaixo) e mais nada. Qualquer outro
+--    `import` vira erro de build do livro — falha ruidosa, em vez de um
+--    projeto gerado com `import` que não resolve. Por isso o que existe aqui
+--    é só `bundleCompatSeed`, cópia fixa de um arquivo só, não uma busca
+--    recursiva de dependências como o `bundleLoop` do `sf-in-lean` — não
+--    generalizamos para módulos pré-requisito arbitrários porque o `CSwL` não
+--    tem nenhum outro candidato hoje.
+-- 3. Sem `mergeAdjacentModuleDocs`: o original junta blocos `/-! … -/`
 --    adjacentes, e o nosso extrator escreve a prosa como linhas `--`.
+--
+-- CORTE REVERTIDO — módulo de apoio (`CSwLCompat.lean`, adaptado do
+-- `SFLCompat.lean`/`SFLCompat/Experiment.lean` do `sf-in-lean`): definia as
+-- macros `sf_experiment`/`sf_expect_failure`, que o extrator já emite (veja
+-- `Save/Extract.lean`, `walkBlock`) para blocos ` ```lean -keep ` e
+-- ` ```lean +error `, mas que antes não tinham definição nenhuma no projeto
+-- gerado — um capítulo com um desses fences geraria uma macro desconhecida.
+-- Portado porque um capítulo real passou a precisar dos dois fences (código
+-- que deve falhar a checagem do Lean, ou código de exploração que não deve
+-- contaminar o ambiente dos blocos seguintes). `CSwLCompat` é um nome de
+-- módulo de topo — não `CSwL.Compat` nem `CSwLMeta.Compat` — de propósito:
+-- `CSwL.Compat` cairia em `isIntraBookSection` (é descartado como se fosse
+-- seção do próprio capítulo) e `CSwLMeta.Compat` cairia em `frameworkPrefixes`
+-- (é descartado como infraestrutura do livro) — nos dois casos o `import`
+-- desapareceria do cabeçalho extraído, silenciosamente, e o projeto gerado
+-- teria uma macro sem definição. Um módulo de topo próprio evita as duas
+-- listas de exclusão sem precisar tocar nelas.
 
 import VersoManual
 
@@ -64,21 +83,30 @@ structure ExtractConfig where
 /-- Conteúdo do `lakefile.toml` do projeto gerado. `pkgRequires` lista os
 pacotes externos `(nome, url git, rev)` de que algum capítulo extraído precisa
 (por ex. o Mathlib de `import Mathlib.Tactic`), cada um fixado na mesma revisão
-com que o livro é compilado — lida do `lake-manifest.json` do `CSwL`. -/
+com que o livro é compilado — lida do `lake-manifest.json` do `CSwL`.
+`extraLibs` lista nomes de biblioteca adicionais a declarar além de `vol` —
+hoje, no máximo, `"CSwLCompat"` quando algum capítulo extraído importa o
+módulo de apoio (ver `bundleCompatSeed`). Não entra em `defaultTargets`: como
+no `sf-in-lean`, ela é trazida transitivamente pelo `import` do capítulo que a
+usa. -/
 private def lakefileTemplate (vol : String) (v : Variant)
-    (pkgRequires : Array (String × String × String)) : String :=
+    (pkgRequires : Array (String × String × String))
+    (extraLibs : Array String) : String :=
   let pkgRequires := if v.isGrading
     then pkgRequires.push ("autograder", autograderUrl, autograderRev)
     else pkgRequires
   let reqs := pkgRequires.foldl (init := "") fun acc (name, url, rev) =>
     acc ++ "\n[[require]]\nname = \"" ++ name ++ "\"\ngit = \"" ++ url ++
       "\"\nrev = \"" ++ rev ++ "\"\n"
+  let libs := extraLibs.foldl (init := "") fun acc lib =>
+    acc ++ "\n[[lean_lib]]\n" ++ "name = \"" ++ lib ++ "\"\n"
   "name = \"" ++ vol.toLower ++ "-extracted\"\n" ++
   "version = \"0.1.0\"\n" ++
   "defaultTargets = [\"" ++ vol ++ "\"]\n" ++
   reqs ++
   "\n[[lean_lib]]\n" ++
-  "name = \"" ++ vol ++ "\"\n"
+  "name = \"" ++ vol ++ "\"\n" ++
+  libs
 
 private def readmeTemplate (vol : String) (v : Variant) : String :=
   s!"# {vol} — variante `{v}`\n\n" ++
@@ -92,24 +120,33 @@ private def readmeTemplate (vol : String) (v : Variant) : String :=
    else "")
 
 /-- Escreve o projeto gerado em `dest`: os arquivos extraídos, mais
-`lakefile.toml`, `lean-toolchain` e `README.md`. -/
+`lakefile.toml`, `lean-toolchain` e `README.md`. `extraLibs` são bibliotecas
+além de `vol` (hoje, no máximo, `"CSwLCompat"`) cuja raiz de fontes também
+precisa ser limpa antes de reescrever, pelo mesmo motivo de `vol` abaixo. -/
 private def writeProject (dest : System.FilePath) (toolchain : String)
     (vol : String) (v : Variant) (files : Array (String × String))
-    (pkgRequires : Array (String × String × String)) : IO Unit := do
+    (pkgRequires : Array (String × String × String))
+    (extraLibs : Array String) : IO Unit := do
   IO.FS.createDirAll dest
   -- Limpa a árvore de fontes para que um capítulo renomeado ou removido não
   -- fique como órfão de uma geração anterior. O resto (`.lake`,
   -- `lakefile.toml`, `lean-toolchain`, `README.md`) fica onde está.
-  let libRoot := dest / vol
-  if ← libRoot.pathExists then
-    IO.FS.removeDirAll libRoot
+  for lib in #[vol] ++ extraLibs do
+    let libRoot := dest / lib
+    if ← libRoot.pathExists then
+      IO.FS.removeDirAll libRoot
+    -- `CSwLCompat` é hoje um único arquivo de topo (`CSwLCompat.lean`), não um
+    -- diretório — `libRoot` acima não o alcança; remove o arquivo à parte.
+    let libFile := dest / (lib ++ ".lean")
+    if ← libFile.pathExists then
+      IO.FS.removeFile libFile
   -- E apaga o manifesto de uma geração anterior: sem manifesto o `lake build`
   -- resolve as dependências sozinho, mas com um manifesto que não conhece um
   -- pacote agora exigido ele recusa ("missing manifest").
   let manifest := dest / "lake-manifest.json"
   if ← manifest.pathExists then
     IO.FS.removeFile manifest
-  IO.FS.writeFile (dest / "lakefile.toml") (lakefileTemplate vol v pkgRequires)
+  IO.FS.writeFile (dest / "lakefile.toml") (lakefileTemplate vol v pkgRequires extraLibs)
   IO.FS.writeFile (dest / "lean-toolchain") toolchain
   IO.FS.writeFile (dest / "README.md") (readmeTemplate vol v)
   for (relPath, body) in files do
@@ -160,7 +197,17 @@ importar `Cslib.…`, é aqui que `"Cslib"` entra. -/
 private def pkgPrefixes : List String :=
   ["Mathlib"]
 
-/-- Namespace de topo de um nome de módulo (`CSwL.Chapter02` ⇒ `CSwL`). -/
+/-- Módulos de apoio ("seeds") copiados verbatim para o projeto extraído — hoje
+só `CSwLCompat` (as macros `sf_experiment`/`sf_expect_failure` usadas pelos
+fences ` ```lean -keep `/` ```lean +error `; ver `bundleCompatSeed`). O
+`import` sobrevive (não é infraestrutura de autoria, então `keepImport` já o
+mantém) mas não é capítulo nem pacote externo, então precisa da própria
+categoria aqui — sem ela, cairia no `reportError` genérico abaixo. -/
+private def seedPrefixes : List String :=
+  ["CSwLCompat"]
+
+/-- Namespace de topo de um nome de módulo (`CSwL.Applications.Phonemes` ⇒
+`CSwL`). -/
 private def modTop (m : String) : String := (m.splitOn ".").headD m
 
 /-- Procura o pacote `name` no `lake-manifest.json` do próprio `CSwL` e devolve
@@ -191,6 +238,22 @@ private def headerImports (src : String) : Array String := Id.run do
       out := out.push ((line.drop 7).trimAscii.toString)
   return out
 
+/-- Copia, verbatim, o(s) módulo(s) de apoio ("seeds") citados em `usedSeeds`
+para o projeto extraído. Análogo mínimo do `bundleLoop` do `sf-in-lean` — mas
+não recursivo, porque o `CSwL` só tem um seed (`CSwLCompat`), e ele próprio não
+importa nada além do toolchain (`Lean.Elab.BuiltinCommand`), então não há
+dependência de segunda ordem a seguir. Devolve os pares `(caminho, conteúdo)`
+a somar aos arquivos do capítulo, na raiz do projeto gerado (`CSwLCompat.lean`,
+não um diretório — o próprio módulo, como no repositório-fonte). -/
+private def bundleCompatSeed (usedSeeds : List String) :
+    IO (Array (String × String)) := do
+  let mut out : Array (String × String) := #[]
+  for seed in usedSeeds do
+    let path := seed ++ ".lean"
+    let content ← IO.FS.readFile path
+    out := out.push (path, content)
+  return out
+
 /--
 Implementação comum. Escreve o projeto Lean extraído em
 `_out/<variante>/lean/`, ao lado do `html-multi/` que o `manualMain` gera (a
@@ -208,13 +271,17 @@ private def emitSavedImpl (config : ExtractConfig) :
     -- a entrada.
     let entries := buf.fold (init := []) fun acc k v => (k, v) :: acc
     -- Capítulos emitidos: as chaves de buffer que têm separador de caminho (a
-    -- raiz, `CSwL.lean`, não tem). `CSwL/Chapter02.lean` ⇒ `CSwL.Chapter02`.
+    -- raiz, `CSwL.lean`, não tem). `CSwL/Applications.lean` ⇒
+    -- `CSwL.Applications` (o `chapterFileBase`/`file :=` do capítulo — nunca
+    -- o caminho de um arquivo de seção incluído por ele, como
+    -- `CSwL/Applications/Phonemes.lean`).
     let chapterModules := entries.map (·.1) |>.filter (·.any (· == '/'))
       |>.map fun k => ((k.dropEnd 5).toString).replace "/" "."
     -- Escolhe a variante de cada arquivo e prefixa o cabeçalho de `import`s do
     -- capítulo, já sem os da infraestrutura.
     let mut files : Array (String × String) := #[]
     let mut usedPkgs : Array String := #[]
+    let mut usedSeeds : Array String := #[]
     for (file, vs) in entries do
       let chosen := vs.get config.variant
       if file == rootFile then
@@ -225,21 +292,56 @@ private def emitSavedImpl (config : ExtractConfig) :
         let src ← (IO.FS.readFile file).toBaseIO >>= fun
           | .ok s => pure s
           | .error _ => pure ""
+        -- Um import `CSwL.Applications.FinnishVowelHarmony` no cabeçalho de um
+        -- capítulo "cola" (que só reúne seções em arquivo próprio via
+        -- `{include 1 ...}`) não é infraestrutura nem outro capítulo: é uma
+        -- seção cujo conteúdo já foi mesclado no buffer deste mesmo capítulo
+        -- por `walkSection`. Não existe módulo separado para ela no projeto
+        -- extraído (achatado, um arquivo por capítulo) — a linha tem de cair
+        -- aqui, antes da classificação abaixo, ou o projeto gerado teria um
+        -- `import` que não resolve.
+        let isIntraBookSection (i : String) : Bool :=
+          modTop i == config.modPrefix && ! chapterModules.contains i
         let imps := (headerImports src).toList.filter keepImport
+          |>.filter (! isIntraBookSection ·)
         for i in imps do
           let top := modTop i
           if pkgPrefixes.contains top then
             if ! usedPkgs.contains top then usedPkgs := usedPkgs.push top
+          else if seedPrefixes.contains top then
+            if ! usedSeeds.contains top then usedSeeds := usedSeeds.push top
           else if ! corePrefixes.contains top && ! chapterModules.contains i then
             -- Nem infraestrutura, nem toolchain, nem pacote externo conhecido,
-            -- nem outro capítulo: o projeto gerado teria um `import` que não
-            -- resolve. Falha aqui, ruidosamente (veja o corte 3 no topo).
+            -- nem seed de apoio, nem outro capítulo: o projeto gerado teria um
+            -- `import` que não resolve. Falha aqui, ruidosamente (veja o
+            -- corte 2 no topo).
             reportError <|
               s!"`import {i}` em {file} não é infraestrutura, toolchain, " ++
-              s!"pacote externo conhecido nem capítulo do livro — o projeto " ++
-              s!"extraído em _out/ não conseguiria resolvê-lo. Acrescente " ++
-              s!"'{top}' a `pkgPrefixes` (com o pacote no lake-manifest.json) " ++
-              s!"ou tire o import do capítulo."
+              s!"pacote externo conhecido, módulo de apoio nem capítulo do " ++
+              s!"livro — o projeto extraído em _out/ não conseguiria " ++
+              s!"resolvê-lo. Acrescente '{top}' a `pkgPrefixes` (com o " ++
+              s!"pacote no lake-manifest.json) ou a `seedPrefixes` (com o " ++
+              s!"módulo em `bundleCompatSeed`), ou tire o import do capítulo."
+        -- Um capítulo com bloco ` ```lean -keep ` ou ` ```lean +error ` tem,
+        -- na variante escolhida, uma chamada a `sf_experiment`/
+        -- `sf_expect_failure` (emitida por `walkBlock` em `Save/Extract.lean`)
+        -- — mas nada aqui obriga o cabeçalho do capítulo-fonte a ter
+        -- `import CSwLCompat`. Sem essa checagem, o extrator geraria (em
+        -- silêncio) um projeto com a macro chamada e nenhum `import` que a
+        -- defina: erro só apareceria dentro do build do projeto extraído
+        -- ("unknown command"), não no build do livro. Falha aqui, ruidosamente
+        -- (mesmo espírito do `reportError` do `import` desconhecido acima).
+        let usesCompatMacro :=
+          (chosen.splitOn "sf_experiment").length > 1 ||
+          (chosen.splitOn "sf_expect_failure").length > 1
+        if usesCompatMacro then
+          if ! imps.any (seedPrefixes.contains ∘ modTop) then
+            reportError <|
+              s!"{file} usa ` ```lean -keep ` ou ` ```lean +error ` (emite " ++
+              s!"`sf_experiment`/`sf_expect_failure`) mas o cabeçalho do " ++
+              s!"capítulo-fonte não tem `import CSwLCompat` — o projeto " ++
+              s!"extraído chamaria uma macro sem definição. Acrescente " ++
+              s!"`import CSwLCompat` ao capítulo."
         let preamble := imps.foldl (init := "") fun acc i => acc ++ "import " ++ i ++ "\n"
         let preamble := if preamble.isEmpty then "" else preamble ++ "\n"
         files := files.push (file, preamble ++ chosen)
@@ -254,8 +356,13 @@ private def emitSavedImpl (config : ExtractConfig) :
           s!"o pacote '{name}' (preciso para `import {pre}.…` num capítulo " ++
           s!"extraído) não está no lake-manifest.json, então o projeto " ++
           s!"extraído não tem como fixá-lo"
+    -- Copia verbatim, para dentro do projeto extraído, cada seed citado por
+    -- algum capítulo (hoje, no máximo, `CSwLCompat`); cada um também entra
+    -- como `[[lean_lib]]` extra no `lakefile.toml` gerado.
+    let seedFiles ← bundleCompatSeed usedSeeds.toList
+    files := files ++ seedFiles
     let dest := System.FilePath.mk "_out" / config.variant.toString / "lean"
-    writeProject dest toolchain config.modPrefix config.variant files pkgRequires
+    writeProject dest toolchain config.modPrefix config.variant files pkgRequires usedSeeds
     if config.verify then buildProject dest config.variant
 
 /-- `ExtraStep` da variante `student`: gabaritos elididos (viram `sorry`). -/

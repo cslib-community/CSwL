@@ -2,9 +2,15 @@
 -- (namespace SFLMeta -> CSwLMeta), com os cortes que acompanham os módulos que
 -- o CSwL não portou (veja `CSwLMeta.lean`):
 --
--- * fora os casos de `walkBlock` para Bnf/DisplayMath/Details/Terse+Full/
---   SlideBreak -- os módulos correspondentes não existem aqui;
---   (DevComment foi portado -- ver o caso `Block.devcomment` abaixo);
+-- * fora os casos de `walkBlock` para Details/Terse+Full/SlideBreak -- os
+--   módulos correspondentes não existem aqui;
+--   (DevComment foi portado -- ver o caso `Block.devcomment` abaixo; Bnf e
+--   DisplayMath também foram portados, mas sem caso próprio aqui -- caem no
+--   ramo genérico abaixo, que já basta: `Block.bnf`/`Block.display` embrulham
+--   o texto original como um `Block.code` filho, e o ramo genérico recorre
+--   aos filhos, então o texto sai como comentário `--`, sem tentar elaborar
+--   como Lean real -- o comportamento certo para BNF e para derivações
+--   informais como `turn ⇒ attack reaction ⇒ ...`);
 -- * fora o módulo de apoio (`SFLCompat.lean`), que serve para levar as macros
 --   `sf_experiment`/`sf_expect_failure` ao projeto extraído: os capítulos do
 --   CSwL usam só blocos ` ```lean ` simples (extractionMode = .code);

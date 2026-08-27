@@ -15,16 +15,16 @@ open CSwLMeta
 
 #doc (Manual) "Conjuntos e Relações, Lambda Calculus e Tipos" =>
 %%%
-tag := "Chapter03"
+tag := "Foundation"
 htmlSplit := .never
-file := "Chapter03"
+file := "Foundation"
 %%%
 
 Ref. CSwFP/2. Lambda Calculus, Type Theory, and Functional Programming. No
 CSwFP é prosa sem código; aqui formalizamos o possível em Lean.
 
 ```lean
-namespace Chapter03
+namespace Foundation
 
 open Set
 ```
@@ -61,7 +61,7 @@ def S2 : Set ℕ := {10, 20}
 ```
 
 ```leanOutput c3check1
-Chapter03.S1 : Set ℕ
+Foundation.S1 : Set ℕ
 ```
 
 ```lean (name := c3check2)
@@ -1282,7 +1282,7 @@ def dorothyLikesToto : S := likesToto dorothy
 ```
 
 ```leanOutput c3check12
-Chapter03.dorothyLikesToto : S
+Foundation.dorothyLikesToto : S
 ```
 
 A derivação da sentença é uma sequência de duas aplicações, e cada
@@ -1440,5 +1440,5 @@ argumento — uma `String` onde se esperava um `NP`. É a versão tipada de
 dizer que a combinação não é bem formada.
 
 ```lean
-end Chapter03
+end Foundation
 ```

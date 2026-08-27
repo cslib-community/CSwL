@@ -6,9 +6,9 @@ open CSwLMeta
 
 #doc (Manual) "O estudo formal da língua natural" =>
 %%%
-tag := "Chapter01"
+tag := "IntroCS"
 htmlSplit := .never
-file := "Chapter01"
+file := "IntroCS"
 %%%
 
 Ref. CSwFP/1. Formal Study of Natural Language.
@@ -28,7 +28,7 @@ capítulo termina com uma discussão sobre a utilidade da programação funciona
 para a semântica computacional e com uma visão geral do restante do livro.
 
 ```lean
-namespace Chapter01
+namespace IntroCS
 ```
 
 # O estudo da língua natural
@@ -431,5 +431,5 @@ de cada palavra, a regra de composição. Onde houver ambiguidade, ela aparece
 como mais de um resultado. Onde houver lacuna, o verificador de tipos a aponta.
 
 ```lean
-end Chapter01
+end IntroCS
 ```
