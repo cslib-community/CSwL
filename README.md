@@ -33,16 +33,16 @@ make serve   # serves at http://127.0.0.1:8000/
 
 ## Chapters
 
-- [X] 1. The formal study of natural language — [source](CSwL/IntroCS.lean)
-- [X] 2. Functional programming — [source](CSwL/IntroL.lean)
+- [X] The formal study of natural language — [source](CSwL/IntroCS.lean)
+- [X] Introduction to Lean — [source](CSwL/IntroL.lean)
 - [~] Applications (Finnish vowel harmony, Swedish plural, phonemes) —
   [source](CSwL/Applications.lean) (sections in
   [`CSwL/Applications/`](CSwL/Applications))
-- [~] 3. Functions, types, and abstraction — [source](CSwL/Foundation.lean)
+- [~] Foundations — [source](CSwL/Foundation.lean)
 - [~] Grammars for games (Sea Battle, Mastermind) —
   [source](CSwL/Games.lean) (sections in [`CSwL/Games/`](CSwL/Games))
 - [~] A fragment of English — [source](CSwL/English.lean)
-- [~] Logic (propositional and predicate) — [source](CSwL/Logic.lean)
+- [~] Logics (propositional and predicate) — [source](CSwL/Logic.lean)
   (sections in [`CSwL/Logic/`](CSwL/Logic))
 - [ ] Formal semantics of fragments
 - [ ] Model checking with predicate logic
