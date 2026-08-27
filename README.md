@@ -1,166 +1,89 @@
 # CSwL — Computational Semantics with Lean
 
-Tradução para [Lean 4](https://lean-lang.org) de *Computational Semantics
-with Functional Programming*, de Jan van Eijck e Christina Unger (Cambridge
-University Press, 2010). Material da disciplina **Processamento de Linguagem
-Natural**, EMAp/FGV, 2026.2 — o programa está em
-[emap-nlp/syllabus](https://github.com/emap-nlp/syllabus).
+[![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
+[![Lean 4](https://img.shields.io/badge/Lean-v4.33.0-purple.svg)](https://lean-lang.org)
+[![Try it live](https://img.shields.io/badge/live.lean--lang.org-try%20it-orange)](https://live.lean-lang.org/)
 
-O texto é escrito para ser lido por si — os conceitos e suas implementações em
-Lean, na forma mais idiomática que a linguagem permite. Segue o percurso de
-van Eijck & Unger, capítulo por capítulo, mas não é uma tradução: nem do
-texto, que é original, nem do código, que é reescrito e não transliterado.
+A [Lean 4](https://lean-lang.org) adaptation of *Computational Semantics with
+Functional Programming*, by Jan van Eijck and Christina Unger (Cambridge
+University Press, 2010) — inspired by the book's path through the material,
+not a translation of it. Definitions are rewritten from scratch in idiomatic
+Lean, exercises are code or proofs, and the presentation is reorganized wherever Lean's own resources (dependent types, tactics, formal proof) call for a different order or a different exercise than the original Haskell allowed.
 
-Os exercícios ficam dentro de cada capítulo, na posição da seção do livro a
-que correspondem — ver [Exercícios](#exercícios) abaixo.
+It follows van Eijck & Unger but diverges whenever adapting to Lean or to this course asks for it — see [Deviations from CSwFP](#deviations-from-cswfp) below.
 
-## Como usar
+Exercises live inside each chapter, right where the corresponding book
+section is discussed — see [Exercises](#exercises) below.
 
-Cada capítulo existe em três formas, geradas do mesmo arquivo `.lean`:
+## Getting started
 
-- **livro** — o texto para ler no navegador, sem instalar nada.
-- **documentação** — a referência de API: uma entrada por declaração, com
-  tipo e assinatura.
-- **fonte** — para abrir no VS Code e editar, com o Lean respondendo ao vivo.
-
-Para o ambiente local: [Install Lean](https://lean-lang.org/install), depois
-`lake exe cache get` (baixa a Mathlib compilada — sem isso o `lake build`
-compilaria a biblioteca do zero) e `lake build`.
-
-Sem instalar nada, há dois caminhos: colar trechos em
-[live.lean-lang.org](https://live.lean-lang.org/), ou abrir o repositório num
-**Codespace** (botão *Code ▸ Codespaces*), que já vem com o Lean na versão do
-projeto, a extensão do VS Code e a Mathlib compilada. A configuração está em
-`.devcontainer/` e serve também para o **Reopen in Container** do VS Code
-local.
-
-Para gerar e ver o livro localmente:
+To run locally: [install Lean](https://lean-lang.org/install), then 
 
 ```bash
-make all     # gera as quatro variantes em _out/
-make serve   # serve em http://127.0.0.1:8000/
+lake exe cache get
+```
+(downloads prebuilt Mathlib — without it, `lake build` would compile
+the whole library from scratch) and `lake build`.
+
+Or, to build and browse the book locally:
+
+```bash
+make serve   # serves at http://127.0.0.1:8000/
 ```
 
-## Capítulos
+## Chapters
 
-Os links de "livro"/"documentação" abaixo (herdados do pipeline `Literate`
-aposentado) apontam para uma URL que hoje não é gerada por nenhum workflow —
-`.github/workflows/pages.yml` ainda roda `lake build :literateHtml`, alvo que
-não existe mais. Fica como pendência separada, anterior a esta
-reorganização: decidir qual das quatro variantes (`make all`) o Pages deve
-publicar, e então reescrever o workflow. Por ora, só o link de "fonte" é
-confiável.
-
-- **1. O estudo formal da língua natural** — [fonte](CSwL/IntroCS.lean)
-- **2. Programação funcional** — [fonte](CSwL/IntroL.lean)
-- **Aplicações** (harmonia vocálica do finlandês, plural do sueco,
-  fonemas) — [fonte](CSwL/Applications.lean) (seções em
+- [X] 1. The formal study of natural language — [source](CSwL/IntroCS.lean)
+- [X] 2. Functional programming — [source](CSwL/IntroL.lean)
+- [~] Applications (Finnish vowel harmony, Swedish plural, phonemes) —
+  [source](CSwL/Applications.lean) (sections in
   [`CSwL/Applications/`](CSwL/Applications))
-- **3. Funções, tipos e abstração** — [fonte](CSwL/Foundation.lean)
-- **Gramáticas para jogos** (Batalha Naval, Mastermind) —
-  [fonte](CSwL/Games.lean) (seções em [`CSwL/Games/`](CSwL/Games))
-- **Um fragmento de inglês** — [fonte](CSwL/English.lean)
-- **Lógica** (proposicional e de predicados) —
-  [fonte](CSwL/Logic.lean) (seções em [`CSwL/Logic/`](CSwL/Logic))
-- Capítulo 5: Semântica formal de fragmentos — *a fazer*
-- Capítulo 6: Model checking com lógica de predicados — *a fazer*
-- Capítulo 7: A composição do significado — *a fazer*
-- Capítulo 8: Extensão e intensão — *a fazer*
-- Capítulo 9: Parsing — *a fazer*
-- Capítulo 10: Relações e escopo — *a fazer*
-- Capítulo 11: Semântica em continuation passing style — *a fazer*
-- Capítulo 12: Representação de discurso e contexto — *a fazer*
-- Capítulo 13: Comunicação como ação informativa — *a fazer*
+- [~] 3. Functions, types, and abstraction — [source](CSwL/Foundation.lean)
+- [~] Grammars for games (Sea Battle, Mastermind) —
+  [source](CSwL/Games.lean) (sections in [`CSwL/Games/`](CSwL/Games))
+- [~] A fragment of English — [source](CSwL/English.lean)
+- [~] Logic (propositional and predicate) — [source](CSwL/Logic.lean)
+  (sections in [`CSwL/Logic/`](CSwL/Logic))
+- [ ] Formal semantics of fragments
+- [ ] Model checking with predicate logic
+- [ ] The composition of meaning
+- [ ] Extension and intension
+- [ ] Parsing
+- [ ] Relations and scope
+- [ ] Semantics in continuation passing style
+- [ ] Discourse representation and context
+- [ ] Communication as informative action
 
-## Exercícios
+## Exercises
 
-Os exercícios ficam dentro do arquivo da seção a que correspondem (ver
-[Capítulos](#capítulos) e [Convenções](#convenções)), imediatamente depois
-da seção do livro. Cada `sorry` é um item a completar
-(ou `example`, para o que não é reaproveitado depois no próprio capítulo), e
-o aviso que o Lean emite para ele é a sua lista do que falta:
+Exercises live inside the file for the section they correspond to (see
+[Chapters](#chapters) and [Conventions](#conventions)), right after the book
+section. Each `sorry` is an item left to complete (or `example`, for
+exercises not reused later in the chapter itself).
 
-```bash
-lake build              # o livro; passa sem aviso, exceto sorry deixado de propósito
-```
+## Conventions
 
-Quem resolve cada `sorry` depende da origem do exercício: um exercício
-tirado do `CSwFP` (`### Exercício N.M`, com a página do livro) ou um
-exercício novo do professor (`### Exercício*`, sem número — a numeração
-fixa é difícil de manter enquanto o exercício ainda está sendo criado) é
-sempre tarefa do aluno, a completar no próprio fork; o gabarito fica em
-`Solutions/SolutionNN.lean` (gitignored). Qualquer outro `sorry`, fora de
-uma seção `### Exercício`, é exemplo do texto e é resolvido em sala, pelo
-professor, ao vivo.
+Mnemonic file names. A short chapter is a single file (`CSwL/Foundation.lean`,
+`namespace Foundation`); a chapter whose sections are long enough to deserve
+their own file is a "glue" file (`CSwL/Games.lean`) that only gathers, via
+`{include 1 ...}`, sections living in a same-named directory
+(`CSwL/Games/SeaBattle.lean`, `CSwL/Games/Mastermind.lean`) — the same pattern
+used by [Functional Programming in Lean](https://lean-lang.org/functional_programming_in_lean/). Each content file has its own `namespace`, 
+mnemonic and necessary: the book redefines the same names in different chapters.
 
-Onde a resposta certa não é uma prova Lean, e sim discursiva, o exercício
-fica marcado com **✎**: enunciado e resposta ficam juntos, no mesmo bloco
-`/-! ... -/`, sem gabarito separado, e sem cobrança formal do aluno.
+CSwL developments connect with those in [CSLib](https://github.com/leanprover/cslib/) where possible. We aim to reuse CSLib and contribute to CSLib.
 
-## Convenções
+## Deviations from CSwFP
 
-- **Nomes de arquivo mnemônicos, não `ChapterNN`.** Um capítulo curto é um
-  arquivo único (`CSwL/Foundation.lean`, `namespace Foundation`); um capítulo
-  com seções longas o bastante para merecer arquivo próprio é um arquivo
-  "cola" (`CSwL/Games.lean`) que só reúne, via `{include 1 ...}`, seções num
-  diretório de mesmo nome (`CSwL/Games/SeaBattle.lean`,
-  `CSwL/Games/Mastermind.lean`) — o mesmo padrão de
-  [*Functional Programming in Lean*](https://lean-lang.org/functional_programming_in_lean/).
-  Cada arquivo de conteúdo tem seu próprio `namespace`, mnemônico e
-  necessário: o livro redefine os mesmos nomes em capítulos diferentes.
-- **As seções são numeradas por capítulo do `CSwL`, não pelo número da
-  seção do livro** — `## 3.1 Conjuntos e notação de conjuntos`, por
-  exemplo. Cada `##` leva uma linha `Ref. CSwFP/N §N.M` apontando para a
-  seção correspondente, quando existe uma. Uma seção sem correspondência
-  direta no livro (motivada por necessidade de apresentação, não por
-  conteúdo do `CSwFP`) ainda ganha número, desde que caiba na sequência
-  ascendente do capítulo — é o caso de "Proposições e provas" em
-  `Chapter02.lean` (`## 2.2`, sem `Ref.`).
-- **A numeração é a daqui, não a do livro.** Os capítulos 2 e 3 estão
-  invertidos em relação a van Eijck & Unger: lá o cap. 2 é a teoria de
-  funções, tipos e conjuntos, sem código, e o cap. 3 introduz a programação
-  funcional. Aqui a programação vem primeiro, porque a teoria do cap. 3 é
-  escrita *em* Lean — usa `inductive`, `Prop` e classes de tipos — e o livro
-  não tinha esse problema, já que o cap. 2 dele não tem Haskell nenhum. Cada
-  capítulo abre declarando a que capítulo do livro corresponde; quando o texto
-  diz "capítulo N", é o N daqui.
-- O cabeçalho de cada capítulo aponta o módulo Haskell correspondente do
-  livro (`CSwFP/src/*.hs`) como referência, mas o código aqui não é uma
-  transliteração dele.
-- Funções que o livro deixa parciais aparecem aqui como totais, devolvendo
-  `Option`. O caso sem resposta fica visível no tipo.
+`CSwL` is inspired by CSwFP, not a 1-to-1 port of it: chapters get renumbered,
+sections get reordered or added, exercises get reworded or replaced, whenever
+presenting the material well in Lean or in this course asks for it. See
+[DEVIATIONS.md](DEVIATIONS.md) for the detailed, chapter-by-chapter log of
+where and why.
 
-## Desvios de CSwFP
+## License and rights
 
-Registro contínuo dos pontos em que o `CSwL` diverge da estrutura do livro —
-seja por exigência de apresentação Lean-vs-Haskell, seja por decisão do
-professor. Cresce a cada capítulo; ver também a numeração invertida dos
-capítulos 2/3, já registrada em **Convenções** acima.
-
-| Onde | CSwFP | CSwL | Motivo |
-|------|-------|------|--------|
-| Cap. 3 | `Rel` (relação binária) só entra em §2.2 do livro | primeiro uso de `Rel` fica no capítulo 3, não no 2 | Lean vs Haskell — `Chapter02.lean` não importa nada, de propósito; `Rel` é `Mathlib.Data.Rel`, e o capítulo 2 só ganha o primeiro import de Mathlib no capítulo 3 |
-| Cap. 3 | §2.5 "Types in Grammar and Computation" mistura motivação de tipos com a leitura categorial (`S → NP VP`) numa única seção | as duas ficam num só nível `##`, sem uma subordinada à outra | decisão do professor — a versão anterior do capítulo subordinava a leitura categorial como `###`, escondendo que ela é o resultado da seção, não um adendo |
-| Cap. 1–3 | build sem nenhum aviso | `sorry` é permitido em `CSwL/`, não só em exercícios, quando deixado de propósito | decisão do professor — alguns exemplos do capítulo ficam de propósito com `sorry`, para resolver em aula, ao vivo, em vez de já vir prontos |
-| Cap. 1–3 | exercícios num arquivo `Exercises/` separado, um por capítulo | exercícios movidos para dentro do capítulo, na posição da seção a que correspondem | decisão do professor — reduz repetição entre o capítulo e o arquivo de exercícios, e mostra a dependência entre o exercício e a seção que o motiva |
-| Cap. 1–2 | seções sem numeração explícita, ou numeradas só no arquivo de exercícios | `## N.M Título`, alinhado à seção do `CSwFP` correspondente; seções só do `CSwL`, sem contrapartida no livro, ficam sem número | decisão do professor — facilita conferir a correspondência entre capítulo e livro; a numeração é a do capítulo do `CSwL` (ver Convenções), não a numeração absoluta do livro |
-| Cap. 2 | seções numeradas pela numeração do livro (`## 3.3`–`## 3.14`) | renumeradas `## 2.1`–`## 2.15`, própria do `CSwL` — cada `##` leva uma linha `Ref. CSwFP/3 §3.N` apontando para a seção do livro | decisão do professor — a numeração do livro colidia textualmente com a de `Chapter03.lean` (ambos usavam `## 3.N`, referindo-se a capítulos diferentes do livro); alinha o capítulo 2 ao mesmo padrão que os capítulos 1 e 4 já seguiam |
-| Cap. 2 | §3.9 Type Classes / §3.11 Harmonia vocálica / §3.14 Fonemas, na ordem do livro (§3.9 antes de §3.11 e §3.14) | "Harmonia vocálica do finlandês e plural sueco" (`## 2.14`) e "Aplicação: representando fonemas" (`## 2.15`) movidas para o fim da sequência numerada, depois de "Classes de tipos" (`## 2.11`) | decisão do professor — os dois exemplos de PLN concentram-se no fim do capítulo, como aplicação do que vem antes, em vez de intercalados na ordem do livro |
-| Cap. 2 | livro não trata `Prop` nem prova formal neste capítulo | seção nova "Proposições e provas" (`## 2.2`), sem `Ref.` a CSwFP/3 | decisão do professor — `Chapter03.lean` usa `Prop` desde as primeiras linhas sem explicá-lo; a seção cobre o mínimo necessário para lê-lo, com tabela de táticas e exercícios de construção de termo modelados em `FAA2025/Lectures/Week01-02/Sheet*.lean` e `logical_verification_2026/lean/LoVe/LoVe01_TypesAndTerms_Demo.lean` |
-| Cap. 2 | 14 dos exercícios do capítulo eram rotulados `E0.n`, fora de ordem sequencial no arquivo | todos os 14 recebem `### Exercício\* — <título>`, sem número | correção de registro — conferido em `CSwFP/txt/chapter-03.txt` que nenhum dos 14 corresponde a um exercício real do livro (que tem `Exercise 3.1`–`3.19`); eram placeholders do professor, herdados de quando o material morava em `Exercises/` |
-| Cap. 2 | Exercícios 3.18 (p. 54) e 3.19 (p. 61), reais do livro | promovidos a `### Exercício 3.18`/`### Exercício 3.19`, antes ausentes do capítulo | correção de registro — o material de apoio (`fValue`/`fMatch`) já estava escrito; faltava só abrir o exercício |
-| Cap. 2 | "User-defined Data Types" (§3.13) introduz `data`/`inductive` | "Tipos indutivos" (`## 2.5`, o `inductive` geral) vem antes de "Recursão" (`## 2.6`) | Lean vs Haskell — a recursão sobre `Nat`/`List` precisa que `inductive` já tenha sido apresentado; o livro pode adiar isso para §3.13 porque Haskell não exige declarar o tipo indutivo primeiro |
-| Cap. 2 | `opaque`/`Option` não têm seção própria no livro | `opaque` entra em `## 2.1` (junto com tipos e termos); `Option` entra em `## 2.8` (depois de tipos indutivos e listas) | decisão do professor — segue o padrão de apresentação do `logical_verification_2026/lean/LoVe/LoVe01_TypesAndTerms_Demo.lean` para `opaque`, e agrupa `Option` com o `{α : Type}` que `Option α` usa |
-| Cap. 4 | §4.4 dá `Cnj [Form]`/`Dsj [Form]` (Haskell) sobre uma BNF binária | `Form` com construtores binários (`conj`, `disj`) + `Form.conjs`/`Form.disjs : List Form → Form` para a notação n-ária | Lean vs Haskell — lista dentro do próprio tipo é *nested*: perde `deriving DecidableEq` e a tática `induction`, que os Exercícios 4.11/4.15 (leitura única) exigem; medido, não suposto |
-| Cap. 4 | `Cnj []`/`Dsj []` mostrados como `"true"`/`"false"` (§4.6, comentário do livro) | `Form` ganha construtores próprios `top`/`bot`, não átomos de nome `"⊤"`/`"⊥"` | decisão do professor — um átomo nomeado dependeria da atribuição de valores do capítulo 5; `top`/`bot` são constantes, sempre `true`/`false` |
-| Cap. 4 | linhas do tabuleiro numeradas de 1 a 10 | `Row := Fin 10`, 0 a 9 — linha do livro é `Row` menos 1 | Lean vs Haskell — `Fin 10` não rejeita o literal `10` (`OfNat` embrulha para `0`); só a construção validada (`⟨n, by omega⟩`) recusa `n ≥ 10`; a prosa do capítulo nomeia o deslocamento explicitamente |
-| Cap. 4 | `Sent`/`NP`/`RCN`/`VP`/`INF` (Haskell) derivam `Eq` | os cinco tipos mutuamente recursivos não derivam `DecidableEq`, só `Repr` | Lean vs Haskell — `deriving DecidableEq` sobre um bloco `mutual` de 5 tipos gera avisos de `termination_by` inócuo; verificado que o próprio `FSynF.hs` só deriva `Show`, e nenhum capítulo posterior compara esses valores por igualdade |
-| Cap. 4 | §4.3 não tem código Haskell (adiado para o capítulo 5) | `inductive Query`/`Statement` já em Lean | decisão do professor — desvio barato que o capítulo 5 aproveita |
-| Cap. 4 | `Sheer` em `FSynF.hs:53` | `cheer` | typo do fonte distribuído — o texto do livro (p. 71) imprime `Cheer`, coerente com `VP.Cheered` |
-| Cap. 4 | `Sent`/`NP`/`RCN`/`VP`/`INF` derivam só `Show` (imprime construtor, ex. `Sent (NP2 The (RCN2 ...))`) | `ToString` escrito à mão devolve a sentença em inglês de superfície (`"the dwarf that Snow White helped..."`) | decisão do professor — não é o que o livro faz; é o caminho inverso do parsing (capítulo 9), incluído aqui como antecipação, não como tradução do `Show` do livro |
-
-## Licença e direitos
-
-O livro é © Jan van Eijck e Christina Unger, 2010, Cambridge University
-Press. Este repositório contém código e comentários originais, com
-referências ao livro; não reproduz o texto do livro.
+The book is © Jan van Eijck and Christina Unger, 2010, Cambridge University
+Press. This repository is an independent, adapted work: original code and
+prose, inspired by the book's themes and order but not a translation or
+reproduction of its text.
