@@ -1,9 +1,9 @@
--- Adapted from /Users/ar/r/sf-in-lean/SFLMeta/DisplayMath.lean
--- (namespace SFLMeta -> CSwLMeta, sem outra mudança). Os dois blocos do
--- arquivo original vêm juntos: `display` (mostra o conteúdo verbatim, sem
--- elaborar — para derivações formais como `turn ⇒ attack reaction ⇒ ...`,
--- que não são Lean) e `displaymath` (equação centralizada, tipografada via
--- KaTeX). O `CSwL` por ora só usa `display`.
+-- Adapted from sf-in-lean/SFLMeta/DisplayMath.lean
+-- (namespace SFLMeta -> CSwLMeta, no other change). The original file's two
+-- blocks come together: `display` (shows the content verbatim, without
+-- elaborating — for informal derivations like `turn ⇒ attack reaction ⇒
+-- ...`, which are not Lean) and `displaymath` (centered equation, typeset
+-- via KaTeX). `CSwL` for now only uses `display`.
 import VersoManual
 
 open Lean Elab

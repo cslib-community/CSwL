@@ -1,9 +1,9 @@
--- Adapted from /Users/ar/r/sf-in-lean/SFLMeta/Save/Lean.lean
--- (namespace SFLMeta -> CSwLMeta e mais nada). É o arquivo mais delicado da
--- migração -- e o que o spike do Passo 1 validou contra a revisão do Verso que
--- usamos: ele substitui o expander de bloco ` ```lean ` do Verso para
--- reelaborar a versão do aluno a partir de um instantâneo do ambiente anterior
--- ao bloco.
+-- Adapted from sf-in-lean/SFLMeta/Save/Lean.lean
+-- (namespace SFLMeta -> CSwLMeta and nothing else). This is the most
+-- delicate file in the migration -- and the one Step 1's spike validated
+-- against the Verso revision we use: it overrides Verso's ` ```lean ` block
+-- expander to re-elaborate the student version from a snapshot of the
+-- environment prior to the block.
 
 import VersoManual
 

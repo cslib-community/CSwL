@@ -1,27 +1,30 @@
--- Adapted from /Users/ar/r/sf-in-lean/SFLMeta/Save/Extract.lean
--- (namespace SFLMeta -> CSwLMeta), com os cortes que acompanham os módulos que
--- o CSwL não portou (veja `CSwLMeta.lean`):
+-- Adapted from sf-in-lean/SFLMeta/Save/Extract.lean
+-- (namespace SFLMeta -> CSwLMeta), with the cuts that go along with the
+-- modules CSwL did not port (see `CSwLMeta.lean`):
 --
--- * fora os casos de `walkBlock` para Details/Terse+Full/SlideBreak -- os
---   módulos correspondentes não existem aqui;
---   (DevComment foi portado -- ver o caso `Block.devcomment` abaixo; Bnf e
---   DisplayMath também foram portados, mas sem caso próprio aqui -- caem no
---   ramo genérico abaixo, que já basta: `Block.bnf`/`Block.display` embrulham
---   o texto original como um `Block.code` filho, e o ramo genérico recorre
---   aos filhos, então o texto sai como comentário `--`, sem tentar elaborar
---   como Lean real -- o comportamento certo para BNF e para derivações
---   informais como `turn ⇒ attack reaction ⇒ ...`);
--- * fora o módulo de apoio (`SFLCompat.lean`), que serve para levar as macros
---   `sf_experiment`/`sf_expect_failure` ao projeto extraído: os capítulos do
---   CSwL usam só blocos ` ```lean ` simples (extractionMode = .code);
--- * `hasSuppressHeaderMarker` (que dependia de Terse.lean) é `false` fixo.
+-- * the `walkBlock` cases for Details/Terse+Full/SlideBreak are left out --
+--   the corresponding modules don't exist here;
+--   (DevComment was ported -- see the `Block.devcomment` case below; Bnf and
+--   DisplayMath were also ported, but with no case of their own here --
+--   they fall through to the generic branch below, which already suffices:
+--   `Block.bnf`/`Block.display` wrap the original text as a `Block.code`
+--   child, and the generic branch recurses into the children, so the text
+--   comes out as a `--` comment, without trying to elaborate it as real
+--   Lean -- the right behavior for BNF and for informal derivations like
+--   `turn ⇒ attack reaction ⇒ ...`);
+-- * the support module (`SFLCompat.lean`) is left out, which serves to
+--   carry the `sf_experiment`/`sf_expect_failure` macros to the extracted
+--   project: CSwL's chapters only use plain ` ```lean ` blocks
+--   (extractionMode = .code);
+-- * `hasSuppressHeaderMarker` (which depended on Terse.lean) is fixed to
+--   `false`.
 --
--- Todo o resto -- SaveBuffers, o formatador de texto, o controle de
--- walkBlocks/walkBlock/walkSection/walkOuter e os casos leanSaved/exercise/
--- quiz/quizSolution/gradeTheorem/devcomment -- é cópia literal, até onde o
--- corte permite. Ao portar um dos módulos que faltam, o caso de `walkBlock`
--- correspondente tem de voltar junto, senão o bloco cai no ramo genérico e
--- vira prosa.
+-- Everything else -- SaveBuffers, the text formatter, the
+-- walkBlocks/walkBlock/walkSection/walkOuter control flow, and the
+-- leanSaved/exercise/quiz/quizSolution/gradeTheorem/devcomment cases -- is a
+-- literal copy, as far as the cuts allow. When porting one of the missing
+-- modules, its corresponding `walkBlock` case must come back along with it,
+-- or the block falls through to the generic branch and turns into prose.
 
 import VersoManual
 

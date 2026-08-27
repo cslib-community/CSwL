@@ -1,7 +1,7 @@
--- Adapted from /Users/ar/r/sf-in-lean/SFLMeta.lean, com só os módulos que o
--- CSwL usa (o `sf-in-lean` tem ainda Details, Epigraph, Hide, Ignore,
--- Instructors, SlideBreak, Terse, Theme, Version e Volume).
--- Acrescentar um deles é copiar o arquivo e somar um `import` aqui.
+-- Adapted from sf-in-lean/SFLMeta.lean, with only the modules
+-- CSwL uses (`sf-in-lean` also has Details, Epigraph, Hide, Ignore,
+-- Instructors, SlideBreak, Terse, Theme, Version, and Volume).
+-- Adding one of those is copying the file and adding an `import` here.
 import CSwLMeta.Bnf
 import CSwLMeta.Comment
 import CSwLMeta.DisplayMath

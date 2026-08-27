@@ -1,6 +1,6 @@
--- Adapted from /Users/ar/r/sf-in-lean/SFLMeta/Bnf.lean
--- (namespace SFLMeta -> CSwLMeta e mais nada: o parser da gramática BNF e a
--- renderização HTML/texto/TeX são cópia literal).
+-- Adapted from sf-in-lean/SFLMeta/Bnf.lean
+-- (namespace SFLMeta -> CSwLMeta and nothing else: the BNF grammar parser
+-- and the HTML/text/TeX rendering are a literal copy).
 import VersoManual
 
 open Lean Elab

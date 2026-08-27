@@ -1,5 +1,5 @@
--- Adapted from /Users/ar/r/sf-in-lean/SFLMeta/Variant.lean
--- (namespace SFLMeta -> CSwLMeta e mais nada).
+-- Adapted from sf-in-lean/SFLMeta/Variant.lean
+-- (namespace SFLMeta -> CSwLMeta and nothing else).
 import VersoManual
 
 open Lean Elab

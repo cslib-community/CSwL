@@ -1,29 +1,31 @@
--- Adapted from /Users/ar/r/sf-in-lean/SFLCompat.lean e
--- /Users/ar/r/sf-in-lean/SFLCompat/Experiment.lean, fundidos num arquivo só
--- (namespace SFLCompat.Experiment -> CSwLCompat). O CSwL não tem o mecanismo
--- `recall` do sf-in-lean (`SFLCompat/Recall/*.lean`), então nada de lá foi
--- portado -- só as macros `sf_experiment`/`sf_expect_failure`/
--- `sf_expect_failure?` que sustentam os fences ` ```lean -keep ` e
--- ` ```lean +error ` (veja `CSwLMeta/Save/Extract.lean`, `walkBlock`, e
--- `CSwLMeta/Save/Lean.lean`, `LeanSaved.Data.extractionMode`).
+-- Adapted from sf-in-lean/SFLCompat.lean and
+-- sf-in-lean/SFLCompat/Experiment.lean, merged into a single
+-- file (namespace SFLCompat.Experiment -> CSwLCompat). CSwL does not have
+-- sf-in-lean's `recall` mechanism (`SFLCompat/Recall/*.lean`), so nothing
+-- from there was ported -- only the `sf_experiment`/`sf_expect_failure`/
+-- `sf_expect_failure?` macros that back the ` ```lean -keep ` and
+-- ` ```lean +error ` fences (see `CSwLMeta/Save/Extract.lean`, `walkBlock`,
+-- and `CSwLMeta/Save/Lean.lean`, `LeanSaved.Data.extractionMode`).
 --
--- Duas diferenças deliberadas em relação ao original:
--- 1. Sem o `import Batteries.CodeAction` que o `SFLCompat.lean` raiz tinha: ele
---    existe para propagar code actions do Lean para o projeto gerado, mas o
---    `CSwL` não depende de `batteries` (só de `cslib`/Mathlib) -- puxar
---    `batteries` só para isso infla o projeto extraído sem necessidade.
--- 2. Sem o `namespace Tests` do fim do `SFLCompat/Experiment.lean` original:
---    são `#guard_msgs` que conferem o texto exato de diagnósticos do Lean
---    ("Unknown identifier `x`", posições literais por `(positions := true)`,
---    etc.). O `CSwL` está no mesmo `v4.33.0` do `sf-in-lean` hoje, mas fixar
---    esse texto aqui arrisca quebrar tanto o build do livro quanto o de todo
---    projeto extraído (o arquivo é copiado verbatim) a cada drift de
---    mensagem entre versões do Lean -- sem ganho para o curso, que não usa
---    `recall` nem testa essas macros diretamente.
+-- Two deliberate differences from the original:
+-- 1. No `import Batteries.CodeAction`, which the root `SFLCompat.lean` had:
+--    it exists to propagate Lean code actions to the generated project, but
+--    `CSwL` does not depend on `batteries` (only on `cslib`/Mathlib) --
+--    pulling in `batteries` just for that would needlessly bloat the
+--    extracted project.
+-- 2. No `namespace Tests` from the end of the original
+--    `SFLCompat/Experiment.lean`: those are `#guard_msgs` that check the
+--    exact text of Lean diagnostics ("Unknown identifier `x`", literal
+--    positions via `(positions := true)`, etc.). `CSwL` is on the same
+--    `v4.33.0` as `sf-in-lean` today, but pinning that text here risks
+--    breaking both the book's build and every extracted project's build
+--    (the file is copied verbatim) on any message drift between Lean
+--    versions -- with no payoff for the course, which uses neither `recall`
+--    nor tests these macros directly.
 --
--- Este arquivo é o "seed" copiado verbatim para `_out/<variante>/lean/` por
--- `CSwLMeta/Save/Project.lean` (função `bundleCompatSeed`) sempre que algum
--- capítulo extraído tiver `import CSwLCompat` no cabeçalho.
+-- This file is the "seed" copied verbatim to `_out/<variant>/lean/` by
+-- `CSwLMeta/Save/Project.lean` (function `bundleCompatSeed`) whenever some
+-- extracted chapter has `import CSwLCompat` in its header.
 
 module
 
@@ -35,10 +37,10 @@ open Lean Elab Command
 
 meta section
 
--- Copiado de `SubVerso.Compat` para não fazer os projetos gerados dependerem
--- do Verso. Precisamos que o estado de info e as mensagens estejam
--- disponíveis logo após a elaboração, então desligamos `Elab.async`, que
--- deixaria diagnósticos passarem de forma assíncrona via snapshot tasks.
+-- Copied from `SubVerso.Compat` so generated projects don't depend on
+-- Verso. We need the info state and messages to be available right after
+-- elaboration, so we turn off `Elab.async`, which would let diagnostics
+-- pass through asynchronously via snapshot tasks.
 private def commandWithoutAsync (act : CommandElabM Unit) : CommandElabM Unit := do
   match (← get).scopes with
   | [] => act
@@ -60,32 +62,33 @@ private def withRestoringState (keepMsgs : Bool) (m : CommandElabM Unit) : Comma
   finally
     let state ← get
     set { savedState with
-      -- Preserva a árvore de informação.
+      -- Preserve the info tree.
       infoState := state.infoState
       messages := if keepMsgs then state.messages else savedState.messages }
 
 namespace IndentedCommands
 
-/-! ## Parser de bloco de comandos indentado
-  Faz o parse de um bloco de comandos indentado, separados por linhas.
-  Como queremos capturar erros de parse em `sf_expect_failure`, não podemos
-  usar o parser de comandos do Lean diretamente na sintaxe do nosso comando,
-  porque um erro de parse ali derrubaria o próprio `sf_expect_failure`. A
-  solução é fazer o parse do corpo indentado inteiro como sintaxe bruta
-  primeiro, e só depois rodar o parser e o elaborador de comandos do Lean. -/
+/-! ## Indented command block parser
+  Parses an indented block of commands, separated by lines. Since we want
+  to capture parse errors in `sf_expect_failure`, we cannot use Lean's
+  command parser directly in our command's syntax, because a parse error
+  there would take down `sf_expect_failure` itself. The fix is to parse the
+  entire indented body as raw syntax first, and only then run Lean's
+  command parser and elaborator. -/
 
 open Parser
 
 private def rawLineEndFn : ParserFn :=
   eoiFn <|> satisfyFn (· == '\n') "line break"
 
-/-- Consome tudo até a próxima quebra de linha e então a própria quebra. -/
+/-- Consumes everything up to the next line break and then the break
+itself. -/
 private def rawLineFn : ParserFn :=
   takeUntilFn (· == '\n') >> rawLineEndFn
 
-/- Para cada linha depois da primeira linha do corpo, consome os espaços à
-  esquerda. Se a linha for em branco, consome só a quebra de linha; senão,
-  consome a linha exigindo a indentação. -/
+/- For each line after the body's first line, consumes the leading
+  whitespace. If the line is blank, consumes only the line break;
+  otherwise, consumes the line while requiring the indentation. -/
 private def rawIndentedLineFn : ParserFn := atomicFn <|
   takeWhileFn (· == ' ') >>
   (satisfyFn (· == '\n') "line break" <|>
@@ -120,15 +123,15 @@ private partial def runRawCmdsAux
     unless isTerminalCommand cmd do
       runRawCmdsAux ictx pstate
 
-/- Recupera a origem e elabora os comandos. -/
+/- Recovers the source and elaborates the commands. -/
 private def runRawCmds (body : Syntax) : CommandElabM Unit := do
   let some source := body.getSubstring? (withLeading := false) (withTrailing := false)
     | throwErrorAt body "command sequence has no source range"
   let fileName ← getFileName
   let fileMap ← getFileMap
-  -- `rawIndentedLineFn` pode consumir espaços depois da quebra de linha;
-  -- aqui recuamos o fim até o último caractere não-espaço para produzir
-  -- diagnósticos com a posição correta.
+  -- `rawIndentedLineFn` may consume whitespace after the line break; here
+  -- we pull the end back to the last non-whitespace character so
+  -- diagnostics get the correct position.
   let stopPos := source.trimRight.stopPos
   if h : stopPos ≤ fileMap.source.rawEndPos then
     let ictx := InputContext.mk fileMap.source fileName
@@ -146,15 +149,15 @@ public meta section
 open Parser IndentedCommands
 
 /--
-Elabora os comandos internos e reporta seus diagnósticos, mas descarta os
-efeitos depois.
+Elaborates the inner commands and reports their diagnostics, but discards
+the effects afterward.
 
-Exemplo:
+Example:
 ```lean
 sf_experiment
   def hidden : Nat := 1
   #check hidden
--- `hidden` não está disponível aqui.
+-- `hidden` is not available here.
 ```
 -/
 def experimentTk := leading_parser
@@ -165,10 +168,10 @@ def experimentTk := leading_parser
     checkColGt "indented command sequence" >> withPosition rawCommandBlock
 
 /--
-Só é bem-sucedido se os comandos internos falharem.
-Os diagnósticos da falha esperada são suprimidos.
+Only succeeds if the inner commands fail.
+The expected failure's diagnostics are suppressed.
 
-Exemplo:
+Example:
 ```lean
 sf_expect_failure
   example : 1 = 2 := rfl
@@ -178,7 +181,7 @@ def expectFailureTk := leading_parser
   "sf_expect_failure"
 
 /-
-  Como `sf_expect_failure`, mas reporta os diagnósticos.
+  Like `sf_expect_failure`, but reports the diagnostics.
 -/
 def expectFailureInfoTk := leading_parser
   "sf_expect_failure?"

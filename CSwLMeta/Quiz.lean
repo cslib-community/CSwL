@@ -1,6 +1,6 @@
--- Adapted from /Users/ar/r/sf-in-lean/SFLMeta/Quiz.lean
--- (namespace SFLMeta -> CSwLMeta; sem o `import SFLMeta.Comment`, que o código
--- deste arquivo não usa).
+-- Adapted from sf-in-lean/SFLMeta/Quiz.lean
+-- (namespace SFLMeta -> CSwLMeta; without the `import SFLMeta.Comment`,
+-- which this file's code does not use).
 import VersoManual
 
 open Lean Elab

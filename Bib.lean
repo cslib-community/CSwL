@@ -3,15 +3,15 @@ import VersoManual
 open Verso.Genre.Manual
 
 /-!
-Quem cita usa `{citep Bib.chave}[]` ou `{citet Bib.chave}[]`, e uma chave
-inexistente vira erro de compilação em vez de `[Chave]` pendurado no texto.
+Citing uses `{citep Bib.key}[]` or `{citet Bib.key}[]`, and a missing key
+becomes a compile error instead of a dangling `[Key]` in the text.
 
-O Verso oferece quatro tipos citáveis (`VersoManual/Bibliography.lean`):
-`InProceedings`, `Thesis`, `ArXiv` e `Article`. Não há tipo para `@book` nem
-para `@unpublished`, então as entradas que não são artigo entram como `Article`
-com o campo `journal` usado para a editora ou para a natureza do texto — é a
-mesma convenção do `sf-in-lean/Bib.lean`, que registra livros (Pierce, Harper,
-Nipkow) assim.
+Verso offers four citable types (`VersoManual/Bibliography.lean`):
+`InProceedings`, `Thesis`, `ArXiv`, and `Article`. There is no type for
+`@book` or `@unpublished`, so entries that are not articles are entered as
+`Article` with the `journal` field used for the publisher or the nature of
+the text — the same convention as `sf-in-lean/Bib.lean`, which records books
+(Pierce, Harper, Nipkow) this way.
 -/
 
 namespace Bib

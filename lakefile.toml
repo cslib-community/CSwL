@@ -1,77 +1,86 @@
 name = "CSwL"
 version = "0.1.0"
-# `CSwLCompat` entra aqui (e não só como `[[lean_lib]]`) porque nada no
-# fecho de `import` de `cswl` (que só chega a `CSwL.IntroL`) o alcança — sem
-# isso, um `lake build` comum não recompila esse módulo depois de mexer nele,
-# e um erro nele só apareceria quando um capítulo citasse
-# `import CSwLCompat`.
+# `CSwLCompat` goes here (and not only as a `[[lean_lib]]`) because nothing
+# in `cswl`'s `import` closure (which only reaches `CSwL.IntroL`) reaches
+# it -- without this, a plain `lake build` doesn't recompile that module
+# after editing it, and an error in it would only show up when a chapter
+# actually used `import CSwLCompat`.
 defaultTargets = ["cswl", "CSwLCompat"]
 
-# Docstrings e module docstrings em formato Verso (e não Markdown): habilita a
-# marcação `{name}`f``, `{syntax term}`...``, etc., que na saída web vira link
-# para a definição. Vale para `/-- ... -/` e para `/-! ... -/`
-# (`doc.verso.module` cai para `doc.verso` quando não é dada explicitamente).
+# Docstrings and module docstrings in Verso format (not Markdown): enables
+# the `{name}`f``, `{syntax term}`...``, etc. markup, which turns into a
+# link to the definition in the web output. Applies to `/-- ... -/` and to
+# `/-! ... -/` (`doc.verso.module` falls back to `doc.verso` when not given
+# explicitly).
 leanOptions = {doc.verso = true}
 
 [[lean_lib]]
 name = "CSwL"
-# `doc.verso.suggestions` desliga o linter que, para cada `código` inline, sugere
-# um "role" mais específico (`{lean}`, `{name}`, `{syntax term}`, ...). Sem ele são
-# ~50 avisos por build nos capítulos — é o que o Tao desliga com
-# `set_option doc.verso.suggestions false` no topo de cada arquivo.
-# Ele fica aqui, e não junto de `doc.verso` acima, porque em TOML as duas chaves
-# colidiriam na mesma tabela (`doc.verso` não pode ser bool e tabela ao mesmo
-# tempo). Lake soma as duas: `leanOptions` da lib = pacote ++ lib.
+# `doc.verso.suggestions` turns off the linter that, for every inline
+# `code`, suggests a more specific "role" (`{lean}`, `{name}`,
+# `{syntax term}`, ...). Without it there are ~50 warnings per build across
+# the chapters -- this is what Tao turns off with
+# `set_option doc.verso.suggestions false` at the top of every file.
+# It lives here, not next to `doc.verso` above, because in TOML the two
+# keys would collide in the same table (`doc.verso` cannot be both a bool
+# and a table at the same time). Lake merges both: a lib's `leanOptions` =
+# package ++ lib.
 leanOptions = {doc.verso.suggestions = false}
 
-# Os exercícios ficam dentro de `CSwL/ChapterNN.lean`, na posição da seção do
-# livro a que correspondem — não há mais uma lib `Exercises` separada. Em
-# `CSwL/` um `sorry` é aceito, deixado de propósito como exemplo a resolver em
-# aula; é o próprio aviso do `lake build` que serve de lista do que falta.
+# Exercises live inside `CSwL/ChapterNN.lean`, at the position of the book
+# section they correspond to -- there is no separate `Exercises` lib
+# anymore. In `CSwL/` a `sorry` is accepted, left there on purpose as an
+# example to solve in class; `lake build`'s own warning is what serves as
+# the to-do list.
 #
-# Os gabaritos ficam em `Solutions/`, que o `.gitignore` proíbe versionar (o
-# repositório é público). Por não ser versionado, não tem lib declarada aqui:
-# para conferir um gabarito, `lake env lean Solutions/Solution02.lean`.
+# Answer keys live in `Solutions/`, which `.gitignore` forbids versioning
+# (the repository is public). Since it isn't versioned, it has no lib
+# declared here: to check an answer key, `lake env lean
+# Solutions/Solution02.lean`.
 
-# Camada própria de metadados do livro (variantes `student`/`solutions`/`terse`/
-# `grading`, `:::exercise`, `solution!`, `::::quiz`, `:::gradeTheorem` e o
-# extrator que gera os `.lean` de cada variante). Adaptada de
-# `sf-in-lean/SFLMeta/*`; ver `CSwLMeta.lean`.
+# The book's own metadata layer (the `student`/`solutions`/`terse`/
+# `grading` variants, `:::exercise`, `solution!`, `::::quiz`,
+# `:::gradeTheorem`, and the extractor that generates each variant's
+# `.lean` files). Adapted from `sf-in-lean/SFLMeta/*`; see `CSwLMeta.lean`.
 #
-# `doc.verso = false` desfaz, só para esta biblioteca, o `doc.verso = true` do
-# pacote acima: os módulos de infraestrutura usam `/-! ## ... -/` como divisória
-# interna de arquivo, e com a marcação Verso ligada o primeiro cabeçalho de um
-# módulo tem de ser `#` — regra que faz sentido para um capítulo do livro e
-# nenhum para um arquivo de código. Aqui não há prosa a publicar.
+# `doc.verso = false` undoes, only for this library, the package-level
+# `doc.verso = true` above: the infrastructure modules use `/-! ## ... -/`
+# as an internal file divider, and with Verso markup on, a module's first
+# heading has to be `#` -- a rule that makes sense for a book chapter and
+# none for a code file. There is no prose to publish here.
 [[lean_lib]]
 name = "CSwLMeta"
 leanOptions = {doc.verso = false}
 
-# Bibliografia como `def`s Lean (o que era `references.bib`): uma chave errada
-# em `{citep Bib.xyz}[]` vira erro de compilação, não `[Xyz]` pendurado no HTML.
+# Bibliography as Lean `def`s (what used to be `references.bib`): a
+# mistyped key in `{citep Bib.xyz}[]` becomes a compile error, not a
+# dangling `[Xyz]` in the HTML.
 [[lean_lib]]
 name = "Bib"
-leanOptions = {doc.verso = false}   # infraestrutura, como a lib `CSwLMeta`
+leanOptions = {doc.verso = false}   # infrastructure, like the `CSwLMeta` lib
 
-# Macros `sf_experiment`/`sf_expect_failure`/`sf_expect_failure?` usadas pelos
-# fences ` ```lean -keep ` e ` ```lean +error ` (veja `CSwLMeta/Save/Extract.lean`,
-# `walkBlock`, e `CSwLMeta/Save/Lean.lean`, `LeanSaved.Data.extractionMode`).
-# Módulo próprio (não dentro de `CSwLMeta`) porque ele também é copiado,
-# verbatim, para dentro de cada projeto Lean extraído em `_out/<variante>/lean/`
-# — veja `CSwLMeta/Save/Project.lean`, `bundleCompatSeed`.
-# `doc.verso = false`, como `CSwLMeta`/`Bib`: as docstrings usam `/-! ## ... -/`
-# como divisória interna e blocos ```lean``` de exemplo dentro de `/-- ... -/`
-# (para os próprios `sf_experiment`/`sf_expect_failure`), e a marcação Verso
-# rejeita os dois (título de nível `##` sem `#` antes, "Incorrect header
-# nesting"; e cada identificador vira sugestão de role). Não é conteúdo do
-# livro, é infraestrutura como as outras duas.
+# `sf_experiment`/`sf_expect_failure`/`sf_expect_failure?` macros used by
+# the ` ```lean -keep ` and ` ```lean +error ` fences (see
+# `CSwLMeta/Save/Extract.lean`, `walkBlock`, and `CSwLMeta/Save/Lean.lean`,
+# `LeanSaved.Data.extractionMode`).
+# Its own module (not inside `CSwLMeta`) because it is also copied,
+# verbatim, into every extracted Lean project under `_out/<variant>/lean/`
+# -- see `CSwLMeta/Save/Project.lean`, `bundleCompatSeed`.
+# `doc.verso = false`, like `CSwLMeta`/`Bib`: the docstrings use
+# `/-! ## ... -/` as an internal divider and ```lean``` example blocks
+# inside `/-- ... -/` (for the `sf_experiment`/`sf_expect_failure` macros
+# themselves), and Verso markup rejects both (a `##`-level heading with no
+# `#` before it, "Incorrect header nesting"; and every identifier turns
+# into a role suggestion). This is not book content, it's infrastructure
+# like the other two.
 [[lean_lib]]
 name = "CSwLCompat"
 leanOptions = {doc.verso = false}
 
-# Raiz do livro no gênero `Manual`: um `#doc (Manual)` que inclui um capítulo
-# por `{include CSwL.ChapterNN}`. Só o cap. 1 foi convertido até agora; os
-# demais continuam no gênero `Literate` até serem convertidos, um a um.
+# Root of the book in the `Manual` genre: a `#doc (Manual)` that includes
+# one chapter per `{include CSwL.ChapterNN}`. Only chapter 1 has been
+# converted so far; the rest remain in the `Literate` genre until converted
+# one by one.
 [[lean_lib]]
 name = "Book"
 
@@ -79,68 +88,77 @@ name = "Book"
 name = "cswl"
 root = "Main"
 
-# Gera o livro: `lake exe cswl-book <variante>` escreve
-# `_out/<variante>/{html-multi,lean}`. Use o `Makefile` (`make student`, ...).
-# O `lean4-autograder-main` NÃO entra aqui de propósito: ele exige o toolchain
-# `v4.33.0` e colide com o Mathlib que o `cslib` traz (medido: quebra o
-# `lake exe cache get`). Ele é dependência apenas do projeto Lake autônomo que
-# `CSwLMeta/Save/Project.lean` gera em `_out/grading/lean/`.
+# Builds the book: `lake exe cswl-book <variant>` writes
+# `_out/<variant>/{html,lean}`. Use the `Makefile` (`make student`, ...).
+# `lean4-autograder-main` does NOT go here on purpose: it requires the
+# `v4.33.0` toolchain and collides with the Mathlib that `cslib` brings
+# (measured: breaks `lake exe cache get`). It is a dependency only of the
+# standalone Lake project that `CSwLMeta/Save/Project.lean` generates under
+# `_out/grading/lean/`.
 [[lean_exe]]
 name = "cswl-book"
 root = "BookMain"
-leanOptions = {doc.verso = false}   # infraestrutura, como a lib `CSwLMeta`
+leanOptions = {doc.verso = false}   # infrastructure, like the `CSwLMeta` lib
 
-# Revisão fixada pelo mesmo motivo que `verso` e `doc-gen4` abaixo: sem `rev`,
-# o `[[require]]` seguia `main`, e um `lake update` qualquer arrasta o toolchain
-# do projeto para o que o `main` do `cslib` exigir no momento (aconteceu em
-# 14/08: foi para `v4.34.0-rc1`). Esta é a revisão que o `lake-manifest.json` já
-# resolvia — fixá-la não muda nada do que hoje compila.
+# Revision pinned for the same reason as `verso` and `doc-gen4` below:
+# without `rev`, the `[[require]]` followed `main`, and any `lake update`
+# drags the project's toolchain to whatever `cslib`'s `main` requires at
+# that moment (happened on 08/14: it moved to `v4.34.0-rc1`). This is the
+# revision `lake-manifest.json` already resolved to -- pinning it changes
+# nothing about what compiles today.
 [[require]]
 name = "cslib"
 scope = "leanprover"
 rev = "3951377e5a3f5772737f11cd62bc5bb6a72f95d1"
 
-# Verso: gera a versão web (HTML) do livro, gênero `Manual` (`Book.lean`,
-# alvo `lake exe cswl-book <variante>` — ver `Makefile`) e o `lake exe
-# verso-serve` que serve `_out/` localmente (`verso-serve.toml`). O gênero
-# `Literate` (`:literateHtml`, `build-web.sh`) foi aposentado em 16/08.
-# Revisão fixada porque o `lean-toolchain` do verso tem de bater com o nosso
-# (v4.33.0-rc2); `main` pode avançar para um toolchain mais novo.
+# Verso: generates the book's web (HTML) version, `Manual` genre
+# (`Book.lean`, target `lake exe cswl-book <variant>` -- see `Makefile`)
+# and the `lake exe verso-serve` that serves `_out/` locally
+# (`verso-serve.toml`). The `Literate` genre (`:literateHtml`,
+# `build-web.sh`) was retired on 08/16.
+# Revision pinned because verso's `lean-toolchain` has to match ours
+# (v4.33.0-rc2); `main` may move ahead to a newer toolchain.
 [[require]]
 name = "verso"
 git = "https://github.com/leanprover/verso"
 rev = "4ac03644305a17f32139766b9ceb625ad046b85e"
 
-# doc-gen4: gera a documentação de API (a referência: um HTML por declaração,
-# com tipo, docstring e links). Alvo: `lake build CSwL:docs`, saída em
-# `.lake/build/doc/`. Não tem mais script próprio desde que o `build-web.sh`
-# foi aposentado (16/08); ficou fora de uso ativo até a questão de escopo
-# (`CSwL:docs` só documenta a lib vazia; `Book:docs` traz Mathlib inteiro)
-# ser resolvida — ver https://github.com/emap-nlp/CSwL/issues/1.
+# doc-gen4: generates the API documentation (the reference: one HTML page
+# per declaration, with type, docstring, and links). Target: `lake build
+# CSwL:docs`, output under `.lake/build/doc/`. It no longer has a script of
+# its own since `build-web.sh` was retired (08/16); it stayed out of active
+# use until the scope question (`CSwL:docs` only documents the empty lib;
+# `Book:docs` brings in all of Mathlib) is resolved -- see
+# https://github.com/emap-nlp/CSwL/issues/1.
 #
-# O Tao declara esta dependência só no ambiente "dev"
-# (`meta if get_config? env = some "dev" then require ...` no `lakefile.lean`),
-# para que quem só quer compilar o livro não baixe o doc-gen4. Isso NÃO tem
-# equivalente em TOML: `[[require]]` aceita apenas `name`/`scope`/`git`/`rev`/
-# `path`/`version`/`options` — não há campo de condição nem `meta if`. Ficar
-# incondicional (e manter o lakefile declarativo) custa, medido:
-#   - quatro repositórios extras clonados uma vez (doc-gen4, leansqlite,
-#     UnicodeBasic, BibtexQuery), sem mexer nas revisões já fixadas das outras;
-#   - `lake build` compila os objetos nativos do leansqlite (~2 s, uma vez só);
-#   - o doc-gen4 em si só é compilado quando o alvo `:docs` é pedido.
+# Tao declares this dependency only in the "dev" environment
+# (`meta if get_config? env = some "dev" then require ...` in
+# `lakefile.lean`), so that someone who only wants to build the book
+# doesn't download doc-gen4. This has NO equivalent in TOML: `[[require]]`
+# only accepts `name`/`scope`/`git`/`rev`/`path`/`version`/`options` --
+# there is no condition field or `meta if`. Staying unconditional (and
+# keeping the lakefile declarative) costs, measured:
+#   - four extra repositories cloned once (doc-gen4, leansqlite,
+#     UnicodeBasic, BibtexQuery), without touching the other pins already
+#     fixed;
+#   - `lake build` compiles leansqlite's native objects (~2 s, once);
+#   - doc-gen4 itself is only compiled when the `:docs` target is
+#     requested.
 #
-# Revisão fixada na tag que casa com o nosso `lean-toolchain` (v4.33.0-rc2).
-# Sendo incondicional, um `main` quebrado quebraria o build de todo mundo.
+# Revision pinned to the tag that matches our `lean-toolchain`
+# (v4.33.0-rc2). Being unconditional, a broken `main` would break
+# everyone's build.
 [[require]]
 name = "doc-gen4"
 git = "https://github.com/leanprover/doc-gen4"
 rev = "v4.33.0"
 
-# Mathlib já entra transitivamente via `cslib`, mas sem um `[[require]]` direto
-# aqui o Lake não dá prioridade às escolhas de versão do Mathlib para
-# dependências compartilhadas (`plausible`, `Cli`) — fica pinado a versões mais
-# antigas dessas duas, e `lake exe cache get` recusa buscar cache pré-compilado
-# do Mathlib porque os hashes não bateriam. Precisa ficar por último no arquivo.
+# Mathlib already comes in transitively via `cslib`, but without a direct
+# `[[require]]` here Lake does not prioritize Mathlib's version choices for
+# shared dependencies (`plausible`, `Cli`) -- it stays pinned to older
+# versions of those two, and `lake exe cache get` refuses to fetch
+# Mathlib's precompiled cache because the hashes wouldn't match. Needs to
+# stay last in the file.
 [[require]]
 name = "mathlib"
 scope = "leanprover-community"

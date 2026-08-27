@@ -1,6 +1,6 @@
--- Adapted from /Users/ar/r/sf-in-lean/SFLMeta/Run.lean, simplified: o `CSwL` é
--- um livro só (o `sf-in-lean` tem três "volumes"), então não há a
--- parametrização por `vol`/`crossVol` — o prefixo é sempre `CSwL`.
+-- Adapted from sf-in-lean/SFLMeta/Run.lean, simplified: `CSwL` is a single
+-- book (`sf-in-lean` has three "volumes"), so there is no `vol`/`crossVol`
+-- parametrization -- the prefix is always `CSwL`.
 import VersoManual
 -- Import the full `CSwLMeta` aggregate (not just `Save`): `manualMain`'s
 -- default `extension_impls%` collects the registered block/inline extensions
@@ -29,6 +29,18 @@ def mkConfig (mode : String) : RenderConfig where
   htmlDepth := 2
   destination := s!"_out/{mode}"
 
+/-- Verso always writes the multi-page HTML output to `html-multi/`. `CSwL`
+only ever emits that form, so the qualifier buys nothing, and the directory
+is renamed to plain `html/` at the end of the build (see
+`sf-in-lean/SFLMeta/Run.lean`, `renameHtmlDir`). -/
+def renameHtmlDir (dest : System.FilePath) : IO Unit := do
+  let multi := dest.join "html-multi"
+  let html := dest.join "html"
+  if ← multi.pathExists then
+    if ← html.pathExists then
+      IO.FS.removeDirAll html
+    IO.FS.rename multi html
+
 /-- Build the book in one variant.  `args` is the command line of the
 `cswl-book` executable: the first argument is the variant, the rest is passed
 through to `manualMain`. -/
@@ -36,8 +48,8 @@ def runBook (doc : Verso.Doc.Part Manual) (args : List String) : IO UInt32 := do
   match args with
   | mode :: rest => do
     let some variant := Variant.fromString? mode
-      | IO.eprintln s!"variante inválida: {mode}"
-        IO.eprintln "a variante tem de ser student, solutions, terse ou grading"
+      | IO.eprintln s!"invalid variant: {mode}"
+        IO.eprintln "variant must be student, solutions, terse, or grading"
         return 1
     setCurrVariant variant
     let extraStep := match variant with
@@ -46,10 +58,13 @@ def runBook (doc : Verso.Doc.Part Manual) (args : List String) : IO UInt32 := do
       | .terse => Save.emitSavedTerse bookPrefix
       | .grading => Save.emitSavedGrading bookPrefix
     let config := mkConfig mode
-    manualMain doc (options := rest) (config := config) (extraSteps := [extraStep])
+    let rc ← manualMain doc (options := rest) (config := config) (extraSteps := [extraStep])
+    if rc == 0 then
+      renameHtmlDir config.destination
+    return rc
   | _ =>
-    IO.eprintln "uso: lake exe cswl-book <variante>"
-    IO.eprintln "  (variante: student | solutions | terse | grading)"
+    IO.eprintln "usage: lake exe cswl-book <variant>"
+    IO.eprintln "  (variant: student | solutions | terse | grading)"
     return 1
 
 end CSwLMeta

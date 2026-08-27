@@ -1,6 +1,7 @@
--- Adapted from /Users/ar/r/sf-in-lean/SFLMeta/Grade.lean
--- (namespace SFLMeta -> CSwLMeta; sem a diretiva `:::grade`/`Block.grade`, que
--- é noop e depende do `SFLMeta.Comment` -- aqui só entra a `:::gradeTheorem`).
+-- Adapted from sf-in-lean/SFLMeta/Grade.lean
+-- (namespace SFLMeta -> CSwLMeta; without the `:::grade`/`Block.grade`
+-- directive, which is a noop and depends on `SFLMeta.Comment` -- only
+-- `:::gradeTheorem` is included here).
 import VersoManual
 
 open Lean Elab

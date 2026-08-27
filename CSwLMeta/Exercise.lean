@@ -1,7 +1,8 @@
--- Adapted from /Users/ar/r/sf-in-lean/SFLMeta/Exercise.lean
--- (namespace SFLMeta -> CSwLMeta e mais nada: os elaboradores
--- `solution!`/`workinclass!`/`suggested!` e o registro de edições são cópia
--- literal -- é a parte delicada, validada contra esta revisão do Verso).
+-- Adapted from sf-in-lean/SFLMeta/Exercise.lean
+-- (namespace SFLMeta -> CSwLMeta and nothing else: the
+-- `solution!`/`workinclass!`/`suggested!` elaborators and the edit registry
+-- are a literal copy -- this is the delicate part, validated against this
+-- revision of Verso).
 import VersoManual
 
 open Lean Elab

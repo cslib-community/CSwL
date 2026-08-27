@@ -1,6 +1,6 @@
--- Adapted from /Users/ar/r/sf-in-lean/SFLMeta/Save/SourceRewrite.lean
--- (namespace SFLMeta -> CSwLMeta e mais nada). Junto com `Save/Lean.lean`, é a
--- parte delicada validada pelo spike do Passo 1.
+-- Adapted from sf-in-lean/SFLMeta/Save/SourceRewrite.lean
+-- (namespace SFLMeta -> CSwLMeta and nothing else). Together with
+-- `Save/Lean.lean`, this is the delicate part validated by Step 1's spike.
 
 import CSwLMeta.Exercise
 

@@ -1,9 +1,10 @@
--- Adapted from /Users/ar/r/sf-in-lean/SFLMeta/Comment.lean
--- (namespace SFLMeta -> CSwLMeta; imports de `SFLMeta.Ignore`/`SFLMeta.Details`
--- retirados -- nada em `Comment.lean` os usa, são herdados por hábito dos
--- módulos vizinhos no sf-in-lean). Único módulo portado deste arquivo: a
--- diretiva `:::dev`/`Block.devcomment`. Usada aqui para marcar desvios da
--- apresentação do CSwFP (não para notas de desenvolvimento do curso).
+-- Adapted from sf-in-lean/SFLMeta/Comment.lean
+-- (namespace SFLMeta -> CSwLMeta; `SFLMeta.Ignore`/`SFLMeta.Details` imports
+-- dropped -- nothing in `Comment.lean` uses them, they are inherited out of
+-- habit from neighboring modules in sf-in-lean). Only one thing from this
+-- file is ported: the `:::dev`/`Block.devcomment` directive. Used here to
+-- mark deviations from CSwFP's presentation (not for the course's own
+-- development notes).
 import VersoManual
 import CSwLMeta.Variant
 

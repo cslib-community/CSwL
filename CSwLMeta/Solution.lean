@@ -1,8 +1,8 @@
--- Adapted from /Users/ar/r/sf-in-lean/SFLMeta/Solution.lean
--- (namespace SFLMeta -> CSwLMeta). O original importa `SFLMeta.Save` só para
--- alcançar `SFLMeta.Variant` de carona (por causa do `getCurrVariant`); aqui o
--- import é direto, para não criar uma dependência de um módulo folha no
--- agregado Save/Extract/Project.
+-- Adapted from sf-in-lean/SFLMeta/Solution.lean
+-- (namespace SFLMeta -> CSwLMeta). The original imports `SFLMeta.Save` only
+-- to reach `SFLMeta.Variant` along the way (because of `getCurrVariant`);
+-- here the import is direct, to avoid creating a dependency on a leaf
+-- module from the Save/Extract/Project aggregate.
 import VersoManual
 import CSwLMeta.Variant
 
