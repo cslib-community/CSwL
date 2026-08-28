@@ -2,8 +2,8 @@
 -- (namespace SFLMeta -> CSwLMeta), with the cuts that go along with the
 -- modules CSwL did not port (see `CSwLMeta.lean`):
 --
--- * the `walkBlock` cases for Details/Terse+Full/SlideBreak are left out --
---   the corresponding modules don't exist here;
+-- * the `walkBlock` cases for Details/SlideBreak are left out -- the
+--   corresponding modules don't exist here;
 --   (DevComment was ported -- see the `Block.devcomment` case below; Bnf and
 --   DisplayMath were also ported, but with no case of their own here --
 --   they fall through to the generic branch below, which already suffices:
@@ -11,13 +11,13 @@
 --   child, and the generic branch recurses into the children, so the text
 --   comes out as a `--` comment, without trying to elaborate it as real
 --   Lean -- the right behavior for BNF and for informal derivations like
---   `turn ⇒ attack reaction ⇒ ...`);
+--   `turn ⇒ attack reaction ⇒ ...`; Terse was ported, see the
+--   `Block.terse`/`Block.full`/`Block.suppressPreviousHeaderWhenTerse`
+--   cases below and `hasSuppressHeaderMarker`);
 -- * the support module (`SFLCompat.lean`) is left out, which serves to
 --   carry the `sf_experiment`/`sf_expect_failure` macros to the extracted
 --   project: CSwL's chapters only use plain ` ```lean ` blocks
---   (extractionMode = .code);
--- * `hasSuppressHeaderMarker` (which depended on Terse.lean) is fixed to
---   `false`.
+--   (extractionMode = .code).
 --
 -- Everything else -- SaveBuffers, the text formatter, the
 -- walkBlocks/walkBlock/walkSection/walkOuter control flow, and the
@@ -32,6 +32,7 @@ import CSwLMeta.Comment
 import CSwLMeta.Exercise
 import CSwLMeta.Quiz
 import CSwLMeta.Grade
+import CSwLMeta.Terse
 
 import CSwLMeta.Save.SourceRewrite
 import CSwLMeta.Save.Lean
@@ -274,12 +275,16 @@ def decodeExercise? (data : Json) : Option (Nat × String × Option String × Bo
   | .arr #[.num _, .str _, _, _] | .arr #[.num _, .str _] => some (decodeExerciseData data)
   | _ => none
 
-/-- Whether a section's own blocks carry a full-only-heading suppression
-marker. Always `false` here: the marker (`Block.
-suppressPreviousHeaderWhenTerse`) is emitted only by `Terse.lean`, which the
-CSwL has not ported. -/
-def hasSuppressHeaderMarker (_blocks : Array (Verso.Doc.Block Manual)) : Bool :=
-  false
+/-- Does one of `blocks` contain a `Block.suppressPreviousHeaderWhenTerse`
+marker?  The marker is emitted at a section's top level, but elaboration wraps
+each source block in `.concat` layers, so look through those (only — the marker
+never sits inside another extension block in the terse tree). -/
+partial def hasSuppressHeaderMarker (blocks : Array (Verso.Doc.Block Manual)) : Bool :=
+  blocks.any fun b =>
+    match b with
+    | .other which _ => which.name == ``Block.suppressPreviousHeaderWhenTerse
+    | .concat bs => hasSuppressHeaderMarker bs
+    | _ => false
 
 /-- Find the ASCII alt text inside a `diagramWithAlt`: the first plain code block. -/
 def findAlt? (contents : Array (Verso.Doc.Block Manual)) : Option String :=
@@ -403,6 +408,18 @@ partial def walkBlock (width : Nat) (file : String) (b : Verso.Doc.Block Manual)
     if name == ``Block.quizSolution then
       -- A quiz answer is elided from every generated `.lean` build product —
       -- it surfaces only in the HTML book, as a click-to-reveal button.
+      return buf
+    if name == ``Block.terse then
+      -- Terse content kept in the tree only in terse builds (full builds
+      -- replace with concat #[] during traverse). Recurse into children.
+      return walkBlocks width file contents buf
+    if name == ``Block.full then
+      -- Full content kept in the tree only in full builds. Recurse into
+      -- children.
+      return walkBlocks width file contents buf
+    if name == ``Block.suppressPreviousHeaderWhenTerse then
+      -- Full-only-heading marker: consumed by `walkSection` (which
+      -- suppresses the heading it follows); emits nothing itself.
       return buf
     if name == ``Block.devcomment then
       -- A `:::dev` note (marking a deviation from the CSwFP presentation)
