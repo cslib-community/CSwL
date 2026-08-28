@@ -13,11 +13,15 @@ tag := "PL"
 namespace PL
 ```
 
-A lógica proposicional ou cálculo sentencial, é um sistema formal no qual as fórmulas representam proposições que podem ser formadas pela combinação de proposições atômicas usando conectivos lógicos e um sistema de regras de derivação, que permite que certas fórmulas sejam estabelecidas como teoremas do sistema formal.
+A lógica proposicional (LP) ou cálculo sentencial, é um sistema formal no qual as fórmulas representam proposições que podem ser formadas pela combinação de proposições atômicas usando conectivos lógicos e um sistema de regras de derivação, que permite que certas fórmulas sejam estabelecidas como teoremas do sistema formal.
 
 # Sintaxe
 
-Mas vamos começar como antes, definindo a gramática que nos permite especificar o que é a linguagem da lógica proposicional.
+:::terse
+A gramática de LP é definida de forma recursiva. Seja a BNF a seguir.
+:::
+
+Na BNF a seguir, as letras proposicionais são os `atom`, podemos predefinir um certo conjunto de letras como válidas ou um processo de geração de âtomos válidos com o sufixo `'`.
 
 ```bnf
 atom ::= "p" | "q" | "r" | atom"'" ;
