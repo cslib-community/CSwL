@@ -121,7 +121,7 @@ def game1 : Game :=
 
 Note que `game1` não representa um jogo completo e a expressão `B 2 missed` pode ou não ser verdade para um determinado tabuleiro. Ou seja, só temos a _sintaxe_, não temos a _semântica_ do jogo. Exigir que o jogo termine quando um dos jogadores é derrotado é também uma questão semântica. Uma regra para "não atacar duas vezes a mesma posição" vai para além da sintaxe ou semântica, refere-se a pragmática, ou como ele deve ser jogado.
 
-::::exercise (rating := 2) (name := "BNFgameOver")
+::::exercise (rating := 2) (name := "game-over-grammar")
 Revise a gramática de modo que fique explícito, nas regras da gramática, que o jogo termina assim que um dos jogadores é derrotado.
 
 :::solution
@@ -152,7 +152,7 @@ inductive WellFormed : Game → Prop where
 
 O construtor `step` só permite estender uma sequência bem-formada com um turno cuja reação não seja `defeated` — é essa condição que faz o predicado, e não o tipo `Game`, carregar a restrição que a gramática revisada impõe estruturalmente.
 
-::::exercise (rating := 3) (name := "WellFormedDefeatedLast")
+::::exercise (rating := 3) (name := "defeated-last")
 Prove que toda `Game` bem-formada não é vazia, e que ela sempre termina com uma reação `.defeated`, não importa o comprimento da sequência.
 
 ```lean
@@ -301,7 +301,7 @@ def badState : State :=
     shipsOK := by native_decide }
 ```
 
-::::exercise (rating := 3) (name := "addShip")
+::::exercise (rating := 3) (name := "add-ship")
 Um estado válido só pode ser estendido por outro estado válido. Complete
 `addShip`, que tenta adicionar um navio a um estado, preservando as duas
 invariantes — devolvendo `none` quando a adição as violaria.
@@ -421,7 +421,7 @@ Como todo estímulo ao bom comportamento, as máximas são vagas, se sobrepõem,
 
 Por mais vagas que sejam, as máximas de Grice se aplicam com precisão a Batalha Naval, porque a semântica do jogo dá uma medida exata de informação. Por que `sunk` (quando verdadeira) é mais informativa que `hit` (também verdadeira na mesma situação)? Porque `sunk` vale para um conjunto estritamente menor de estados do jogo. O mesmo vale entre `defeated` e `sunk`. Do princípio de cooperação, dado o objetivo de deixar o oponente saber onde ele está, segue que, numa situação em que `sunk` vale, reagir com `hit` é inapropriado; a máxima de quantidade sustenta a mesma conclusão por outro caminho, exigindo a reação mais informativa em cada estágio do jogo.
 
-::::exercise (rating := 1) (name := "Grice")
+::::exercise (rating := 1) (name := "grice-maxims")
 O que mais se pode dizer sobre a pragmática de Batalha Naval em termos das máximas de Grice?
 
 :::solution

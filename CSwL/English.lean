@@ -249,7 +249,7 @@ x`, o _objeto_ é o primeiro argumento e o _sujeito_ o segundo — é o que
 `likesToto := likes toto` e `dorothyLikesToto := likesToto dorothy`
 acima já fazem, na ordem certa.
 
-::::exercise (rating := 1) (name := "3.17")
+::::exercise (rating := 1) (name := "adjective-types")
 
 Adjetivos combinam com nomes para formar nomes complexos: _friendly_
 combina com _wizard_ para formar _friendly wizard_. Adjetivos são,

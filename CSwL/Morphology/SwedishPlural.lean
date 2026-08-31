@@ -34,7 +34,7 @@ def swedishVowels : List Char :=
   ['a','i','o','u','e','y', 'ä', aRing, 'ö', oSlash]
 ```
 
-::::exercise (rating := 2) (name := "swedishPlural")
+::::exercise (rating := 2) (name := "swedish-plural")
 
 A forma do plural é determinada pela classe de declinação. Na terceira
 classe ela depende também de a palavra terminar ou não em vogal.

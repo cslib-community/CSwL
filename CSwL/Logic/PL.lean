@@ -136,7 +136,7 @@ def Form.equi (f g : Form) : Form :=
   .conj (Form.impl f g) (Form.impl g f)
 ```
 
-::::exercise (rating := 1) (name := "4.9")
+::::exercise (rating := 1) (name := "translate-sentences")
 
 Traduza as sentenças a seguir para lógica proposicional, garantindo que
 as condições de verdade sejam capturadas. Que limitações você encontra?
@@ -160,7 +160,7 @@ def ex49_3 : Form :=
 
 ::::
 
-::::exercise (rating := 1) (name := "4.10")
+::::exercise (rating := 1) (name := "exclusive-or")
 
 O conectivo `∨` é inclusivo: `p ∨ q` é verdadeiro mesmo quando `p` e
 `q` são ambos verdadeiros. Em português, "ou" costuma ser exclusivo,
@@ -175,7 +175,7 @@ def Form.xor (f g : Form) : Form :=
 
 ::::
 
-::::exercise (rating := 2) (name := "4.11")
+::::exercise (rating := 2) (name := "unique-readability")
 
 Use o princípio de indução estrutural para provar que as fórmulas de
 lógica proposicional em notação prefixa são de leitura única.
@@ -212,7 +212,8 @@ interna que se possa inspecionar: ela é verdadeira ou falsa, e mais nada
 se pergunta a ela. `Form`, acima, é um `inductive` de *sintaxe*: um valor
 de `Form` é dado, no sentido de {ref "IntroL"}[Programação Funcional no
 Lean] — casa padrão, conta operadores, mede profundidade, coleta os
-átomos que ocorrem nele (Exercícios 4.12–4.14, mais abaixo). Nada
+átomos que ocorrem nele — é o que pedem os exercícios `count-operators`,
+`formula-depth` e `collect-atoms`, mais abaixo. Nada
 disso é possível sobre um `Prop`: não há como perguntar "quantos `∧`
 tem esta proposição" a um valor de tipo `Prop`, porque `Prop` não
 guarda a fórmula que o provou, só se ela é verdadeira. A valoração
@@ -284,17 +285,18 @@ theorem Form.leftParens_eq_rightParens (f : Form) :
     simp [Form.leftParens, Form.rightParens, ih1, ih2]
 ```
 
-Essa é a Proposição 4.2 traduzida — mas com uma ressalva: `Form`
-binário já garante um parêntese de abertura por `conj`/`disj`, contado
-igualmente nas duas funções por construção; a prova formaliza essa
-contagem, não descobre nada de novo sobre a gramática. A Proposição 4.3
-e os Exercícios 4.11/4.15 (leitura única) são o caso mais extremo dessa
-observação: provar leitura única para uma gramática dada como _string_
-exige indução estrutural genuína; em Lean, um termo de `Form` já é a
-árvore, não uma string a analisar — não há uma segunda leitura possível
-a excluir, e a prova (Exercício 4.11 acima) se reduz a `injection`.
+Vale notar o que a prova de fato estabelece: `Form` binário já garante
+um parêntese de abertura por `conj`/`disj`, contado igualmente nas duas
+funções por construção, de modo que a demonstração formaliza essa
+contagem em vez de descobrir algo novo sobre a gramática.
 
-::::exercise (rating := 1) (name := "4.12")
+A leitura única é o caso extremo dessa observação. Provar leitura única
+para uma gramática dada como _string_ exige indução estrutural genuína;
+em Lean, um termo de `Form` já é a árvore, não uma string a analisar —
+não há uma segunda leitura possível a excluir, e o exercício
+`unique-readability`, acima, se reduz a `injection`.
+
+::::exercise (rating := 1) (name := "count-operators")
 
 Implemente uma função `opsNr` para contar o número de operadores de
 uma fórmula. O tipo é `opsNr : Form → Nat`. A chamada `opsNr form1`
@@ -317,7 +319,7 @@ theorem opsNr_test : form1.opsNr = 2 := solution!(by decide)
 :::
 ::::
 
-::::exercise (rating := 1) (name := "4.13")
+::::exercise (rating := 1) (name := "formula-depth")
 
 Implemente uma função `depth` para calcular a profundidade da árvore
 de análise de uma fórmula. O tipo é `depth : Form → Nat`. A chamada
@@ -340,7 +342,7 @@ theorem depth_test : form1.depth = 2 := solution!(by decide)
 :::
 ::::
 
-::::exercise (rating := 2) (name := "4.14")
+::::exercise (rating := 2) (name := "collect-atoms")
 
 Implemente `propNames : Form → List String` para coletar a lista de
 nomes de átomos proposicionais que ocorrem numa fórmula. A lista

@@ -70,10 +70,11 @@ príncipe viu", formalizadas respectivamente como
 a existencial usa `∧`; vale a pena perguntar por quê — o assunto volta com a semântica. Já _"Algum príncipe viu uma dama bonita"_ não é
 ambígua: `∃x∃y(Prince x ∧ Lady y ∧ Beautiful y ∧ Saw x y)`.
 
-# Exercício 4.15 (p. 77) ✎
+::::exercise (rating := 2) (name := "predicate-unique-readability")
 
 Prove que as fórmulas desta língua têm a propriedade de leitura única.
 
+:::solution
 *Resposta.* Como no exercício correspondente da lógica proposicional:
 em Lean, um termo de tipo
 indutivo _é_ a árvore de análise — a prova é `injection` sobre os
@@ -85,14 +86,18 @@ duas ou nenhuma); a versão Lean não tem essa função a definir, então a
 diferentes (ou o mesmo construtor com argumentos diferentes) produzem
 termos diferentes — exatamente o que `Form.noConfusion`/`injection`
 dão de graça para qualquer `inductive`.
+:::
 
-# Exercício 4.16 (p. 77) ✎
+::::
+
+::::exercise (rating := 1) (name := "infinite-predicates-bnf")
 
 Dê uma gramática BNF para uma língua de lógica de predicados com
 infinitos símbolos de predicado para cada aridade finita. (Dica: use
 `‴P`, `‴P′`, `‴P″`, ... para o conjunto de predicados de três lugares,
 e assim por diante.)
 
+:::solution
 *Resposta.* A gramática de lógica de predicados acima, estendida com um
 prefixo de primos por aridade:
 
@@ -110,8 +115,11 @@ representa "infinitos predicados de cada aridade finita" sem precisar
 de uma família de gramáticas, uma por aridade. Fica como observação —
 `Formula` (abaixo) não adota `PredSymbol`, e limita a aridade por
 construção (`atom`, `eq`, ...).
+:::
 
-# Exercício 4.17 (p. 78) ✎
+::::
+
+::::exercise (rating := 1) (name := "bound-occurrences")
 
 Dê as ocorrências ligadas de `x` na fórmula seguinte.
 
@@ -119,6 +127,7 @@ Dê as ocorrências ligadas de `x` na fórmula seguinte.
 ∃x(Rxy ∨ Sxyz) ∧ Px
 ```
 
+:::solution
 *Resposta.* Duas: as duas ocorrências de `x` dentro do escopo do `∃x`
 (em `Rxy` e em `Sxyz`). A terceira ocorrência de `x`, em `Px`, está
 fora do escopo desse `∃x` — o parêntese fecha antes de `∧ Px` — e por
@@ -126,6 +135,9 @@ isso é *livre*, não ligada; a fórmula inteira é aberta. É o ponto fino
 do exercício: uma mesma variável pode ter, na mesma fórmula,
 ocorrências ligadas e uma ocorrência livre ao mesmo tempo, desde que
 estejam em posições diferentes da árvore.
+:::
+
+::::
 
 # Fórmulas de predicados em Lean
 
@@ -269,31 +281,24 @@ def formula2 : Formula Variable :=
 
 simetria de R
 
-## Exercício 4.18 (p. 81)
+::::exercise (rating := 2) (name := "closed-form")
 
 Escreva uma função `closedForm : Formula Variable → Bool` que verifica
-se uma fórmula é fechada. (Dica: primeiro escreva uma função que
-coleta a lista de variáveis livres de uma fórmula. As fórmulas
-fechadas são as que têm lista de variáveis livres vazia.)
+se uma fórmula é fechada. Comece por uma função que coleta a lista de
+variáveis livres de uma fórmula: as fechadas são as que têm essa lista
+vazia.
 
 ```lean
 def freeVarsInFormula : Formula Variable → List Variable :=
   sorry
-```
 
-::::exercise (rating := 1) (name := "4.18-closedForm")
-
-A definição de `closedForm`, a partir de `freeVarsInFormula` acima
-(que fica como exercício aberto).
-
-```lean
 def closedForm (f : Formula Variable) : Bool :=
   solution!((freeVarsInFormula f).isEmpty)
 ```
 
 ::::
 
-## Exercício 4.19 (p. 82)
+::::exercise (rating := 1) (name := "implication-as-abbrev")
 
 Implicações e equivalências podem ser vistas como abreviações, pois se
 definem a partir de negação e conjunção. Escreva uma função
@@ -305,7 +310,9 @@ def withoutIDs : Formula Variable → Formula Variable :=
   sorry
 ```
 
-## Exercício 4.20 (p. 82)
+::::
+
+::::exercise (rating := 2) (name := "negation-normal-form")
 
 Toda fórmula de lógica de predicados é equivalente a uma fórmula em
 *forma normal negativa*, onde negações só ocorrem diante de átomos. A
@@ -330,6 +337,8 @@ desse passo.
 ```lean
 def nnf : Formula Variable → Formula Variable := sorry
 ```
+
+::::
 
 # Símbolos de função
 
@@ -407,10 +416,11 @@ Onde os tipos se referem uns aos outros, as funções sobre eles também
 se referem — e no fragmento de inglês, mais adiante no livro, gramáticas
 inteiras serão declaradas assim.
 
-## Exercício 4.21 (p. 83) ✎
+::::exercise (rating := 1) (name := "term-parse-tree")
 
 Dê uma árvore de análise para o termo `f″[f′[x, y], f‴[z, z, f[x]]]`.
 
+:::solution
 *Resposta.* A árvore _é_ o termo Lean correspondente — sem passo de
 tradução a fazer:
 
@@ -439,8 +449,11 @@ f2
     └── f
         └── x
 ```
+:::
 
-## Exercício 4.22 (p. 84)
+::::
+
+::::exercise (rating := 1) (name := "vars-in-formula")
 
 Implemente uma função `varsInForm : Formula Term → List Variable` que
 dá a lista de variáveis que ocorrem numa fórmula.
@@ -449,29 +462,18 @@ dá a lista de variáveis que ocorrem numa fórmula.
 def varsInForm : Formula Term → List Variable := sorry
 ```
 
-## Exercício 4.23 (p. 84)
+::::
 
-Implemente
+::::exercise (rating := 2) (name := "open-form")
 
-```
-freeVarsInForm : Formula Term → List Variable
-```
-
-que dá a lista de variáveis com ocorrências livres numa fórmula.
+Implemente `freeVarsInForm : Formula Term → List Variable`, que dá a
+lista de variáveis com ocorrências livres numa fórmula, e sobre ela
+`openForm : Formula Term → Bool`, que verifica se uma fórmula é aberta
+(ver a seção sobre ligação de variáveis).
 
 ```lean
 def freeVarsInForm : Formula Term → List Variable := sorry
-```
 
-::::exercise (rating := 1) (name := "4.24")
-
-Implemente `openForm : Formula Term → Bool` que verifica se uma
-fórmula é aberta (ver seção de ligação de variáveis).
-
-A definição de `openForm`, a partir de `freeVarsInForm` acima (que
-fica como exercício aberto).
-
-```lean
 def openForm (f : Formula Term) : Bool :=
   solution!(!(freeVarsInForm f).isEmpty)
 ```

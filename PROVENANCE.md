@@ -10,10 +10,10 @@ exercises are ported, which are still missing) and finding the original
 statement when an exercise needs revising. It is documentation *about* the
 project, not part of the book.
 
-The `CSwL id` column holds each exercise's current `(name := …)`. Those names
-are still the book's numbers in several chapters; when they are replaced by
-acronyms, this column is what has to be updated — after that, this file is the
-only remaining link to the source.
+The `CSwL id` column holds each exercise's `(name := …)`. Since the rename of
+2026-08-30 these are English mnemonics carrying no number, so **this file is
+now the only link between an exercise and the passage it comes from**. Keep it
+in step with any further rename.
 
 `prose` marks an exercise whose answer is given in prose rather than stated in
 Lean. In the source these carry a `✎` marker, which is otherwise undocumented.
@@ -45,38 +45,39 @@ CSwFP Exercise 1.3 (infinitely many sentences, p. 8) is not ported.
 
 | CSwL id | Rating | CSwFP | Page |
 |---|---|---|---|
-| `3.19` | 3 | Exercise 3.19 (Yawelmani vowel harmony) | 61–62 |
+| `yawelmani-harmony` | 3 | Exercise 3.19 (Yawelmani vowel harmony) | 61–62 |
 
-`fValue` (rating 2) and `appendSuffix-texto` (rating 3) have no counterpart:
-CSwFP hands `fValue`/`fMatch` to the reader as given code, and `CSwL` turns
+`feature-value` (rating 2) and `append-suffix-text` (rating 3) have no counterpart:
+CSwFP hands `feature-value`/`fMatch` to the reader as given code, and `CSwL` turns
 them into exercises.
 
-### `Sets.lean` — CSwFP/2
+### `Sets.lean` — CSwFP/2 (exercises `twice` and `adjective-types` moved on
+with CSwFP/2.4 and 2.5, to `IntroL.lean` and `English.lean`)
 
 | CSwL id | Rating | CSwFP | Page | Notes |
 |---|---|---|---|---|
-| `3.1` | 1 | Exercise 2.1 | 17 | |
-| `3.2` | 1 | Exercise 2.2 | 17 | prose |
-| `3.3` | 2 | Exercise 2.3 | 17 | prose |
-| `3.4` | 2 | Exercise 2.4 | 18 | |
-| `3.5` | 2 | Exercise 2.5 | 18 | |
-| `3.6` | 2 | Exercise 2.6 | 18 | |
-| `3.7` | 2 | Exercise 2.7 | 19 | |
-| `3.8` | 2 | Exercise 2.8 | 19 | |
-| `3.9` | 2 | Exercise 2.9 | 19 | |
-| `3.10` | 1 | Exercise 2.10 | 21 | |
-| `3.11` | 1 | Exercise 2.11 | 21 | |
-| `3.12` | 2 | Exercise 2.12 | 21 | |
-| `3.13` | 1 | Exercise 2.13 | 26 | |
+| `empty-subset` | 1 | Exercise 2.1 | 17 | |
+| `empty-vs-singleton` | 1 | Exercise 2.2 | 17 | prose |
+| `double-complement` | 2 | Exercise 2.3 | 17 | prose |
+| `cartesian-square` | 2 | Exercise 2.4 | 18 | |
+| `successor-composition` | 2 | Exercise 2.5 | 18 | |
+| `converse-subset` | 2 | Exercise 2.6 | 18 | |
+| `which-are-transitive` | 2 | Exercise 2.7 | 19 | |
+| `transitive-iff-comp` | 2 | Exercise 2.8 | 19 | |
+| `transitive-not-idempotent` | 2 | Exercise 2.9 | 19 | |
+| `successor-as-relation` | 1 | Exercise 2.10 | 21 | |
+| `leq-as-function` | 1 | Exercise 2.11 | 21 | |
+| `graph-is-functional` | 2 | Exercise 2.12 | 21 | |
+| `twice` | 1 | Exercise 2.13 | 26 | |
 | — | — | Exercise 2.14 | 26–27 | prose; not in an `:::exercise` block |
 | — | — | Exercise 2.15 | 28 | prose; not in an `:::exercise` block |
 | — | — | Exercise 2.16 | 28 | prose; not in an `:::exercise` block |
-| `3.17` | 1 | Exercise 2.17 | 30 | |
+| `adjective-types` | 1 | Exercise 2.17 | 30 | |
 
 Note that 2.14, 2.15 and 2.16 sit in the prose without an exercise directive,
 so they get no rating, no solution elision and no autograding.
 
-Exercises 2.1, 2.2 and 2.3 (`3.1`–`3.3` above) stay with this chapter when it
+Exercises 2.1, 2.2 and 2.3 (`empty-subset`–`double-complement` above) stay with this chapter when it
 moves after `Logic.lean`; 2.3 (`Ā̄ = A`) is the one that needs classical
 reasoning, and is the reason for the move.
 
@@ -84,12 +85,12 @@ reasoning, and is the reason for the move.
 
 | CSwL id | Rating | CSwFP | Page |
 |---|---|---|---|
-| `4.9` | 1 | Exercise 4.9 | 74 |
-| `4.10` | 1 | Exercise 4.10 | 74 |
-| `4.11` | 2 | Exercise 4.11 | 74 |
-| `4.12` | 1 | Exercise 4.12 | 75 |
-| `4.13` | 1 | Exercise 4.13 | 75 |
-| `4.14` | 2 | Exercise 4.14 | 75 |
+| `translate-sentences` | 1 | Exercise 4.9 | 74 |
+| `exclusive-or` | 1 | Exercise 4.10 | 74 |
+| `unique-readability` | 2 | Exercise 4.11 | 74 |
+| `count-operators` | 1 | Exercise 4.12 | 75 |
+| `formula-depth` | 1 | Exercise 4.13 | 75 |
+| `collect-atoms` | 2 | Exercise 4.14 | 75 |
 
 The chapter also names two of the book's results in its prose — Theorem 4.1
 (structural induction) and Proposition 4.2 (equal number of parentheses). Those
@@ -102,13 +103,13 @@ attributions are removed from the book; the results themselves stay.
 | — | — | Exercise 4.15 | 77 | prose; a `#` heading, not an `:::exercise` block |
 | — | — | Exercise 4.16 | 77 | prose; heading |
 | — | — | Exercise 4.17 | 78 | prose; heading |
-| `4.18-closedForm` | 1 | Exercise 4.18 | 81 | inside a `##` heading also numbered 4.18 |
+| `closed-form` | 1 | Exercise 4.18 | 81 | inside a `##` heading also numbered 4.18 |
 | — | — | Exercise 4.19 | 82 | heading |
 | — | — | Exercise 4.20 | 82 | heading |
 | — | — | Exercise 4.21 | 83 | prose; heading |
 | — | — | Exercise 4.22 | 84 | heading |
 | — | — | Exercise 4.23 | 84 | heading |
-| `4.24` | 1 | Exercise 4.24 | 84 | |
+| `open-form` | 1 | Exercise 4.24 | 84 | |
 
 Nine of these are plain headings carrying the book's page number rather than
 exercise directives. Both problems — the page in the heading and the missing
@@ -121,34 +122,34 @@ as an oversight.
 
 | File | CSwL id | Rating |
 |---|---|---|
-| `Morphology/Phonemes.lean` | `fValue` | 2 |
-| `Morphology/Phonemes.lean` | `appendSuffix-texto` | 3 |
-| `Morphology/SwedishPlural.lean` | `swedishPlural` | 2 |
+| `Morphology/Phonemes.lean` | `feature-value` | 2 |
+| `Morphology/Phonemes.lean` | `append-suffix-text` | 3 |
+| `Morphology/SwedishPlural.lean` | `swedish-plural` | 2 |
 | `English.lean` | `preposition-phrase` | 1 |
 | `English.lean` | `complex-relative-clauses` | 1 |
-| `Sets.lean` | `a1-pertence-above2` | 1 |
-| `Sets.lean` | `a2-nao-pertence-above2` | 1 |
-| `Sets.lean` | `a3-above5-subset-above2` | 1 |
-| `Sets.lean` | `a4-uniao` | 1 |
-| `Sets.lean` | `a5-intersecao` | 1 |
-| `Games/Mastermind.lean` | `mastermind-4-passos` | 1 |
+| `Sets.lean` | `five-in-above2` | 1 |
+| `Sets.lean` | `one-not-in-above2` | 1 |
+| `Sets.lean` | `above5-subset-above2` | 1 |
+| `Sets.lean` | `union-contains` | 1 |
+| `Sets.lean` | `intersection-contained` | 1 |
+| `Games/Mastermind.lean` | `four-turn-game` | 1 |
 | `Games/Mastermind.lean` | `chess-grammar` | 1 |
-| `Games/SeaBattle.lean` | `BNFgameOver` | 2 |
-| `Games/SeaBattle.lean` | `WellFormedDefeatedLast` | 3 |
-| `Games/SeaBattle.lean` | `addShip` | 3 |
+| `Games/SeaBattle.lean` | `game-over-grammar` | 2 |
+| `Games/SeaBattle.lean` | `defeated-last` | 3 |
+| `Games/SeaBattle.lean` | `add-ship` | 3 |
 | `Games/SeaBattle.lean` | `sunk` | 2 |
-| `Games/SeaBattle.lean` | `Grice` | 1 |
-| `IntroL.lean` | `sumOfSquares` | 1 |
-| `IntroL.lean` | `construindo-termos` | 1 |
-| `IntroL.lean` | `p-implica-q-implica-p` | 1 |
-| `IntroL.lean` | `transitividade-implicacao` | 1 |
-| `IntroL.lean` | `apply-varias-premissas` | 1 |
-| `IntroL.lean` | `prova-direta-unfold` | 1 |
-| `IntroL.lean` | `desmontando-conjuncao-unfold` | 1 |
-| `IntroL.lean` | `casos-sobre-ou` | 1 |
-| `IntroL.lean` | `sumTo` | 1 |
-| `IntroL.lean` | `sumList` | 1 |
-| `IntroL.lean` | `countZeros` | 1 |
+| `Games/SeaBattle.lean` | `grice-maxims` | 1 |
+| `IntroL.lean` | `sum-of-squares` | 1 |
+| `IntroL.lean` | `building-terms` | 1 |
+| `IntroL.lean` | `p-implies-q-implies-p` | 1 |
+| `IntroL.lean` | `implication-transitivity` | 1 |
+| `IntroL.lean` | `apply-several-premises` | 1 |
+| `IntroL.lean` | `unfold-direct-proof` | 1 |
+| `IntroL.lean` | `unfold-conjunction` | 1 |
+| `IntroL.lean` | `cases-on-or` | 1 |
+| `IntroL.lean` | `sum-to` | 1 |
+| `IntroL.lean` | `sum-list` | 1 |
+| `IntroL.lean` | `count-zeros` | 1 |
 
 CSwFP's chapter 3 exercises 3.1–3.18 are not ported: they are about Haskell
 itself (types of Haskell functions, Haskell programs to read). Exercise 3.18

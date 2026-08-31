@@ -59,7 +59,7 @@ def turn1 : Turn :=
 end Mastermind
 ```
 
-::::exercise (rating := 1) (name := "mastermind-4-passos")
+::::exercise (rating := 1) (name := "four-turn-game")
 
 Revise a gramática para garantir que um jogo tenha no máximo quatro
 jogadas.

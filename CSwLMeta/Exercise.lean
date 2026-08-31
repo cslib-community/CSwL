@@ -89,7 +89,7 @@ block_extension Block.exercise (rating : Nat) (name : String)
       return {{
         <div class={{s!"exercise stars-{rating}"}}>
           <div class="exercise-header">
-            <span class="exercise-label">"Exercise"</span>
+            <span class="exercise-label">"Exercício"</span>
             <span class="exercise-stars">{{stars}}</span>
             <span class="exercise-name">{{s!"({name})"}}</span>
             {{levelHtml}}
@@ -105,7 +105,7 @@ block_extension Block.exercise (rating : Nat) (name : String)
       let body : Verso.Output.TeX ← contents.foldlM (init := .empty) fun acc b =>
         return acc ++ (← goB b)
       pure <| .seq #[
-        .raw s!"\\paragraph\{Exercise ({rating} stars): {name}{desig}.}",
+        .raw s!"\\paragraph\{Exercício ({rating} stars): {name}{desig}.}",
         body
       ]
   extraCss := [

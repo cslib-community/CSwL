@@ -41,7 +41,7 @@ deriving Repr, BEq
 abbrev Phoneme := List Feature
 ```
 
-::::exercise (rating := 2) (name := "fValue")
+::::exercise (rating := 2) (name := "feature-value")
 
 Consulta o valor de um traço.
 
@@ -174,7 +174,7 @@ example : realize i = some 'i' := rfl
 example : realize (fMatch .Back .Plus i) = none := rfl
 ```
 
-::::exercise (rating := 3) (name := "3.19")
+::::exercise (rating := 3) (name := "yawelmani-harmony")
 
 A harmonia vocálica em Yawelmani tem a seguinte forma simplificada. As
 vogais do sufixo concordam em `Back` e `Round` com a vogal do radical —
@@ -293,7 +293,7 @@ def unrealizeVowel (tok : String) : Option Phoneme :=
   else none
 ```
 
-::::exercise (rating := 3) (name := "appendSuffix-texto")
+::::exercise (rating := 3) (name := "append-suffix-text")
 
 `appendSuffixY` trabalha sobre `List Phoneme`. Este exercício pede a
 mesma harmonia partindo de `String`.

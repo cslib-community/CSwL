@@ -138,7 +138,7 @@ example : 3 ∈ above2 := by
 def above5 : Set Nat := {n | n > 5}
 ```
 
-::::exercise (rating := 1) (name := "a1-pertence-above2")
+::::exercise (rating := 1) (name := "five-in-above2")
 
 *A1.* Prove que 5 pertence a `above2`.
 
@@ -150,7 +150,7 @@ example : 5 ∈ above2 := solution!(by
 
 ::::
 
-::::exercise (rating := 1) (name := "a2-nao-pertence-above2")
+::::exercise (rating := 1) (name := "one-not-in-above2")
 
 *A2.* Prove que 1 não pertence a `above2`. `x ∉ A` abrevia `¬ (x ∈ A)`,
 que por sua vez é `x ∈ A → False`.
@@ -163,7 +163,7 @@ example : 1 ∉ above2 := solution!(by
 
 ::::
 
-::::exercise (rating := 1) (name := "a3-above5-subset-above2")
+::::exercise (rating := 1) (name := "above5-subset-above2")
 
 *A3.* Prove a inclusão. `unfold above2 above5` desdobra as duas
 definições; `simp only [Set.mem_ofPred_eq] at h` desdobra a pertinência
@@ -183,7 +183,7 @@ União e interseção são disjunção e conjunção elemento a elemento. As dua
 inclusões abaixo valem para conjuntos quaisquer, e as provas não
 precisam saber nada sobre eles.
 
-::::exercise (rating := 1) (name := "a4-uniao")
+::::exercise (rating := 1) (name := "union-contains")
 
 *A4.* Todo conjunto está contido na sua união com outro. Depois do
 `intro`, `Or.inl` prova uma disjunção pelo lado esquerdo.
@@ -196,7 +196,7 @@ example (A B : Set Nat) : A ⊆ A ∪ B := solution!(by
 
 ::::
 
-::::exercise (rating := 1) (name := "a5-intersecao")
+::::exercise (rating := 1) (name := "intersection-contained")
 
 *A5.* E a interseção está contida em cada um dos dois.
 
@@ -272,7 +272,7 @@ Set.inter_def.{u} {α : Type u} {s₁ s₂ : Set α} : s₁ ∩ s₂ = {a | a �
 example : A ⊆ B → A ⊆ C → A ⊆ B ∩ C := sorry
 ```
 
-::::exercise (rating := 1) (name := "3.1")
+::::exercise (rating := 1) (name := "empty-subset")
 
 Explique por que `∅ ⊆ A` vale para todo conjunto `A`. Prove-o. O
 argumento é vacuoso, e a prova deve exibir isso.
@@ -288,7 +288,7 @@ example : ∅ ⊆ A := solution!(by
 
 ::::
 
-::::exercise (rating := 1) (name := "3.2")
+::::exercise (rating := 1) (name := "empty-vs-singleton")
 
 Explique a diferença entre `∅` e `{∅}`.
 
@@ -316,7 +316,7 @@ example :
 
 ::::
 
-::::exercise (rating := 2) (name := "3.3")
+::::exercise (rating := 2) (name := "double-complement")
 
 Verifique que o complemento do complemento de `A` é `A`.
 
@@ -583,7 +583,7 @@ modelo a um fragmento — um domínio de entidades e, para cada verbo, a
 relação que ele denota — e à qual o tratamento de verbos de mais de dois
 lugares, e do escopo entre eles, volta mais tarde.
 
-::::exercise (rating := 2) (name := "3.4")
+::::exercise (rating := 2) (name := "cartesian-square")
 
 Tome `A` como o conjunto `{Kasparov, Karpov, Anand}`. Encontre `A × A`.
 
@@ -618,7 +618,7 @@ theorem playerPairs_test : playerPairs.card = 9 :=
 :::
 ::::
 
-::::exercise (rating := 2) (name := "3.5")
+::::exercise (rating := 2) (name := "successor-composition")
 
 Qual é a composição de `{(n, n + 2) | n ∈ ℕ}` com ela mesma?
 
@@ -643,7 +643,7 @@ theorem plusTwo_test (a c : Nat) :
 :::
 ::::
 
-::::exercise (rating := 2) (name := "3.6")
+::::exercise (rating := 2) (name := "converse-subset")
 
 Mostre que de `R˘ ⊆ R` segue que `R = R˘`.
 
@@ -665,7 +665,7 @@ theorem flip_eq_test {α : Type} (R : Rel α α)
 :::
 ::::
 
-::::exercise (rating := 2) (name := "3.7")
+::::exercise (rating := 2) (name := "which-are-transitive")
 
 Quais das relações seguintes são transitivas?
 
@@ -708,7 +708,7 @@ theorem r5_test :   isTransitive r5 := solution!(by decide)
 :::
 ::::
 
-::::exercise (rating := 2) (name := "3.8")
+::::exercise (rating := 2) (name := "transitive-iff-comp")
 
 Verifique que uma relação `R` é transitiva se e somente se `R ∘ R ⊆ R`.
 
@@ -731,7 +731,7 @@ theorem isTrans_iff_test {α : Type} (R : Rel α α) :
 :::
 ::::
 
-::::exercise (rating := 2) (name := "3.9")
+::::exercise (rating := 2) (name := "transitive-not-idempotent")
 
 Você pode dar um exemplo de relação transitiva `R` para a qual `R ∘ R =
 R` não vale?
@@ -786,7 +786,7 @@ de gostar, escrita como `Entity → Entity → Prop`: dados `x` e `y`,
 prepara a leitura da seção seguinte: conjunto e relação *são* funções
 para `Prop` (ou `Bool`), não apenas "correspondem" a elas.
 
-::::exercise (rating := 1) (name := "3.10")
+::::exercise (rating := 1) (name := "successor-as-relation")
 
 A função sucessor `s : ℕ → ℕ` é dada por `n ↦ n + 1`. Qual é a
 composição de `s` com ela mesma?
@@ -806,7 +806,7 @@ theorem s_comp_test : s ∘ s = fun n => n + 2 := solution!(by
 :::
 ::::
 
-::::exercise (rating := 1) (name := "3.11")
+::::exercise (rating := 1) (name := "leq-as-function")
 
 `≤` é uma relação binária sobre os naturais. Qual é a função
 característica correspondente?
@@ -835,7 +835,7 @@ theorem leChar_test (m n : Nat) :
 :::
 ::::
 
-::::exercise (rating := 2) (name := "3.12")
+::::exercise (rating := 2) (name := "graph-is-functional")
 
 Seja `f : A → B` uma função. Mostre que a relação `R` dada por `(x, y) ∈
 R` se e somente se `f x = f y` é uma relação de equivalência sobre `A`.

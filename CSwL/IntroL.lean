@@ -124,7 +124,7 @@ Conferir tipo não demanda computação, logo o comando `#check` funciona retorn
 #check g a
 ```
 
-::::exercise (rating := 1) (name := "sumOfSquares")
+::::exercise (rating := 1) (name := "sum-of-squares")
 
 Defina `sumOfSquares` que recebe dois naturais e devolve `m² + n²`.
 
@@ -190,7 +190,7 @@ def h₂ (x : Nat) : (Nat → Nat) :=
 #check h₁ 1
 ```
 
-::::exercise (rating := 1) (name := "construindo-termos")
+::::exercise (rating := 1) (name := "building-terms")
 
 Adaptado de {citep Bib.love2026}[]. Cada `def` declara `{α β γ : Type}`, são funções parametrizadas por tipo. Para as quatro funções abaixo, cujo tipo foi definido, pede-se fornecer o termo para o tipo correspondente. Dica, use `_` para identificar no _InfoView_ qual tipo o termo na posição deverá ter.
 
@@ -392,37 +392,46 @@ Duas notações de prova não são táticas: `⟨t, h⟩` monta um par (para pro
 uma conjunção ou exibir a testemunha de um existencial), e `h.1`/`h.2`
 desmontam um par que está numa hipótese.
 
-## Exercício'
+::::exercise (rating := 1) (name := "rfl-arithmetic")
 
 Termine a prova usando `rfl`.
 
 ```lean
 example : 7 * 6 = 42 :=
-  rfl
+  solution!(rfl)
 ```
 
-## Exercício' — `double n = n + n`
+::::
 
-Prove que `double n = n + n`; uma variável aparece, então `rfl` não basta.
+::::exercise (rating := 1) (name := "square-unfold")
+
+Prove que `square₁ n = n * n`; uma variável aparece, então `rfl` não basta
+sozinho — é preciso desdobrar a definição antes.
 
 ```lean
 example (n : Nat) : square₁ n = n * n := by
-  unfold square₁
-  rfl
+  solution!
+    unfold square₁
+    rfl
 ```
 
-## Exercício' — `P → P`
+::::
 
-Provar `P → Q` é: suponha `P`, derive `Q`. Provar `P ∧ Q` é provar as duas
-coisas. Fonte: {citep Bib.FAA2025}[]
+::::exercise (rating := 1) (name := "identity-implication")
+
+Provar `P → Q` é: suponha `P`, derive `Q`. Prove `P → P`. Fonte:
+{citep Bib.FAA2025}[]
 
 ```lean
 example (P : Prop) : P → P := by
-  intro h
-  exact h
+  solution!
+    intro h
+    exact h
 ```
 
-::::exercise (rating := 1) (name := "p-implica-q-implica-p")
+::::
+
+::::exercise (rating := 1) (name := "p-implies-q-implies-p")
 
 Complete a prova abaixo. Fonte: {citep Bib.FAA2025}[]
 
@@ -435,10 +444,11 @@ example (P Q : Prop) : P → (Q → P) := by
 
 ::::
 
-## Exercício' — Conjunção a partir das partes
+::::exercise (rating := 1) (name := "and-intro")
 
-Fonte: {citep Bib.FAA2025}[]. Dica: `constructor` parte o objetivo `P ∧ Q`
-em dois; cada um se fecha com `exact`.
+Prove `P ∧ Q` a partir de `P` e de `Q`. Fonte: {citep Bib.FAA2025}[]. Dica:
+`constructor` parte o objetivo `P ∧ Q` em dois; cada um se fecha com
+`exact`.
 
 ```lean (name := c2check24)
 #check And.intro
@@ -450,14 +460,17 @@ And.intro {a b : Prop} (left : a) (right : b) : a ∧ b
 
 ```lean
 example (P Q : Prop) (hP : P) (hQ : Q) : P ∧ Q := by
-  apply And.intro
-  · exact hP
-  · exact hQ
+  solution!
+    apply And.intro
+    · exact hP
+    · exact hQ
 ```
 
-## Exercício' — Comutatividade da conjunção
+::::
 
-Fonte: {citep Bib.FAA2025}[]. Dica: um `↔` se parte em dois objetivos com
+::::exercise (rating := 2) (name := "and-comm")
+
+Prove que a conjunção comuta. Fonte: {citep Bib.FAA2025}[]. Dica: um `↔` se parte em dois objetivos com
 `constructor`; em cada um, `intro h` seguido de `obtain ⟨_,_⟩ := h` desmonta
 a conjunção da hipótese, e `constructor` reconstrói a conjunção invertida.
 
@@ -466,19 +479,22 @@ Veja também o que acontece ao avaliar `(10,20).1`. `And` em Lean é uma
 
 ```lean
 example (P Q : Prop) : P ∧ Q ↔ Q ∧ P := by
- constructor
- · intro h
-   obtain ⟨h1, h2⟩ := h
-   apply And.intro
-   · exact h2
-   · exact h1
- · intro h
+ solution!
    constructor
-   · exact h.2
-   · exact h.1
+   · intro h
+     obtain ⟨h1, h2⟩ := h
+     apply And.intro
+     · exact h2
+     · exact h1
+   · intro h
+     constructor
+     · exact h.2
+     · exact h.1
 ```
 
-::::exercise (rating := 1) (name := "transitividade-implicacao")
+::::
+
+::::exercise (rating := 1) (name := "implication-transitivity")
 
 Fonte: {citep Bib.FAA2025}[]. Dica: `intro`, depois `apply` duas vezes,
 encadeando as duas hipóteses.
@@ -495,7 +511,7 @@ example (P Q R : Prop) (h : P → Q) (h2 : Q → R) :
 
 ::::
 
-::::exercise (rating := 1) (name := "apply-varias-premissas")
+::::exercise (rating := 1) (name := "apply-several-premises")
 
 Adaptado de {citep Bib.FAA2025}[].
 
@@ -514,7 +530,7 @@ example (P Q R S : Prop) (h0 : P ∧ Q ∧ R)
 Nem toda prova precisa de lógica proposicional abstrata — às vezes o que
 falta é desdobrar uma definição local antes de concluir.
 
-::::exercise (rating := 1) (name := "prova-direta-unfold")
+::::exercise (rating := 1) (name := "unfold-direct-proof")
 
 Fonte: {citep Bib.FAA2025}[], com `f` definida localmente igual ao arquivo.
 Dica: `intro h`, `unfold f at h` (ou `rw [f] at h`), depois concluir por
@@ -532,7 +548,7 @@ example (x : Nat) : f₁ x 1 → x ≠ 2 := by
 
 ::::
 
-::::exercise (rating := 1) (name := "desmontando-conjuncao-unfold")
+::::exercise (rating := 1) (name := "unfold-conjunction")
 
 Fonte: {citep Bib.FAA2025}[].
 
@@ -547,7 +563,7 @@ example (x y : Nat) : f₁ 0 x ∧ f₁ 0 y → x = y := by
 
 ::::
 
-## Exercício' — Existe um par par
+::::exercise (rating := 1) (name := "exists-witness")
 
 Prove que `∃ n : Nat, n + n = 10`, exibindo a testemunha com `⟨_, _⟩` ou
 usando `Exists.intro`.
@@ -562,11 +578,14 @@ Exists.intro.{u} {α : Sort u} {p : α → Prop} (w : α) (h : p w) : Exists p
 
 ```lean
 example : ∃ n : Nat, n + n = 10 := by
-  apply Exists.intro 5
-  rfl
+  solution!
+    apply Exists.intro 5
+    rfl
 ```
 
-::::exercise (rating := 1) (name := "casos-sobre-ou")
+::::
+
+::::exercise (rating := 1) (name := "cases-on-or")
 
 Prove que `P ∨ Q → Q ∨ P`, usando `cases` sobre a hipótese, complete a
 prova.
@@ -634,17 +653,19 @@ inductive Day where
 deriving Repr
 ```
 
-## Exercício' — Day
+::::exercise (rating := 1) (name := "is-weekend")
 
 Complete `isWeekend`, que responde se o dia é sábado ou domingo.
 
 ```lean
 def isWeekend (d : Day) : Bool :=
- match d with
+ solution!(match d with
  | .saturday => true
  | .sunday => true
- | _ => false
+ | _ => false)
 ```
+
+::::
 
 `Bool` é a enumeração de duas formas; `Nat` é o caso em que uma das formas
 se refere ao próprio tipo que está sendo definido. E `#print` mostra a
@@ -704,19 +725,22 @@ example : 2 = Nat.succ (Nat.succ Nat.zero) := rfl
 A última tática da tabela, `induction`, prova algo para todo valor de um
 tipo indutivo, e não para um valor de cada vez.
 
-## Exercício' — Indução sobre `Nat`
+::::exercise (rating := 1) (name := "add-zero-induction")
 
 Prove que `n + 0 = n` para todo `n`, usando `induction n`. No caso `0`,
 `rfl` fecha; no caso `n + 1`, a hipótese de indução (`ih`) resolve `omega`.
 
 ```lean
 example (n : Nat) : n + 0 = n := by
- induction n with
- | zero => rfl
- | succ a ih =>
-   -- try `apply?`
-   omega
+ solution!
+   induction n with
+   | zero => rfl
+   | succ a ih =>
+     -- try `apply?`
+     omega
 ```
+
+::::
 
 Quem quiser praticar Lean provas em Lean, pode jogar o [Natural Number
 Game](https://adam.math.hhu.de/#/g/leanprover-community/nng4/).
@@ -830,7 +854,7 @@ Their leader got up and addressed them like this:
 'Let's cook and eat that final missionary, and off to bed.''
 ```
 
-::::exercise (rating := 1) (name := "sumTo")
+::::exercise (rating := 1) (name := "sum-to")
 
 Implemente `sumTo n` para devolver `0 + 1 + ... + n` e termine a prova de
 que a função está correta para a entrada `4`.
@@ -901,7 +925,7 @@ def size {α : Type} : List α → Nat
 2
 ```
 
-::::exercise (rating := 1) (name := "sumList")
+::::exercise (rating := 1) (name := "sum-list")
 
 `sumList` soma os elementos de uma lista. Complete e termine a prova.
 
@@ -919,7 +943,7 @@ theorem sumList_test : sumList [1, 2, 3, 4] = 10 :=
 :::
 ::::
 
-::::exercise (rating := 1) (name := "countZeros")
+::::exercise (rating := 1) (name := "count-zeros")
 
 `countZeros` conta quantos zeros a lista tem. Idem.
 
@@ -1434,7 +1458,7 @@ def pluralize (w : String) : String := w ++ "s"
 "dragons"
 ```
 
-::::exercise (rating := 1) (name := "3.13")
+::::exercise (rating := 1) (name := "twice")
 
 Outro exemplo de função de ordem superior é `λf λx ↦ f (f x)`, que
 aplica uma função duas vezes a uma entrada dada. Ponha-a para trabalhar
