@@ -59,7 +59,7 @@ Where each of the resources above is cloned on this machine is recorded in `CLAU
 
 # AI usage
 
-AI-usage disclosure paragraph at the end of commit messages is important whenever AI was used. CLAUDE needs to advise on it and ask a human to confirm whether to add the disclosure. Never use `Co-Authored-By: Claude ...`, but use a paragraph with a disclaimer when approved by a human.
+AI-usage disclosure paragraph at the end of commit messages is important whenever AI was used. CLAUDE needs to advise on it and ask a human to confirm whether to add the disclosure. Never use `Co-Authored-By: Claude ...`, but use a paragraph with a disclaimer when approved by a human. The disclosure paragraph need to be written in English.
 
 When migrating material, AI should try to translate (English to Portuguese) but not rewrite or invent new text. Only humans should deviate from the original CSwFP texts.
 

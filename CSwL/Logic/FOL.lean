@@ -32,7 +32,7 @@ de aridade até 3 (relações unárias, binárias e ternárias — a última
 para verbos como "dar", com sujeito, objeto e destinatário): "relações
 com mais de três argumentos quase nunca são necessárias". A BNF
 completa (usando primos para gerar infinitas variáveis e infinitos
-predicados de cada aridade, como em §4.4):
+predicados de cada aridade, como na lógica proposicional):
 
 ```
 v    −→ x | y | z | v′
@@ -67,15 +67,15 @@ príncipe viu", formalizadas respectivamente como
 ```
 
 — repare que a leitura universal usa `→` como conectivo principal, e
-a existencial usa `∧`; vale a pena perguntar por quê (retomamos isso no
-Exercício 5.17). Já _"Algum príncipe viu uma dama bonita"_ não é
+a existencial usa `∧`; vale a pena perguntar por quê — o assunto volta com a semântica. Já _"Algum príncipe viu uma dama bonita"_ não é
 ambígua: `∃x∃y(Prince x ∧ Lady y ∧ Beautiful y ∧ Saw x y)`.
 
 # Exercício 4.15 (p. 77) ✎
 
 Prove que as fórmulas desta língua têm a propriedade de leitura única.
 
-*Resposta.* Como no Exercício 4.11 (§4.4): em Lean, um termo de tipo
+*Resposta.* Como no exercício correspondente da lógica proposicional:
+em Lean, um termo de tipo
 indutivo _é_ a árvore de análise — a prova é `injection` sobre os
 construtores, não indução estrutural genuína sobre strings. Provar
 leitura única para uma gramática dada como string exige mostrar que a
@@ -177,20 +177,20 @@ inductive Formula (α : Type) where
 ```
 
 Por que `Formula` toma lista de fórmulas (`conj`/`disj`), diferente do
-`Form` binário de §4.4? Porque a conjunção/disjunção vazia — `conj []`
+`Form` binário de {ref "PL"}[Lógica proposicional]? Porque a conjunção/disjunção vazia — `conj []`
 como `"true"`, `disj []` como `"false"` — é a motivação para tomar
 lista desde o início, não uma escolha de implementação a evitar.
-`Form` binário funciona bem porque §4.4 nunca precisa de conjunções de
-tamanho variável; aqui, a conjunção/disjunção vazia como valor sensato
+`Form` binário funciona bem porque a lógica proposicional nunca precisa
+de conjunções de tamanho variável; aqui, a conjunção/disjunção vazia como valor sensato
 (ver `toStringImpl` abaixo, e a semântica adiante) depende da
 lista vazia existir.
 
-Diferente do fragmento de inglês (§4.2) — onde `NP`/`VP`/`RCN`/`INF`/
+Diferente do fragmento de inglês, adiante — onde `NP`/`VP`/`RCN`/`INF`/
 `Sent` são *mutuamente recursivos*, mas nenhum toma lista de si
 mesmo, e por isso mantêm `induction` funcionando — `Formula` é
 _nested_: a lista `List (Formula α)` dentro do próprio tipo tira
 tanto `deriving DecidableEq` quanto `induction` automática. É a mesma
-restrição que levou `Form` a ser binário em §4.4; aqui a lista é
+restrição que levou `Form` a ser binário lá; aqui a lista é
 essencial, então o custo se paga, e as funções abaixo são recursão
 explícita.
 
@@ -342,7 +342,7 @@ arbitrárias em vez de fixar "menor que" como primitivo.
 Termos complexos, com símbolo de função e lista de argumentos — outro
 `inductive` nested (a lista de `Term` dentro do próprio `Term`), então
 sem `deriving DecidableEq`/`induction`, como `Form` teria sido se a
-gramática de §4.4 não fosse binária:
+gramática da lógica proposicional não fosse binária:
 
 ```lean
 inductive Term where

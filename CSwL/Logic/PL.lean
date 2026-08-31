@@ -34,9 +34,9 @@ F    ::= atom
 
 gerando fórmulas como `¬¬¬p'''`, `((p ∨ p') ∧ p')`, `(p ∧ (p' ∧ p'''))`. Sem parênteses a gramática é ambígua — `p ∧ p′ ∨ p″` lê-se tanto como `(p ∧ p′) ∨ p″` quanto como `p ∧ (p′ ∨ p″)`, e a ambiguidade estrutural afeta o significado, como na sentença em português "era jovem e bonita ou triste".
 
-A lista infinita de átomos (`p, q, r, p', q', ...`) se traduz melhor em Lean como um átomo com nome (`String`), não como uma enumeração de símbolos. Então ao invés de infinitas letras proposicionais usamos qualquer string como um átomo.
+Um átomo é identificado por um nome, e o nome é uma `String`. Isso dá o inventário ilimitado que a gramática pede sem precisar enumerar símbolo por símbolo: `p`, `q`, `p'` e `chove` são todos átomos, e nada impede inventar mais um.
 
-Mantemos a cojunção e dijunção na forma binária ao pé da letra porque, em Lean, uma lista custa caro. Um `inductive` com `List Form` dentro de si mesmo (`Cnj (fs : List Form)`) é _nested_, e perde tanto `deriving DecidableEq` quanto a tática `induction` (que os Exercícios 4.11/4.15 pedem, mais adiante).
+A conjunção e a disjunção são binárias. Poderiam receber uma lista de fórmulas de uma vez — `conj (fs : List Form)` —, mas um construtor que guarda uma `List Form` dentro do próprio tipo o torna um indutivo _nested_, e isso custa caro em Lean: perdem-se `deriving DecidableEq` e a tática `induction`, os dois necessários mais adiante. Com dois argumentos, uma conjunção de três fórmulas é `conj f (conj g h)`, e tudo continua funcionando.
 
 ```lean
 inductive Form where
@@ -207,38 +207,23 @@ aqui não há string a analisar, o termo Lean já é a árvore.
 
 # Sintaxe e proposição são coisas diferentes
 
-O capítulo 3 definiu `abbrev S := Prop` — uma proposição semântica, sem
-estrutura interna que se possa inspecionar. `Form`, acima, é um segundo
-`inductive` de *sintaxe*: um valor de `Form` é dado, no sentido de
-{ref "IntroL"}[Programação Funcional no Lean] — casa padrão, conta
-operadores, mede profundidade, coleta
-os átomos que ocorrem nele (Exercícios 4.12–4.14, mais abaixo). Nada
+`Prop` é o tipo das proposições, e uma proposição não tem estrutura
+interna que se possa inspecionar: ela é verdadeira ou falsa, e mais nada
+se pergunta a ela. `Form`, acima, é um `inductive` de *sintaxe*: um valor
+de `Form` é dado, no sentido de {ref "IntroL"}[Programação Funcional no
+Lean] — casa padrão, conta operadores, mede profundidade, coleta os
+átomos que ocorrem nele (Exercícios 4.12–4.14, mais abaixo). Nada
 disso é possível sobre um `Prop`: não há como perguntar "quantos `∧`
 tem esta proposição" a um valor de tipo `Prop`, porque `Prop` não
 guarda a fórmula que o provou, só se ela é verdadeira. A valoração
 `Form → Bool` — que dá sentido a `Form` como lógica, e não só como
 árvore — chega adiante, neste mesmo capítulo.
 
-Há um terceiro objeto que responde à mesma pergunta ("o que é uma
-fórmula?") de um jeito diferente: `Cslib.Logic.PL.Proposition`
-(biblioteca `cslib`, já dependência deste projeto). Também é sintaxe —
-um `inductive` de fórmulas —, mas o que se faz com ela é dedução
-natural (`Γ ⊢ A`), não valoração. Três respostas, três pontos de
-vista: `Prop` é a proposição em si, sem estrutura; `Proposition` do
-`cslib` é sintaxe mais um sistema de prova; `Form` daqui é sintaxe mais
-uma função `Form → Bool`. É a terceira que este capítulo segue.
-
-`Proposition` fica como leitura complementar, não como base do
-capítulo, por um motivo de vocabulário: a BNF acima tem `¬`/`∧`/`∨`
-primitivos e introduz `→` só depois, como abreviação; `Proposition`
-faz o caminho inverso — `imp` é primitivo, `neg` deriva de `imp ·⊥`,
-exigindo uma instância `[Bot Atom]` no tipo dos átomos que não tem
-motivação linguística, só satisfaz a typeclass. Adotar `Proposition`
-obrigaria `opsNr`/`depth` (Exercícios 4.12–4.13) a passar primeiro por
-essa tradução de vocabulário, antes de bater com os números esperados.
-Quem quiser ver como um curso de teoria da prova trataria fórmulas
-proposicionais em Lean, com dedução natural completa, encontra em
-`Cslib.Logic.PL.Proposition`.
+Uma fórmula pode ainda ser tomada como objeto de um sistema de prova, e
+não de uma valoração: em vez de perguntar que valor ela recebe, pergunta-se
+o que se deriva dela. A biblioteca `cslib` faz isso, em
+`Cslib.Logic.PL.Proposition`, com dedução natural completa — leitura
+para quem quiser seguir por esse caminho.
 
 # Indução estrutural
 

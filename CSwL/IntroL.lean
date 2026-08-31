@@ -1312,6 +1312,315 @@ def initS (s : String) : String :=
 ```
 
 
+# Cálculo lambda
+
+A notação `fun x => e` não é invenção de linguagem de programação. Ela
+resolve uma ambiguidade real, e vale ver qual.
+
+A expressão `x² + y` não determina uma função. Ela pode ser lida como
+função de `x`, com `y` fixo; como função de `y`, com `x` fixo; ou como
+função dos dois. O que falta é dizer qual variável é o parâmetro — e o
+operador lambda é exatamente o marcador que diz isso. Em `λx ↦ x² + y`,
+o `x` está *ligado* e o `y` está *livre*.
+
+O nome da variável ligada não importa: `λz ↦ z² + y` é a mesma função. E
+isso não é convenção — em Lean as duas são o mesmo termo, e o `rfl`
+prova:
+
+```lean
+example :
+    (fun (x : Nat) => x * x) =
+      (fun (z : Nat) => z * z) := rfl
+```
+
+## A gramática dos termos
+
+O cálculo lambda tem três formas de construir expressão, e nada mais.
+Escritas na notação usual para gramáticas — a Forma de Backus-Naur, ou
+BNF:
+
+```
+E ::= v | (E E) | (λv ↦ E)
+```
+
+Leia: uma expressão é uma variável, ou a justaposição de duas expressões
+(aplicação), ou um lambda seguido de variável e expressão (abstração). A
+última cláusula é implícita e importante: *nada além disso é
+expressão*.
+
+Aqui está o ponto. Uma gramática BNF é uma definição indutiva, e uma
+definição indutiva é um tipo `inductive` — o mesmo mecanismo com que
+{ref "Morphology"}[Morfologia] declara as classes de declinação do sueco
+e os traços fonológicos. As duas coisas são a mesma, escritas em notações
+diferentes:
+
+A gramática acima, como tipo. Cada cláusula da BNF virou um construtor.
+
+```lean
+inductive Lam where
+  | var (name : String)
+  | app (fn arg : Lam)
+  | lam (binder : String) (body : Lam)
+```
+
+Essa correspondência é o motor do curso. Daqui em diante, cada
+fragmento da língua vai ser dado por uma gramática, e a gramática vai
+ser um tipo `inductive` — o que torna "esta expressão é bem formada" a
+mesma coisa que "este termo tem esse tipo".
+
+Aqui, `Lam` fica como ilustração e não será usado: o cálculo lambda que
+interessa é o próprio Lean, não uma cópia dele dentro de Lean.
+
+## Redução
+
+O que se faz com uma aplicação é substituir. A regra é uma só:
+
+```
+(λx ↦ E) A  →  E\[x := A\]
+```
+
+onde `E\[x := A\]` é `E` com toda ocorrência livre de `x` trocada por
+`A`. Isso é a β-redução, e é o único mecanismo de cálculo do cálculo
+lambda inteiro.
+
+Em Lean essa redução é o que o `#eval` executa e o que o `rfl` verifica:
+
+```lean
+example : (fun (x : Nat) => x + 42) 5 = 5 + 42 := rfl
+```
+
+## Captura de variável
+
+Substituir ingenuamente dá errado, e o exemplo clássico merece atenção
+porque o erro é silencioso. Considere aplicar `λyλx ↦ x + y` ao
+argumento `x`.
+
+Trocando `y` por `x` sem cuidado, obtém-se `λx ↦ x + x` — a função que
+soma um número a si mesmo. Mas o resultado correto é a função que soma
+`x` a um número dado: o `x` que veio de fora foi *capturado* pelo `λx`
+que já estava lá. Que o resultado é outro se vê renomeando antes: `λyλz
+↦ z + y` aplicado a `x` dá `λz ↦ z + x`, que é o certo.
+
+A saída é renomear a variável ligada quando houver risco de captura.
+Lean faz isso sozinho — internamente as variáveis ligadas não têm nome,
+e o problema não existe:
+
+```lean
+example (x : Nat) :
+    (fun y => fun z => z + y) x = (fun z => z + x) := rfl
+```
+
+## Funções são dados
+
+Abstração e aplicação, como definidas, não distinguem dados de funções.
+Se tudo é expressão, então uma função pode receber função, devolver
+função, e ser aplicada a si mesma. Não há duas categorias de coisas.
+
+É isso que permite escrever uma função que aplica outra a um argumento
+fixo:
+
+```lean
+def applyToDragon (f : String → String) : String :=
+  f "dragon"
+
+def pluralize (w : String) : String := w ++ "s"
+```
+
+```lean (name := c3eval9)
+#eval applyToDragon pluralize
+```
+
+```leanOutput c3eval9
+"dragons"
+```
+
+::::exercise (rating := 1) (name := "3.13")
+
+Outro exemplo de função de ordem superior é `λf λx ↦ f (f x)`, que
+aplica uma função duas vezes a uma entrada dada. Ponha-a para trabalhar
+reduzindo: `(λf λx ↦ f (f x)) (λy ↦ 1 + y)`.
+
+```lean
+def twice {α : Type} (f : α → α) : α → α :=
+  solution!(fun x => f (f x))
+
+theorem twice_test1 :
+    twice (fun y => 1 + y) = fun x => 2 + x := solution!(by
+  funext x
+  show 1 + (1 + x) = 2 + x
+  omega)
+
+theorem twice_test2 : twice (fun y => 1 + y) 0 = 2 :=
+  solution!(by decide)
+```
+
+:::gradeTheorem "1" twice_test1 twice_test2
+:::
+::::
+
+Um aspecto do cálculo lambda é que reduções podem não terminar. Observe
+o comportamento de redução de `(λx ↦ x x) (λx ↦ x x)`, e depois de `(λx
+↦ x x x) (λx ↦ x x x)`.
+
+Este exercício não se enuncia em Lean, e a razão é o assunto da questão:
+
+*1. Um passo de redução.* Substituindo `x` por `(λx ↦ x x)` no corpo
+`x x`, obtém-se `(λx ↦ x x) (λx ↦ x x)` — o mesmo termo de partida. A
+redução é portanto um laço: qualquer número de passos devolve o termo
+original, e a normalização nunca termina. Este termo é o combinador
+tradicionalmente chamado `Ω`. Já `(λx ↦ x x x) (λx ↦ x x x)` reduz a
+`(λx ↦ x x x) (λx ↦ x x x) (λx ↦ x x x)`: além de não terminar, cada
+passo produz um termo _maior_ que o anterior, então nem mesmo o tamanho
+fica estável.
+
+*2. A mensagem do Lean.* Descomentando `def omega := (fun x => x x)
+(fun x => x x)` abaixo, o Lean acusa dois erros: a auto-aplicação `x x`
+exige que `x` seja função de algum tipo `?m → ?n`, mas o argumento é o
+próprio `x`, que teria então de ter simultaneamente o tipo `?m`. O
+elaborador precisa resolver `?m = ?m → ?n`, e não existe tipo que
+satisfaça isso (falha o _occurs check_: `?m` ocorreria dentro de si
+mesmo). Como não há atribuição de tipos possível, o termo não pode nem
+ser _escrito_ em Lean.
+
+*3. Relação entre não terminar e não ter tipo.* O cálculo lambda
+_tipado_ (simplesmente tipado, e também o de Lean) é fortemente
+normalizante: todo termo bem tipado tem forma normal, e a redução sempre
+termina. A contrapositiva é o que se observa aqui: um termo cuja
+redução não termina não pode ser bem tipado. Os dois fenômenos têm a
+mesma raiz — a auto-aplicação `x x` — e o sistema de tipos funciona
+como um filtro que rejeita exatamente esses termos. É por isso que Lean
+pode ser ao mesmo tempo uma linguagem de programação e uma lógica
+consistente: a terminação é garantida pelos tipos, não pela boa vontade
+do programador. (O preço é que Lean também rejeita programas que
+terminam, mas cuja terminação ele não sabe verificar; daí a necessidade
+de provar terminação em definições recursivas.)
+
+```
+-- def omega := (fun x => x x) (fun x => x x)
+```
+
+# Tipos na gramática e na computação
+
+No cálculo lambda como está, toda expressão se aplica a toda expressão.
+Nada impede escrever o número `4` aplicado a uma função, e o resultado
+não é falso — é sem sentido. Tipos existem para excluir isso.
+
+A gramática dos tipos também é uma BNF, com duas cláusulas:
+
+```
+τ ::= b | (τ → τ)
+```
+
+Há tipos básicos, e há tipos de função construídos a partir deles. Na
+semântica, os dois básicos costumam ser `e`, das entidades, e `t`, dos
+valores de verdade — a notação de Montague, que o capítulo sobre o
+fragmento de inglês retoma. Em Lean, `t` é `Prop`.
+
+E a atribuição de tipos a expressões se dá por três regras:
+
+* *variáveis* — para cada tipo há variáveis daquele tipo;
+* *abstração* — se `x : δ` e `E : τ`, então `(λx ↦ E) : δ → τ`;
+* *aplicação* — se `E₁ : δ → τ` e `E₂ : δ`, então `(E₁ E₂) : τ`.
+
+Não há mais nada. O `#check` do Lean é essas três regras rodando:
+
+`restful` é uma propriedade de dias: aplicada a um, dá uma afirmação.
+`opaque` declara o nome com o tipo e sem corpo — aqui o assunto são os
+tipos, e qualquer definição serviria.
+
+```lean
+opaque restful : Day → Prop
+
+section
+variable (d : Day)
+```
+
+regra da aplicação: `restful : Day → Prop` e `d : Day`, logo `restful
+d : Prop`
+
+```lean (name := c2check10)
+#check restful d
+```
+
+```leanOutput c2check10
+restful d : Prop
+```
+
+regra da abstração: `y : Day` e `restful y : Prop`, logo o lambda é
+`Day → Prop`
+
+```lean (name := c2check11)
+#check fun (y : Day) => restful y
+```
+
+```leanOutput c2check11
+fun y => restful y : Day → Prop
+```
+
+```lean
+end
+```
+
+## Lean como cálculo lambda
+
+O que se descreveu acima é o cálculo lambda com tipos simples, e Lean o
+contém. Abstração, aplicação, β-redução, tipos de função: tudo o que
+foi dito vale literalmente, e os `#check` acima são as regras de
+tipagem sendo aplicadas.
+
+Lean vai além disso em pontos que o curso vai usar:
+
+* *tipos indutivos* — os deste capítulo, que aqui se revelam ser
+  gramáticas: uma BNF é um tipo, com casamento de padrão e recursão
+  garantidamente terminante;
+* *tipos dependentes* — um tipo pode depender de um valor, o que
+  permite exigir na assinatura condições que aqui teriam de ser
+  verificadas à parte;
+* *proposições como tipos* — `Prop` não é um tipo básico opaco: uma
+  prova de `P` é um termo de tipo `P`, e é por isso que o mesmo
+  verificador serve para checar programas e demonstrações;
+* *universos* — `Type`, `Type 1`, e assim por diante, o que evita os
+  paradoxos que apareceriam se houvesse um tipo de todos os tipos.
+
+Para o que vem pela frente, a leitura útil é essa: o aparato da
+semântica de Montague é um fragmento do que Lean oferece, e o excedente
+é o que vai permitir demonstrar coisas sobre os significados, e não
+apenas calculá-los.
+
+E o termo `(λx ↦ x x) (λx ↦ x x)` do exercício anterior? Você consegue
+achar um tipo para ele?
+
+*Não.* Nenhuma atribuição de tipos funciona, e a maneira de mostrar
+isso é tentar construí-la e ver onde ela quebra.
+
+Suponha que `λx ↦ x x` tenha tipo. Chame de `σ` o tipo de `x`. No corpo
+`x x`, o `x` da esquerda está em posição de função aplicada a um
+argumento, logo `σ` tem de ser um tipo de função: `σ = σ₁ → τ` para
+algum `σ₁` e `τ`. O `x` da direita é o argumento dessa aplicação, então
+seu tipo tem de ser o domínio: `σ = σ₁`. Combinando as duas exigências,
+`σ = σ → τ`. Não há tipo simples que satisfaça essa equação: qualquer
+solução teria de ser um tipo estritamente maior que si mesmo (a árvore
+de `σ → τ` contém a de `σ` como subárvore própria), e não existe tipo
+finito assim. É precisamente o _occurs check_ que o unificador do Lean
+reporta ao dizer que `x` tem tipo `?m → ?n` mas se espera `?m`.
+
+Portanto `λx ↦ x x` já é intipável, e a fortiori a aplicação dele a si
+mesmo também. Vale notar que a impossibilidade não é um defeito do
+Lean: ela é consequência de o sistema ser fortemente normalizante.
+Sistemas que admitem tipos recursivos (`σ ≅ σ → τ`, via `μ`-tipos)
+conseguem tipar esse termo, mas ao preço de perder a garantia de
+terminação — e, se usados como lógica, a consistência.
+
+# Tipos como disciplina
+
+O tipo de uma função diz o que ela aceita e o que devolve, e Lean
+recusa a aplicação que não respeite isso — ao escrever, antes de rodar.
+
+Essa recusa é o instrumento central do texto. As árvores sintáticas das
+gramáticas que vêm a seguir serão tipos, e os significados também; daí em
+diante, "esta combinação de palavras não é bem formada" e "este
+programa não tipa" passam a ser a mesma frase.
+
 ```lean
 end IntroL
 ```

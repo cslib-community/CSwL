@@ -4,6 +4,11 @@
 
 > **Nothing is used before it is presented.**
 
+Names — of files, of chapter and section tags, of exercises — are English
+mnemonics, never numbers. The prose is in Portuguese; the identifiers are not,
+and they carry no number because material moves between chapters and a number
+would be wrong the moment it did.
+
 "Presented" has one deliberate loosening and one exception.
 
 The loosening: Lean's own basic types may be introduced *where they are first
@@ -42,10 +47,10 @@ CSwFP/2 also cannot be split cleanly, because its sections form a definitional c
 | 5 | `Logic.lean`         | 4.4, 4.5, 4.6, 4.7, 5.2, 5.3, 5.5, 5.4 (encoding) | 2, 4     | —          |
 | 6 | `Sets.lean`          | 2.1, 2.2                                          | 2, 5     | —          |
 | 7 | `InfEngine.lean`     | 4.3, 5.7                                          | 2, 5     | 6          |
-| 8 | `English.lean`       | 4.2, 5.6                                          | 2, 5     | —          |
+| 8 | `English.lean`       | 4.2, 5.6                                          | 2, 5, 6  | —          |
 | 9 | `ModelChecking.lean` | 6.1–6.5                                           | 2, 5, 8  | 6          |
 
-`Logic.lean` requires `Games.lean` because its closing section encodes a game the reader has already implemented. `Sets.lean` requires `Logic.lean` because its exercises are proofs, and the tactics they need — quantifiers, `cases`, `by_contra` — arrive there; but nothing requires `Sets.lean` in turn, so its position is fixed from below and free from above.
+`Logic.lean` requires `Games.lean` because its closing section encodes a game the reader has already implemented. `English.lean` requires `Sets.lean` because its categorial section interprets a transitive verb over `Sets.Entity` and `Sets.likesR`, the domain and relation that chapter introduces. `Sets.lean` requires `Logic.lean` because its exercises are proofs, and the tactics they need — quantifiers, `cases`, `by_contra` — arrive there; but nothing requires `Sets.lean` in turn, so its position is fixed from below and free from above.
 
 ## Reusing Mathlib and CSLib
 
@@ -128,12 +133,13 @@ scope and order of presentations: terms, types, lambda and function definition, 
 - 3.12 (Identifiers in Haskell) and 3.15 (Further Reading) are omitted.
 - 3.13 contributes inductive types and pattern matching; its `Subject`/ `Predicate` example is dropped here, because a fragment of natural language introduced this early collides with the fragments presented later. It is absorbed into `English.lean`.
 
-**2.3, 2.4 and 2.5 move here.** CSwFP presents lambda calculus and types before the programming language, as preliminaries justifying a language the reader has not seen. With Lean already on screen the direction inverts: `#check fun x => x * x` exhibits the lambda abstraction of 2.4, `#check (Nat → Nat)` exhibits the type BNF `τ ::= b | (τ → τ)` of 2.5, and `#reduce` exhibits β-reduction happening. The chapter becomes the theory of what the reader has just written.
+**2.3, 2.4 and 2.5 live here.** CSwFP presents lambda calculus and types before the programming language, as preliminaries justifying a language the reader has not seen. With Lean already on screen the direction inverts: `#check fun x => x * x` exhibits the lambda abstraction of 2.4, `#check (Nat → Nat)` exhibits the type BNF `τ ::= b | (τ → τ)` of 2.5, and `#reduce` exhibits β-reduction happening. The chapter becomes the theory of what the reader has just written.
 
 Two consequences of moving 2.3 here:
 
 - CSwFP defines a *function as a special kind of relation* (2.3), so 2.3 depends on 2.2. In Lean `A → B` is primitive, so the definition is not needed to introduce functions. When relations arrive in `Sets.lean`, "a function is a functional relation" stops being a definition and becomes a statement to prove — new text that CSwFP does not have.
-- The linguistic examples of 2.4 (lambda abstraction for word formation) and 2.5 are not presented here: word formation collides with `Morphology.lean`, and the natural-language semantics example is premature. They go to `English.lean`.
+- The linguistic examples of 2.4 (lambda abstraction for word formation) and 2.5 are not presented here: word formation collides with `Morphology.lean`, and the natural-language semantics example is premature. They are in `English.lean`.
+- One example had to change in the move. The demonstration of the typing rules read `opaque happy : Entity → Prop`, and `Entity` is declared in `Sets.lean`, which now comes after this chapter. It is `opaque restful : Day → Prop`, over the inductive this chapter declares itself.
 
 **`instance` is presented here.** The chapter's "Classes de tipos" section shows type classes only from the *use* side — the `[BEq α]` in a signature, and the difference between `BEq` and `DecidableEq`. But instances are declared from `Logic.lean` onwards: `PL.lean` gives `ToString Form`, `FOL.lean` three more, and `English.lean` fifteen, all of them `ToString`. Declaring an instance is a small step from the section already there, and it is the last piece of type classes the book actually needs — no chapter declares a `class` of its own.
 
@@ -218,7 +224,7 @@ Decision: `PL.lean` does not state unique readability as a theorem. What it stat
 
 ### 6. `Sets.lean` — CSwFP/2.1, 2.2
 
-What is left of CSwFP/2 after 2.3, 2.4 and 2.5 move to `IntroL.lean`: sets and relations. Renamed from `Foundation.lean`, which promised a foundations chapter that no longer exists. `Sets` covers both halves honestly, because CSwFP/2.2 *defines* a relation as a subset of A × B — a relation is a set — and because what the chapter adds in Lean is precisely the representation choice for `Set α`.
+What is left of CSwFP/2 after 2.3, 2.4 and 2.5 moved to `IntroL.lean` and `English.lean`: sets and relations. Renamed from `Foundation.lean`, which promised a foundations chapter that no longer exists. `Sets` covers both halves honestly, because CSwFP/2.2 *defines* a relation as a subset of A × B — a relation is a set — and because what the chapter adds in Lean is precisely the representation choice for `Set α`.
 
 **What the chapter is.** Sets and relations are presupposed notation from CSwFP/1 onwards, as in any mathematical text — which is why 5.5 can speak of `I(R) ⊆ D²` before this chapter exists. This chapter is where they are *mechanised in Lean*, and its opening has to say so, or it promises the wrong thing. That is also what makes it worth having: Lean forces representation choices — `Set α` vs. the predicate `α → Bool` vs. `Finset`, `Rel` vs. a list of pairs, decidability — and those choices determine how the models of `ModelChecking.lean` are built.
 
@@ -257,6 +263,8 @@ The fragment of English (4.2) and its semantics (5.6), plus the natural-language
 **What this chapter must deliver to `ModelChecking.lean`.** Gathering the fragments is the editorial goal, but the chapter also has a hard obligation: CSwFP/6 translates the 4.2 grammar category by category, so every category it destructures has to exist by the end of this chapter. `MCWPL.hs` defines one translation function per category — `lfSent`, `lfNP`, `lfDET`, `lfCN`, `lfRCN`, `lfVP`, `lfTV`, `lfDV` — so the required inventory is:
 
 `Sent`, `NP`, `DET`, `CN`, `RCN`, `VP`, `TV`, `DV`, plus the auxiliaries `ADJ` and `That` that `RCN` uses.
+
+**Semantic types are named `e` and `t`, and that is not cosmetic.** The categorial section that arrived from CSwFP/2.5 originally wrote the semantic types as `NP`, `S`, `VP` and `TV` — the category names. In this chapter those names are already taken, by the `inductive`s that *are* the fragment's syntactic categories: two meanings for one name in one namespace, which does not compile and would not be worth compiling. The types now carry Montague's letters, `e` for entities and `t` for truth values, which the prose was already naming as the conventional choice; the categories keep `NP`/`VP` where they belong, in the prose. So "the VP has type `e → t`" now says two different things with two different notations, which is exactly the distinction the section is about.
 
 `INF` is part of the 4.2 grammar but has no translation in CSwFP/6; it is not required by `ModelChecking.lean`.
 
