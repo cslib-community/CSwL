@@ -75,11 +75,11 @@ CSwL developments connect with those in [CSLib](https://github.com/leanprover/cs
 
 ## Deviations from CSwFP
 
-`CSwL` is inspired by CSwFP, not a 1-to-1 port of it: chapters get renumbered,
-sections get reordered or added, exercises get reworded or replaced, whenever
-presenting the material well in Lean or in this course asks for it. See
-[DEVIATIONS.md](DEVIATIONS.md) for the detailed, chapter-by-chapter log of
-where and why.
+`CSwL` is inspired by CSwFP, not a 1-to-1 port of it: chapters get
+renumbered, sections and exercises get reordered, adapted or added,
+whenever presenting the material well in Lean or in this course asks
+for it. See [DEVIATIONS.md](DEVIATIONS.md) for the detailed,
+chapter-by-chapter log of where and why.
 
 ## License and rights
 

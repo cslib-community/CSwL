@@ -18,7 +18,8 @@ A lógica proposicional (LP) ou cálculo sentencial, é um sistema formal no qua
 # Sintaxe
 
 :::terse
-A gramática de LP é definida de forma recursiva. Seja a BNF a seguir.
+A gramática de LP é definida de forma recursiva. Note que o `atom` também abaixo
+é definido de forma recursiva para permitir um inventário infinito mas enumerável de átomos.
 :::
 
 Na BNF a seguir, as letras proposicionais são os `atom`, podemos predefinir um certo conjunto de letras como válidas ou um processo de geração de âtomos válidos com o sufixo `'`.
@@ -92,29 +93,12 @@ def Form.toStringPolish : Form → String
 instance : ToString Form := ⟨Form.toStringPolish⟩
 
 def form1 : Form := .conj (.atom "p") (.neg (.atom "p"))
-```
 
-```lean (name := c4eval3)
-#eval toString form1
-```
-
-```leanOutput c4eval3
-"&[p,-p]"
-```
-
-```lean
 def form2 : Form :=
   .disj (.atom "p1")
     (.disj (.atom "p2") (.disj (.atom "p3") (.atom "p4")))
 ```
 
-```lean (name := c4eval4)
-#eval toString form2
-```
-
-```leanOutput c4eval4
-"v[p1,v[p2,v[p3,p4]]]"
-```
 
 `form2` não é `v[p1,p2,p3,p4]` — sendo `Form` binário, quatro disjuntos
 exigem três `disj` encadeados, não uma lista achatada. É exatamente o

@@ -26,7 +26,7 @@
 # chapters are already in the `Manual` genre, and the book is only built
 # from here.
 
-.PHONY: all student solutions terse grading build serve clean
+.PHONY: all student solutions terse grading build serve clean publish-book
 
 default: all
 
@@ -58,3 +58,10 @@ serve: all
 
 clean:
 	rm -rf _out/
+
+# Publica o _out/student/ já construído no repositório `book` (sibling
+# checkout, `../book` por padrão): lean/ vai para o branch main, html/ vai
+# para o branch gh-pages. Não depende de `student` — rode `make student`
+# antes; publish-book só sincroniza e dá push no que já foi buildado.
+publish-book:
+	scripts/publish-book.sh

@@ -20,3 +20,10 @@
 #
 # Se precisar conferir antes de comitar:  git status --ignored
 /Solutions/
+
+# Where the resources named in `CLAUDE.md` (CSwFP, fp-lean, sf-in-lean,
+# logic_and_proof, ...) are cloned on this machine. Kept out of the repository
+# because `CSwL` is public and distributed to students: a machine layout is of
+# no use to them. The versioned `CLAUDE.md` carries each resource's name and
+# upstream URL; only the paths live here.
+/CLAUDE.local.md
