@@ -29,7 +29,7 @@ atom ::= "p" | "q" | "r" | atom"'" ;
 F    ::= atom
   | "¬" F ("negação")
   | "(" F "∧" F ")" ("conjunção")
-  | "(" F "∨" F ")" ("dijunção") ;
+  | "(" F "∨" F ")" ("disjunção") ;
 ```
 
 gerando fórmulas como `¬¬¬p'''`, `((p ∨ p') ∧ p')`, `(p ∧ (p' ∧ p'''))`. Sem parênteses a gramática é ambígua — `p ∧ p′ ∨ p″` lê-se tanto como `(p ∧ p′) ∨ p″` quanto como `p ∧ (p′ ∨ p″)`, e a ambiguidade estrutural afeta o significado, como na sentença em português "era jovem e bonita ou triste".

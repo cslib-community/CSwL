@@ -1,13 +1,11 @@
 /-!
-# Semântica computacional com Lean
+# Computational Semantics with Lean
 
-Tradução para Lean de van Eijck & Unger, *Computational Semantics with
-Functional Programming* (CUP, 2010).
+Root module of the `CSwL` library. The book itself is assembled in
+`Book.lean`, in Verso's `Manual` genre, and every chapter lives under
+`CSwL/`; nothing is imported here.
 
-Raiz da biblioteca `CSwL`, gênero `Literate`. Os quatro capítulos do livro
-migraram para o gênero `Manual` (ver `Book.lean`); nenhum capítulo resta
-aqui para importar. O pipeline `Literate`/`build-web.sh` foi aposentado em
-16/08 (`literate.toml` e `serve.py` removidos); este arquivo só permanece
-porque é o módulo raiz exigido pelo `[[lean_lib]] name = "CSwL"` do
-`lakefile.toml`, que a biblioteca `Book`/doc-gen4 ainda usa.
+The file stays because `[[lean_lib]] name = "CSwL"` in `lakefile.toml`
+requires a root module, and the `Book`/doc-gen4 target still uses that
+library.
 -/

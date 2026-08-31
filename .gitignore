@@ -2,24 +2,15 @@
 **/.DS_Store
 /.lake
 
-# Diretório onde o workflow de GitHub Pages junta o livro (Verso) e a
-# documentação (doc-gen4) antes de publicar.
+# Where the GitHub Pages workflow assembles the book (Verso) and the API
+# documentation (doc-gen4) before publishing.
 /_site
 
-# Saída do `make` / `lake exe cswl-book <variante>`: uma árvore por variante,
-# `_out/<variante>/{html-multi,lean}`. É tudo material gerado — e `solutions/`
-# e `grading/` contêm gabarito, que este repositório não versiona (veja a
-# proibição de `/Solutions/` abaixo).
+# Output of `make` / `lake exe cswl-book <variant>`: one tree per variant,
+# `_out/<variant>/{html,lean}`. All of it is generated — and `solutions/` and
+# `grading/` contain answer keys, which this repository does not version (see
+# the ban on `/Solutions/` below).
 /_out
-
-# GABARITOS — NUNCA VERSIONAR.
-#
-# Este repositório é público. Um gabarito comitado aqui não se apaga: `git rm`
-# tira do próximo commit, não do histórico, e o histórico é público. Por isso a
-# proibição é do diretório inteiro, e não de arquivo por arquivo.
-#
-# Se precisar conferir antes de comitar:  git status --ignored
-/Solutions/
 
 # Where the resources named in `CLAUDE.md` (CSwFP, fp-lean, sf-in-lean,
 # logic_and_proof, ...) are cloned on this machine. Kept out of the repository

@@ -59,9 +59,9 @@ serve: all
 clean:
 	rm -rf _out/
 
-# Publica o _out/student/ já construído no repositório `book` (sibling
-# checkout, `../book` por padrão): lean/ vai para o branch main, html/ vai
-# para o branch gh-pages. Não depende de `student` — rode `make student`
-# antes; publish-book só sincroniza e dá push no que já foi buildado.
+# Publishes an already-built _out/student/ to the `book` repository (a sibling
+# checkout, `../book` by default): lean/ goes to the main branch, html/ to
+# gh-pages. It does not depend on `student` — run `make student` first;
+# publish-book only syncs and pushes what has already been built.
 publish-book:
 	scripts/publish-book.sh

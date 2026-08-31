@@ -66,6 +66,24 @@ def grice1975 : Article where
   volume  := inlines!"3"
   number  := inlines!""
 
+def montague1974 : Article where
+  title   := inlines!"Formal Philosophy: Selected Papers of Richard Montague"
+  authors := #[inlines!"Richard Montague"]
+  journal := inlines!"Editado por Richmond H. Thomason. Yale University Press, New Haven"
+  year    := 1974
+  month   := none
+  volume  := inlines!""
+  number  := inlines!""
+
+def keller1902 : Article where
+  title   := inlines!"The Story of My Life"
+  authors := #[inlines!"Helen Keller"]
+  journal := inlines!"Doubleday, Page & Co., Nova York"
+  year    := 1902
+  month   := none
+  volume  := inlines!""
+  number  := inlines!""
+
 def FAA2025 : Article where
   title   := inlines!"Formalizing Analysis of Algorithms, Autumn 2025"
   authors := #[inlines!"Sorrachai Yingchareonthawornchai"]

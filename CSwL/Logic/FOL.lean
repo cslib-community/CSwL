@@ -242,6 +242,12 @@ instance [ToString α] : ToString (Formula α) :=
 def formula0 : Formula Variable := .atom "R" [x, y]
 ```
 
+A instância acima recebe outra entre colchetes: para imprimir uma
+`Formula α` é preciso saber imprimir os `α` que a preenchem, e o
+`[ToString α]` é essa exigência. Uma instância pode assim depender de
+outras, e o Lean encadeia a busca — dado `ToString Variable`, ele monta
+sozinho `ToString (Formula Variable)`.
+
 ```lean (name := c4eval7)
 #eval toString formula0
 ```

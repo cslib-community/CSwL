@@ -386,6 +386,7 @@ cases h      dado h : P ∨ Q, parte a prova em dois casos
 simp [...]   reescreve com um conjunto de lemas até não haver mais o que
              simplificar
 induction x  prova por casos sobre a forma como x foi construído
+funext x     duas funções são iguais quando concordam em todo ponto
 ```
 
 Duas notações de prova não são táticas: `⟨t, h⟩` monta um par (para provar
