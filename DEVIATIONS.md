@@ -9,6 +9,27 @@ mnemonics, never numbers. The prose is in Portuguese; the identifiers are not,
 and they carry no number because material moves between chapters and a number
 would be wrong the moment it did.
 
+The prose never explains the book by contrast with anything else. A paragraph
+saying why this text does something differently — from the source it adapts,
+from a library, from an alternative it considered — is about the book, not
+about its subject, and the reader has no use for it. Those reasons belong in
+this document. The rule is not about naming CSwFP: a passage can break it
+without mentioning any source at all, and two did.
+
+The line to hold is not "never mention an alternative". It is:
+
+- a **technical consequence in Lean** is content, because the reader will meet
+  it. "A constructor holding a `List Form` makes the type a nested inductive,
+  and a nested inductive has no `induction` tactic" states a fact about Lean
+  that the chapter then depends on;
+- an **editorial preference** is meta. "We preferred to keep `Game` as it is",
+  "the columns could have been modelled like the rows, but we chose the usual
+  convention" — these report what the authors decided, which is this
+  document's subject and not the book's.
+
+The test: would the sentence still be worth writing if this book had no source
+and no alternatives? A fact about Lean survives that; a preference does not.
+
 "Presented" has one deliberate loosening and one exception.
 
 The loosening: Lean's own basic types may be introduced *where they are first
