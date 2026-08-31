@@ -95,11 +95,13 @@ def devUrgencyText (urgency : String) : String :=
   | "PotentialImprovement" => "potential improvement"
   | u => u
 
-/-- Provenance label for a rendered dev note —
-`Desvio do CSwFP (Alexandre Rademaker, before next release, 2026)` —
-with absent fields omitted. -/
+/-- Label for a rendered dev note —
+`Nota editorial (Alexandre Rademaker, before next release, 2026)` — with
+absent fields omitted.  The heading names the note without naming the source
+this book adapts: `CSwL` is self-contained, and a rendered note reaches every
+variant, the student one included. -/
 def devNoteLabel (author urgency : Option String) (year : Option Nat)
-    (heading : String := "Desvio do CSwFP") : String :=
+    (heading : String := "Nota editorial") : String :=
   let fields := author.toList ++ (urgency.map devUrgencyText).toList ++ (year.map toString).toList
   if fields.isEmpty then heading
   else s!"{heading} ({String.intercalate ", " fields})"

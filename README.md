@@ -33,19 +33,22 @@ make serve   # serves at http://127.0.0.1:8000/
 
 ## Chapters
 
+In the order the book presents them, which is not the order of the source it
+adapts — see [DEVIATIONS.md](DEVIATIONS.md) for why.
+
 - [X] The formal study of natural language — [source](CSwL/IntroCS.lean)
 - [X] Introduction to Lean — [source](CSwL/IntroL.lean)
-- [~] Applications (Finnish vowel harmony, Swedish plural, phonemes) —
-  [source](CSwL/Applications.lean) (sections in
-  [`CSwL/Applications/`](CSwL/Applications))
-- [~] Foundations — [source](CSwL/Foundation.lean)
+- [~] Morphology (Finnish vowel harmony, Swedish plural, phonemes) —
+  [source](CSwL/Morphology.lean) (sections in
+  [`CSwL/Morphology/`](CSwL/Morphology))
 - [~] Grammars for games (Sea Battle, Mastermind) —
   [source](CSwL/Games.lean) (sections in [`CSwL/Games/`](CSwL/Games))
-- [~] A fragment of English — [source](CSwL/English.lean)
 - [~] Logics (propositional and predicate) — [source](CSwL/Logic.lean)
   (sections in [`CSwL/Logic/`](CSwL/Logic))
-- [ ] Formal semantics of fragments
-- [ ] Model checking with predicate logic
+- [~] Sets and relations — [source](CSwL/Sets.lean)
+- [ ] An inference engine — `CSwL/InfEngine.lean`
+- [~] A fragment of English — [source](CSwL/English.lean)
+- [ ] Model checking with predicate logic — `CSwL/ModelChecking.lean`
 - [ ] The composition of meaning
 - [ ] Extension and intension
 - [ ] Parsing
@@ -63,8 +66,8 @@ exercises not reused later in the chapter itself).
 
 ## Conventions
 
-Mnemonic file names. A short chapter is a single file (`CSwL/Foundation.lean`,
-`namespace Foundation`); a chapter whose sections are long enough to deserve
+Mnemonic file names. A short chapter is a single file (`CSwL/Sets.lean`,
+`namespace Sets`); a chapter whose sections are long enough to deserve
 their own file is a "glue" file (`CSwL/Games.lean`) that only gathers, via
 `{include 1 ...}`, sections living in a same-named directory
 (`CSwL/Games/SeaBattle.lean`, `CSwL/Games/Mastermind.lean`) — the same pattern

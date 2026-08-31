@@ -9,8 +9,6 @@ open CSwLMeta
 tag := "Phonemes"
 %%%
 
-Ref. CSwFP/3 §3.14 (p. 58–61).
-
 Vimos uma implementação simples da harmonia vocálica do finlandês por
 manipulação de strings. Do ponto de vista linguístico isso não satisfaz:
 processos fonológicos como harmonia vocálica não são regras de

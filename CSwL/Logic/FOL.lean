@@ -136,8 +136,8 @@ o comprimento da lista já determina a aridade, sem precisar de um tipo
 por aridade.
 
 Uma variável carrega nome e um índice (lista de inteiros, para gerar
-variáveis "frescas" a partir de uma dada — usado a partir do capítulo
-6):
+variáveis "frescas" a partir de uma dada — usadas quando a semântica
+precisar renomear variáveis ligadas):
 
 ```lean
 structure Variable where
@@ -159,8 +159,9 @@ def z : Variable := ⟨"z", []⟩
 ```
 
 `Formula α` é parametrizado no tipo dos termos que preenchem os
-predicados — por ora `α := Variable` (o capítulo 4.7 introduz `Term`,
-estruturado, e reaproveita `Formula` trocando o parâmetro).
+predicados — por ora `α := Variable` (a seção sobre símbolos de função,
+adiante, introduz `Term`, estruturado, e reaproveita `Formula` trocando o
+parâmetro).
 
 ```lean
 inductive Formula (α : Type) where
@@ -181,7 +182,7 @@ como `"true"`, `disj []` como `"false"` — é a motivação para tomar
 lista desde o início, não uma escolha de implementação a evitar.
 `Form` binário funciona bem porque §4.4 nunca precisa de conjunções de
 tamanho variável; aqui, a conjunção/disjunção vazia como valor sensato
-(ver `toStringImpl` abaixo, e a semântica do capítulo 5) depende da
+(ver `toStringImpl` abaixo, e a semântica adiante) depende da
 lista vazia existir.
 
 Diferente do fragmento de inglês (§4.2) — onde `NP`/`VP`/`RCN`/`INF`/
@@ -194,8 +195,8 @@ essencial, então o custo se paga, e as funções abaixo são recursão
 explícita.
 
 `ToString` — inclusive a escolha de mostrar `conj []` como `"true"` e
-`disj []` como `"false"` (a razão fica clara na semântica do capítulo
-5: são a base neutra de `∧`/`∨`, e como constantes independem de
+`disj []` como `"false"` (a razão fica clara na semântica, adiante:
+são a base neutra de `∧`/`∨`, e como constantes independem de
 qualquer atribuição de valores aos átomos):
 
 ```lean
@@ -373,7 +374,7 @@ estava lá. Uma *variante alfabética* (a mesma fórmula, só renomeando
 variáveis ligadas — aqui, `(∀zRxz → ∀xRxx)`) evita a captura.
 
 Com `Term`, `Formula Term` são fórmulas com termos estruturados — o
-capítulo 5 em diante usa esse `Formula Term`, não mais `Formula
+semântica, daqui em diante, usa esse `Formula Term`, não mais `Formula
 Variable`.
 
 ```lean
@@ -391,6 +392,20 @@ def varsInTerms : List Term → List Variable
   | t :: ts => varsInTerm t ++ varsInTerms ts
 end
 ```
+
+O bloco `mutual` aparece aqui pela primeira vez. Ele agrupa definições
+que se chamam umas às outras: `varsInTerm` chama `varsInTerms` na
+segunda linha, e `varsInTerms` chama `varsInTerm` na sua. Definidas
+separadamente, a primeira mencionaria um nome que ainda não existe.
+Dentro de um `mutual`, o Lean elabora as duas ao mesmo tempo e verifica
+juntas a terminação — a recursão diminui o termo a cada volta, mesmo
+alternando entre as duas funções.
+
+A necessidade vem da forma do dado: um `Term` carrega uma `List Term`,
+então percorrer um termo é percorrer uma lista de termos, e vice-versa.
+Onde os tipos se referem uns aos outros, as funções sobre eles também
+se referem — e no fragmento de inglês, mais adiante no livro, gramáticas
+inteiras serão declaradas assim.
 
 ## Exercício 4.21 (p. 83) ✎
 
@@ -449,8 +464,6 @@ def freeVarsInForm : Formula Term → List Variable := sorry
 ```
 
 ::::exercise (rating := 1) (name := "4.24")
-
-Ref. CSwFP/4, exercício 4.24 (p. 84).
 
 Implemente `openForm : Formula Term → Bool` que verifica se uma
 fórmula é aberta (ver seção de ligação de variáveis).

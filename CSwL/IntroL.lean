@@ -361,7 +361,8 @@ Eq.refl square₁
 ```
 
 Além de `rfl`, um pequeno repertório de táticas resolve o que os capítulos
-3 e 4 precisam — conferido nos próprios arquivos, não escolhido a priori. A
+seguintes precisam — conferido nos próprios arquivos, não escolhido a
+priori. A
 ordem abaixo é a de {citep Bib.FAA2025}[], que apresenta as táticas nesta
 sequência; `decide`, `omega`, `obtain`, `cases`, `simp` e `induction` não
 vêm de lá (o curso os introduz onde a necessidade aparece) e ficam ao
@@ -602,19 +603,19 @@ example (P Q : Prop) : P ∨ Q → Q ∨ P := by
 
 # Tipos indutivos
 
-Ref. CSwFP/3 §3.13 (p. 55) — adiantado para antes da recursão, por
-necessidade Lean-vs-Haskell: em Lean a recursão se apresenta por casamento
-de padrão sobre um `inductive`, então o tipo indutivo tem de vir primeiro.
+Tipos indutivos vêm antes da recursão porque, em Lean, uma função
+recursiva se escreve casando padrão sobre as formas de um tipo indutivo:
+sem o tipo declarado, não há sobre o que recursar.
 
 `inductive` declara um tipo listando as formas que seus valores podem ter.
 Quando nenhuma forma carrega argumento, o tipo é uma enumeração; quando
 carrega, é um registro variante; quando a forma se refere ao próprio tipo
 sendo definido, é uma árvore. As três coisas são o mesmo mecanismo.
 
-Essa é a construção mais importante do curso. O capítulo 3 mostra que uma
-gramática escrita na notação usual — a Forma de Backus-Naur — é
-literalmente um tipo `inductive`, e do capítulo 4 em diante todo fragmento
-da língua é declarado assim.
+Essa é a construção mais importante do curso. Em {ref "Games"}[Gramáticas para jogos]
+veremos que uma gramática escrita na notação usual — a Forma de
+Backus-Naur — é literalmente um tipo `inductive`, e daí em diante todo
+fragmento da língua é declarado assim.
 
 A enumeração é o caso mais simples. `deriving Repr, DecidableEq` pede que a
 exibição e o teste de igualdade sejam gerados em vez de escritos à mão.
@@ -721,8 +722,6 @@ Quem quiser praticar Lean provas em Lean, pode jogar o [Natural Number
 Game](https://adam.math.hhu.de/#/g/leanprover-community/nng4/).
 
 # Recursão
-
-Ref. CSwFP/3 §3.5 (p. 40).
 
 Uma definição recursiva precisa de duas coisas: ter caso base, e chegar
 nele. O segundo não é uma recomendação — é uma exigência que o compilador
@@ -850,8 +849,6 @@ theorem sumTo_test : sumTo 4 = 10 := solution!(by rfl)
 ::::
 
 # Listas e polimorfismo
-
-Ref. CSwFP/3 §3.6 (p. 41) + §3.4 (p. 39, polimorfismo genérico).
 
 `List α` é o tipo das listas de elementos do tipo `α`, e é um tipo indutivo
 como os da seção anterior: uma lista é vazia, `[]` (`List.nil`), ou é um
@@ -1031,8 +1028,6 @@ Algumas funções devolvem um valor default no caso ruim, em vez de
 
 # Processamento de listas e composição de funções
 
-Ref. CSwFP/3 §3.7 e CSwFP/3 §3.8 (p. 42–43).
-
 Algumas perações cobrem quase todo uso de lista no curso. Todas se
 escreveriam por recursão, como `size` acima, mas estas função de ordem
 superior simplificam nosso trabalho.
@@ -1109,9 +1104,65 @@ nenhum — `double ∘ double` é quadruplicar.
 [7, 4, 7, 9]
 ```
 
-# Classes de tipos
+# As duas leituras de uma função
 
-Ref. CSwFP/3 §3.9 (p. 45).
+Uma função admite duas leituras, e as duas importam:
+
+* *extensional* — a função como tabela: o conjunto de pares
+  entrada/saída. Uma conversão de Celsius para Fahrenheit é a tabela
+  `{(0, 32), (100, 212), …}`, ponto.
+* *intensional* — a função como instrução de cálculo. A mesma conversão
+  é `x ↦ x * 9 / 5 + 32`, uma receita que produz a tabela sem precisar
+  listá-la.
+
+Em Lean, `def` escreve sempre a versão intensional — a instrução —, mas
+duas instruções diferentes podem ser a mesma função, no sentido
+extensional, se produzem a mesma tabela. É isso que `funext` verifica:
+duas funções são iguais quando concordam em todo ponto do domínio.
+
+```lean
+def celsiusToFahrenheit (c : Int) : Int := c * 9 / 5 + 32
+```
+
+```lean (name := c3eval6)
+#eval celsiusToFahrenheit 0
+```
+
+```leanOutput c3eval6
+32
+```
+
+```lean (name := c3eval7)
+#eval celsiusToFahrenheit 100
+```
+
+```leanOutput c3eval7
+212
+```
+
+## Composição
+
+Componhamos duas conversões: de Kelvin para Celsius, depois de Celsius
+para Fahrenheit. `∘` é `Function.comp`, e `(f ∘ g) x = f (g x)` —
+primeiro `g`, depois `f`, na ordem em que a leitura da notação sugere o
+contrário.
+
+```lean
+def kelvinToCelsius (k : Int) : Int := k - 273
+
+def kelvinToFahrenheit : Int → Int :=
+  celsiusToFahrenheit ∘ kelvinToCelsius
+```
+
+```lean (name := c3eval8)
+#eval kelvinToFahrenheit 373
+```
+
+```leanOutput c3eval8
+212
+```
+
+# Classes de tipos
 
 Nós já vimos isso lá no começo, mas `count` conta ocorrências em qualquer
 lista cujos elementos se possam comparar. Essa exigência entra na
@@ -1148,9 +1199,59 @@ def count {α : Type} [BEq α] (x : α) : List α → Nat
 2
 ```
 
-# Cadeias e textos
+Até aqui só *usamos* classes: `[BEq α]` pede uma instância que o Lean
+encontra sozinho. Falta o outro lado — declarar uma.
 
-Ref. CSwFP/3 §3.10 (p. 47–48).
+Na verdade já declaramos várias, sem escrever nenhuma. Toda vez que um
+tipo termina com `deriving Repr`, o Lean escreve por nós a instância de
+`Repr` que o `#eval` usa para exibir valores daquele tipo. É o que
+`Day` faz:
+
+```lean (name := c2evalDayRepr)
+#eval Day.saturday
+```
+
+```leanOutput c2evalDayRepr
+IntroL.Day.saturday
+```
+
+O que sai é o nome do construtor, porque é isso que uma instância
+derivada sabe fazer. Para escolher a forma de exibição, a instância
+tem de ser escrita à mão, com a palavra-chave `instance`. A classe
+para isso é `ToString`, que dá sentido a `toString`:
+
+```lean
+instance : ToString Day where
+  toString
+    | .monday    => "segunda"
+    | .tuesday   => "terça"
+    | .wednesday => "quarta"
+    | .thursday  => "quinta"
+    | .friday    => "sexta"
+    | .saturday  => "sábado"
+    | .sunday    => "domingo"
+```
+
+```lean (name := c2evalDayToString)
+#eval toString Day.saturday
+```
+
+```leanOutput c2evalDayToString
+"sábado"
+```
+
+A instância não tem nome: quem a procura é o Lean, pelo tipo, e não
+nós pelo nome. Declarar uma instância é dizer "este tipo pertence a
+esta classe, e eis como" — implementar os campos que a classe exige,
+aqui só o `toString`.
+
+`Repr` e `ToString` convivem porque servem a coisas diferentes: `Repr`
+exibe para quem está programando e tende a mostrar a estrutura;
+`ToString` produz o texto que se quer mostrar a quem lê. Nos capítulos
+seguintes, quase toda instância escrita à mão será de `ToString` — para
+que uma árvore sintática se imprima como a sentença que ela representa.
+
+# Cadeias e textos
 
 `String` é uma sequência UTF-8 empacotada, não uma lista de caracteres.
 Isso a torna eficiente para guardar texto e inadequada para percorrer a

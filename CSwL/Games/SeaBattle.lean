@@ -316,7 +316,7 @@ def addShip (ship : Grid) (s : State) : Option State :=
         noClashes := h.1
         shipsOK := by
           intro sh hmem
-          rcases List.mem_cons.mp hmem with heq | hmem'
+          obtain heq | hmem' := List.mem_cons.mp hmem
           · exact heq ▸ h.2
           · exact s.shipsOK sh hmem'
       }

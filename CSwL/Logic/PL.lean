@@ -51,17 +51,18 @@ inductive Form where
 
 `top`/`bot` são a base da recursão de `conjs`/`disjs` abaixo — uma
 conjunção vazia é sempre verdadeira, uma disjunção vazia é sempre
-falsa. Diferente de um átomo de nome `"⊤"` (que a valoração do
-capítulo 5, `(String → Bool) → Form → Bool`, poderia mandar para
+falsa. Diferente de um átomo de nome `"⊤"` (que a valoração, adiante
+neste capítulo, `(String → Bool) → Form → Bool`, poderia mandar para
 `false`, dependendo da atribuição de átomos), `top`/`bot` são
 construtores próprios: a valoração vai tratá-los como constantes,
 sempre `true`/`false`, sem depender de nenhuma atribuição — por isso a
 conjunção vazia imprime `"true"` e a disjunção vazia `"false"` (ver
 `toStringPolish` abaixo).
 
-Notação n-ária recuperada por duas funções, para os capítulos 5–7 (uma
-conjunção/disjunção quase sempre de dois elementos, e uma única vez com
-mais — `lfDET The`, no capítulo 8):
+Notação n-ária recuperada por duas funções, para a valoração e para os
+fragmentos de língua que virão (uma conjunção/disjunção quase sempre de
+dois elementos, e uma única vez com mais — o `lfDET The` da verificação
+de modelos):
 
 ```lean
 def Form.conjs : List Form → Form
@@ -137,8 +138,6 @@ def Form.equi (f g : Form) : Form :=
 
 ::::exercise (rating := 1) (name := "4.9")
 
-Ref. CSwFP/4, exercício 4.9 (p. 74).
-
 Traduza as sentenças a seguir para lógica proposicional, garantindo que
 as condições de verdade sejam capturadas. Que limitações você encontra?
 
@@ -163,8 +162,6 @@ def ex49_3 : Form :=
 
 ::::exercise (rating := 1) (name := "4.10")
 
-Ref. CSwFP/4, exercício 4.10 (p. 74).
-
 O conectivo `∨` é inclusivo: `p ∨ q` é verdadeiro mesmo quando `p` e
 `q` são ambos verdadeiros. Em português, "ou" costuma ser exclusivo,
 como em "Você pode ficar com o sorvete ou com o algodão-doce, mas não
@@ -179,8 +176,6 @@ def Form.xor (f g : Form) : Form :=
 ::::
 
 ::::exercise (rating := 2) (name := "4.11")
-
-Ref. CSwFP/4, exercício 4.11 (p. 74).
 
 Use o princípio de indução estrutural para provar que as fórmulas de
 lógica proposicional em notação prefixa são de leitura única.
@@ -214,14 +209,15 @@ aqui não há string a analisar, o termo Lean já é a árvore.
 
 O capítulo 3 definiu `abbrev S := Prop` — uma proposição semântica, sem
 estrutura interna que se possa inspecionar. `Form`, acima, é um segundo
-`inductive` de *sintaxe*: um valor de `Form` é dado, no sentido do
-capítulo 2 — casa padrão, conta operadores, mede profundidade, coleta
+`inductive` de *sintaxe*: um valor de `Form` é dado, no sentido de
+{ref "IntroL"}[Programação Funcional no Lean] — casa padrão, conta
+operadores, mede profundidade, coleta
 os átomos que ocorrem nele (Exercícios 4.12–4.14, mais abaixo). Nada
 disso é possível sobre um `Prop`: não há como perguntar "quantos `∧`
 tem esta proposição" a um valor de tipo `Prop`, porque `Prop` não
 guarda a fórmula que o provou, só se ela é verdadeira. A valoração
 `Form → Bool` — que dá sentido a `Form` como lógica, e não só como
-árvore — chega no capítulo 5.
+árvore — chega adiante, neste mesmo capítulo.
 
 Há um terceiro objeto que responde à mesma pergunta ("o que é uma
 fórmula?") de um jeito diferente: `Cslib.Logic.PL.Proposition`
@@ -230,8 +226,7 @@ um `inductive` de fórmulas —, mas o que se faz com ela é dedução
 natural (`Γ ⊢ A`), não valoração. Três respostas, três pontos de
 vista: `Prop` é a proposição em si, sem estrutura; `Proposition` do
 `cslib` é sintaxe mais um sistema de prova; `Form` daqui é sintaxe mais
-uma função `Form → Bool`. Este capítulo e o capítulo 5 seguem a
-terceira.
+uma função `Form → Bool`. É a terceira que este capítulo segue.
 
 `Proposition` fica como leitura complementar, não como base do
 capítulo, por um motivo de vocabulário: a BNF acima tem `¬`/`∧`/`∨`
@@ -247,12 +242,12 @@ proposicionais em Lean, com dedução natural completa, encontra em
 
 # Indução estrutural
 
-O Princípio da Indução Estrutural (Teorema 4.1 de CSwFP) diz: para
-provar algo de toda fórmula, basta provar da base (átomos) e do passo
-indutivo (que a propriedade passa por `¬`, `∧`, `∨`). Isso é necessário
-enunciar como teorema separado quando se raciocina sobre fórmulas como
-_strings_; em Lean não é um teorema a enunciar — é o recursor que
-`inductive Form` já gera de graça:
+O Princípio da Indução Estrutural diz: para provar algo de toda fórmula,
+basta provar da base (átomos) e do passo indutivo (que a propriedade
+passa por `¬`, `∧`, `∨`). Onde se raciocina sobre fórmulas como
+_strings_, ele precisa ser enunciado como teorema à parte; em Lean não é
+um teorema a enunciar — é o recursor que `inductive Form` já gera de
+graça:
 
 ```lean (name := c4check1)
 #check @Form.rec
@@ -270,9 +265,9 @@ _strings_; em Lean não é um teorema a enunciar — é o recursor que
 
 `Form.rec` — e a tática `induction`, construída sobre ele — já *são* o
 princípio de indução estrutural, sem que o capítulo precise declará-lo.
-A Proposição 4.2 de CSwFP (número igual de parênteses em toda fórmula)
-e a Proposição 4.3 (leitura única — o Exercício 4.11 acima é essa
-prova) viram, aqui, só `induction`:
+Duas afirmações que noutro contexto seriam proposições a demonstrar — que
+toda fórmula tem o mesmo número de parênteses à esquerda e à direita, e a
+leitura única, que é o exercício acima — viram, aqui, só `induction`:
 
 ```lean
 def Form.leftParens : Form → Nat
@@ -316,8 +311,6 @@ a excluir, e a prova (Exercício 4.11 acima) se reduz a `injection`.
 
 ::::exercise (rating := 1) (name := "4.12")
 
-Ref. CSwFP/4, exercício 4.12 (p. 75).
-
 Implemente uma função `opsNr` para contar o número de operadores de
 uma fórmula. O tipo é `opsNr : Form → Nat`. A chamada `opsNr form1`
 deve dar `2`.
@@ -341,8 +334,6 @@ theorem opsNr_test : form1.opsNr = 2 := solution!(by decide)
 
 ::::exercise (rating := 1) (name := "4.13")
 
-Ref. CSwFP/4, exercício 4.13 (p. 75).
-
 Implemente uma função `depth` para calcular a profundidade da árvore
 de análise de uma fórmula. O tipo é `depth : Form → Nat`. A chamada
 `depth form1` deve dar `2`.
@@ -365,8 +356,6 @@ theorem depth_test : form1.depth = 2 := solution!(by decide)
 ::::
 
 ::::exercise (rating := 2) (name := "4.14")
-
-Ref. CSwFP/4, exercício 4.14 (p. 75).
 
 Implemente `propNames : Form → List String` para coletar a lista de
 nomes de átomos proposicionais que ocorrem numa fórmula. A lista

@@ -15,16 +15,17 @@ open CSwLMeta
 
 #doc (Manual) "Conjuntos e Relações, Lambda Calculus e Tipos" =>
 %%%
-tag := "Foundation"
+tag := "Sets"
 htmlSplit := .never
-file := "Foundation"
+file := "Sets"
 %%%
 
-Ref. CSwFP/2. Lambda Calculus, Type Theory, and Functional Programming. No
-CSwFP é prosa sem código; aqui formalizamos o possível em Lean.
+Conjuntos e relações são a notação que todo texto de matemática pressupõe.
+Este capítulo é onde eles se tornam objetos do Lean — e onde as afirmações
+que se costuma fazer sobre eles passam a ser teoremas a demonstrar.
 
 ```lean
-namespace Foundation
+namespace Sets
 
 open Set
 ```
@@ -61,7 +62,7 @@ def S2 : Set ℕ := {10, 20}
 ```
 
 ```leanOutput c3check1
-Foundation.S1 : Set ℕ
+Sets.S1 : Set ℕ
 ```
 
 ```lean (name := c3check2)
@@ -273,8 +274,6 @@ example : A ⊆ B → A ⊆ C → A ⊆ B ∩ C := sorry
 
 ::::exercise (rating := 1) (name := "3.1")
 
-Ref. CSwFP/2, exercício 3.1 (p. 17).
-
 Explique por que `∅ ⊆ A` vale para todo conjunto `A`. Prove-o. O
 argumento é vacuoso, e a prova deve exibir isso.
 
@@ -290,8 +289,6 @@ example : ∅ ⊆ A := solution!(by
 ::::
 
 ::::exercise (rating := 1) (name := "3.2")
-
-Ref. CSwFP/2, exercício 3.2 (p. 17). ✎
 
 Explique a diferença entre `∅` e `{∅}`.
 
@@ -320,8 +317,6 @@ example :
 ::::
 
 ::::exercise (rating := 2) (name := "3.3")
-
-Ref. CSwFP/2, exercício 3.3 (p. 17). ✎
 
 Verifique que o complemento do complemento de `A` é `A`.
 
@@ -360,8 +355,8 @@ end
 
 `α → Prop` enuncia a pertinência. Existe também `α → Bool`, que a
 calcula, e é o que se usa quando o conjunto é finito e a resposta tem
-que ser computada — é o caso do capítulo 6, onde verificar uma sentença
-num modelo é percorrer um domínio finito.
+que ser computada — é o caso da verificação de modelos, no fim do livro,
+onde decidir se uma sentença vale num modelo é percorrer um domínio finito.
 
 Ser par, na versão que se calcula.
 
@@ -433,8 +428,8 @@ true
 Vale reparar no que acabou de acontecer. `Even 4` é uma afirmação, não
 um programa; ainda assim o `#eval` respondeu `true`. Há um mecanismo por
 trás disso, que registra quais afirmações admitem esse cálculo e como
-fazê-lo — e ele é uma classe de tipos, como o `BEq` e o `DecidableEq` do
-capítulo 2. A classe se chama `Decidable`.
+fazê-lo — e ele é uma classe de tipos, como o `BEq` e o `DecidableEq` de
+{ref "IntroL"}[Programação Funcional no Lean]. A classe se chama `Decidable`.
 
 # Relações
 
@@ -583,14 +578,12 @@ false
 example : ∀ n : Nat, n ∣ n := fun _ => Nat.dvd_refl _
 ```
 
-Relação é a estrutura que o capítulo 6 vai usar para dar modelo a um
-fragmento — um domínio de entidades e, para cada verbo, a relação que
-ele denota —, e o capítulo 10 volta a ela para tratar verbos de mais de
-dois lugares e o escopo entre eles.
+Relação é a estrutura que a verificação de modelos vai usar para dar
+modelo a um fragmento — um domínio de entidades e, para cada verbo, a
+relação que ele denota — e à qual o tratamento de verbos de mais de dois
+lugares, e do escopo entre eles, volta mais tarde.
 
 ::::exercise (rating := 2) (name := "3.4")
-
-Ref. CSwFP/2, exercício 3.4 (p. 18).
 
 Tome `A` como o conjunto `{Kasparov, Karpov, Anand}`. Encontre `A × A`.
 
@@ -627,8 +620,6 @@ theorem playerPairs_test : playerPairs.card = 9 :=
 
 ::::exercise (rating := 2) (name := "3.5")
 
-Ref. CSwFP/2, exercício 3.5 (p. 18).
-
 Qual é a composição de `{(n, n + 2) | n ∈ ℕ}` com ela mesma?
 
 Enuncie a resposta e prove.
@@ -654,8 +645,6 @@ theorem plusTwo_test (a c : Nat) :
 
 ::::exercise (rating := 2) (name := "3.6")
 
-Ref. CSwFP/2, exercício 3.6 (p. 18).
-
 Mostre que de `R˘ ⊆ R` segue que `R = R˘`.
 
 A Mathlib tem `Std.Symm.flip_eq : flip r = r` para relações simétricas.
@@ -677,8 +666,6 @@ theorem flip_eq_test {α : Type} (R : Rel α α)
 ::::
 
 ::::exercise (rating := 2) (name := "3.7")
-
-Ref. CSwFP/2, exercício 3.7 (p. 19).
 
 Quais das relações seguintes são transitivas?
 
@@ -723,8 +710,6 @@ theorem r5_test :   isTransitive r5 := solution!(by decide)
 
 ::::exercise (rating := 2) (name := "3.8")
 
-Ref. CSwFP/2, exercício 3.8 (p. 19).
-
 Verifique que uma relação `R` é transitiva se e somente se `R ∘ R ⊆ R`.
 
 *Não vale usar `SetRel.isTrans_iff_comp_subset_self`*, que é este
@@ -747,8 +732,6 @@ theorem isTrans_iff_test {α : Type} (R : Rel α α) :
 ::::
 
 ::::exercise (rating := 2) (name := "3.9")
-
-Ref. CSwFP/2, exercício 3.9 (p. 19).
 
 Você pode dar um exemplo de relação transitiva `R` para a qual `R ∘ R =
 R` não vale?
@@ -784,68 +767,14 @@ theorem counterexample_different :
 
 # Funções
 
-Uma função é uma relação com uma restrição: para cada `a`, no máximo um
-`b` está relacionado a ele. `Rel α β`, do jeito que ficou definido
-acima, não impõe isso — `likesR` bem poderia relacionar `dorothy` a duas
-entidades diferentes. Uma função é o caso particular em que a resposta
-é única, e é justamente essa unicidade que permite escrever `f x` em vez
-de "algum `b` tal que `(x, b) ∈ f`".
-
-Uma função admite duas leituras, e as duas importam:
-
-* *extensional* — a função como tabela: o conjunto de pares
-  entrada/saída. Uma conversão de Celsius para Fahrenheit é a tabela
-  `{(0, 32), (100, 212), …}`, ponto.
-* *intensional* — a função como instrução de cálculo. A mesma conversão
-  é `x ↦ x * 9 / 5 + 32`, uma receita que produz a tabela sem precisar
-  listá-la.
-
-Em Lean, `def` escreve sempre a versão intensional — a instrução —, mas
-duas instruções diferentes podem ser a mesma função, no sentido
-extensional, se produzem a mesma tabela. É isso que `funext` verifica:
-duas funções são iguais quando concordam em todo ponto do domínio.
-
-```lean
-def celsiusToFahrenheit (c : Int) : Int := c * 9 / 5 + 32
-```
-
-```lean (name := c3eval6)
-#eval celsiusToFahrenheit 0
-```
-
-```leanOutput c3eval6
-32
-```
-
-```lean (name := c3eval7)
-#eval celsiusToFahrenheit 100
-```
-
-```leanOutput c3eval7
-212
-```
-
-## Composição
-
-Componhamos duas conversões: de Kelvin para Celsius, depois de Celsius
-para Fahrenheit. `∘` é `Function.comp`, e `(f ∘ g) x = f (g x)` —
-primeiro `g`, depois `f`, na ordem em que a leitura da notação sugere o
-contrário.
-
-```lean
-def kelvinToCelsius (k : Int) : Int := k - 273
-
-def kelvinToFahrenheit : Int → Int :=
-  celsiusToFahrenheit ∘ kelvinToCelsius
-```
-
-```lean (name := c3eval8)
-#eval kelvinToFahrenheit 373
-```
-
-```leanOutput c3eval8
-212
-```
+Funções já apareceram — o capítulo sobre Lean as apresentou como tipo
+primitivo, `α → β`. O que se acrescenta aqui é a ligação com as relações:
+uma função é uma relação com uma restrição. Para cada `a`, no máximo um
+`b` está relacionado a ele. `Rel α β`, do jeito que ficou definido acima,
+não impõe isso — `likesR` bem poderia relacionar `dorothy` a duas
+entidades diferentes. Uma função é o caso particular em que a resposta é
+única, e é justamente essa unicidade que permite escrever `f x` em vez de
+"algum `b` tal que `(x, b) ∈ f`".
 
 ## Função característica
 
@@ -858,8 +787,6 @@ prepara a leitura da seção seguinte: conjunto e relação *são* funções
 para `Prop` (ou `Bool`), não apenas "correspondem" a elas.
 
 ::::exercise (rating := 1) (name := "3.10")
-
-Ref. CSwFP/2, exercício 3.10 (p. 21).
 
 A função sucessor `s : ℕ → ℕ` é dada por `n ↦ n + 1`. Qual é a
 composição de `s` com ela mesma?
@@ -880,8 +807,6 @@ theorem s_comp_test : s ∘ s = fun n => n + 2 := solution!(by
 ::::
 
 ::::exercise (rating := 1) (name := "3.11")
-
-Ref. CSwFP/2, exercício 3.11 (p. 21).
 
 `≤` é uma relação binária sobre os naturais. Qual é a função
 característica correspondente?
@@ -911,8 +836,6 @@ theorem leChar_test (m n : Nat) :
 ::::
 
 ::::exercise (rating := 2) (name := "3.12")
-
-Ref. CSwFP/2, exercício 3.12 (p. 21).
 
 Seja `f : A → B` uma função. Mostre que a relação `R` dada por `(x, y) ∈
 R` se e somente se `f x = f y` é uma relação de equivalência sobre `A`.
@@ -1092,8 +1015,6 @@ da sentença.
 
 ::::exercise (rating := 1) (name := "3.13")
 
-Ref. CSwFP/2, exercício 3.13 (p. 26).
-
 Outro exemplo de função de ordem superior é `λf λx ↦ f (f x)`, que
 aplica uma função duas vezes a uma entrada dada. Ponha-a para trabalhar
 reduzindo: `(λf λx ↦ f (f x)) (λy ↦ 1 + y)`.
@@ -1115,8 +1036,6 @@ theorem twice_test2 : twice (fun y => 1 + y) 0 = 2 :=
 :::gradeTheorem "1" twice_test1 twice_test2
 :::
 ::::
-
-Ref. CSwFP/2, exercício 3.14 (p. 26–27). ✎
 
 Um aspecto do cálculo lambda é que reduções podem não terminar. Observe
 o comportamento de redução de `(λx ↦ x x) (λx ↦ x x)`, e depois de `(λx
@@ -1282,7 +1201,7 @@ def dorothyLikesToto : S := likesToto dorothy
 ```
 
 ```leanOutput c3check12
-Foundation.dorothyLikesToto : S
+Sets.dorothyLikesToto : S
 ```
 
 A derivação da sentença é uma sequência de duas aplicações, e cada
@@ -1314,8 +1233,6 @@ Para o que vem pela frente, a leitura útil é essa: o aparato da
 semântica de Montague é um fragmento do que Lean oferece, e o excedente
 é o que vai permitir demonstrar coisas sobre os significados, e não
 apenas calculá-los.
-
-Ref. CSwFP/2, exercício 3.15 (p. 28). ✎
 
 Atribua tipos às expressões lambda do exemplo (2.6) da página 27:
 
@@ -1351,8 +1268,6 @@ x`, o _objeto_ é o primeiro argumento e o _sujeito_ o segundo — é o que
 `likesToto := likes toto` e `dorothyLikesToto := likesToto dorothy`
 acima já fazem, na ordem certa.
 
-Ref. CSwFP/2, exercício 3.16 (p. 28). ✎
-
 E o termo `(λx ↦ x x) (λx ↦ x x)` do exercício anterior? Você consegue
 achar um tipo para ele?
 
@@ -1378,8 +1293,6 @@ conseguem tipar esse termo, mas ao preço de perder a garantia de
 terminação — e, se usados como lógica, a consistência.
 
 ::::exercise (rating := 1) (name := "3.17")
-
-Ref. CSwFP/2, exercício 3.17 (p. 30).
 
 Adjetivos combinam com nomes para formar nomes complexos: _friendly_
 combina com _wizard_ para formar _friendly wizard_. Adjetivos são,
@@ -1440,5 +1353,5 @@ argumento — uma `String` onde se esperava um `NP`. É a versão tipada de
 dizer que a combinação não é bem formada.
 
 ```lean
-end Foundation
+end Sets
 ```

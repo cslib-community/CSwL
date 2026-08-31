@@ -618,9 +618,8 @@ O problema é que `rcn4`/`rcn5` não são recursivas: cada uma coordena exatamen
 
 # Uma língua para falar de classes
 
-O livro não dá código Haskell nesta seção — adia a implementação para
-o motor de inferência do capítulo 5. A gramática é um fragmento
-minúsculo para perguntar e afirmar coisas sobre classes:
+A implementação fica para o motor de inferência, adiante. A gramática é
+um fragmento minúsculo para perguntar e afirmar coisas sobre classes:
 
 ```
 Q ::= Are all PN PN?

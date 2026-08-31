@@ -23,7 +23,11 @@ turn ::= guess reaction ;
 game ::= turn | turn game ;
 ```
 
-Note que os pinos pretos e brancos são colocados em qualquer ordem, não correspondem a uma sinalização por posição. Uma desvantagem da implementação a seguir é que dois diferentes termos do tipo `Reaction` poderiam representar a mesma _resposta_  para uma tentativa. Sobre a definição de `Subtypes`, ver {citep Bib.love2026}[Seção 12.4].
+Note que os pinos pretos e brancos são colocados em qualquer ordem, não correspondem a uma sinalização por posição. Uma desvantagem da implementação a seguir é que dois diferentes termos do tipo `Reaction` poderiam representar a mesma _resposta_ para uma tentativa.
+
+Dois tipos do Lean entram aqui, ambos porque a gramática fixa quantidades. Um palpite tem exatamente quatro pinos, e `Vector Colour 4` é a lista de `Colour` cujo comprimento é quatro — o tamanho faz parte do tipo, então uma lista de três cores sequer elabora como `Guess`. Seus valores se escrevem `#v[...]`, como em `turn1` abaixo.
+
+Uma resposta tem *no máximo* quatro pinos, que é uma condição e não um tamanho fixo. Para isso serve um *subtipo*: `{ r : List Answer // r.length ≤ 4 }` é o tipo das listas de `Answer` acompanhadas de uma prova de que seu comprimento não passa de quatro. Um valor seu é o par `⟨lista, prova⟩` — daí o `⟨[.black, .white], by simp⟩` mais abaixo, onde `by simp` é a prova de que essa lista tem comprimento menor ou igual a quatro. Sobre ambos, ver {citep Bib.LLR}[]; sobre subtipos em particular, {citep Bib.love2026}[Seção 12.4].
 
 ```lean
 namespace Mastermind

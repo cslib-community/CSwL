@@ -27,7 +27,7 @@ Exercise 2.1 is on p. 17, and the file cited "exercício 3.1 (p. 17)". The book'
 chapter 2 has exercises 2.1 to 2.17, and there are exactly 17 of them.
 
 The table below carries the corrected numbers. `IntroCS.lean`, `Logic/PL.lean`,
-`Logic/FOL.lean` and `Applications/Phonemes.lean` were checked against the same
+`Logic/FOL.lean` and `Morphology/Phonemes.lean` were checked against the same
 source and are correct.
 
 ## Exercises taken from CSwFP
@@ -41,7 +41,7 @@ source and are correct.
 
 CSwFP Exercise 1.3 (infinitely many sentences, p. 8) is not ported.
 
-### `Applications/Phonemes.lean` — CSwFP/3.14
+### `Morphology/Phonemes.lean` — CSwFP/3.14
 
 | CSwL id | Rating | CSwFP | Page |
 |---|---|---|---|
@@ -51,7 +51,7 @@ CSwFP Exercise 1.3 (infinitely many sentences, p. 8) is not ported.
 CSwFP hands `fValue`/`fMatch` to the reader as given code, and `CSwL` turns
 them into exercises.
 
-### `Sets.lean` — CSwFP/2 (currently `Foundation.lean`)
+### `Sets.lean` — CSwFP/2
 
 | CSwL id | Rating | CSwFP | Page | Notes |
 |---|---|---|---|---|
@@ -121,9 +121,9 @@ as an oversight.
 
 | File | CSwL id | Rating |
 |---|---|---|
-| `Applications/Phonemes.lean` | `fValue` | 2 |
-| `Applications/Phonemes.lean` | `appendSuffix-texto` | 3 |
-| `Applications/SwedishPlural.lean` | `swedishPlural` | 2 |
+| `Morphology/Phonemes.lean` | `fValue` | 2 |
+| `Morphology/Phonemes.lean` | `appendSuffix-texto` | 3 |
+| `Morphology/SwedishPlural.lean` | `swedishPlural` | 2 |
 | `English.lean` | `preposition-phrase` | 1 |
 | `English.lean` | `complex-relative-clauses` | 1 |
 | `Sets.lean` | `a1-pertence-above2` | 1 |
@@ -171,4 +171,4 @@ existed inside chapters.
 | `IntroL.lean` | Type classes | §3.9 | 45 |
 | `IntroL.lean` | Strings | §3.10 | 47–48 |
 | `Sets.lean` | chapter opening | CSwFP/2 Lambda Calculus, Types, and Functional Programming | — |
-| `Applications/Phonemes.lean` | chapter opening | §3.14 | 58–61 |
+| `Morphology/Phonemes.lean` | chapter opening | §3.14 | 58–61 |

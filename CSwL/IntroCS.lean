@@ -11,8 +11,6 @@ htmlSplit := .never
 file := "IntroCS"
 %%%
 
-Ref. CSwFP/1. Formal Study of Natural Language.
-
 Este capítulo introduz semântica computacional.
 
 O capítulo começa com uma visão geral do estudo formal da linguagem. As áreas
@@ -185,8 +183,6 @@ se afirma é que ele restringe o que esses processos podem ser.
 
 ::::exercise (rating := 1) (name := "possibilities")
 
-Ref. CSwFP/1, exercício 1.1 (p. 6).
-
 A ignorância completa sobre a verdade ou falsidade de dois fatos se modela como
 incerteza entre quatro possibilidades. Com dez fatos básicos, quantas
 possibilidades? E no caso geral de `n` fatos?
@@ -236,8 +232,6 @@ falar no tempo em que aprende — não haveria o que decorar.
 O terceiro é o que vai dar trabalho, e o trabalho começa no capítulo 12.
 
 ::::exercise (rating := 1) (name := "sentence-go-on")
-
-Ref. CSwFP/1, exercício 1.2 (p. 8).
 
 Pollard e Sag dão este exemplo de recursão que estende sentenças:
 

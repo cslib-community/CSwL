@@ -19,7 +19,7 @@
 --    (in `sf-in-lean`, things like `LF/CustomTactics.lean`, plus
 --    `SFLCompat` itself). `CSwL` has no prerequisite module at all outside
 --    the book itself: a chapter imports Mathlib, sections living in their
---    own file under the same chapter (`CSwL.Applications.…`, silently
+--    own file under the same chapter (`CSwL.Morphology.…`, silently
 --    dropped by `isIntraBookSection` -- their content has already been
 --    merged into the chapter's buffer, there is no separate module to
 --    import in the extracted project), the `CSwLCompat` support module (see
@@ -214,7 +214,7 @@ without it, it would fall into the generic `reportError` below. -/
 private def seedPrefixes : List String :=
   ["CSwLCompat"]
 
-/-- Top-level namespace of a module name (`CSwL.Applications.Phonemes` ⇒
+/-- Top-level namespace of a module name (`CSwL.Morphology.Phonemes` ⇒
 `CSwL`). -/
 private def modTop (m : String) : String := (m.splitOn ".").headD m
 
@@ -281,10 +281,10 @@ private def emitSavedImpl (config : ExtractConfig) :
     -- entry by entry.
     let entries := buf.fold (init := []) fun acc k v => (k, v) :: acc
     -- Emitted chapters: the buffer keys that have a path separator (the
-    -- root, `CSwL.lean`, does not). `CSwL/Applications.lean` ⇒
-    -- `CSwL.Applications` (the chapter's `chapterFileBase`/`file :=` --
+    -- root, `CSwL.lean`, does not). `CSwL/Morphology.lean` ⇒
+    -- `CSwL.Morphology` (the chapter's `chapterFileBase`/`file :=` --
     -- never the path of a section file it includes, like
-    -- `CSwL/Applications/Phonemes.lean`).
+    -- `CSwL/Morphology/Phonemes.lean`).
     let chapterModules := entries.map (·.1) |>.filter (·.any (· == '/'))
       |>.map fun k => ((k.dropEnd 5).toString).replace "/" "."
     -- Picks each file's variant and prefixes the chapter's `import` header,
@@ -303,7 +303,7 @@ private def emitSavedImpl (config : ExtractConfig) :
         let src ← (IO.FS.readFile file).toBaseIO >>= fun
           | .ok s => pure s
           | .error _ => pure ""
-        -- An `import CSwL.Applications.FinnishVowelHarmony` in the header
+        -- An `import CSwL.Morphology.FinnishVowelHarmony` in the header
         -- of a "glue" chapter (one that only gathers sections living in
         -- their own file via `{include 1 ...}`) is neither infrastructure
         -- nor another chapter: it is a section whose content has already
