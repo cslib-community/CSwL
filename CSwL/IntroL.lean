@@ -1364,8 +1364,8 @@ O cálculo lambda tem três formas de construir expressão, e nada mais.
 Escritas na notação usual para gramáticas — a Forma de Backus-Naur, ou
 BNF:
 
-```
-E ::= v | (E E) | (λv ↦ E)
+```bnf
+E ::= _v | "(" E E ")" | "(" "λ" _v "↦" E ")" ;
 ```
 
 Leia: uma expressão é uma variável, ou a justaposição de duas expressões
@@ -1532,8 +1532,8 @@ não é falso — é sem sentido. Tipos existem para excluir isso.
 
 A gramática dos tipos também é uma BNF, com duas cláusulas:
 
-```
-τ ::= b | (τ → τ)
+```bnf
+τ ::= _b | "(" τ "→" τ ")" ;
 ```
 
 Há tipos básicos, e há tipos de função construídos a partir deles. Na

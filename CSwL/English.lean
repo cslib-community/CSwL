@@ -790,48 +790,6 @@ O problema é que `rcn4`/`rcn5` não são recursivas: cada uma coordena exatamen
 
 
 
-# Uma língua para falar de classes
-
-A implementação fica para o motor de inferência, adiante. A gramática é
-um fragmento minúsculo para perguntar e afirmar coisas sobre classes:
-
-```
-Q ::= Are all PN PN?
-    | Are no PN PN?
-    | Are any PN PN?
-    | Are any PN not PN?
-    | What about PN?
-
-S ::= All PN are PN.
-    | No PN are PN.
-    | Some PN are PN.
-    | Some PN are not PN.
-```
-
-onde `PN` (plural noun) fica deliberadamente sem gramática própria. A
-tradução para Lean é barata e o capítulo 5 a reaproveita — uma base de
-conhecimento consultável por essas perguntas e afirmações.
-
-```lean
-abbrev PN := String
-
-inductive Statement where
-  | allAre (a b : PN)
-  | noneAre (a b : PN)
-  | someAre (a b : PN)
-  | someAreNot (a b : PN)
-  deriving DecidableEq, Repr
-
-inductive Query where
-  | areAllPNPN (a b : PN)
-  | areNoPNPN (a b : PN)
-  | areAnyPNPN (a b : PN)
-  | areAnyPNNotPN (a b : PN)
-  | whatAbout (a : PN)
-  deriving DecidableEq, Repr
-```
-
-
 ```lean
 end English
 ```

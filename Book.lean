@@ -7,6 +7,7 @@ import CSwL.Morphology
 import CSwL.Games
 import CSwL.Logic
 import CSwL.Sets
+import CSwL.InfEngine
 import CSwL.English
 
 import VersoManual
@@ -32,4 +33,5 @@ set_option verso.code.warnLineLength 80
 {include CSwL.Games}
 {include CSwL.Logic}
 {include CSwL.Sets}
+{include CSwL.InfEngine}
 {include CSwL.English}

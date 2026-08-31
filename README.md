@@ -46,7 +46,7 @@ adapts — see [DEVIATIONS.md](DEVIATIONS.md) for why.
 - [~] Logics (propositional and predicate) — [source](CSwL/Logic.lean)
   (sections in [`CSwL/Logic/`](CSwL/Logic))
 - [~] Sets and relations — [source](CSwL/Sets.lean)
-- [ ] An inference engine — `CSwL/InfEngine.lean`
+- [~] An inference engine — [source](CSwL/InfEngine.lean)
 - [~] A fragment of English — [source](CSwL/English.lean)
 - [ ] Model checking with predicate logic — `CSwL/ModelChecking.lean`
 - [ ] The composition of meaning

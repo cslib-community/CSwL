@@ -111,9 +111,64 @@ attributions are removed from the book; the results themselves stay.
 | — | — | Exercise 4.23 | 84 | heading |
 | `open-form` | 1 | Exercise 4.24 | 84 | |
 
-Nine of these are plain headings carrying the book's page number rather than
-exercise directives. Both problems — the page in the heading and the missing
-directive — are recorded in `TODO.md`.
+### `Logic/PL.lean` — CSwFP/5.2, 5.3
+
+| CSwL id | Rating | CSwFP | Page | Notes |
+|---|---|---|---|---|
+| `valuation-table` | 1 | Exercise 5.4 | 92 | |
+| `negated-tautology` | 1 | Exercise 5.5 | 93 | prose |
+| — | — | Exercise 5.6 | 93 | not ported |
+| — | — | Exercise 5.7 | 93 | not ported |
+| — | — | Exercise 5.8 | 93 | not ported |
+| — | — | Exercise 5.9 | 93 | not ported |
+| `implies-list` | 2 | Exercise 5.10 | 96 | |
+| — | — | Exercise 5.11 | 96 | not ported |
+| — | — | Exercise 5.12 | 96 | not ported |
+
+### `Logic/FOL.lean` — CSwFP/5.5
+
+| CSwL id | Rating | CSwFP | Page | Notes |
+|---|---|---|---|---|
+| `quantifier-strength` | 2 | Exercise 5.17 | 102 | prose |
+| `translate-quantified` | 2 | Exercise 5.18 | 102 | |
+| — | — | Exercise 5.19 | 102 | not ported |
+| — | — | Exercise 5.20 | 103 | not ported |
+| — | — | Exercise 5.21 | 103 | not ported |
+| — | — | Exercise 5.22 | 103 | not ported |
+| — | — | Exercise 5.23 | 104 | not ported |
+| `valid-consequence` | 2 | Exercise 5.24 | 104 | prose |
+
+## Exercises not ported, and why
+
+An exercise absent from the tables above is a decision, not an oversight. The
+reasons fall into three kinds.
+
+**It asks for a construction the chapter does not have.** CSwFP/5.21 defines
+substitution of a name for a variable in a term; 5.22 asks for a truth
+definition that replaces assignments by names plus substitution; 5.23 asks for
+the truth definition extended to structured terms. All three need substitution,
+which `FOL.lean` never defines, and 5.23 additionally needs the interpretation
+of function symbols. Writing those constructions is a chapter's worth of work,
+not an exercise's.
+
+**It is answered by something the chapter already states.** CSwFP/5.6 asks which
+of three formulas are satisfiable, 5.7 which equivalences hold, 5.8 which
+consequences hold, 5.19 and 5.20 the same for predicate logic. In this book
+`satisfiable`, `equivalent` and `implies` are computable, so each of these is
+`#eval` rather than a question — the answer is a keystroke, and the exercise
+loses its point. They are worth keeping only if reformulated as proofs about
+the definitions rather than queries against them.
+
+**It asks for a variant implementation.** CSwFP/5.11 asks for a check of logical
+equivalence, which `Form.equivalent` already is; 5.12 asks to reimplement the
+semantics with `[String]` instead of `[(String, Bool)]` for valuations.
+
+CSwFP/5.13–5.16 belong to Mastermind and are recorded with `Games.lean`.
+CSwFP/5.18 is ported as `translate-quantified`, the counterpart of
+`translate-sentences` in the propositional chapter.
+
+Nine of the `Logic/FOL.lean` entries above were plain headings carrying the
+book's page number rather than exercise directives; that is fixed.
 
 ## Exercises original to CSwL
 

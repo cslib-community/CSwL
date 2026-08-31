@@ -30,6 +30,22 @@ The line to hold is not "never mention an alternative". It is:
 The test: would the sentence still be worth writing if this book had no source
 and no alternatives? A fact about Lean survives that; a preference does not.
 
+A chapter that translates keeps the original's structure — its section
+boundaries, its order, its sentence boundaries and its punctuation. Subheadings
+that the source does not have are not added, and headings the source has are not
+merged, unless something in this document says so and says why.
+
+Most chapters, though, are mixed: part translated, part written here because
+Lean makes something sayable that the source could not say. In a mixed chapter
+the rule applies section by section. A translated section follows the original;
+a new section has a structure of its own, chosen for what it teaches. Which
+sections are which is recorded per chapter below — a reader of this document
+should never have to guess whether a heading came from the source or from us.
+
+Any divergence from this plan is stated when it is made. A silent divergence is
+worse than a wrong one: a wrong decision can be argued with, an unrecorded one
+cannot.
+
 "Presented" has one deliberate loosening and one exception.
 
 The loosening: Lean's own basic types may be introduced *where they are first
@@ -206,6 +222,21 @@ Doing logic in Lean is doing deduction — `intro` is →-introduction, `constru
 
 The chapter could carry a third object: a proof system *as data*, an inductive of derivations `Γ ⊢ A` over `Form`. CSLib already has one, so leaving it out is a decision rather than an omission — argued in "Reusing Mathlib and CSLib" above, and revisited in "Beyond CSwFP/6".
 
+**What is translated and what is written here.** Parts 2 and 3 below are
+translations — CSwFP/4.4 for the syntax, 5.2 and 5.3 for the semantics — and
+follow the original's structure. Parts 1 and 4 have no source: the first
+condenses `logic_and_proof`, the second states a bridge the original cannot
+state. Those two carry a structure of their own, and part 1's subheadings, one
+per connective, are that structure — a connective's introduction and elimination
+rules are what the section teaches.
+
+Two divergences inside the translated part. CSwFP gives the semantics in two
+sections, "Semantics of Propositional Logic" and "Propositional Reasoning in
+Haskell"; here they are one, because the separation does not survive the move:
+the definitions are already Lean from the first line, so there is no later point
+at which implementation begins. And the discussion of what an empty conjunction
+should be worth does not arise, since `top` and `bot` are constructors.
+
 `PL.lean`, in this internal order:
 
 1. **`Prop` and proof in Lean** — meta level. Tactics presented as the rules they are, building on the `rfl`/`intro`/`exact`/`decide` of `IntroL.lean`: `apply`; `constructor` and anonymous constructors for ∧ and ↔; `left`, `right` and `cases` for ∨; `False.elim` and `absurd` for ¬; `by_contra`, `by_cases` and `em` for classical reasoning.
@@ -215,7 +246,9 @@ The chapter could carry a third object: a proof system *as data*, an inductive o
 
 The Mastermind closing section gains something the original cannot state: because the game is already implemented, there is a theorem to prove — that filtering by `reaction` and filtering by the formula yield the same set of states, i.e. that the propositional encoding is faithful to the implementation.
 
-`FOL.lean`: 4.5, 4.6, 4.7, then 5.5, then a section on predicate logic in Lean: `intro`/`apply` for ∀, `use` and `obtain` for ∃, and equality.
+`FOL.lean` mirrors `PL.lean`'s order: the quantifier rules first — `intro`/`apply` for ∀, `use` and `obtain` for ∃ — then 4.5, 4.6, 4.7, then 5.5. Putting the tactics last would have made the two logic chapters teach the same thing in opposite positions, for no reason.
+
+**`Formula` is binary too.** Its `conj` and `disj` take two arguments, with `top` and `bot` as constructors and `Formula.conjs`/`Formula.disjs` recovering the n-ary notation — the same design as `Form`, for the same reason. A constructor holding a `List (Formula α)` would make the type a nested inductive, costing `induction` and `deriving`. The `List α` in `atom name (args : List α)` does not: `α` is a parameter, not the type being defined, so an atom may still take any number of arguments. With that, the definition of truth in 5.5 is a plain recursion, one case per constructor, instead of three mutually recursive functions. The one `mutual` block left in the chapter belongs to `Term`, where a list of terms inside `Term` is what function symbols of arbitrary arity require.
 
 **`mutual` is introduced here.** Its first use in the book's order is `FOL.lean`, and `English.lean` then uses it six times over for the fragment's mutually recursive categories. A note right after that first block — why a group of types that refer to one another has to be declared together, and what `mutual` therefore does — is enough; it does not need a section of its own, and it does not belong in `IntroL.lean`, where nothing would motivate it.
 
@@ -275,7 +308,9 @@ CSwFP's `derive kb stmt` is proof search over syllogisms. Read as deduction over
 
 This chapter is independent of the English fragment: `InfEngine.hs` imports nothing from the syntax module.
 
-*Migration*: 4.3 currently lives in `English.lean`; it moves here, together with 5.7, which is not written yet.
+**What is translated and what is written here.** CSwFP/4.3 and the theory in 5.7 — Aristotle, the square of opposition, the knowledge base as inclusion and non-inclusion, the inference rules — are translated, and so is the engine: `rSection`, relational composition, the reflexive-transitive closure, `subsetRel`, `nsubsetRel`, `derive` and `tellAbout`. The closing section, which proves the syllogisms valid over `Set`, has no source: it is the payoff the plan promises, and the reason the chapter sits after `Sets.lean`.
+
+Three divergences. The least fixed point is computed with a fuel bound rather than by iterating until the value stops changing, because the latter has no structural termination argument; the bound is the square of the domain size, which is beyond what the closure can need. Relations are `List (α × α)`, named `Relation` rather than `Rel`, so that Mathlib's `Rel` — which `Sets.lean` introduces and this chapter's closing section uses through `Set` — keeps its name. And CSwFP/5.7's natural-language *input* is not ported: the parser, the file I/O and the `chat` loop are the only place in the book that would need `IO`, and the chapter states its interface through `ToString` on `Statement`, which is the output half.
 
 ### 8. `English.lean` — CSwFP/4.2, 5.6
 

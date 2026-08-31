@@ -1,5 +1,6 @@
 import CSwLMeta
 import Bib
+import Mathlib.Tactic.Use
 
 open Verso.Genre Manual
 open CSwLMeta
@@ -34,18 +35,105 @@ com mais de três argumentos quase nunca são necessárias". A BNF
 completa (usando primos para gerar infinitas variáveis e infinitos
 predicados de cada aridade, como na lógica proposicional):
 
-```
-v    −→ x | y | z | v′
-P    −→ P | P′
-R    −→ R | R′
-S    −→ S | S′
-atom −→ P v | R v v | S v v v
-F    −→ atom | (v = v) | ¬F | (F ∧ F) | (F ∨ F) | ∀v F | ∃v F
+```bnf
+v    ::= "x" | "y" | "z" | v "′" ;
+P    ::= "P" | P "′" ;
+R    ::= "R" | R "′" ;
+S    ::= "S" | S "′" ;
+atom ::= P v | R v v | S v v v ;
+F    ::= atom
+  | "(" v "=" v ")" ("identidade")
+  | "¬" F ("negação")
+  | "(" F "∧" F ")" ("conjunção")
+  | "(" F "∨" F ")" ("disjunção")
+  | "∀" v F ("quantificação universal")
+  | "∃" v F ("quantificação existencial") ;
 ```
 
 gerando fórmulas como `¬P′x`, `∀xRxx` ("tudo mantém a relação `R`
 consigo mesmo") e `∀x∃x′Rxx′` ("para todo primeiro há algo que é
 `R`-ado por ele").
+
+# As regras dos quantificadores
+
+Como no capítulo proposicional, duas leituras convivem aqui: os quantificadores
+do próprio Lean, com que se enuncia e demonstra, e as fórmulas como dado, que é o
+que `Formula` será. Esta seção é sobre os primeiros, e são duas regras novas —
+uma para cada quantificador. O domínio dos exemplos é um tipo de três elementos,
+`Node`, que a seção sobre semântica retoma como domínio de um modelo.
+
+```lean
+inductive Node where
+  | one | two | three
+  deriving DecidableEq, Repr
+```
+
+A introdução de `∀` diz: para provar que algo vale de todo `x`, tome um `x`
+arbitrário e prove que vale dele. É `intro` de novo, agora sobre um objeto em vez
+de uma hipótese.
+
+```lean
+example (P : Node → Prop) (h : ∀ x, P x) : ∀ y, P y := by
+  intro y
+  exact h y
+```
+
+A eliminação de `∀` é aplicação: de `∀x P x` e de um objeto `d`, sai `P d`. É o
+`h y` da prova acima.
+
+A introdução de `∃` exige exibir a testemunha. A tática `use` faz isso — ela
+substitui a variável quantificada pelo objeto que se oferece, e deixa como
+objetivo o que falta provar sobre ele.
+
+```lean
+example : ∃ x : Node, x = Node.two := by
+  use Node.two
+```
+
+A eliminação de `∃` é a mais delicada, e pelo mesmo motivo que a de `∨`: de
+`∃x P x` sabe-se que há uma testemunha, mas não qual. A tática `obtain` a
+introduz com um nome, junto com a propriedade que ela satisfaz.
+
+```lean
+example (P Q : Node → Prop)
+    (h : ∃ x, P x ∧ Q x) : ∃ x, Q x := by
+  obtain ⟨d, hP, hQ⟩ := h
+  exact ⟨d, hQ⟩
+```
+
+Com as duas regras, a validade que a seção anterior enunciou — que de `∀xF` segue
+`∃xF` quando o domínio é não vazio — pode ser demonstrada, e não apenas afirmada.
+A não vacuidade do domínio entra como a hipótese `d : Node`, isto é, como a
+exibição de um habitante.
+
+```lean
+example (P : Node → Prop) (d : Node)
+    (h : ∀ x, P x) : ∃ x, P x :=
+  ⟨d, h d⟩
+```
+
+Repare que num domínio vazio a prova não existiria: não há testemunha a oferecer.
+É a mesma exigência que o modelo faz, agora visível no tipo.
+
+::::exercise (rating := 2) (name := "forall-exists-swap")
+
+Uma das duas direções vale, a outra não. Prove a que vale.
+
+```lean
+example (R : Node → Node → Prop) (h : ∃ y, ∀ x, R x y) :
+    ∀ x, ∃ y, R x y := solution!(by
+  obtain ⟨d, hd⟩ := h
+  intro x
+  exact ⟨d, hd x⟩)
+```
+
+:::solution
+A volta não vale. De `∀x∃yRxy` cada `x` pode ter a sua testemunha, e nada obriga
+que seja a mesma para todos; é o mesmo contraexemplo do exercício anterior, com
+`R` relacionando cada objeto apenas a si mesmo.
+:::
+
+::::
 
 # Ligação de variáveis
 
@@ -101,13 +189,14 @@ e assim por diante.)
 *Resposta.* A gramática de lógica de predicados acima, estendida com um
 prefixo de primos por aridade:
 
+```bnf
+P0 ::= "P0" | P0 "′" ("predicados de aridade 0") ;
+P1 ::= "P1" | P1 "′" ("predicados de aridade 1") ;
+P2 ::= "P2" | P2 "′" ("predicados de aridade 2") ;
+P3 ::= "P3" | P3 "′" ("predicados de aridade 3") ;
 ```
-P0 −→ P0 | P0′        (predicados de aridade 0)
-P1 −→ P1 | P1′        (predicados de aridade 1)
-P2 −→ P2 | P2′        (predicados de aridade 2)
-P3 −→ ‴P | ‴P′         (predicados de aridade 3)
-⋮
-```
+
+e assim por diante, uma produção por aridade.
 
 Em Lean, indexar por aridade é mais natural do que empilhar primos: um
 `structure PredSymbol` com campos `name : String` e `arity : Nat` já
@@ -179,37 +268,41 @@ parâmetro).
 inductive Formula (α : Type) where
   | atom (name : String) (args : List α)
   | eq (t1 t2 : α)
+  | top
+  | bot
   | neg (f : Formula α)
   | impl (f1 f2 : Formula α)
   | equi (f1 f2 : Formula α)
-  | conj (fs : List (Formula α))
-  | disj (fs : List (Formula α))
+  | conj (f1 f2 : Formula α)
+  | disj (f1 f2 : Formula α)
   | forall_ (v : Variable) (f : Formula α)
   | exists_ (v : Variable) (f : Formula α)
+  deriving Repr
 ```
 
-Por que `Formula` toma lista de fórmulas (`conj`/`disj`), diferente do
-`Form` binário de {ref "PL"}[Lógica proposicional]? Porque a conjunção/disjunção vazia — `conj []`
-como `"true"`, `disj []` como `"false"` — é a motivação para tomar
-lista desde o início, não uma escolha de implementação a evitar.
-`Form` binário funciona bem porque a lógica proposicional nunca precisa
-de conjunções de tamanho variável; aqui, a conjunção/disjunção vazia como valor sensato
-(ver `toStringImpl` abaixo, e a semântica adiante) depende da
-lista vazia existir.
+A conjunção e a disjunção são binárias, e `top` e `bot` são construtores
+próprios — o mesmo desenho do tipo das fórmulas proposicionais, pelo mesmo
+motivo: um construtor que guardasse uma lista de fórmulas dentro do próprio tipo
+o tornaria um indutivo _nested_, e com isso se perderiam `induction` e
+`deriving`. O `α` em `atom name (args : List α)` não cria esse problema, porque é
+parâmetro, não o próprio tipo.
 
-Diferente do fragmento de inglês, adiante — onde `NP`/`VP`/`RCN`/`INF`/
-`Sent` são *mutuamente recursivos*, mas nenhum toma lista de si
-mesmo, e por isso mantêm `induction` funcionando — `Formula` é
-_nested_: a lista `List (Formula α)` dentro do próprio tipo tira
-tanto `deriving DecidableEq` quanto `induction` automática. É a mesma
-restrição que levou `Form` a ser binário lá; aqui a lista é
-essencial, então o custo se paga, e as funções abaixo são recursão
-explícita.
+A notação n-ária se recupera com duas funções, como lá: uma conjunção vazia é
+`top`, uma disjunção vazia é `bot`.
 
-`ToString` — inclusive a escolha de mostrar `conj []` como `"true"` e
-`disj []` como `"false"` (a razão fica clara na semântica, adiante:
-são a base neutra de `∧`/`∨`, e como constantes independem de
-qualquer atribuição de valores aos átomos):
+```lean
+def Formula.conjs {α : Type} : List (Formula α) → Formula α
+  | [] => .top
+  | [f] => f
+  | f :: fs => .conj f (Formula.conjs fs)
+
+def Formula.disjs {α : Type} : List (Formula α) → Formula α
+  | [] => .bot
+  | [f] => f
+  | f :: fs => .disj f (Formula.disjs fs)
+```
+
+E a instância de `ToString`:
 
 ```lean
 def Formula.toStringImpl [ToString α] : Formula α → String
@@ -223,16 +316,12 @@ def Formula.toStringImpl [ToString α] : Formula α → String
     s!"({f1.toStringImpl}==>{f2.toStringImpl})"
   | .equi f1 f2 =>
     s!"({f1.toStringImpl}<=>{f2.toStringImpl})"
-  | .conj [] => "true"
-  | .conj fs =>
-    "(" ++
-      String.intercalate " & "
-        (fs.map Formula.toStringImpl) ++ ")"
-  | .disj [] => "false"
-  | .disj fs =>
-    "(" ++
-      String.intercalate " | "
-        (fs.map Formula.toStringImpl) ++ ")"
+  | .top => "true"
+  | .bot => "false"
+  | .conj f1 f2 =>
+    s!"({f1.toStringImpl}&{f2.toStringImpl})"
+  | .disj f1 f2 =>
+    s!"({f1.toStringImpl}|{f2.toStringImpl})"
   | .forall_ v f => s!"A{v} {f.toStringImpl}"
   | .exists_ v f => s!"E{v} {f.toStringImpl}"
 
@@ -431,13 +520,13 @@ Dê uma árvore de análise para o termo `f″[f′[x, y], f‴[z, z, f[x]]]`.
 tradução a fazer:
 
 ```lean
-def ex421Term : Term :=
+def structuredTerm : Term :=
   .struct "f2" [ .struct "f1" [tx, ty]
                , .struct "f3" [tz, tz, .struct "f" [tx]] ]
 ```
 
 ```lean (name := c4eval10)
-#eval toString ex421Term
+#eval toString structuredTerm
 ```
 
 ```leanOutput c4eval10
@@ -483,6 +572,255 @@ def freeVarsInForm : Formula Term → List Variable := sorry
 def openForm (f : Formula Term) : Bool :=
   solution!(!(freeVarsInForm f).isEmpty)
 ```
+
+::::
+
+# Semântica da lógica de predicados
+
+A semântica da lógica de predicados é estática de novo. Por conveniência, nos
+limitamos a um fragmento de língua com apenas três letras de predicado: `P`, de
+um lugar, `R`, de dois, e `S`, de três.
+
+Como deve ser uma estrutura extralinguística para as constantes `P`, `R` e `S`?
+Tal estrutura deve conter ao menos um domínio de discurso `D`, formado por
+entidades individuais, com uma interpretação para `P`, para `R` e para `S`. Essas
+interpretações são dadas por uma função `I`, que a cada nome de predicado e a
+cada lista de elementos do domínio associa a afirmação de que a relação vale
+entre eles.
+
+```lean
+abbrev Interp (D : Type) := String → List D → Prop
+```
+
+Um conjunto de símbolos de relação, com suas aridades, especifica uma linguagem
+de lógica de predicados `L`. Uma estrutura `M = (D, I)`, formada por um domínio
+não vazio `D` com uma função de interpretação para os símbolos de relação de `L`,
+é chamada de *modelo* para `L`. Sempre suporemos que o domínio de um modelo é não
+vazio.
+
+Eis um modelo concreto, com domínio de três elementos. `P` vale de `1` e de `3`;
+`R` relaciona `1` a `1` e a `2`, `2` a `2`, e `3` a `1` e a `2`.
+
+```lean
+def M : Interp Node
+  | "P", [d] => d = .one ∨ d = .three
+  | "R", [d, e] =>
+      (d = .one ∧ (e = .one ∨ e = .two))
+      ∨ (d = .two ∧ e = .two)
+      ∨ (d = .three ∧ (e = .one ∨ e = .two))
+  | _, _ => False
+```
+
+Dada uma estrutura com função de interpretação `M = (D, I)`, podemos definir uma
+valoração para as fórmulas da lógica de predicados, desde que saibamos lidar com
+os valores das variáveis individuais. Seja `V` o conjunto das variáveis da
+linguagem. Uma função `g : V → D` é chamada de *atribuição de variáveis*, ou
+valoração.
+
+Escrevemos `g[v := d]` para a valoração que é como `g` exceto pelo fato de que
+`v` recebe o valor `d` — onde `g` poderia ter atribuído um valor diferente.
+
+```lean
+def Assign (D : Type) := Variable → D
+
+def Assign.update {D : Type} (g : Assign D)
+    (v : Variable) (d : D) : Assign D :=
+  fun w => if w = v then d else g w
+```
+
+Seja `M` um modelo para a linguagem `L`, seja `g` uma atribuição de variáveis
+para `L` em `M`, e seja `F` uma fórmula de `L`. Estamos prontos para definir a
+noção `M ⊨ᵍ F`, "F é verdadeira em M sob a atribuição g", ou: "g satisfaz F no
+modelo M".
+
+O que segue é uma definição recursiva de verdade para as fórmulas da lógica de
+predicados. As cláusulas dos quantificadores são as que fazem a atribuição mudar:
+`∀v F` vale quando `F` vale para toda escolha de valor de `v`, e `∃v F` quando
+vale para ao menos uma.
+
+```lean
+def Formula.holds {D : Type} (I : Interp D)
+    (g : Assign D) : Formula Variable → Prop
+  | .atom name args => I name (args.map g)
+  | .eq t1 t2 => g t1 = g t2
+  | .top => True
+  | .bot => False
+  | .neg f => ¬ Formula.holds I g f
+  | .impl f1 f2 =>
+      Formula.holds I g f1 → Formula.holds I g f2
+  | .equi f1 f2 =>
+      Formula.holds I g f1 ↔ Formula.holds I g f2
+  | .conj f1 f2 =>
+      Formula.holds I g f1 ∧ Formula.holds I g f2
+  | .disj f1 f2 =>
+      Formula.holds I g f1 ∨ Formula.holds I g f2
+  | .forall_ v f =>
+      ∀ d : D, Formula.holds I (g.update v d) f
+  | .exists_ v f =>
+      ∃ d : D, Formula.holds I (g.update v d) f
+```
+
+Um caso por construtor, e cada caso troca o construtor pelo conectivo
+correspondente do Lean — a mesma correspondência que o capítulo proposicional
+enuncia como ponte entre as duas leituras.
+
+Se avaliamos fórmulas fechadas, isto é, sem variáveis livres, a atribuição `g` se
+torna irrelevante.
+
+A definição de verdade faz uso essencial das atribuições e, ainda assim, nos
+exercícios em que se olha apenas para fórmulas fechadas, a verdade ou a falsidade
+não depende de qual atribuição se use. Poder-se-ia pensar, portanto, que é
+possível dispensar as atribuições por completo, contanto que nos limitemos a
+definir os valores de verdade das fórmulas fechadas da lógica de predicados.
+
+O problema é que, ao aplicar a definição de verdade acima a uma sentença, por
+exemplo a `∀x(Px → ∃yRxy)`, a cláusula que trata do quantificador universal faz
+referência à noção de verdade para a fórmula `(Px → ∃yRxy)`, que é uma fórmula
+aberta. Para determinar se ela é verdadeira temos de saber que objeto `x` denota.
+A situação é inteiramente análoga à interpretação de sentenças de língua natural:
+
+```
+Todo mestre tem um aprendiz.
+Ele tem um aprendiz.
+```
+
+Para determinar a verdade da segunda temos de saber quem é o referente do pronome
+_ele_.
+
+Uma sentença da lógica de predicados é *logicamente válida* se é verdadeira em
+todo modelo; a notação é `⊨ F`. Da convenção de que os domínios de nossos modelos
+são sempre não vazios segue que `⊨ ∀xF → ∃xF`, para toda `F` com no máximo a
+variável `x` livre.
+
+Uma sentença `C` *se segue logicamente* de uma sentença `P` (`P` de premissa, `C`
+de conclusão; dizemos também que `P` implica logicamente `C`) se todo modelo que
+torna `P` verdadeira também torna `C` verdadeira. A notação é `P ⊨ C`.
+
+Como julgar afirmações da forma `P ⊨ C`? É claro como podemos refutá-la: achando
+um contraexemplo. Um contraexemplo a `P ⊨ C` é um modelo `M` com `M ⊨ P` mas não
+`M ⊨ C`.
+
+::::exercise (rating := 2) (name := "quantifier-strength")
+
+Mostre que `∀x(Ax ∧ Bx)` significa algo mais forte que "todo A é B", e que
+`∃x(Ax → Bx)` significa algo mais fraco que "algum A é B".
+
+:::solution
+`∀x(Ax ∧ Bx)` diz que tudo no domínio é A e é B — não apenas que os A são B. Ela
+é falsa em qualquer modelo que tenha um objeto fora de A, mesmo que todos os A
+sejam B. A tradução correta de "todo A é B" é `∀x(Ax → Bx)`.
+
+`∃x(Ax → Bx)` é verdadeira assim que houver um objeto que não seja A, porque a
+implicação vale vacuamente para ele. Ela não afirma que existe um A que é B; a
+tradução correta de "algum A é B" é `∃x(Ax ∧ Bx)`.
+:::
+
+::::
+
+::::exercise (rating := 2) (name := "translate-quantified")
+
+Traduza as sentenças a seguir para lógica de predicados, garantindo que as
+condições de verdade sejam capturadas.
+
+1. _Someone walks and someone talks._
+2. _No wizard cast a spell or mixed a potion._
+3. _Every ballad that is sung by a princess is beautiful._
+4. _If a knight finds a dragon, he fights it._
+
+```lean
+def someoneWalksAndTalks : Formula Variable :=
+  solution!(.conj
+    (.exists_ x (.atom "Walk" [x]))
+    (.exists_ y (.atom "Talk" [y])))
+
+def noWizardCastOrMixed : Formula Variable :=
+  solution!(.forall_ x
+    (.impl (.atom "Wizard" [x])
+      (.neg (.disj (.atom "CastSpell" [x])
+                   (.atom "MixedPotion" [x])))))
+
+def everyBalladBeautiful : Formula Variable :=
+  solution!(.forall_ x
+    (.impl
+      (.conj (.atom "Ballad" [x])
+        (.exists_ y (.conj (.atom "Princess" [y])
+                           (.atom "Sung" [y, x]))))
+      (.atom "Beautiful" [x])))
+
+def knightFightsDragon : Formula Variable :=
+  solution!(.forall_ x (.forall_ y
+    (.impl
+      (.conj (.atom "Knight" [x])
+        (.conj (.atom "Dragon" [y])
+               (.atom "Finds" [x, y])))
+      (.atom "Fights" [x, y]))))
+```
+
+A fórmula é uma proposta; a verificação é mostrar que ela afirma o que se
+queria. `Formula.holds` leva uma fórmula à proposição que ela afirma, dada uma
+interpretação, então basta enunciar a condição de verdade pretendida com os
+quantificadores do próprio Lean e exigir que as duas coincidam. Como `holds`
+calcula, cada teorema fecha por `Iff.rfl`.
+
+```lean
+theorem someoneWalksAndTalks_means {D : Type}
+    (I : Interp D) (g : Assign D) :
+    Formula.holds I g someoneWalksAndTalks ↔
+      ((∃ d : D, I "Walk" [d]) ∧ (∃ d : D, I "Talk" [d])) :=
+  solution!(Iff.rfl)
+
+theorem knightFightsDragon_means {D : Type}
+    (I : Interp D) (g : Assign D) :
+    Formula.holds I g knightFightsDragon ↔
+      (∀ a : D, ∀ b : D,
+        I "Knight" [a] ∧ I "Dragon" [b] ∧ I "Finds" [a, b] →
+        I "Fights" [a, b]) :=
+  solution!(Iff.rfl)
+```
+
+O segundo é o que torna a discussão abaixo verificável: a força universal dos
+indefinidos não é uma opinião sobre a tradução, é o que o `∀` do lado direito
+diz, e o `Iff.rfl` confirma que a fórmula proposta diz o mesmo.
+
+:::solution
+As duas primeiras são diretas, mas repare no escopo da negação em (2): _no
+wizard cast a spell or mixed a potion_ nega a disjunção inteira, não cada
+disjunto separadamente. Escrever `∀x(Wizard x → (¬CastSpell x ∨ ¬MixedPotion
+x))` afirmaria algo mais fraco — que nenhum mago fez as duas coisas.
+
+A terceira mostra por que a cláusula relativa entra como conjunto na
+antecedente: _every ballad that is sung by a princess_ restringe o domínio da
+quantificação, e a restrição é `Ballad x ∧ ∃y(Princess y ∧ Sung y x)`.
+
+A quarta é a mais instrutiva. Os artigos indefinidos de _a knight_ e _a dragon_
+parecem pedir `∃`, mas dentro do antecedente de uma condicional eles ganham
+força universal: a sentença diz que *todo* par cavaleiro-dragão que se encontra
+luta. Traduzir com `∃` daria `∃x∃y(Knight x ∧ Dragon y ∧ Finds x y → Fights x
+y)`, que é quase trivialmente verdadeira — basta haver um par que não se
+encontra. E os pronomes _he_ e _it_ retomam justamente as variáveis ligadas
+pelos quantificadores, que é o que permite a tradução funcionar.
+:::
+
+::::
+
+::::exercise (rating := 2) (name := "valid-consequence")
+
+Quais das afirmações seguintes valem? Se uma vale, explique por quê; se não,
+dê um contraexemplo.
+
+1. `∀xPx ⊨ ∃xPx`
+2. `∃x∃yRxy ⊨ ∃xRxx`
+3. `∃y∀xRxy ⊨ ∀x∃yRxy`
+
+:::solution
+1. Vale, e é aqui que a exigência de domínio não vazio faz trabalho: tomando
+   qualquer `d` do domínio, de `∀xPx` sai `Pd`, que testemunha `∃xPx`. Num
+   domínio vazio a premissa seria vacuamente verdadeira e a conclusão falsa.
+2. Não vale. Contraexemplo: domínio `{1, 2}` com `R` valendo apenas de `1` para
+   `2`. A premissa é verdadeira, e nenhum objeto se relaciona consigo mesmo.
+3. Vale. Se há um `d` tal que todo `x` se relaciona com `d`, então para cada `x`
+   esse mesmo `d` testemunha `∃yRxy`.
+:::
 
 ::::
 
