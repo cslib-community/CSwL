@@ -246,6 +246,34 @@ private def headerImports (src : String) : Array String := Id.run do
       out := out.push ((line.drop 7).trimAscii.toString)
   return out
 
+/-- Every `import` a chapter needs in the extracted project, including those
+declared only in the header of a section it merges.
+
+The extracted project has one file per chapter: a section brought in with
+`{include 1 ...}` has its content merged into the chapter's buffer and gets no
+module of its own. An `import` written only in that section's header would
+therefore be dropped, and the generated file would use what it never imported —
+which shows up as an "unknown identifier" inside the extracted project's build,
+far from the file that caused it. So a section's header is read too, and its
+imports are merged into the chapter's.
+
+`sf-in-lean` does not need this: there a section stays a module of its own, and
+`bundleLoop` copies it with its header intact. -/
+private partial def chapterImports (modPrefix : String)
+    (chapterModules : List String) (file : String) : IO (List String) := do
+  let src ← (IO.FS.readFile file).toBaseIO >>= fun
+    | .ok s => pure s
+    | .error _ => pure ""
+  let raw := (headerImports src).toList
+  let isSection (i : String) : Bool :=
+    modTop i == modPrefix && ! chapterModules.contains i
+  let mut acc := raw.filter keepImport |>.filter (! isSection ·)
+  for sec in raw.filter isSection do
+    let path := (sec.replace "." "/") ++ ".lean"
+    for i in ← chapterImports modPrefix chapterModules path do
+      if ! acc.contains i then acc := acc ++ [i]
+  return acc
+
 /-- Copies, verbatim, the support module(s) ("seeds") named in `usedSeeds`
 into the extracted project. A minimal analogue of `sf-in-lean`'s
 `bundleLoop` -- but not recursive, because `CSwL` only has one seed
@@ -298,24 +326,18 @@ private def emitSavedImpl (config : ExtractConfig) :
         files := files.push (file, chosen)
       else
         -- The buffer key is the source chapter's path in the repository,
-        -- so its header can be reread and the surviving `import`s
-        -- re-emitted.
-        let src ← (IO.FS.readFile file).toBaseIO >>= fun
-          | .ok s => pure s
-          | .error _ => pure ""
+        -- so its header (and those of the sections it merges) can be
+        -- reread and the surviving `import`s re-emitted.
         -- An `import CSwL.Morphology.FinnishVowelHarmony` in the header
         -- of a "glue" chapter (one that only gathers sections living in
         -- their own file via `{include 1 ...}`) is neither infrastructure
         -- nor another chapter: it is a section whose content has already
         -- been merged into this same chapter's buffer by `walkSection`.
         -- There is no separate module for it in the extracted project
-        -- (flattened, one file per chapter) -- the line has to fall here,
-        -- before the classification below, or the generated project would
-        -- have an `import` that does not resolve.
-        let isIntraBookSection (i : String) : Bool :=
-          modTop i == config.modPrefix && ! chapterModules.contains i
-        let imps := (headerImports src).toList.filter keepImport
-          |>.filter (! isIntraBookSection ·)
+        -- (flattened, one file per chapter), so the line itself is dropped
+        -- -- but the section's *own* imports are picked up in its place, by
+        -- `chapterImports`.
+        let imps ← chapterImports config.modPrefix chapterModules file
         for i in imps do
           let top := modTop i
           if pkgPrefixes.contains top then
