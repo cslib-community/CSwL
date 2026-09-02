@@ -2,6 +2,7 @@ import CSwLMeta
 import Bib
 import CSwL.Logic.PL
 import CSwL.Logic.FOL
+import CSwLCompat
 
 import VersoManual
 

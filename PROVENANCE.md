@@ -18,6 +18,12 @@ in step with any further rename.
 `prose` marks an exercise whose answer is given in prose rather than stated in
 Lean. In the source these carry a `✎` marker, which is otherwise undocumented.
 
+The book has 81 exercises as of 2026-09-02, and every one of them appears
+somewhere below — either in a table that names its source, or in the list of
+those with no counterpart. Two checks keep it that way: no `(name := …)` in
+`CSwL/` should be absent from this file, and no name cited here should have
+stopped existing.
+
 ## A correction to the numbers
 
 The 17 references in `Sets.lean` were all off by one chapter: they read
@@ -83,33 +89,42 @@ reasoning, and is the reason for the move.
 
 ### `Logic/PL.lean` — CSwFP/4.4
 
-| CSwL id | Rating | CSwFP | Page |
-|---|---|---|---|
-| `translate-sentences` | 1 | Exercise 4.9 | 74 |
-| `exclusive-or` | 1 | Exercise 4.10 | 74 |
-| `unique-readability` | 2 | Exercise 4.11 | 74 |
-| `count-operators` | 1 | Exercise 4.12 | 75 |
-| `formula-depth` | 1 | Exercise 4.13 | 75 |
-| `collect-atoms` | 2 | Exercise 4.14 | 75 |
+| CSwL id | Rating | CSwFP | Page | Notes |
+|---|---|---|---|---|
+| — | — | Exercise 4.9 | 74 | dropped 2026-09-02 |
+| `exclusive-or` | 1 | Exercise 4.10 | 74 | |
+| — | — | Exercise 4.11 | 74 | dropped 2026-09-02 |
+| `count-operators` | 1 | Exercise 4.12 | 75 | |
+| `formula-depth` | 1 | Exercise 4.13 | 75 | |
+| `collect-atoms` | 2 | Exercise 4.14 | 75 | |
 
-The chapter also names two of the book's results in its prose — Theorem 4.1
-(structural induction) and Proposition 4.2 (equal number of parentheses). Those
-attributions are removed from the book; the results themselves stay.
+Exercises 4.9 and 4.11 were ported and then dropped when the chapter was
+restructured around worked arguments. 4.9 asked for three sentences to be
+translated into propositional logic; `exchange-prop`, `dresses` and `bangu-form`
+ask the same thing of arguments the reader then has to prove or settle, which is
+the same skill with a use attached. 4.11 asked for unique readability, which the
+chapter had already reduced to constructor injectivity — see `DEVIATIONS.md` on
+why the original claim dissolves — and the section that carried it, along with
+the parenthesis-counting results of Theorem 4.1 and Proposition 4.2, went with
+the restructuring.
 
 ### `Logic/FOL.lean` — CSwFP/4.5–4.7
 
 | CSwL id | Rating | CSwFP | Page | Notes |
 |---|---|---|---|---|
-| — | — | Exercise 4.15 | 77 | prose; a `#` heading, not an `:::exercise` block |
-| — | — | Exercise 4.16 | 77 | prose; heading |
-| — | — | Exercise 4.17 | 78 | prose; heading |
-| `closed-form` | 1 | Exercise 4.18 | 81 | inside a `##` heading also numbered 4.18 |
-| — | — | Exercise 4.19 | 82 | heading |
-| — | — | Exercise 4.20 | 82 | heading |
-| — | — | Exercise 4.21 | 83 | prose; heading |
-| — | — | Exercise 4.22 | 84 | heading |
-| — | — | Exercise 4.23 | 84 | heading |
-| `open-form` | 1 | Exercise 4.24 | 84 | |
+| `predicate-unique-readability` | 2 | Exercise 4.15 | 77 | prose |
+| `infinite-predicates-bnf` | 1 | Exercise 4.16 | 77 | prose |
+| `bound-occurrences` | 1 | Exercise 4.17 | 78 | prose |
+| `closed-form` | 2 | Exercise 4.18 | 81 | |
+| `implication-as-abbrev` | 1 | Exercise 4.19 | 82 | |
+| `negation-normal-form` | 2 | Exercise 4.20 | 82 | |
+| `term-parse-tree` | 1 | Exercise 4.21 | 83 | prose |
+| `vars-in-formula` | 1 | Exercise 4.22 | 84 | |
+| `open-form` | 2 | Exercises 4.23 and 4.24 | 84 | merged |
+
+All ten are `:::exercise` directives. Nine of them were plain `#` headings
+carrying the source's page number until 2026-08-30; 4.23 and 4.24 became one
+exercise, since 4.23 asked for the function that 4.24 builds on.
 
 ### `Logic/PL.lean` — CSwFP/5.2, 5.3
 
@@ -138,6 +153,13 @@ attributions are removed from the book; the results themselves stay.
 | — | — | Exercise 5.23 | 104 | not ported |
 | `valid-consequence` | 2 | Exercise 5.24 | 104 | prose |
 
+### `InfEngine.lean` — CSwFP/5.7
+
+| CSwL id | Rating | CSwFP | Page | Notes |
+|---|---|---|---|---|
+| — | — | Exercise 5.28 | 109 | not ported |
+| — | — | Exercise 5.29 | 109 | not ported |
+
 ## Exercises not ported, and why
 
 An exercise absent from the tables above is a decision, not an oversight. The
@@ -164,8 +186,13 @@ equivalence, which `Form.equivalent` already is; 5.12 asks to reimplement the
 semantics with `[String]` instead of `[(String, Bool)]` for valuations.
 
 CSwFP/5.13–5.16 belong to Mastermind and are recorded with `Games.lean`.
-CSwFP/5.18 is ported as `translate-quantified`, the counterpart of
-`translate-sentences` in the propositional chapter.
+CSwFP/5.18 is ported as `translate-quantified`. Its propositional counterpart,
+4.9, was dropped; the two chapters no longer mirror each other here.
+
+CSwFP/5.28 and 5.29 ask for soundness and completeness of the Aristotelian
+inference system. Soundness is within reach — `InfEngine.lean` already proves
+BARBARA, CELARENT and DARII valid over `Set` — but completeness needs a model
+construction the chapter does not have.
 
 Nine of the `Logic/FOL.lean` entries above were plain headings carrying the
 book's page number rather than exercise directives; that is fixed.
@@ -196,15 +223,32 @@ as an oversight.
 | `Games/SeaBattle.lean` | `grice-maxims` | 1 |
 | `IntroL.lean` | `sum-of-squares` | 1 |
 | `IntroL.lean` | `building-terms` | 1 |
+| `IntroL.lean` | `rfl-arithmetic` | 1 |
+| `IntroL.lean` | `square-unfold` | 1 |
+| `IntroL.lean` | `identity-implication` | 1 |
 | `IntroL.lean` | `p-implies-q-implies-p` | 1 |
+| `IntroL.lean` | `and-intro` | 1 |
+| `IntroL.lean` | `and-comm` | 2 |
 | `IntroL.lean` | `implication-transitivity` | 1 |
 | `IntroL.lean` | `apply-several-premises` | 1 |
 | `IntroL.lean` | `unfold-direct-proof` | 1 |
 | `IntroL.lean` | `unfold-conjunction` | 1 |
+| `IntroL.lean` | `exists-witness` | 1 |
 | `IntroL.lean` | `cases-on-or` | 1 |
+| `IntroL.lean` | `is-weekend` | 1 |
+| `IntroL.lean` | `add-zero-induction` | 1 |
 | `IntroL.lean` | `sum-to` | 1 |
 | `IntroL.lean` | `sum-list` | 1 |
 | `IntroL.lean` | `count-zeros` | 1 |
+| `Logic/PL.lean` | `contrapositive` | 1 |
+| `Logic/PL.lean` | `de-morgan` | 2 |
+| `Logic/PL.lean` | `exchange-prop` | 1 |
+| `Logic/PL.lean` | `dresses` | 2 |
+| `Logic/PL.lean` | `bangu-form` | 1 |
+| `Logic/PL.lean` | `bangu-proof` | 1 |
+| `Logic/FOL.lean` | `forall-exists-swap` | 2 |
+| `InfEngine.lean` | `inconsistent-kb` | 2 |
+| `InfEngine.lean` | `ferio` | 2 |
 
 CSwFP's chapter 3 exercises 3.1–3.18 are not ported: they are about Haskell
 itself (types of Haskell functions, Haskell programs to read). Exercise 3.18

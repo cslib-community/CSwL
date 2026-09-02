@@ -16,6 +16,17 @@ the text — the same convention as `sf-in-lean/Bib.lean`, which records books
 
 namespace Bib
 
+def logicandproof : Article where
+  title  := inlines!"Logic and Proof"
+  authors := #[inlines!"Jeremy Avigad", inlines!"Joseph Hua",
+               inlines!"Robert Y. Lewis",  inlines!"Floris van Doorn"]
+  journal := inlines!""
+  year := 2017
+  month := none
+  volume := inlines!""
+  number := inlines!""
+  url := "https://leanprover-community.github.io/logic_and_proof/"
+
 def beesley2003 : Article where
   title   := inlines!"Finite State Morphology"
   authors := #[inlines!"Kenneth R. Beesley", inlines!"Lauri Karttunen"]
