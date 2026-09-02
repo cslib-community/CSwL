@@ -312,9 +312,9 @@ variable (
   : Prop)
 
 def exchange : Prop :=
-  solution!
+  solution!(
    ((p → q) ∧ (r → s) ∧ (p ∨ s)) → (q ∨ r)
-
+  )
 end
 ```
 ::::
@@ -492,7 +492,7 @@ def Form.opsNr : Form → Nat :=
     | .conj f g => 1 + f.opsNr + g.opsNr
     | .disj f g => 1 + f.opsNr + g.opsNr)
 
-theorem opsNr_test : form1.opsNr = 2 := by decide
+theorem opsNr_test : form1.opsNr = 2 := solution!(by decide)
 ```
 ::::
 
