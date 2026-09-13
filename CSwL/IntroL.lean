@@ -632,7 +632,7 @@ Quando nenhuma forma carrega argumento, o tipo é uma enumeração; quando
 carrega, é um registro variante; quando a forma se refere ao próprio tipo
 sendo definido, é uma árvore. As três coisas são o mesmo mecanismo.
 
-Essa é a construção mais importante do curso. Em {ref "Games"}[Gramáticas para jogos]
+Essa é a construção mais importante do curso. Em {ref "SeaBattle"}[Batalha Naval]
 veremos que uma gramática escrita na notação usual — a Forma de
 Backus-Naur — é literalmente um tipo `inductive`, e daí em diante todo
 fragmento da língua é declarado assim.

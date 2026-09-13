@@ -38,14 +38,13 @@ adapts — see [DEVIATIONS.md](DEVIATIONS.md) for why.
 
 - [X] The formal study of natural language — [source](CSwL/IntroCS.lean)
 - [X] Introduction to Lean — [source](CSwL/IntroL.lean)
-- [~] Morphology (Finnish vowel harmony, Swedish plural, phonemes) —
-  [source](CSwL/Morphology.lean) (sections in
-  [`CSwL/Morphology/`](CSwL/Morphology))
-- [~] Grammars for games (Sea Battle, Mastermind) —
-  [source](CSwL/Games.lean) (sections in [`CSwL/Games/`](CSwL/Games))
 - [~] Logics (propositional and predicate) — [source](CSwL/Logic.lean)
   (sections in [`CSwL/Logic/`](CSwL/Logic))
 - [~] Sets and relations — [source](CSwL/Sets.lean)
+- [~] Sea Battle: a grammar for a game — [source](CSwL/SeaBattle.lean)
+- [~] Morphology (Finnish vowel harmony, Swedish plural, phonemes) —
+  [source](CSwL/Morphology.lean) (sections in
+  [`CSwL/Morphology/`](CSwL/Morphology))
 - [~] An inference engine — [source](CSwL/InfEngine.lean)
 - [~] A fragment of English — [source](CSwL/English.lean)
 - [ ] Model checking with predicate logic — `CSwL/ModelChecking.lean`
@@ -68,9 +67,9 @@ exercises not reused later in the chapter itself).
 
 Mnemonic file names, never numbers. A short chapter is a single file
 (`CSwL/Sets.lean`, `namespace Sets`); a chapter whose sections are long enough
-to deserve their own file is a "glue" file (`CSwL/Games.lean`) that only
+to deserve their own file is a "glue" file (`CSwL/Logic.lean`) that only
 gathers them, via `{include 1 ...}`, from a same-named directory
-(`CSwL/Games/SeaBattle.lean`, `CSwL/Games/Mastermind.lean`) — the same pattern
+(`CSwL/Logic/PL.lean`, `CSwL/Logic/FOL.lean`) — the same pattern
 used by [Functional Programming in Lean](https://lean-lang.org/functional_programming_in_lean/).
 
 CSwL developments connect with those in [CSLib](https://github.com/leanprover/cslib/) where possible. We aim to reuse CSLib and contribute to CSLib.

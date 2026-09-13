@@ -24,9 +24,8 @@ htmlSplit := .never
 file := "Morphology"
 %%%
 
-Três exemplos de PLN que aplicam o Lean visto no capítulo anterior:
-harmonia vocálica do finlandês, plural do sueco e uma representação de
-fonemas por traços.
+Três exemplos de processamento de língua natural: harmonia vocálica do
+finlandês, plural do sueco e uma representação de fonemas por traços.
 
 {include 1 CSwL.Morphology.FinnishVowelHarmony}
 

@@ -51,7 +51,7 @@ cannot.
 The loosening: Lean's own basic types may be introduced *where they are first
 needed*, in a sentence or two, with a citation of the Lean Language Reference
 (`{citep Bib.LLR}[]`), instead of being pushed back into `IntroL.lean`. `Fin`
-and `Vector` in `Games.lean` are the cases. `IntroL.lean` presents what the
+in `SeaBattle.lean` is the case. `IntroL.lean` presents what the
 book builds on repeatedly; a type used in one chapter is better introduced
 there, next to its use. The loosening covers types the language already gives
 us — never a construct this book defines, and never one that needs more than a
@@ -79,21 +79,23 @@ CSwFP/2 also cannot be split cleanly, because its sections form a definitional c
 |---|----------------------|---------------------------------------------------|----------|------------|
 | 1 | `IntroCS.lean`       | 1.1–1.6                                           | —        | —          |
 | 2 | `IntroL.lean`        | 3.1–3.10, 3.13; 2.3, 2.4, 2.5                     | 1        | —          |
-| 3 | `Morphology.lean`    | 3.11, 3.14                                        | 2        | —          |
-| 4 | `Games.lean`         | 4.1, 5.1, 5.4 (implementation only)               | 2        | —          |
-| 5 | `Logic.lean`         | 4.4, 4.5, 4.6, 4.7, 5.2, 5.3, 5.5, 5.4 (encoding) | 2, 4     | —          |
-| 6 | `Sets.lean`          | 2.1, 2.2                                          | 2, 5     | —          |
-| 7 | `InfEngine.lean`     | 4.3, 5.7                                          | 2, 5     | 6          |
-| 8 | `English.lean`       | 4.2, 5.6                                          | 2, 5, 6  | —          |
-| 9 | `ModelChecking.lean` | 6.1–6.5                                           | 2, 5, 8  | 6          |
+| 3 | `Logic.lean`         | 4.4, 4.5, 4.6, 4.7, 5.2, 5.3, 5.5                 | 2        | —          |
+| 4 | `Sets.lean`          | 2.1, 2.2                                          | 2, 3     | —          |
+| 5 | `SeaBattle.lean`     | 4.1, 5.1                                          | 2, 3     | 4          |
+| 6 | `Morphology.lean`    | 3.11, 3.14                                        | 2        | 3          |
+| 7 | `InfEngine.lean`     | 4.3, 5.7                                          | 2, 3     | 4          |
+| 8 | `English.lean`       | 4.2, 5.6                                          | 2, 3, 4  | —          |
+| 9 | `ModelChecking.lean` | 6.1–6.5                                           | 2, 3, 8  | 4          |
 
-`Logic.lean` requires `Games.lean` because its closing section encodes a game the reader has already implemented. `English.lean` requires `Sets.lean` because its categorial section interprets a transitive verb over `Sets.Entity` and `Sets.likesR`, the domain and relation that chapter introduces. `Sets.lean` requires `Logic.lean` because its exercises are proofs, and the tactics they need — quantifiers, `cases`, `by_contra` — arrive there; but nothing requires `Sets.lean` in turn, so its position is fixed from below and free from above.
+`Sets.lean` requires `Logic.lean` because its exercises are proofs, and the tactics they need — quantifiers, `cases`, `by_contra` — arrive there. `SeaBattle.lean` requires `Logic.lean` for the same reason: it proves theorems about `WellFormed` by induction on an inductive predicate, which no earlier chapter has the machinery for. `English.lean` requires `Sets.lean` because its categorial section interprets a transitive verb over `Sets.Entity` and `Sets.likesR`, the domain and relation that chapter introduces.
+
+`Morphology.lean` requires only `IntroL.lean` — its three sections are programs, and the proofs in them are `rfl` on concrete values. It is placed after `SeaBattle.lean` rather than at its old position right after `IntroL.lean` so that its exercises may use the tactics `Logic.lean` presents, rather than being confined to what `IntroL.lean` alone allows.
 
 ## Reusing Mathlib and CSLib
 
 Reusing Mathlib and CSLib is a declared intention of this project, and contributing back to CSLib is another. So the default is to reuse, and every place where this book defines something a library already has needs a reason. Two such places are recorded here; both are decisions for the chapters through CSwFP/6, and both are revisited in "Beyond CSwFP/6".
 
-What is reused today is modest and worth stating plainly: Mathlib supplies `Set`, `Rel`, `Setoid`, `Finset` and `Fintype` to `Sets.lean`, `List.Chain` to `Games.lean`, and the tactic library throughout. No chapter imports CSLib yet.
+What is reused today is modest and worth stating plainly: Mathlib supplies `Set`, `Rel`, `Setoid`, `Finset` and `Fintype` to `Sets.lean`, `List.Chain` to `SeaBattle.lean`, and the tactic library throughout. No chapter imports CSLib yet.
 
 ### Propositional logic: why not CSLib's, for now
 
@@ -123,7 +125,7 @@ Decision: `PL.lean` defines a plain `eval : Valuation → Form → Bool` and sta
 
 ### Grammars: Mathlib's `ContextFreeGrammar`, deferred
 
-`Games.lean` presents a BNF grammar for each game in prose, and then models it not as a grammar but as a handful of ordinary Lean types: enumerations for the terminal categories (`Colour`, `Answer`, `Column`, `Ship`), a `structure` for each rule with a fixed shape (`Turn`, `Attack`, `Move`), and `List`, `Vector` or a subtype where the BNF recurses or bounds a length (`abbrev Game := List Turn`, `abbrev Guess := Vector Colour 4`, `Reaction := { r : List Answer // r.length ≤ 4 }`).
+`SeaBattle.lean` presents a BNF grammar in prose, and then models it not as a grammar but as a handful of ordinary Lean types: enumerations for the terminal categories (`Colour`, `Answer`, `Column`, `Ship`), a `structure` for each rule with a fixed shape (`Turn`, `Attack`, `Move`), and `List`, `Vector` or a subtype where the BNF recurses or bounds a length (`abbrev Game := List Turn`, `abbrev Guess := Vector Colour 4`, `Reaction := { r : List Answer // r.length ≤ 4 }`).
 
 This flattens the grammar. The BNF rule `game ::= turn | turn game` is recursive; `List Turn` is that recursion already collapsed, and nothing in the chapter connects the two — the correspondence between the displayed BNF and the types below it is asserted in prose and nowhere checked. Sea Battle then adds `inductive WellFormed : Game → Prop` by hand, which is a well-formedness judgement written out because the type alone does not carry it.
 
@@ -138,13 +140,13 @@ The two are not the same object, and the difference is the point. An `inductive`
 
 So the library supplies exactly what neither encoding in the book states today:
 
-- that a grammar *generates* a given sentence, as a theorem rather than as a `#eval` — and in `Games.lean` this is the missing link between the BNF in the prose and the types below it;
+- that a grammar *generates* a given sentence, as a theorem rather than as a `#eval` — and in `SeaBattle.lean` this is the missing link between the BNF in the prose and the types below it;
 - derivation in the grammar sense, a sequence of rewriting steps, which is what a BNF actually describes and what `Derives` is. `SeaBattle.lean`'s hand-written `WellFormed` is a partial substitute for it;
 - unique readability, which `PL.lean` gives up precisely because there is no string to disambiguate. Against a `ContextFreeGrammar` there is one again, and the claim recovers its content: that `toString` lands in the language, and is injective.
 
 Deferred all the same, for now. Carrying both representations means giving each grammar twice, which is the duplication this book avoids; `Finset` rules and `Symbol T NT` are heavy machinery for the chapter right after the introduction to Lean; and proving `w ∈ g.language` for a concrete word means building `ReflTransGen` chains, which is real work with no payoff before CSwFP/6. Nothing in CSwFP/1–6 requires it, and the flattened types are what the rest of the chapter computes with.
 
-Taken up after the pending work is done, the natural form is a closing section of `Games.lean` — one grammar given twice, as the flattened types the chapter computes with and as a `ContextFreeGrammar` value, with the bridge theorem between them — and a back-reference from `PL.lean`'s unique-readability discussion, which is the same question in a different chapter.
+Taken up after the pending work is done, the natural form is a closing section of `SeaBattle.lean` — one grammar given twice, as the flattened types the chapter computes with and as a `ContextFreeGrammar` value, with the bridge theorem between them — and a back-reference from `PL.lean`'s unique-readability discussion, which is the same question in a different chapter.
 
 ## Chapter by chapter
 
@@ -180,41 +182,13 @@ Two consequences of moving 2.3 here:
 
 **`instance` is presented here.** The chapter's "Classes de tipos" section shows type classes only from the *use* side — the `[BEq α]` in a signature, and the difference between `BEq` and `DecidableEq`. But instances are declared from `Logic.lean` onwards: `PL.lean` gives `ToString Form`, `FOL.lean` three more, and `English.lean` fifteen, all of them `ToString`. Declaring an instance is a small step from the section already there, and it is the last piece of type classes the book actually needs — no chapter declares a `class` of its own.
 
-**`Prop` is presented here, minimally.** Not by choice: inductive types bring `deriving DecidableEq`, `decide` and `#check 1 = 1`, all of which display `Prop`. `Games/Mastermind.lean` already derives `DecidableEq` on `Colour` and `Answer` in its first code block, two chapters before any logic. The student sees `Prop` whether or not it is introduced. So the chapter presents proposition-as-type, proof-as-term, and `rfl`, `intro`, `exact`, `decide` — and leaves natural deduction and quantifiers to `Logic.lean`. Without this, `IntroL.lean`, `Morphology.lean` and `Games.lean` are `Bool` and `#eval` throughout, which is the original book with Lean as a costume.
+**`Prop` is presented here, minimally.** Not by choice: inductive types bring `deriving DecidableEq`, `decide` and `#check 1 = 1`, all of which display `Prop`. `SeaBattle.lean` already derives `DecidableEq` on its enumerations and `Answer` in its first code block, two chapters before any logic. The student sees `Prop` whether or not it is introduced. So the chapter presents proposition-as-type, proof-as-term, and `rfl`, `intro`, `exact`, `decide` — and leaves natural deduction and quantifiers to `Logic.lean`. Without this, `IntroL.lean`, `Morphology.lean` and `SeaBattle.lean` are `Bool` and `#eval` throughout, which is the original book with Lean as a costume.
 
 2.6 (Functional Programming) exists in CSwFP to motivate its chapter 3 from its chapter 2 — "functional programming languages actually are lambda calculi". With the order inverted, that bridge is not needed and the section is absorbed.
 
 2.7 (Further reading) is omitted.
 
-### 3. `Morphology.lean` — CSwFP/3.11, 3.14
-
-`Applications` is too vague a name; the chapter is about morphology. Section 3.11 is split into two sections, `FinnishVowelHarmony` and `SwedishPlural` (CSwFP covers Swedish plural inside 3.11, pp. 54–55). Section 3.14 becomes `Phonemes`.
-
-A short introduction should note that although the book is not about morphology, these examples exercise the Lean concepts just learned.
-
-*Migration*: check that every Lean feature used here was presented in `IntroL.lean`.
-
-### 4. `Games.lean` — CSwFP/4.1, 5.1, 5.4
-
-Syntax and semantics are presented one after the other for each game, instead of split across two chapters. CSwFP/4.1 carries the syntax of both games, so it is split between the two files.
-
-- `SeaBattle.lean` — 4.1 (Sea Battle part) + 5.1. Verified free of logic: 5.1 is state-transition semantics.
-- `Mastermind.lean` — 4.1 (Mastermind part) + the implementation half of 5.4 (`samepos`, `occurscount`, `reaction`, `updateMM`, `playMM`).
-
-5.4 opens by announcing itself as an application of propositional logic, but the announcement is not kept: the propositional content is confined to about eighteen lines (the encoding paragraph, Exercise 5.14, and the remark that the secret pattern is *logically implied* by the rules plus the answers). Everything after that is list counting. So 5.4 splits:
-
-- the implementation stays here;
-- the opening sentence, the encoding paragraph and Exercise 5.14 move to `Logic.lean`. Exercise 5.13 stays (combinatorics, and it sets up the size of the search space that `updateMM` filters).
-
-Splitting Mastermind bends the principle of keeping each game's syntax and semantics together, and the alternative that respects it is to move `Logic.lean` up, right after `IntroL.lean`. That alternative is rejected: it puts the two heaviest formal chapters back to back, before any linguistic payoff, for an audience that `IntroCS.lean` promised natural language to. The game keeps its syntax and its state semantics here; the propositional reading returns as commentary and exercises at the end of `PL.lean`, once the reader has the logic to state it.
-
-The grammars here are flattened into ordinary types — enumerations, `structure`s, `List` and `Vector` — rather than given as values of Mathlib's `ContextFreeGrammar`; that is a decision, argued in "Reusing Mathlib and CSLib", and the one deferred item that would change this chapter once taken up.
-
-**`Fin`, `Vector` and subtypes are introduced here, not in `IntroL.lean`.** They are Lean's own basic types, each needed by one grammar and nowhere else: `Fin 10` for a board row, `Vector Colour 4` for a guess of fixed length, and `{ r : List Answer // r.length ≤ 4 }` for a reaction of at most four pins. Each gets a short paragraph where it first appears, with a citation of the Lean Language Reference for the reader who wants more. `Fin` already has one; `Vector` and the subtype do not, and need it.
-
-CSwFP writes 5.4 as an *echo* of 5.3 — "As in the case of propositional logic, we can now give a Mastermind update function" — the same list comprehension discarding states incompatible with new information. `CSwL` inverts the direction of the analogy: here `updateMM` stands on its own, and in `Logic.lean` the valuation `update` presents itself as having the shape of the `updateMM` the reader already knows.
-
-### 5. `Logic.lean` — CSwFP/4.4–4.7, 5.2, 5.3, 5.5
+### 3. `Logic.lean` — CSwFP/4.4–4.7, 5.2, 5.3, 5.5
 
 Two files, `PL.lean` (propositional logic) and `FOL.lean` (predicate logic).
 
@@ -250,10 +224,8 @@ should be worth does not arise, since `top` and `bot` are constructors.
 
 1. **`Prop` and proof in Lean** — meta level. Tactics presented as the rules they are, building on the `rfl`/`intro`/`exact`/`decide` of `IntroL.lean`: `apply`; `constructor` and anonymous constructors for ∧ and ↔; `left`, `right` and `cases` for ∨; `False.elim` and `absurd` for ¬; `by_contra`, `by_cases` and `em` for classical reasoning.
 2. **`Form` as syntax** — object level: BNF, `inductive Form` (4.4). Glued to it, the section that separates the two levels: `Form.conj p q` is data, `p ∧ q` is a proposition. Glued, not deferred to the end of the chapter — the confusion is born the instant the `inductive` appears. This is a cost Lean creates and Haskell does not have: there the meta level is invisible, living in the prose, so `data Form = ...` cannot be confused with it.
-3. **Valuation** — 5.2 and 5.3: truth tables, consequence, `update` over valuations. Then Mastermind's propositional encoding, from 5.4.
+3. **Valuation** — 5.2 and 5.3: truth tables, consequence, `update` over valuations.
 4. **The bridge** — interpreting `Form` into `Prop` and proving `eval v F = true ↔ ⟦F⟧`. Where deduction and valuation meet. CSwFP cannot have this section.
-
-The Mastermind closing section gains something the original cannot state: because the game is already implemented, there is a theorem to prove — that filtering by `reaction` and filtering by the formula yield the same set of states, i.e. that the propositional encoding is faithful to the implementation.
 
 `FOL.lean` mirrors `PL.lean`'s order: the quantifier rules first — `intro`/`apply` for ∀, `use` and `obtain` for ∃ — then 4.5, 4.6, 4.7, then 5.5. Putting the tactics last would have made the two logic chapters teach the same thing in opposite positions, for no reason.
 
@@ -283,9 +255,9 @@ The Mastermind closing section gains something the original cannot state: becaus
 
 Unique readability is the other. In CSwFP it is a claim about *strings*: a formula written out as a sequence of symbols has exactly one parse tree, so the notation is unambiguous. In Lean there is no string to disambiguate — a term of type `Form` already *is* the tree, and `Form.conj p q` cannot be read two ways. The claim has nothing left to assert.
 
-Decision: `PL.lean` does not state unique readability as a theorem. What it states instead is what survives the translation — that the constructors are injective and pairwise disjoint, provable by `injection`, which is what Exercise 4.11 already does. The prose says why the original statement dissolves: the ambiguity it rules out is a property of writing formulas down, and the type never writes them down. Recovering the original claim would take a string to disambiguate — either a parser `String → Option Form` with a round-trip theorem, or the grammar stated as a `ContextFreeGrammar` so that `toString` can be shown to land in its language and to be injective. Both are deferred for the same reason: parsing and grammars-as-data are topics of their own, and nothing before CSwFP/6 needs either. See "Reusing Mathlib and CSLib"; it is the same question this chapter and `Games.lean` both run into.
+Decision: `PL.lean` does not state unique readability as a theorem. What it states instead is what survives the translation — that the constructors are injective and pairwise disjoint, provable by `injection`, which is what Exercise 4.11 already does. The prose says why the original statement dissolves: the ambiguity it rules out is a property of writing formulas down, and the type never writes them down. Recovering the original claim would take a string to disambiguate — either a parser `String → Option Form` with a round-trip theorem, or the grammar stated as a `ContextFreeGrammar` so that `toString` can be shown to land in its language and to be injective. Both are deferred for the same reason: parsing and grammars-as-data are topics of their own, and nothing before CSwFP/6 needs either. See "Reusing Mathlib and CSLib"; it is the same question this chapter and `SeaBattle.lean` both run into.
 
-### 6. `Sets.lean` — CSwFP/2.1, 2.2
+### 4. `Sets.lean` — CSwFP/2.1, 2.2
 
 What is left of CSwFP/2 after 2.3, 2.4 and 2.5 moved to `IntroL.lean` and `English.lean`: sets and relations. Renamed from `Foundation.lean`, which promised a foundations chapter that no longer exists. `Sets` covers both halves honestly, because CSwFP/2.2 *defines* a relation as a subset of A × B — a relation is a set — and because what the chapter adds in Lean is precisely the representation choice for `Set α`.
 
@@ -299,6 +271,27 @@ What is left of CSwFP/2 after 2.3, 2.4 and 2.5 moved to `IntroL.lean` and `Engli
 `Logic.lean` must therefore not use `Set` or `Rel` — see the representation note above.
 
 From the `logic_and_proof`, the chapters `sets_in_lean` and `relations_in_lean` can give some exercises or ideas on how to present sets and relations in Lean.
+
+### 5. `SeaBattle.lean` — CSwFP/4.1, 5.1
+
+Syntax and semantics are presented one after the other, instead of split across two chapters: 4.1 for the grammar, 5.1 for the state-transition semantics.
+
+The grammar here is flattened into ordinary types — enumerations, `structure`s and `List` — rather than given as a value of Mathlib's `ContextFreeGrammar`; that is a decision, argued in "Reusing Mathlib and CSLib" above.
+
+**`Fin` is introduced here, not in `IntroL.lean`.** It is one of Lean's own basic types, needed by this grammar and nowhere else: `Fin 10` for a board row. `DEVIATIONS.md` states this as a general loosening of "presented" — a type needed in exactly one place is introduced where it is used.
+
+**The chapter comes after `Logic.lean` and `Sets.lean`.** Its exercises prove theorems about `WellFormed` by induction on an inductive predicate, which needs the tactics `Logic.lean` presents. Placing it earlier would mean either weaker exercises or a chapter that uses what the book has not shown.
+
+**Mastermind was removed.** CSwFP/4.1 carries the syntax of two games and 5.4 gives Mastermind's implementation, and an earlier arrangement of this book had both. It is dropped: the section was disconnected from the Sea Battle material that preceded it, and it announced a semantics in propositional logic that it never delivered — 5.4 opens by calling itself an application of propositional logic, but the propositional content is about eighteen lines that the implementation never uses. Reinstating Mastermind would mean writing that encoding rather than translating it. `PROVENANCE.md` records the exercises that went with it.
+
+
+### 6. `Morphology.lean` — CSwFP/3.11, 3.14
+
+`Applications` is too vague a name; the chapter is about morphology. Section 3.11 is split into two sections, `FinnishVowelHarmony` and `SwedishPlural` (CSwFP covers Swedish plural inside 3.11, pp. 54–55). Section 3.14 becomes `Phonemes`.
+
+A short introduction should note that although the book is not about morphology, these examples exercise the Lean concepts just learned.
+
+*Migration*: check that every Lean feature used here was presented in `IntroL.lean`.
 
 ### 7. `InfEngine.lean` — CSwFP/4.3, 5.7
 
@@ -353,7 +346,7 @@ CSwFP/7 (The Composition of Meaning in Natural Language) goes after `ModelChecki
 
 A proof system as data — CSLib's `Cslib.Logic.PL.Theory.Derivation` — is deferred rather than rejected, for the reasons in the `Logic.lean` section. It becomes attractive exactly where `CSwL` would have something to give back: CSLib has the derivations but no propositional semantics, and this book builds the valuation. Soundness — every derivable sequent is true under every valuation satisfying its context — needs both halves, and neither project has both today. `Cslib/Logics/README.md` invites exactly this ("we are interested in expanding them or creating new ones that can cover your use cases"). Its natural place is after `Sets.lean`, once relations and quantifiers are available. It stays out of the plan until CSwFP/1–6 are in place.
 
-Mathlib's `ContextFreeGrammar` for the grammars of `Games.lean` is deferred on the same footing, and for reasons that are ours rather than the library's — see "Reusing Mathlib and CSLib". It is the one deferred item that would change a chapter already written, so it belongs after the pending work already tracked, not before it.
+Mathlib's `ContextFreeGrammar` for the grammar of `SeaBattle.lean` is deferred on the same footing, and for reasons that are ours rather than the library's — see "Reusing Mathlib and CSLib". It is the one deferred item that would change a chapter already written, so it belongs after the pending work already tracked, not before it.
 
 The related question — whether `PL.lean`'s valuation is written in CSLib's shape from the start — is settled above, and settled against it.
 
