@@ -3,6 +3,8 @@ import CSwLCompat
 import Bib
 import Mathlib.Data.List.Chain
 
+import VersoManual
+
 open Verso.Genre Manual
 open CSwLMeta
 
@@ -11,7 +13,12 @@ set_option verso.code.warnLineLength 80
 #doc (Manual) "Batalha Naval" =>
 %%%
 tag := "SeaBattle"
+htmlSplit := .never
+file := "SeaBattle"
 %%%
+
+Como definir uma língua — no sentido amplo: um conjunto de strings bem
+formadas — por meio de uma gramática. O exemplo é a linguagem de um jogo.
 
 # Sintaxe
 

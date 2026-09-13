@@ -52,19 +52,15 @@ this way is usually a mistake; see "Known gaps."
 | --- | --- | --- | --- |
 | `IntroCS` | `namespace`, `def` (by pattern matching), `inductive`, `deriving Repr`, `example`, `#eval` | `Nat`, function type `→`, dot-notation constructors (`.num`) | `rfl`, `induction … with`, `rw`, `rewrite`, `unfold`, `repeat` |
 | `IntroL` | `#check`, `#print`, `theorem`, `structure`, `instance`, `section`, `variable` | `Type`, `Prop`, `Bool`, `List`, `Option`, `Char`, `String`, `fun`/`λ`, `match`, `if … then … else`, `⟨…⟩`, implicit `{}`, instance-implicit `[]`, `∘`, `BEq`, `∀`, `∃`, `∧`, `∨`, `↔`, `≠` | `intro`, `exact`, `apply`, `cases … with`, `constructor`, `obtain`, `show`, `funext`, `omega`, `decide` (solution only) |
-| `Morphology` | `abbrev`, `open`, `deriving BEq` | `×` | `native_decide` (solution only) |
-| `Games` | — | `DecidableEq`, `Vector`, subtypes (`{ x : T // p x }`), `¬`, `∈` | `simp` (solution only) |
-| `Logic` | `mutual`, `private` | `\|>` | `have`, `use`, `left`, `right`, `rcases`, `by_cases`, `by_contra` |
-| `Sets` | — | `Set`, `Rel`, `Finset`, `Fintype`, `Setoid`, `⊆`, `∪`, `∩` | `assumption`, `trivial`, `symm`, `simp_all` |
+| `Logic` | `abbrev`, `mutual`, `private` | `DecidableEq`, `×`, `¬`, `\|>` | `have`, `use`, `left`, `right`, `rcases`, `by_cases`, `by_contra`, `simp` |
+| `Sets` | `open` | `Set`, `Rel`, `Finset`, `Fintype`, `Setoid`, `∈`, `⊆`, `∪`, `∩` | `assumption`, `trivial`, `symm`, `simp_all` |
+| `SeaBattle` | — | `Fin` | `native_decide` |
+| `Morphology` | `deriving BEq` | — | — |
 | `InfEngine` | — | `do`-notation | — |
 | `English` | *(none new)* | *(none new)* | *(none new)* |
 
 `English` introduces no new feature: it is where `abbrev` and `ToString`
 instances become the dominant idiom, but both arrive earlier.
-
-`Games` introduces `Vector` and subtypes in `Games/Mastermind.lean`, and the
-subtype gets a paragraph of prose before its first use — the rule working as
-intended.
 
 The table records features, not every piece of notation. Type ascription,
 list literals, projection dots, and the like are not tracked: they arrive with
@@ -76,13 +72,17 @@ maintains.
 Open questions about the table, recorded so they are not lost. Each needs an
 author decision, not a mechanical fix.
 
-- **`native_decide`** (`Morphology/SwedishPlural.lean:69`, `:72`) is used
-  inside solutions and is not in `IntroL`'s tactic table. It closes a goal by
-  compiling and running it, trusting the compiler rather than the kernel — a
-  materially different promise from `decide`. Its use is justified where it
-  appears, and a comment at `:63-66` says why, but that comment is inside the
-  solution and in Portuguese, so the explanation reaches neither the student
-  nor the English code-comment rule.
+- **`native_decide`** is used eleven times in `SeaBattle.lean` (`:290`, `:291`,
+  `:307`, `:308`, `:334`, `:338`, `:342`, `:395`, `:396`, `:399`, `:402`) and
+  twice in `Morphology/SwedishPlural.lean` (`:69`, `:72`), and is presented
+  nowhere. It closes a goal by compiling and running it, trusting the compiler
+  rather than the kernel — a materially different promise from `decide`, and a
+  reader who meets it without being told will draw the wrong conclusion about
+  what a Lean proof is worth. Only the `SwedishPlural` uses carry an
+  explanation, in a Portuguese comment inside a solution (`:63-66`), which
+  reaches neither the student nor the English code-comment rule. The
+  `SeaBattle` uses are in ordinary code, not solutions, so the student does
+  see them.
 - **`trivial`** — one term-level use in `Sets.lean:507`, not presented
   anywhere. Give it a line or replace it when that chapter is revised.
 
@@ -117,7 +117,7 @@ Material moves between chapters, and a number would be wrong the moment it
 did.
 
 A short chapter is a single file (`CSwL/Sets.lean`). A chapter whose sections
-are long enough to deserve their own files is a "glue" file (`CSwL/Games.lean`)
+are long enough to deserve their own files is a "glue" file (`CSwL/Logic.lean`)
 that only gathers them via `{include 1 …}` from a same-named directory. Each
 content file has its own `namespace`: the book redefines the same names in
 different chapters, deliberately.

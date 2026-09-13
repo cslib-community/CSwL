@@ -3,10 +3,10 @@ import Bib
 
 import CSwL.IntroCS
 import CSwL.IntroL
-import CSwL.Morphology
-import CSwL.Games
 import CSwL.Logic
 import CSwL.Sets
+import CSwL.SeaBattle
+import CSwL.Morphology
 import CSwL.InfEngine
 import CSwL.English
 
@@ -29,9 +29,9 @@ set_option verso.code.warnLineLength 80
 #doc (Manual) "Semântica computacional com Lean" =>
 {include CSwL.IntroCS}
 {include CSwL.IntroL}
-{include CSwL.Morphology}
-{include CSwL.Games}
 {include CSwL.Logic}
 {include CSwL.Sets}
+{include CSwL.SeaBattle}
+{include CSwL.Morphology}
 {include CSwL.InfEngine}
 {include CSwL.English}

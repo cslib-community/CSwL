@@ -20,11 +20,15 @@ passage it comes from**. Keep it in step with any further rename.
 stated in Lean. In the source these carry a `✎` marker, which is
 otherwise undocumented.
 
-The book has 81 exercises as of 2026-09-02, and every one of them
-appears somewhere below — either in a table that names its source, or
+The book has 76 exercises as of 2026-09-13, and all but one of them
+appear somewhere below — either in a table that names its source, or
 in the list of those with no counterpart. Two checks keep it that way:
 no `(name := …)` in `CSwL/` should be absent from this file, and no
 name cited here should have stopped existing.
+
+The exception is `free-vars-in-formula`, in `Logic/FOL.lean`, which has
+no entry here; it predates the chapter reorganization of 2026-09-13 and
+still needs one.
 
 ## A correction to the numbers
 
@@ -92,11 +96,24 @@ stay with this chapter when it moves after `Logic.lean`; 2.3 (`Ā̄ = A`)
 is the one that needs classical reasoning, and is the reason for the
 move.
 
-### `Games/SeaBattle.lean` - CSwFP/4.1
+### `SeaBattle.lean` - CSwFP/4.1
 
 - Exercise 4.1 is `game-over-grammar` (prose now, but better change to Lean code)
 
+### Mastermind — dropped
 
+| CSwL id | Rating | CSwFP | Page | Notes |
+|---------|--------|-------|------|-------|
+| — | — | Exercise 5.13 | — | dropped 2026-09-13 |
+| — | — | Exercise 5.14 | — | dropped 2026-09-13 |
+| — | — | Exercise 5.15 | — | dropped 2026-09-13 |
+| — | — | Exercise 5.16 | — | dropped 2026-09-13 |
+
+`Games/Mastermind.lean` was removed with the chapter reorganization: it was
+disconnected from what preceded it, and it promised a semantics in
+propositional logic that it never gave. Two exercises went with it,
+`four-turn-game` and `chess-grammar`, along with CSwFP/5.13–5.16, which had no
+`CSwL` counterpart in the first place.
 
 ### `Logic/PL.lean` — CSwFP/4.4
 
@@ -197,7 +214,6 @@ the definitions rather than queries against them.
 equivalence, which `Form.equivalent` already is; 5.12 asks to reimplement the
 semantics with `[String]` instead of `[(String, Bool)]` for valuations.
 
-CSwFP/5.13–5.16 belong to Mastermind and are recorded with `Games.lean`.
 CSwFP/5.18 is ported as `translate-quantified`. Its propositional counterpart,
 4.9, was dropped; the two chapters no longer mirror each other here.
 
@@ -226,13 +242,11 @@ as an oversight.
 | `Sets.lean`                     | `above5-subset-above2`     | 1      |
 | `Sets.lean`                     | `union-contains`           | 1      |
 | `Sets.lean`                     | `intersection-contained`   | 1      |
-| `Games/Mastermind.lean`         | `four-turn-game`           | 1      |
-| `Games/Mastermind.lean`         | `chess-grammar`            | 1      |
-| `Games/SeaBattle.lean`          | `game-over-grammar`        | 2      |
-| `Games/SeaBattle.lean`          | `defeated-last`            | 3      |
-| `Games/SeaBattle.lean`          | `add-ship`                 | 3      |
-| `Games/SeaBattle.lean`          | `sunk`                     | 2      |
-| `Games/SeaBattle.lean`          | `grice-maxims`             | 1      |
+| `SeaBattle.lean`                | `game-over-grammar`        | 2      |
+| `SeaBattle.lean`                | `defeated-last`            | 3      |
+| `SeaBattle.lean`                | `add-ship`                 | 3      |
+| `SeaBattle.lean`                | `sunk`                     | 2      |
+| `SeaBattle.lean`                | `grice-maxims`             | 1      |
 | `IntroL.lean`                   | `sum-of-squares`           | 1      |
 | `IntroL.lean`                   | `building-terms`           | 1      |
 | `IntroL.lean`                   | `rfl-arithmetic`           | 1      |

@@ -9,8 +9,8 @@ import VersoManual
 open Verso Genre Manual
 
 -- Capítulo "cola": reúne, via `{include 1 ...}`, lógica proposicional e
--- lógica de predicados — a ferramenta básica que os fragmentos de inglês do
--- capítulo anterior vão usar para representar significado.
+-- lógica de predicados — a ferramenta básica com que os fragmentos de inglês
+-- representarão significado.
 #doc (Manual) "Lógica" =>
 %%%
 tag := "Logic"
