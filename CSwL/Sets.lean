@@ -453,6 +453,16 @@ um domínio de duas entidades, e a relação de gostar entre elas.
 
 O domínio de entidades. Duas bastam para os exemplos deste capítulo.
 
+:::dev
+`Sets.Entity` and `FOL.Entity` are two different types with the same name.
+Nothing breaks — each lives in its own namespace, and no file opens both — but
+a reader who meets `Entity` twice with different constructors may take them for
+one type. The collision was accepted deliberately: `Entity` is the right name
+in both places, and renaming either to something like `Ent2` or `SetEntity`
+would cost more in clarity than the ambiguity costs. If a later chapter ever
+needs both in scope at once, that is when to revisit it.
+:::
+
 ```lean
 inductive Entity where
   | dorothy | toto
