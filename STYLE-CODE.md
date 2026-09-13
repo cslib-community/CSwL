@@ -35,10 +35,10 @@ never presented is a defect, not an entry. Rows known to be in that state are
 marked, and the open ones are listed under "Known gaps" below.
 
 **A feature can be presented outside a `lean` block**, so the table's first-use
-column does not by itself settle whether the rule holds. `IntroL.lean` presents
-fourteen tactics in a plain code fence — one line each, `rfl` through `funext` —
-and a scan that reads only ```` ```lean ```` blocks misses it. Check the prose
-before recording a gap.
+column does not by itself settle whether the rule holds. `Logic/Proof.lean`
+presents fourteen tactics in a plain code fence — one line each, `rfl` through
+`funext` — and a scan that reads only ```` ```lean ```` blocks misses it. Check
+the prose before recording a gap.
 
 A feature marked **(solution only)** first appears inside a `solution!(…)`
 block. Those rows are a distinct case: the feature is invisible in the
@@ -51,9 +51,11 @@ this way is usually a mistake; see "Known gaps."
 | Chapter | Commands and declarations | Types and syntax | Tactics |
 | --- | --- | --- | --- |
 | `IntroCS` | `namespace`, `def` (by pattern matching), `inductive`, `deriving Repr`, `example`, `#eval` | `Nat`, function type `→`, dot-notation constructors (`.num`) | `rfl`, `induction … with`, `rw`, `rewrite`, `unfold`, `repeat` |
-| `IntroL` | `#check`, `#print`, `theorem`, `structure`, `instance`, `section`, `variable` | `Type`, `Prop`, `Bool`, `List`, `Option`, `Char`, `String`, `fun`/`λ`, `match`, `if … then … else`, `⟨…⟩`, implicit `{}`, instance-implicit `[]`, `∘`, `BEq`, `∀`, `∃`, `∧`, `∨`, `↔`, `≠` | `intro`, `exact`, `apply`, `cases … with`, `constructor`, `obtain`, `show`, `funext`, `omega`, `decide` (solution only) |
-| `Logic` | `abbrev`, `mutual`, `private` | `DecidableEq`, `×`, `¬`, `\|>` | `have`, `use`, `left`, `right`, `rcases`, `by_cases`, `by_contra`, `simp` |
-| `Sets` | `open` | `Set`, `Rel`, `Finset`, `Fintype`, `Setoid`, `∈`, `⊆`, `∪`, `∩` | `assumption`, `trivial`, `symm`, `simp_all` |
+| `IntroL` | `#check`, `#print`, `theorem`, `structure`, `instance`, `section`, `variable` | `Type`, `Prop`, `Bool`, `List`, `Option`, `Char`, `String`, `fun`/`λ`, `match`, `if … then … else`, `⟨…⟩`, implicit `{}`, instance-implicit `[]`, `∘`, `BEq` | `funext`, `show` (solution only), `omega` (solution only), `decide` (solution only) |
+| `Logic/Proof` | `open` | `¬`, `∀`, `∃`, `∧`, `∨`, `↔`, `≠` | `intro`, `exact`, `apply`, `cases … with`, `constructor`, `obtain`, `have`, `use`, `left`, `right`, `rcases`, `by_cases`, `by_contra` |
+| `Logic/PL` | `abbrev`, `private` | `DecidableEq`, `×` | `simp` |
+| `Logic/FOL` | `mutual` | `\|>` | — |
+| `Sets` | — | `Set`, `Rel`, `Finset`, `Fintype`, `Setoid`, `∈`, `⊆`, `∪`, `∩` | `assumption`, `trivial`, `symm`, `simp_all` |
 | `SeaBattle` | — | `Fin` | `native_decide` |
 | `Morphology` | `deriving BEq` | — | — |
 | `InfEngine` | — | `do`-notation | — |
@@ -85,6 +87,14 @@ author decision, not a mechanical fix.
   see them.
 - **`trivial`** — one term-level use in `Sets.lean:507`, not presented
   anywhere. Give it a line or replace it when that chapter is revised.
+- **`show`, `omega`, `decide` in `IntroL`** — all three appear only inside the
+  `twice` exercise's `solution!(…)` blocks (`:1154`, `:1155`, `:1158`), so the
+  student and `terse` variants never show them, but the `solutions` and
+  `grading` variants do, and nothing presents them before `Logic/Proof`. This
+  is the cost of moving every proof tactic out of `IntroL`: the chapter is now
+  deliberately pre-proof, so presenting them here would undo that. Either move
+  the exercise's tests to `Logic/Proof`, or weaken them to what `rfl` closes.
+  `decide` → `rfl` is known to work for `twice_test2`.
 
 `IntroCS` is the constraint's one accepted exception: it uses Lean that
 `IntroL` only presents later, deliberately, and the chapter says so where its
