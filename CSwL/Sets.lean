@@ -867,9 +867,10 @@ def kernel {α β : Type} (f : α → β) : Rel α α :=
 
 theorem ex_3_12 {α β : Type} (f : α → β) :
     Equivalence (kernel f) :=
-  solution!({ refl  := fun _ => rfl
-              symm  := fun h => h.symm
-              trans := fun h1 h2 => h1.trans h2 })
+  solution!(
+    { refl  := fun _ => rfl
+      symm  := fun h => h.symm
+      trans := fun h1 h2 => h1.trans h2 })
 ```
 
 :::gradeTheorem "1" ex_3_12

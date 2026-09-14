@@ -159,6 +159,24 @@ The `student` and `terse` variants replace these with `sorry`; `solutions` and
 `grading` keep them. This is why a feature first used inside `solution!` is
 invisible to the student.
 
+Which of the two forms to use is not a matter of taste, because the `solutions`
+variant strips the marker in place and what is left has to parse and elaborate
+on its own:
+
+- **A tactic block takes the indented form**, never `solution!(…)`. As a
+  tactic the marker is replaced by `all_goals`, so the block must make sense
+  applied to a *single* goal — a proof that splits into cases has to perform
+  the split itself, inside the block, rather than relying on goals its caller
+  left open.
+- **A multi-line term begins on the line after `solution!(`**, indented under
+  it. Written on the same line, its continuation lines are aligned against a
+  column that only exists while the marker is there; removing the marker
+  shortens the first line and the alignment breaks.
+
+The book's own build catches neither mistake — a solution is elaborated in
+place there, marker and all. Only the generated project sees the stripped
+source, which is why `solutions` is verified (see `ExtractConfig.verify`).
+
 ### Grading
 
 `:::gradeTheorem <points> <name> …` marks theorems the autograder scores.

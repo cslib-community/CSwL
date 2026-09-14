@@ -398,10 +398,9 @@ theorem vestidos₁ (h : Premissas Aa Ab Ap Ma Mb Mp Ca Cb Cp)
   -- Ana não está de azul: se estivesse, por `h1` ela estaria de branco, mas Ana
   -- não está de branco por `h3`.
   have hnAa : ¬ Aa := by
-    solution!(
+    solution!
       intro hAa
       exact h3 (h1 hAa)
-    )
 
   have hAp : Ap := by
    cases hA with
@@ -421,11 +420,12 @@ theorem vestidos₁ (h : Premissas Aa Ab Ap Ma Mb Mp Ca Cb Cp)
 
   have hMa : Ma := by
     rcases ha with hMa | hAa | hCa
-    solution!(
-    · exact hMa
-    · exact absurd hAa hnAa
-    · exact absurd hCa hnCa
-    )
+    · solution!
+        exact hMa
+    · solution!
+        exact absurd hAa hnAa
+    · solution!
+        exact absurd hCa hnCa
 
   exact ⟨hAp, hCb, hMa⟩
 ```
@@ -513,9 +513,9 @@ Prove que `∃ n : Nat, n + n = 10`, exibindo a testemunha. Você pode usar {nam
 
 ```lean
 example : ∃ n : Nat, n + n = 10 := by
-  solution!(
+  solution!
     apply Exists.intro 5
-    rfl)
+    rfl
 ```
 ::::
 
