@@ -9,7 +9,7 @@ open CSwLMeta
 %%%
 tag := "IntroL"
 htmlSplit := .never
-file := "introL"
+file := "IntroL"
 %%%
 
 Neste capítulo, apresentamos o essencial sobre a linguagem de programação Lean. Nosso objetivo é apresentar o suficiente para que o leitor possa acompanhar os exemplos do restante do livro. Para uma apresentação completa, sugerimos a leitura de {citep Bib.FPiL}[] e {citep Bib.LLR}[].
