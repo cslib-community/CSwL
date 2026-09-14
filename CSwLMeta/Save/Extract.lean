@@ -310,17 +310,37 @@ def chapterFileBase (p : Part Manual) : String :=
   (meta?.bind (·.file)).getD titleStr.sluggify.toString
 
 
-/-- Generated Lean file path for a chapter Part. -/
-def chapterPath (vol : String) (p : Part Manual) : String :=
-  vol ++ "/" ++ chapterFileBase p ++ ".lean"
+/-- Generated Lean file path for a chapter Part. `dir` is the directory the
+Part's file goes in: `CSwL` for a chapter, `CSwL/Logic` for a section of the
+`Logic` chapter. -/
+def chapterPath (dir : String) (p : Part Manual) : String :=
+  dir ++ "/" ++ chapterFileBase p ++ ".lean"
 
 /-- Generated Lean module name for a chapter Part. Uses the raw `file :=`
 identifier when it is a plain alphanumeric/underscore name; falls back to
-French-quote brackets for slugs that contain hyphens or other punctuation. -/
-def chapterModule (vol : String) (p : Part Manual) : String :=
+French-quote brackets for slugs that contain hyphens or other punctuation.
+`dir` is as in `chapterPath`, with `/` standing for the module separator. -/
+def chapterModule (dir : String) (p : Part Manual) : String :=
+  let prefix' := dir.replace "/" "."
   let base := chapterFileBase p
-  if base.all (fun c => c.isAlphanum || c == '_') then vol ++ "." ++ base
-  else vol ++ ".«" ++ base ++ "»"
+  if base.all (fun c => c.isAlphanum || c == '_') then prefix' ++ "." ++ base
+  else prefix' ++ ".«" ++ base ++ "»"
+
+/-- Whether a Part inside a chapter becomes a module of its own rather than
+being merged into its chapter's file.
+
+The criterion is the `file := …` key, which is also what names the module. It
+mirrors the book's own source: a section long enough to live in its own file
+(`CSwL/Logic/PL.lean`) sets `file :=` so that Verso gives it its own HTML
+page, and the same key now gives it its own generated `.lean`. A section
+written inline in its chapter sets only `tag :=`, and stays merged.
+
+The distinction cannot be recovered from the document alone: after
+`{include 1 …}` a section that came from its own file and one written inline
+are the same `Part`. -/
+def isOwnModule (p : Part Manual) : Bool :=
+  let .mk _ _ meta? _ _ := p
+  (meta?.bind (·.file)).isSome
 
 end
 
@@ -485,8 +505,33 @@ def walkOuter (width : Nat) (vol : String) (text : Part Manual) (buf : SaveBuffe
     buf := buf.appendAll rootFile s!"import {chapterModule vol p}\n"
   for p in subParts do
     let chapterFile := chapterPath vol p
-    buf := buf.appendOnly chapterFile .grading s!"import AutograderLib\n\n"
-    buf := walkSection width 1 chapterFile p buf
+    let .mk titleInlines _ _ intro chapterParts := p
+    -- The sections of this chapter that carry `file :=` and so become
+    -- modules of their own. A chapter with none of them (the common case) is
+    -- emitted exactly as before, in one piece.
+    let ownModules := chapterParts.filter isOwnModule
+    if ownModules.isEmpty then
+      buf := buf.appendOnly chapterFile .grading s!"import AutograderLib\n\n"
+      buf := walkSection width 1 chapterFile p buf
+    else
+      -- A glue chapter: its own prose, then the sections in their own files
+      -- under `{vol}/{chapter}/`. The `import` of each section is already in
+      -- the chapter's source header (`import CSwL.Logic.PL`), and
+      -- `chapterImports` now keeps it rather than dissolving it, so nothing
+      -- is emitted here.
+      let dir := vol ++ "/" ++ chapterFileBase p
+      buf := buf.appendOnly chapterFile .grading s!"import AutograderLib\n\n"
+      if !hasSuppressHeaderMarker intro then
+        buf := buf.appendAll chapterFile
+          (asModuleDoc s!"# {Text.inlinesToText titleInlines}")
+      buf := walkBlocks width chapterFile intro buf
+      for s in chapterParts do
+        if isOwnModule s then
+          let sectionFile := chapterPath dir s
+          buf := buf.appendOnly sectionFile .grading s!"import AutograderLib\n\n"
+          buf := walkSection width 1 sectionFile s buf
+        else
+          buf := walkSection width 1 chapterFile s buf
   return buf
 
 end CSwLMeta.Save
