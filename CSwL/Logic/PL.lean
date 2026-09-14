@@ -67,7 +67,7 @@ inductive Form where
   deriving DecidableEq, Repr
 ```
 
-Com este tipo, podemos representar fórmulas arbitrariamente complexas.
+Os contrutores {name}`Form.top` e {name}`Form.bot` representam as proposições "sempre verdadeira" e "sempre falsa". São objetos sintáticos que serão sempre interpretados como os valores verdade {lean}`true` e {lean}`false` na semântica. Com este tipo, podemos representar fórmulas arbitrariamente complexas.
 
 ```lean
 #eval
