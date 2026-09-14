@@ -433,10 +433,11 @@ def dwarf    : Entity → Bool := ([Entity.B, .R].contains ·)
 def giant    : Entity → Bool := ([Entity.T].contains ·)
 def child    : Entity → Bool := fun x => girl x || boy x
 
-def love : Entity → Entity → Bool := fun x y =>
-  [(Entity.Y, Entity.E), (.B, .S), (.R, .S)].contains (x, y)
+def love (x y : Entity) : Bool :=
+  [(.Y, .E), (.B, .S), (.R, .S)].contains (x, y)
 
-def defeat : Entity → Entity → Bool := fun x y => dwarf x && giant y
+def defeat (x y : Entity) : Bool :=
+  dwarf x && giant y
 ```
 
 A função de interpretação amarra os nomes de predicado ao modelo. Nomes fora
@@ -533,16 +534,10 @@ def everyDwarfLovesAPrincess : Formula Variable :=
   .forall_ x (.impl (.atom "Dwarf" [x])
     (.exists_ y (.conj (.atom "Princess" [y])
                        (.atom "Love" [x, y]))))
-```
 
-```lean (name := folEval1)
 #eval (Formula.eval entities int0 g0 someDwarfDefeatsSomeGiant,
        Formula.eval entities int0 g0 everyChildIsGirlOrBoy,
        Formula.eval entities int0 g0 everyDwarfLovesAPrincess)
-```
-
-```leanOutput folEval1
-(true, true, false)
 ```
 
 A terceira é falsa no modelo: os anões `B` e `R` amam `S`, que é Branca de

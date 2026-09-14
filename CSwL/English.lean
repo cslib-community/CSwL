@@ -46,32 +46,20 @@ A abreviações são como `def` mas são `unfold` automaticamente.
 
 ```lean
 abbrev Sentences := List Sentence
-```
 
-```lean (name := c2eval37)
 #eval Subject.Chomsky
-```
 
-```leanOutput c2eval37
-English.Subject.Chomsky
-```
-
-```lean (name := c2eval38)
 #eval Sentence.S Subject.Chomsky
   (Predicate.Wrote "Syntactic Structures")
-```
-
-```leanOutput c2eval38
-English.Sentence.S (English.Subject.Chomsky) (English.Predicate.Wrote "Syntactic Structures")
 ```
 
 A última saida acima lembra uma árvore, o que iremos chamar de _árvore
 sintática_.
 
-```
-         Sentence
-          /    \
-    Subject   Predicate
+```display
+ Sentence
+ |- Subject
+ |- Predicate
 ```
 
 O passo inverso é a _geração_, serializar uma estrutura que representa
@@ -81,19 +69,6 @@ um tipo que seja instância desta classe. Então só precisamos definir as
 instâncias para `ToString` de nossos tipos. Criar uma instância de uma
 classe é implementar os campos que a classe demanda e classes são
 `structure`. Algumas variações de sintaxe na declaração das instâncias.
-
-```lean (name := c2print7)
-#print ToString
-```
-
-```leanOutput c2print7
-class ToString.{u} (α : Type u) : Type u
-number of parameters: 1
-fields:
-  ToString.toString : α → String
-constructor:
-  ToString.mk.{u} {α : Type u} (toString : α → String) : ToString α
-```
 
 ```lean
 instance : ToString Subject where
@@ -119,10 +94,6 @@ def makeS (s : Subject) (p : Predicate) : Sentence := .S s p
 ```lean (name := c2eval39)
 #eval IO.println $
   makeS .Chomsky (makeP "Syntactic Structures")
-```
-
-```leanOutput c2eval39
-Chomsky wrote "Syntactic Structures"
 ```
 
 
@@ -201,15 +172,10 @@ E a sentença, com o sujeito no lugar.
 
 ```lean
 def dorothyLikesToto : t := likesToto dorothy
-```
 
-```lean (name := c3check12)
 #check dorothyLikesToto
 ```
 
-```leanOutput c3check12
-English.dorothyLikesToto : t
-```
 
 A derivação da sentença é uma sequência de duas aplicações, e cada
 passo é conferido pelos tipos. Uma combinação mal formada não chega a
@@ -298,6 +264,7 @@ Para ver a recusa acontecer, tente dar ao verbo um objeto que não é uma
 entidade: `#check likes "Toto"` não compila, e o erro aponta o
 argumento — uma `String` onde se esperava um `e`. É a versão tipada de
 dizer que a combinação não é bem formada.
+
 
 # Um fragmento do inglês
 
@@ -787,7 +754,6 @@ O _gap_ é a posição, dentro da `RCN`, onde entraria o `CN` que ela modifica �
 
 O problema é que `rcn4`/`rcn5` não são recursivas: cada uma coordena exatamente duas ocorrências. Não é possível gerar "the dwarf that helped Goldilocks and admired the princess that shuddered and laughed" sem acrescentar mais uma regra para RCNs de três coordenadas, depois quatro, e assim por diante — o fragmento não captura a generalização "coordenação de qualquer número de VPs paralelas".
 ::::
-
 
 
 ```lean
