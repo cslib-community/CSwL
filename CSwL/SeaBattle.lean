@@ -297,10 +297,11 @@ testar depois, é um erro do compilador. `gapShip` tem uma lacuna na
 coluna B, então nenhum `State` pode conter só esse navio: a prova de
 `shipsOK` que a `structure` exige não existe.
 
-```lean +error
-/-- Contraexemplo: mesma linha, com lacuna na coluna B. -/
+```lean
 def gapShip : Grid := [(.A, 0), (.C, 0)]
+```
 
+```lean +error
 def badState : State :=
   { ships := [gapShip]
     attacks := []
@@ -333,15 +334,12 @@ def addShip (ship : Grid) (s : State) : Option State :=
 example : (addShip [(.A, 0), (.A, 1)] exampleState).isSome :=
   solution!(by native_decide)
 
-/-- `gapShip` não é um navio válido: a adição falha. -/
 example : addShip gapShip exampleState = none :=
   solution!(by native_decide)
 
-/-- `destroyerCells` já ocupa células de `exampleState`: colide. -/
 example : addShip destroyerCells exampleState = none :=
   solution!(by native_decide)
 ```
-
 ::::
 
 A semântica de uma reação depende do estado do jogo e da posição do último ataque. Dado um estado `s`, uma posição `p` e uma reação `r`, queremos dizer quando `r` é a reação verdadeira:
