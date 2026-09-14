@@ -132,6 +132,16 @@ that only gathers them via `{include 1 …}` from a same-named directory. Each
 content file has its own `namespace`: the book redefines the same names in
 different chapters, deliberately.
 
+`htmlSplit := .never` keeps a chapter on one HTML page, and also forbids the
+split in every part below it. A single-file chapter should keep it. A glue
+chapter should *omit* it, so each included section becomes its own page under
+the chapter's directory — `Logic/PL/`, `Logic/FOL/` — which is what the
+default `htmlDepth` of 2 already asks for. A section that gets its own page
+needs its own `file := "Tag"`, or Verso builds the URL by sluggifying the
+Portuguese title and the accents come out mangled (`L___gica-proposicional`).
+None of this affects the generated Lean: the saver writes one file per
+chapter, and reads `file :=` only from chapters.
+
 ### Exercises and solutions
 
 `:::exercise (rating := N) (name := "mnemonic")` — an exercise. `rating` is

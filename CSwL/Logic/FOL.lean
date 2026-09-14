@@ -10,6 +10,7 @@ set_option verso.code.warnLineLength 100
 #doc (Manual) "Lógica de predicados" =>
 %%%
 tag := "FOL"
+file := "FOL"
 %%%
 
 ```lean

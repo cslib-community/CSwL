@@ -12,6 +12,7 @@ set_option verso.code.warnLineLength 100
 #doc (Manual) "Provas em Lean" =>
 %%%
 tag := "Proof"
+file := "Proof"
 %%%
 
 Neste capítulo vamos falar sobre o tipo `Prop` em Lean para representação de proposições lógicas em tipos dependentes. A representação de proposições e contrução de provas é o que torna Lean um assistente de prova, além de linguagem de programação. Vamos apresentar provas como termos e a construção de provas com táticas.

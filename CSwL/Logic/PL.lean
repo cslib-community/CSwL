@@ -11,6 +11,7 @@ set_option verso.code.warnLineLength 100
 #doc (Manual) "Lógica proposicional" =>
 %%%
 tag := "PL"
+file := "PL"
 %%%
 
 ```lean
@@ -356,6 +357,9 @@ example : Form.impliesL [depo1, depo2, depo3] banguSolution = true :=
 
 
 # Traduzindo `Form` para `Prop`
+%%%
+tag := "pl-to-prop"
+%%%
 
 O mapeamento de `Form` em `Prop` pode ser definido como uma função que interpreta cada fórmula como a proposição que ela afirma, dada uma valoração.
 
