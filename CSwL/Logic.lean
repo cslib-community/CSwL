@@ -15,7 +15,6 @@ open Verso Genre Manual
 #doc (Manual) "Lógica" =>
 %%%
 tag := "Logic"
-htmlSplit := .never
 file := "Logic"
 %%%
 
