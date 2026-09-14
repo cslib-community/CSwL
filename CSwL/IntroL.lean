@@ -473,22 +473,16 @@ As funções {lean}`List.all` e {lean}`List.any` perguntam se _todos_ os element
 tag := "composicao-funcoes"
 %%%
 
-E a composição: `f ∘ g` é a função que aplica `g` e depois `f`, de modo que `(f ∘ g) x` é `f (g x)`. Ela produz função nova sem nomear argumento nenhum — `double ∘ double` é quadruplicar.
-
-```lean (name := c2eval29)
-#eval (square₁ ∘ square₂) 5
-#eval entities.map (size ∘ String.toList)
-```
-
-Podemos compor duas conversões, de Kelvin para Celsius, depois de Celsius para Fahrenheit. O símbolo `∘` é expandido para  `Function.comp`, e `(f ∘ g) x = f (g x)`. primeiro `g`, depois `f`, na ordem em que a leitura da notação sugere o contrário.
+E a composição: `f ∘ g` é a função que aplica `g` e depois `f`, de modo que `(f ∘ g) x` é `f (g x)`. Podemos compor duas conversões, de Kelvin para Celsius, depois de Celsius para Fahrenheit.
 
 ```lean
-def celsiusToFahrenheit (c : Int) : Int := c * 9 / 5 + 32
+#eval (square₁ ∘ square₂) 5
+#eval entities.map (size ∘ String.toList)
 
+def celsiusToFahrenheit (c : Int) : Int := c * 9 / 5 + 32
 def kelvinToCelsius (k : Int) : Int := k - 273
 
-def kelvinToFahrenheit : Int → Int :=
-  celsiusToFahrenheit ∘ kelvinToCelsius
+def kelvinToFahrenheit : Int → Int := celsiusToFahrenheit ∘ kelvinToCelsius
 ```
 
 # Classes de Tipos
