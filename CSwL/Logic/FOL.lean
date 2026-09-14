@@ -22,19 +22,22 @@ namespace FOL
 tag := "fol-intro"
 %%%
 
-Se usarmos lógica proposicional para formalizar a frase "Toda maça é vermelha", teremos uma letra proposicional, um átomo indivisível que não nos permitiria capturar a idéia do quantificador e da dependencia declarada entre as _coisas_ que são maças e a cor destas mesmas _coisas_. Lógica de predicados acrescenta três ingredientes:
+Se usarmos lógica proposicional para formalizar a frase "Toda maça é vermelha", teremos uma letra proposicional, um átomo indivisível que não nos permitiria capturar a idéia do quantificador e da dependencia declarada entre as _coisas_ que são maças e a cor destas mesmas _coisas_. Lógica de predicados acrescenta os seguintes ingredientes a sintaxe de Lógica Proposicional:
 
 * termos para representar indivíduos de um domínio. Os termos poderão ser variáveis ou funções aplicadas sobre termos;
 * proposições básicas serão predicados `n`-ários sobre termos;
 * fórmulas universalmente quantificadas, `∀` seguido de variável e fórmula;
 * fórmulas existencialmente quantificadas, `∃` seguido de variável e fórmula.
 
+
 # Sintaxe de Lógica de Primeira Ordem
 %%%
 tag := "fol-syntax"
 %%%
 
-Também chamada de "lógica de primeira ordem" (FOL, "first order logic"). Vamos assumir que predicados terão aridade de 1 até 3 (relações unárias, binárias e ternárias). Relações com mais de três argumentos quase nunca são necessárias para capturar a semântica de linguagem natural. A BNF completa segue abaixo e gera fórmulas como `¬P x`, `∀ x R x x` e `∀ x ∃ y R x y`.
+Também chamada de "lógica de primeira ordem" (FOL, "first order logic"). Vamos assumir que predicados terão aridade de 1 até 3 (relações unárias, binárias e ternárias). Relações com mais de três argumentos quase nunca são necessárias para capturar a semântica de linguagem natural.
+
+A BNF completa segue abaixo e gera fórmulas como `¬P x`, `∀ x R x x` e `∀ x ∃ y R x y`. Note que não podemos aidna construir fórmulas com termos complexos como `∃ x P (f x)`, onde temos a função `f` recebendo uma variável e este termo passado como argumento para o predicado `P`. Nossos termos são apenas variáveis.
 
 ```bnf
 v    ::= "x" | "y" | "z" | v "'" ;
@@ -50,19 +53,6 @@ F    ::= atom
   | "∀" v F ("quantificação universal")
   | "∃" v F ("quantificação existencial") ;
 ```
-
-Em uma fórmula `∀x F` (ou `∃x F`), o quantificador liga toda ocorrência de
-`x` em `F` que não esteja já ligada por um `∀x`/`∃x` interno a `F`. Uma fórmula é *aberta* se tem ao menos uma ocorrência livre de variável, e *fechada* (também chamada *sentença*) caso contrário. Por exemplo, `(P x ∧ ∃x, R x x)` é aberta, o `x` de `P x` está fora do escopo do `∃x`. Mas `∃x (P x ∧ ∃x R x x)` é uma sentença.
-
-Essa distinção é o que motiva a ambiguidade de escopo de "Todo príncipe viu uma dama". Duas leituras possíveis, "para cada príncipe existe uma dama (talvez diferente) que ele viu" contra "existe uma dama que todo príncipe viu", formalizadas respectivamente como:
-
-```
-∀x (Prince x → ∃y (Lady y ∧ Saw x y))
-∃y (Lady y ∧ ∀x (Prince x → Saw x y))
-```
-
-Repare que a leitura universal usa `→` como conectivo principal, e
-a existencial usa `∧`. Já "Algum príncipe viu uma dama bonita" admite apenas uma formalização, `∃x∃y (Prince x ∧ Lady y ∧ Beautiful y ∧ Saw x y)`.
 
 :::dev "Alexandre (arademaker)"
 Em Lean, indexar por aridade é mais natural do que empilhar primos: um
@@ -93,7 +83,7 @@ def y : Variable := ⟨"y", []⟩
 def z : Variable := ⟨"z", []⟩
 ```
 
-`Formula α` é parametrizado no tipo dos termos que preenchem os predicados — por ora nossos termos são apenas `Variable`.
+`Formula α` é parametrizado no tipo dos termos que preenchem os predicados. Por ora nossos termos são apenas `Variable`.
 
 ```lean
 inductive Formula (α : Type) where
@@ -144,17 +134,15 @@ def Formula.format {α} [Repr α] : Formula α → Std.Format
     f!"({f1.format} & {f2.format})"
   | .disj f1 f2 =>
     f!"({f1.format} | {f2.format})"
-  | .forall_ v f => f!"A {repr v} {f.format}"
-  | .exists_ v f => f!"E {repr v} {f.format}"
+  | .forall_ v f => f!"∀ {repr v} {f.format}"
+  | .exists_ v f => f!"∃ {repr v} {f.format}"
 
 instance {α} [Repr α] : Repr (Formula α) :=
   ⟨fun f _ => f.format⟩
 
 ```
 
-`Repr` é a classe que o `#eval` procura primeiro, e é por isso que basta escrever `#eval formula0`. Ela devolve um `Std.Format`, e não uma `String`. O segundo argumento que a instância ignora é a precedência.
-
-A seguir, `formula1` expressa que o predicado `R` é reflexivo enquanto `formula2` expressa que ele é simétrico.
+A seguir, `formula1` expressa que o predicado `R` é reflexivo enquanto `formula2` expressa que ele é simétrico. Quando escrevermos `#eval formula1`, Lean irá procurar por esta instância de `Repr` para o tipo `Formula` declarada acima. O {name}`Std.Format` não é uma `String`, é um tipo que representa um documento com quebras de linha e identação. Nossa implementação está bastante simplificada.
 
 ```lean
 def formula1 : Formula Variable :=
@@ -165,12 +153,12 @@ def formula2 : Formula Variable :=
     (.impl (.atom "R" [x, y]) (.atom "R" [y, x])))
 ```
 
-Coletar as variáveis livres de uma fórmula é uma operação que faremos
-mais de uma vez, com termos de tipos diferentes. Definimos uma só vez,
-deixando como parâmetro a função que extrai as variáveis de um termo —
-o que muda de um caso para outro é apenas ela. Nos quantificadores,
-`filter` remove a variável ligada, e remove *todas* as suas
-ocorrências.
+Em uma fórmula `∀x F` (ou `∃x F`), o quantificador liga toda ocorrência de
+`x` em `F` que não esteja já ligada por um `∀x`/`∃x` interno a `F`. Uma fórmula é *aberta* se tem ao menos uma ocorrência livre de variável, e *fechada* (também chamada *sentença*) caso contrário. Por exemplo, `(P x ∧ ∃x, R x x)` é aberta, o `x` de `P x` está fora do escopo do `∃x`. Mas `∃x (P x ∧ ∃x R x x)` é uma sentença.
+
+Essa distinção é o que motiva a ambiguidade de escopo de "Todo príncipe viu uma dama". Existem duas leituras possíveis. A primeira seria "para cada príncipe existe uma dama (talvez diferente) que ele viu" que podemos formalizar como `∀x (Prince x → ∃y (Lady y ∧ Saw x y))`. A segunda leitura seria "existe uma dama que todo príncipe viu" formalizada como `∃y (Lady y ∧ ∀x (Prince x → Saw x y))`. Repare que a leitura universal usa `→` como conectivo principal dentro da subfórmula, e a existencial usa `∧`. Já "Algum príncipe viu uma dama bonita" admite apenas uma formalização, `∃x∃y (Prince x ∧ Lady y ∧ Beautiful y ∧ Saw x y)`.
+
+Coletar as variáveis livres de uma fórmula é uma operação recorrente. Definimos uma só vez, deixando como parâmetro a função que extrai as variáveis de um termo — o que muda de um caso para outro é apenas ela. Nos quantificadores, `filter` remove a variável ligada, e remove *todas* as suas ocorrências.
 
 ```lean
 def Formula.freeVars {α} (vars : α → List Variable) :
@@ -195,12 +183,8 @@ extrair as variáveis de um termo é devolvê-lo numa lista de um
 elemento.  As fórmulas fechadas são as que têm a lista de livres vazia.
 
 ```lean
-def freeVarsInFormula (f : Formula Variable) :
-    List Variable :=
-  solution!(f.freeVars ([·]))
-
 def closedForm (f : Formula Variable) : Bool :=
-  solution!((freeVarsInFormula f).isEmpty)
+  solution!((f.freeVars (fun x => [x])).isEmpty)
 ```
 ::::
 

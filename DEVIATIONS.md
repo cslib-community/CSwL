@@ -1,75 +1,73 @@
 # How CSwL uses CSwFP
 
-`CSwL` is not a section-by-section translation of CSwFP. It reorders the material so that the presentation is natural in Lean, under one hard constraint:
+`CSwL` is not a section-by-section translation of CSwFP. It reorders the material so that the
+presentation is natural in Lean, under one hard constraint:
 
 > **Nothing is used before it is presented.**
 
-Names — of files, of chapter and section tags, of exercises — are English
-mnemonics, never numbers. The prose is in Portuguese; the identifiers are not,
-and they carry no number because material moves between chapters and a number
-would be wrong the moment it did.
+Names of files, chapter, section tags, and exercises are English mnemonics. The prose is in
+Portuguese; the identifiers inside Lean blocks are in English.
 
-The prose never explains the book by contrast with anything else. A paragraph
-saying why this text does something differently — from the source it adapts,
-from a library, from an alternative it considered — is about the book, not
-about its subject, and the reader has no use for it. Those reasons belong in
-this document. The rule is not about naming CSwFP: a passage can break it
-without mentioning any source at all, and two did.
+The prose never explains the CLwL material by contrast with CSwFP. Those reasons belong in this
+document.  The line to hold is not "never mention an alternative". It is:
 
-The line to hold is not "never mention an alternative". It is:
+- a **technical consequence in Lean** is content, because the reader will meet it. "A constructor
+  holding a `List Form` makes the type a nested inductive, and a nested inductive has no `induction`
+  tactic" states a fact about Lean that the chapter then depends on;
+- an **editorial preference** is meta. "We preferred to keep `Game` as it is", "the columns could
+  have been modelled like the rows, but we chose the usual convention" — these report what the
+  authors decided, which is this document's subject and not the book's.
 
-- a **technical consequence in Lean** is content, because the reader will meet
-  it. "A constructor holding a `List Form` makes the type a nested inductive,
-  and a nested inductive has no `induction` tactic" states a fact about Lean
-  that the chapter then depends on;
-- an **editorial preference** is meta. "We preferred to keep `Game` as it is",
-  "the columns could have been modelled like the rows, but we chose the usual
-  convention" — these report what the authors decided, which is this
-  document's subject and not the book's.
+The test: would the sentence still be worth writing if this book had no source and no alternatives?
+A fact about Lean survives that; a preference does not.
 
-The test: would the sentence still be worth writing if this book had no source
-and no alternatives? A fact about Lean survives that; a preference does not.
+A chapter that translates keeps the original's structure — its section boundaries, its order, its
+sentence boundaries and its punctuation. Subheadings that the source does not have are not added,
+and headings the source has are not merged, unless something in this document says so and says why.
 
-A chapter that translates keeps the original's structure — its section
-boundaries, its order, its sentence boundaries and its punctuation. Subheadings
-that the source does not have are not added, and headings the source has are not
-merged, unless something in this document says so and says why.
-
-Most chapters, though, are mixed: part translated, part written here because
-Lean makes something sayable that the source could not say. In a mixed chapter
-the rule applies section by section. A translated section follows the original;
-a new section has a structure of its own, chosen for what it teaches. Which
-sections are which is recorded per chapter below — a reader of this document
+Most chapters, though, are mixed: part translated, part written here because Lean makes something
+sayable that the source could not say. In a mixed chapter the rule applies section by section. A
+translated section follows the original; a new section has a structure of its own, chosen for what
+it teaches. Which sections are which is recorded per chapter below — a reader of this document
 should never have to guess whether a heading came from the source or from us.
 
-Any divergence from this plan is stated when it is made. A silent divergence is
-worse than a wrong one: a wrong decision can be argued with, an unrecorded one
-cannot.
+Any divergence from this plan is stated when it is made. A silent divergence is worse than a wrong
+one: a wrong decision can be argued with, an unrecorded one cannot.
 
 "Presented" has one deliberate loosening and one exception.
 
-The loosening: Lean's own basic types may be introduced *where they are first
-needed*, in a sentence or two, with a citation of the Lean Language Reference
-(`{citep Bib.LLR}[]`), instead of being pushed back into `IntroL.lean`. `Fin`
-in `SeaBattle.lean` is the case. `IntroL.lean` presents what the
-book builds on repeatedly; a type used in one chapter is better introduced
-there, next to its use. The loosening covers types the language already gives
-us — never a construct this book defines, and never one that needs more than a
-short paragraph.
+The loosening: Lean's own basic types may be introduced *where they are first needed*, in a sentence
+or two, with a citation of the Lean Language Reference (`{citep Bib.LLR}[]`), instead of being
+pushed back into `IntroL.lean`. `Fin` in `SeaBattle.lean` is the case. `IntroL.lean` presents what
+the book builds on repeatedly; a type used in one chapter is better introduced there, next to its
+use. The loosening covers types the language already gives us — never a construct this book defines,
+and never one that needs more than a short paragraph.
 
-The exception: `IntroCS.lean`, described in that chapter's section below.
-Everywhere else, a construct in a code block is one an earlier chapter has
-presented.
+The exception: `IntroCS.lean`, described in that chapter's section below. Everywhere else, a
+construct in a code block is one an earlier chapter has presented.
 
-This document is the migration plan: which CSwFP sections each `CSwL` chapter consumes, in which order, and what each chapter presupposes. The order below is the book's order; the dependency columns are what justify it. Everything through CSwFP/6 is settled — where a section records a decision, that decision is made, not proposed. What remains is execution, tracked in [GitHub issues](https://github.com/cslib-community/CSwL/issues). Exercise-level correspondence with CSwFP is in `PROVENANCE.md`.
+This document is the migration plan: which CSwFP sections each `CSwL` chapter consumes, in which
+order, and what each chapter presupposes. The order below is the book's order; the dependency
+columns are what justify it. Everything through CSwFP/6 is settled — where a section records a
+decision, that decision is made, not proposed. What remains is execution, tracked in [GitHub
+issues](https://github.com/cslib-community/CSwL/issues). Exercise-level correspondence with CSwFP is
+in `PROVENANCE.md`.
 
 The current state of CSwL need major review to fulfill all decisions from this document.
 
 ## Why the order changes at all
 
-CSwFP runs 1, 2 (sets, relations, lambda, types), 3 (Haskell), 4 (syntax), 5 (semantics), 6 (model checking). That works in Haskell because CSwFP/2 is *pure prose*: nothing in it is mechanised, so it owes nothing to the chapter that introduces the language. In Lean the same material is mechanisable, which inverts the dependency and forces the reordering below.
+CSwFP runs 1, 2 (sets, relations, lambda, types), 3 (Haskell), 4 (syntax), 5 (semantics), 6 (model
+checking). That works in Haskell because CSwFP/2 is *pure prose*: nothing in it is mechanised, so it
+owes nothing to the chapter that introduces the language. In Lean the same material is mechanisable,
+which inverts the dependency and forces the reordering below.
 
-CSwFP/2 also cannot be split cleanly, because its sections form a definitional chain: 2.3 opens "Functions are relations with the following special property", so it needs 2.2, which needs 2.1; 2.4 opens "We already talked about functions informally", so it needs 2.3; 2.5 builds on the terms of 2.4. The chapter is therefore *dissolved* rather than moved — 2.3, 2.4 and 2.5 into `IntroL.lean`, 2.1 and 2.2 into `Sets.lean`, and the natural-language examples scattered through 2.4 and 2.5 into `English.lean`.
+CSwFP/2 also cannot be split cleanly, because its sections form a definitional chain: 2.3 opens
+"Functions are relations with the following special property", so it needs 2.2, which needs 2.1; 2.4
+opens "We already talked about functions informally", so it needs 2.3; 2.5 builds on the terms of
+2.4. The chapter is therefore *dissolved* rather than moved — 2.3, 2.4 and 2.5 into `IntroL.lean`,
+2.1 and 2.2 into `Sets.lean`, and the natural-language examples scattered through 2.4 and 2.5 into
+`English.lean`.
 
 ## Chapter order
 
@@ -78,13 +76,13 @@ CSwFP/2 also cannot be split cleanly, because its sections form a definitional c
 | # | `CSwL` chapter       | CSwFP sections                                    | Requires | Best after |
 |---|----------------------|---------------------------------------------------|----------|------------|
 | 1 | `IntroCS.lean`       | 1.1–1.6                                           | —        | —          |
-| 2 | `IntroL.lean`        | 3.1–3.10, 3.13; 2.3, 2.4, 2.5                     | 1        | —          |
+| 2 | `IntroL.lean`        | 3.1–3.10, 3.13; 2.3, 2.4                          | 1        | —          |
 | 3 | `Logic.lean`         | 4.4, 4.5, 4.6, 4.7, 5.2, 5.3, 5.5                 | 2        | —          |
 | 4 | `Sets.lean`          | 2.1, 2.2                                          | 2, 3     | —          |
 | 5 | `SeaBattle.lean`     | 4.1, 5.1                                          | 2, 3     | 4          |
 | 6 | `Morphology.lean`    | 3.11, 3.14                                        | 2        | 3          |
 | 7 | `InfEngine.lean`     | 4.3, 5.7                                          | 2, 3     | 4          |
-| 8 | `English.lean`       | 4.2, 5.6                                          | 2, 3, 4  | —          |
+| 8 | `English.lean`       | 4.2, 5.6; 2.5                                     | 2, 3, 4  | —          |
 | 9 | `ModelChecking.lean` | 6.1–6.5                                           | 2, 3, 8  | 4          |
 
 `Sets.lean` requires `Logic.lean` because its exercises are proofs, and the tactics they need — quantifiers, `cases`, `by_contra` — arrive there. `SeaBattle.lean` requires `Logic.lean` for the same reason: it proves theorems about `WellFormed` by induction on an inductive predicate, which no earlier chapter has the machinery for. `English.lean` requires `Sets.lean` because its categorial section interprets a transitive verb over `Sets.Entity` and `Sets.likesR`, the domain and relation that chapter introduces.
@@ -162,27 +160,39 @@ The exception is this chapter only, and only for code that presents nothing. It 
 
 *Migration*: this chapter is to be rewritten as a faithful translation of CSwFP/1, section by section; the current file departs from the original's presentation and organisation. The code stays for now — it is illustrative, and the formalisations in it are slight — but it is not what the chapter is for, and the rewrite decides how much of it survives. Two things are needed either way: the framing sentence, which is not in the prose yet, and the replacement of the chapter's numeric cross-references.
 
-### 2. `IntroL.lean` — CSwFP/3, plus 2.3, 2.4, 2.5
+### 2. `IntroL.lean` — CSwFP/3, plus 2.3, 2.4
 
 Presents Lean as a functional programming language. Translated aggressively, adapting to Lean style and primitives.
 
-scope and order of presentations: terms, types, lambda and function definition, function composition, polymorphism, inductive types, `List`, `Nat`, recursion, `structure`, type classes, list processing (`map`, `foldl`, `foldr`, `filter`), strings, chars and slices. Only what the rest of the book actually uses.
+Scope and order of presentation: terms and types, functions, expressions (`let`, `if-then-else` as terms), `structure`, inductive types, recursion, `List` and polymorphism, `Option`, list processing (`map`, `filter`, `foldl`, `all`, `any`), function composition, type classes, strings, and a closing section on Lean and the lambda calculus. Only what the rest of the book actually uses.
 
 - 3.1 and 3.2 merge into a single section about Lean.
 - 3.12 (Identifiers in Haskell) and 3.15 (Further Reading) are omitted.
 - 3.13 contributes inductive types and pattern matching; its `Subject`/ `Predicate` example is dropped here, because a fragment of natural language introduced this early collides with the fragments presented later. It is absorbed into `English.lean`.
 
-**2.3, 2.4 and 2.5 live here.** CSwFP presents lambda calculus and types before the programming language, as preliminaries justifying a language the reader has not seen. With Lean already on screen the direction inverts: `#check fun x => x * x` exhibits the lambda abstraction of 2.4, `#check (Nat → Nat)` exhibits the type BNF `τ ::= b | (τ → τ)` of 2.5, and `#reduce` exhibits β-reduction happening. The chapter becomes the theory of what the reader has just written.
+**2.3 and 2.4 live here; 2.5 does not.** CSwFP presents lambda calculus and types before the programming language, as preliminaries justifying a language the reader has not seen. With Lean already on screen the direction inverts: `#check fun x => x * x` exhibits the lambda abstraction of 2.4, and the closing section gives the term BNF of the lambda calculus with `Lam` as the inductive that mirrors it. The chapter becomes the theory of what the reader has just written.
+
+2.5 — the type BNF `τ ::= b | (τ → τ)` and the three typing rules — was here and is now `English.lean`'s, with the rest of 2.5 that chapter already carries. See the note in its section below.
 
 Two consequences of moving 2.3 here:
 
 - CSwFP defines a *function as a special kind of relation* (2.3), so 2.3 depends on 2.2. In Lean `A → B` is primitive, so the definition is not needed to introduce functions. When relations arrive in `Sets.lean`, "a function is a functional relation" stops being a definition and becomes a statement to prove — new text that CSwFP does not have.
-- The linguistic examples of 2.4 (lambda abstraction for word formation) and 2.5 are not presented here: word formation collides with `Morphology.lean`, and the natural-language semantics example is premature. They are in `English.lean`.
-- One example had to change in the move. The demonstration of the typing rules read `opaque happy : Entity → Prop`, and `Entity` is declared in `Sets.lean`, which now comes after this chapter. It is `opaque restful : Day → Prop`, over the inductive this chapter declares itself.
+- The linguistic example of 2.4 — lambda abstraction for word formation — is not presented here, because word formation collides with `Morphology.lean`. It is in `English.lean`.
+- The demonstration of the typing rules went with 2.5. It had already been adapted once — it read `opaque happy : Entity → Prop`, and `Entity` is declared in `Sets.lean`, which now comes after this chapter, so it became `opaque restful : Day → Prop` over the inductive this chapter declares itself. Whichever entity the rules are demonstrated over in `English.lean`, that constraint no longer applies there.
 
-**`instance` is presented here.** The chapter's "Classes de tipos" section shows type classes only from the *use* side — the `[BEq α]` in a signature, and the difference between `BEq` and `DecidableEq`. But instances are declared from `Logic.lean` onwards: `PL.lean` gives `ToString Form`, `FOL.lean` three more, and `English.lean` fifteen, all of them `ToString`. Declaring an instance is a small step from the section already there, and it is the last piece of type classes the book actually needs — no chapter declares a `class` of its own.
+**`instance` is presented here.** The chapter's "Classes de tipos" section shows type classes only from the *use* side — the `[BEq α]` in a signature, and the difference between `BEq` and `DecidableEq`. But instances are declared from `Logic.lean` onwards: `FOL.lean` gives three, `Repr` for `Variable`, `Term` and `Formula`, and `English.lean` fifteen, all of them `ToString`. Declaring an instance is a small step from the section already there, and it is the last piece of type classes the book actually needs — no chapter declares a `class` of its own.
 
-**`Prop` is presented here, minimally.** Not by choice: inductive types bring `deriving DecidableEq`, `decide` and `#check 1 = 1`, all of which display `Prop`. `SeaBattle.lean` already derives `DecidableEq` on its enumerations and `Answer` in its first code block, two chapters before any logic. The student sees `Prop` whether or not it is introduced. So the chapter presents proposition-as-type, proof-as-term, and `rfl`, `intro`, `exact`, `decide` — and leaves natural deduction and quantifiers to `Logic.lean`. Without this, `IntroL.lean`, `Morphology.lean` and `SeaBattle.lean` are `Bool` and `#eval` throughout, which is the original book with Lean as a costume.
+**`Prop` is no longer presented here.** It once was, minimally — proposition-as-type, proof-as-term, and `rfl`, `intro`, `exact`, `decide` — and the argument was one of necessity rather than preference: inductive types bring `deriving DecidableEq` and `decide`, which display `Prop`, and `SeaBattle.lean` derives `DecidableEq` in its first code block. The student would see `Prop` whether or not it was introduced.
+
+That argument fell with the chapter reordering. `Proof.lean` is now part of `Logic.lean`, the third chapter, and every chapter that displays `Prop` — `Sets.lean`, `SeaBattle.lean`, `Morphology.lean` — comes after it. Nothing meets `Prop` unintroduced any more, so the minimal presentation had no work left to do and went out with the revision. The chapter is left deliberately pre-proof, as the `Logic.lean` section below records.
+
+**Three sections left the chapter in the revision of 2026-09-14.** It had grown to fifteen sections and roughly a thousand lines, and what went out was the material that theorised rather than taught the language:
+
+- *As duas leituras de uma função* — the extensional/intensional distinction, with `funext`. Moved to `Proof.lean`, as the section "Extensionalidade de Funções": `funext` is a tactic, and a chapter that presents no tactics is the wrong home for it.
+- *Tipos na gramática e na computação* — the type BNF and the three typing rules, which is 2.5, moved to `English.lean` as recorded above.
+- *Tipos como disciplina* — a closing page arguing that "this combination of words is not well formed" and "this program does not typecheck" become the same sentence. It is the book's thesis, not this chapter's content, and it reads better where a grammar is actually being typed.
+
+Only the third was dropped outright; the other two moved. Gone with them: the `leanOutput` blocks throughout, and `#reduce`. The surviving *Lean e o Cálculo Lambda* keeps the term BNF, the `Lam` inductive, β-reduction as what `#eval` does, and variable capture — the part the later chapters draw on. It also keeps `λx ↦ x x`, but as the observation that its reduction loops and that Lean rejects it, without the step-by-step derivation of `σ = σ → τ` that the removed section gave. Recorded because a reader tracing CSwFP/2.4 and 2.5 through this book would otherwise look for these sections and find no note of where they went.
 
 2.6 (Functional Programming) exists in CSwFP to motivate its chapter 3 from its chapter 2 — "functional programming languages actually are lambda calculi". With the order inverted, that bridge is not needed and the section is absorbed.
 
@@ -357,13 +367,15 @@ Three divergences. The least fixed point is computed with a fuel bound rather th
 
 ### 8. `English.lean` — CSwFP/4.2, 5.6
 
-The fragment of English (4.2) and its semantics (5.6), plus the natural-language fragments that CSwFP scatters earlier and that `CSwL` deliberately does not present in place: the `likes` example of 2.4, the `S → NP VP` of 2.5, and the `Subject`/`Predicate` example of 3.13. CSwFP introduces a slightly larger grammar in 4.2 and then, in 5.6, sketches the semantics of an initial vocabulary largely disconnected from it. Gathering these fragments in one place is the point of this chapter.
+The fragment of English (4.2) and its semantics (5.6), plus the natural-language fragments that CSwFP scatters earlier and that `CSwL` deliberately does not present in place: the `likes` example of 2.4, the `Subject`/`Predicate` example of 3.13, and all of 2.5 — the `S → NP VP` this chapter always carried, and now the type BNF `τ ::= b | (τ → τ)` and the three typing rules as well. CSwFP introduces a slightly larger grammar in 4.2 and then, in 5.6, sketches the semantics of an initial vocabulary largely disconnected from it. Gathering these fragments in one place is the point of this chapter.
 
 **What this chapter must deliver to `ModelChecking.lean`.** Gathering the fragments is the editorial goal, but the chapter also has a hard obligation: CSwFP/6 translates the 4.2 grammar category by category, so every category it destructures has to exist by the end of this chapter. `MCWPL.hs` defines one translation function per category — `lfSent`, `lfNP`, `lfDET`, `lfCN`, `lfRCN`, `lfVP`, `lfTV`, `lfDV` — so the required inventory is:
 
 `Sent`, `NP`, `DET`, `CN`, `RCN`, `VP`, `TV`, `DV`, plus the auxiliaries `ADJ` and `That` that `RCN` uses.
 
 **Semantic types are named `e` and `t`, and that is not cosmetic.** The categorial section that arrived from CSwFP/2.5 originally wrote the semantic types as `NP`, `S`, `VP` and `TV` — the category names. In this chapter those names are already taken, by the `inductive`s that *are* the fragment's syntactic categories: two meanings for one name in one namespace, which does not compile and would not be worth compiling. The types now carry Montague's letters, `e` for entities and `t` for truth values, which the prose was already naming as the conventional choice; the categories keep `NP`/`VP` where they belong, in the prose. So "the VP has type `e → t`" now says two different things with two different notations, which is exactly the distinction the section is about.
+
+This is where the rest of 2.5 lands. The type BNF `τ ::= b | (τ → τ)` says that `e` and `t` are the two basic types and that everything else is built from them by `→`, and the three typing rules — a variable has the type it is declared with, `(λx ↦ E) : δ → τ` when `x : δ` and `E : τ`, `(E₁ E₂) : τ` when `E₁ : δ → τ` and `E₂ : δ` — are what licenses the composition the section then performs. They were in `IntroL.lean`, demonstrated over a `Day → Prop` predicate for want of anything better so early in the book; here they are demonstrated over the fragment's own types, which is what 2.5 was about in CSwFP. In Lean `t` is `Prop`.
 
 `INF` is part of the 4.2 grammar but has no translation in CSwFP/6; it is not required by `ModelChecking.lean`.
 

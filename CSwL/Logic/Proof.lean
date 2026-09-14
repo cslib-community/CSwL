@@ -14,7 +14,7 @@ tag := "Proof"
 file := "Proof"
 %%%
 
-Neste capítulo vamos falar sobre o tipo `Prop` em Lean para representação de proposições lógicas em tipos dependentes. A representação de proposições e contrução de provas é o que torna Lean um assistente de prova, além de linguagem de programação. Vamos apresentar provas como termos e a construção de provas com táticas.
+Neste capítulo vamos falar sobre o tipo `Prop` em Lean para representação de proposições lógicas em tipos dependentes. A representação de proposições e construção de provas é o que torna Lean um assistente de prova, além de linguagem de programação. Vamos apresentar provas como termos e a construção de provas com táticas.
 
 Supomos conhecida a lógica proposicional e a de predicados — sintaxe, semântica, e a noção de consequência. Para uma apresentação a partir do início, ver {citep Bib.enderton2001}[].
 
@@ -79,90 +79,19 @@ example (x q : Nat) : 37 * x + q = 37 * x + q :=
 ::::
 
 # Lógica Proposicional em Lean
+%%%
+tag := "pl-lean"
+%%%
+
+```lean
+namespace PL
+```
 
 Os conectivos lógicos  `∧`, `∨`, `→`, `↔` e `¬` estão disponíveis diretamente no Lean, de modo que uma fórmula proposicional pode ser representada como uma proposição em Lean. Isso nos fornece uma ponte conveniente entre a semântica da linguagem natural e o raciocínio formal. Podemos traduzir o conteúdo semântico de uma sentença para uma proposição em Lean e, em seguida, usar Lean para verificar se uma conclusão decorre de um conjunto de hipóteses.
 
-Vamos considerar um primeiro exemplo. Três irmãs — Ana, Maria e Cláudia —
-foram a uma festa com vestidos de cores diferentes. Uma vestiu azul, a outra
-branco, e a terceira, preto. Chegando à festa, o anfitrião perguntou quem era
-cada uma delas.
+Chamamos "sistema dedutivo" um conjunto das regras de dedução. Existem vários sistemas dedutivos. A formalização de Prop em Lean corresponde a implementação do sistema chamado *dedução natural* definido por Gerhard Gentzen em 1930s. Usando as regras de dedução natural, podemos provar que uma fórmula `α` pode ser derivada a partir de um conjunto de fórmulas `Γ`, dizemos que `Γ ⊢ α`. Dizemos que `⊢ α` quando a fórmula `α` é válida, uma tautologia.
 
-- A de azul respondeu: "Ana é a que está de branco";
-- A de branco disse: "Eu sou Maria";
-- A de preto respondeu: "Cláudia é quem está de branco".
-
-O anfitrião foi capaz de identificar cada irmã considerando que:
-
-- Ana sempre diz a verdade;
-- Maria às vezes diz a verdade;
-- Cláudia nunca diz a verdade.
-
-Para começar, vamos introduzir variáveis do tipo `Prop`, cada uma delas representado uma proposição. São 3 pessoas e 3 cores. Vamos representar "Ana veste azul" por `Aa` e assim por diante.
-
-```lean
-section PL
-
-variable (
-   Aa Ab Ap
-   Ma Mb Mp
-   Ca Cb Cp  : Prop)
-```
-A ideia é que as condições do problema sejam traduzidas em fórmulas proposicionais. Por exemplo, podemos formalizar a sentença "Ana veste azul, branco ou preto" com a fórmula em LP.
-
-```lean
-#check Aa ∨ Ab ∨ Ap
-```
-
-Aqui cabe a observação de que a formalização em LP não foi obtida diretamente a partir da construção linguística original, uma oração coordenando seus constituintes no predicado. Intuitivamente, a sentença foi antes interpretada como três orações coordenadas (proposições completas), "Ana veste azul ou Ana veste branco ou Ana veste preto".
-
-A formalização completa do problema deve levar em consideração não apenas o que foi dito explicitamente mas algumas condições implicitamente assumidas. Definimos a estrutura `Premissas` por conveniência, ao invés de uma variável por premissa.
-
-```lean
-structure Premissas : Prop where
-   -- cada pessoa veste algum vestido
-   hA : Aa ∨ Ab ∨ Ap
-   hM : Ma ∨ Mb ∨ Mp
-   hC : Ca ∨ Cb ∨ Cp
-
-   -- cada vestido é de alguma pessoa
-   ha : Ma ∨ Aa ∨ Ca
-   hb : Ab ∨ Mb ∨ Cb
-   hp : Ap ∨ Mp ∨ Cp
-
-   -- uma pessoa veste apenas um vestido
-   hA1 : (Aa → ¬ Ab ∧ ¬ Ap) ∧ (Ab → ¬ Aa ∧ ¬ Ap) ∧ (Ap → ¬ Aa ∧ ¬ Ab)
-   hM1 : (Ma → ¬ Mb ∧ ¬ Mp) ∧ (Mb → ¬ Ma ∧ ¬ Mp) ∧ (Mp → ¬ Ma ∧ ¬ Mb)
-   hC1 : (Ca → ¬ Cb ∧ ¬ Cp) ∧ (Cb → ¬ Ca ∧ ¬ Cp) ∧ (Cp → ¬ Ca ∧ ¬ Cb)
-
-   -- cada vestido é de apenas uma pessoa
-   ha1 : (Ma → ¬ Aa ∧ ¬ Ca) ∧ (Ca → ¬ Aa ∧ ¬ Ma) ∧ (Aa → ¬ Ma ∧ ¬ Ca)
-   hb1 : (Mb → ¬ Ab ∧ ¬ Cb) ∧ (Cb → ¬ Ab ∧ ¬ Mb) ∧ (Ab → ¬ Mb ∧ ¬ Cb)
-   hp1 : (Mp → ¬ Ap ∧ ¬ Cp) ∧ (Cp → ¬ Ap ∧ ¬ Mp) ∧ (Ap → ¬ Mp ∧ ¬ Cp)
-
-   -- da resposta 1
-   h1 : Aa → Ab
-   h2 : Ca → ¬ Ab
-
-   -- da resposta 2
-   h3 : ¬ Ab
-
-   -- da resposta 3
-   h4 : Ap → Cb
-   h5 : Cp → ¬ Cb
-```
-
-Podemos então enunciar o problema na forma do teorema abaixo.
-
-```lean
-theorem vestidos (h : Premissas Aa Ab Ap Ma Mb Mp Ca Cb Cp)
-  : Ap ∧ Cb ∧ Ma := sorry
-```
-
-Consultar o tipo deste teorema com `#check vestidos` nos revela que ele tem o formato de uma implicação, que pode ser lido como `Γ ⊢ α` Do conjunto `Γ` de premissas em `Premissas` posso *derivar* `Ap ∧ Cb ∧ Ma`. Em Lean podemos construir a prova de `α` a partir da aplicação de regras de dedução a partir das fórmulas de `Γ`.
-
-Chamamos "sistema dedutivo" um conjunto das regras de dedução. Existem vários sistemas dedutivos. A formalização de Prop em Lean corresponde a implementação do sistema chamado *dedução natural* definido por Gerhard Gentzen em 1930s.
-
-Neste sistema dedutivo, cada conectivo vem com dois tipos de regra: as de *introdução*, que dizem como construir uma prova cuja conclusão usa o conectivo, e as de *eliminação*, que dizem como usar uma prova cuja hipótese o usa.
+Neste sistema dedutivo, cada conectivo vem com dois tipos de regra. As de *introdução*, que dizem como construir uma prova cuja conclusão usa o conectivo, e as de *eliminação*, que dizem como usar uma prova cuja hipótese o usa.
 
 ```lean
 variable {P Q R : Prop}
@@ -323,12 +252,29 @@ end
 ```
 ::::
 
-::::exercise (rating := 2) (name := "and-comm")
+
+::::exercise (rating := 2) (name := "implication-as-disj")
+Complete a prova abaixo. Note que esta prova precisa do fragmento clássico, tente usar {tactic}`by_cases`.
+
+```lean
+example (P Q : Prop) : (P → Q) → ¬ P ∨ Q := by
+  solution!
+    intro h
+    by_cases hP : P
+    · right
+      exact h hP
+    · left
+      exact hP
+```
+::::
+
+
+::::exercise (rating := 1) (name := "and-comm")
 Prove que a conjunção é comutativa.
 
 ```lean
 example (P Q : Prop) : P ∧ Q ↔ Q ∧ P := by
- solution!(
+ solution!
    constructor
    · intro h
      obtain ⟨h1, h2⟩ := h
@@ -338,7 +284,7 @@ example (P Q : Prop) : P ∧ Q ↔ Q ∧ P := by
    · intro h
      constructor
      · exact h.2
-     · exact h.1)
+     · exact h.1
 ```
 ::::
 
@@ -347,11 +293,11 @@ Complete a prova abaixo.
 
 ```lean
 example (P Q R : Prop) (h : P → Q) (h2 : Q → R) : P → R := by
-  solution!(
+  solution!
     intro hp
     apply h2
     apply h
-    exact hp)
+    exact hp
 ```
 ::::
 
@@ -362,10 +308,10 @@ Em algumas provas, podemos precisar expandir uma definição antes de qualquer o
 def E (x y : Nat) : Prop := x = y
 
 example (x : Nat) : E x 1 → x ≠ 2 := by
-  solution!(
+  solution!
     intro h
     unfold E at h
-    linarith)
+    linarith
 ```
 ::::
 
@@ -374,28 +320,91 @@ Na prova abaixo, o antecedente da implicação precisa ser transformado em hipó
 
 ```lean
 example (x y : Nat) : E x 0 ∧ E y 0 → x = y := by
-  solution!(
+  solution!
     intro h
     unfold E at h
     obtain ⟨h1, h2⟩ := h
     rewrite [h1,h2]
-    rfl)
+    rfl
 ```
 ::::
 
 
 ::::exercise (rating := 2) (name := "dresses")
-Complete a prova do teorema, provando que o problema dos vestidos tem a solução onde Ana veste preto, Cláudia veste branco e Maria veste azul.
+Três irmãs — Ana, Maria e Cláudia — foram a uma festa com vestidos de cores diferentes. Uma vestiu azul, a outra branco, e a terceira, preto. Chegando à festa, o anfitrião perguntou quem era cada uma delas.
+
+- A de azul respondeu: "Ana é a que está de branco";
+- A de branco disse: "Eu sou Maria";
+- A de preto respondeu: "Cláudia é quem está de branco".
+
+O anfitrião foi capaz de identificar cada irmã considerando que:
+
+- Ana sempre diz a verdade;
+- Maria às vezes diz a verdade;
+- Cláudia nunca diz a verdade.
+
+Para começar, vamos introduzir variáveis do tipo `Prop`, cada uma delas representado uma proposição. São 3 pessoas e 3 cores. Vamos representar "Ana veste azul" por `Aa` e assim por diante.
 
 ```lean
-theorem vestidos₁ (h : Premissas Aa Ab Ap Ma Mb Mp Ca Cb Cp)
-  : Ap ∧ Cb ∧ Ma := by
-  obtain
-    ⟨hA, hM, hC, ha, hb, hp, hA1, hM1,
-     hC1, ha1, hb1, hp1, h1, h2, h3, h4, h5⟩ := h
+namespace Dresses
 
-  -- Ana não está de azul: se estivesse, por `h1` ela estaria de branco, mas Ana
-  -- não está de branco por `h3`.
+variable (Aa Ab Ap Ma Mb Mp Ca Cb Cp  : Prop)
+```
+
+A ideia é que as condições do problema sejam traduzidas em fórmulas proposicionais. Por exemplo, podemos formalizar a sentença "Ana veste azul, branco ou preto" como {lean}`Aa ∨ Ab ∨ Ap`. Note que a fórmula não foi obtida diretamente a partir da construção linguística original, uma oração coordenando seus constituintes no predicado. Intuitivamente, a sentença foi antes interpretada como três orações coordenadas, "Ana veste azul ou Ana veste branco ou Ana veste preto".
+
+A formalização completa do problema deve levar em consideração não apenas o que foi dito explicitamente mas algumas condições implicitamente assumidas. Primeiro que cada irmã veste uma das cores.
+
+```lean
+variable (hA : Aa ∨ Ab ∨ Ap)
+variable (hM : Ma ∨ Mb ∨ Mp)
+variable (hC : Ca ∨ Cb ∨ Cp)
+```
+
+Em seguida, que cada vestido é de alguma das irmãs.
+
+```lean
+variable (ha : Ma ∨ Aa ∨ Ca)
+variable (hb : Ab ∨ Mb ∨ Cb)
+variable (hp : Ap ∨ Mp ∨ Cp)
+```
+
+Também precisaremos formalizar que uma irmã veste apenas um vestido e que um vestido é vestido por apenas uma irmã.
+
+```lean
+variable (hA1 : (Aa → ¬ Ab ∧ ¬ Ap) ∧ (Ab → ¬ Aa ∧ ¬ Ap) ∧ (Ap → ¬ Aa ∧ ¬ Ab))
+variable (hM1 : (Ma → ¬ Mb ∧ ¬ Mp) ∧ (Mb → ¬ Ma ∧ ¬ Mp) ∧ (Mp → ¬ Ma ∧ ¬ Mb))
+variable (hC1 : (Ca → ¬ Cb ∧ ¬ Cp) ∧ (Cb → ¬ Ca ∧ ¬ Cp) ∧ (Cp → ¬ Ca ∧ ¬ Cb))
+
+variable (ha1 : (Ma → ¬ Aa ∧ ¬ Ca) ∧ (Ca → ¬ Aa ∧ ¬ Ma) ∧ (Aa → ¬ Ma ∧ ¬ Ca))
+variable (hb1 : (Mb → ¬ Ab ∧ ¬ Cb) ∧ (Cb → ¬ Ab ∧ ¬ Mb) ∧ (Ab → ¬ Mb ∧ ¬ Cb))
+variable (hp1 : (Mp → ¬ Ap ∧ ¬ Cp) ∧ (Cp → ¬ Ap ∧ ¬ Mp) ∧ (Ap → ¬ Mp ∧ ¬ Cp))
+```
+
+Finalmente, a partir das perguntas feitas para as irmãs, podemos extrair as seguintes proposições. Da primeira pergunta, extraímos `h1` e `h2`. Na segunda pergunta extraímos `h3` e da terceira pergunta, `h4` e `h5`.  O leitor pode conferir como estas proposições foram extraídas considerando cada possível irmã respondendo a cada pergunta.
+
+```lean
+variable (h1 : Aa → Ab)
+variable (h2 : Ca → ¬ Ab)
+
+variable (h3 : ¬ Ab)
+
+variable (h4 : Ap → Cb)
+variable (h5 : Cp → ¬ Cb)
+```
+
+Complete a prova do teorema, provando que o problema dos vestidos tem a solução onde Ana veste preto, Cláudia veste branco e Maria veste azul. A declaração `include ... in` irá incluir todas as variáveis declaradas anteriormente como parâmetros para o teorema seguinte.
+
+```lean
+include
+  hA hM hC
+  ha hb hp
+  hA1 hM1 hC1
+  ha1 hb1 hp1
+  h1 h2 h3 h4 h5 in
+
+theorem vestidos : Ap ∧ Cb ∧ Ma := by
+
   have hnAa : ¬ Aa := by
     solution!
       intro hAa
@@ -405,28 +414,29 @@ theorem vestidos₁ (h : Premissas Aa Ab Ap Ma Mb Mp Ca Cb Cp)
    cases hA with
    | inl hAa => exact absurd hAa hnAa
    | inr hx =>
-     cases hx with
-     | inl hAb => exact absurd hAb h3
-     | inr hAp => exact hAp
+     solution!
+      cases hx with
+      | inl hAb => exact absurd hAb h3
+      | inr hAp => exact hAp
 
-  have hCb : Cb := solution!(
-     h4 hAp
-  )
+  have hCb : Cb := by
+    solution!
+      exact h4 hAp
 
-  have hnCa : ¬ Ca := solution!(
-     (hC1.2.1 hCb).1
-  )
+  have hnCa : ¬ Ca :=  by
+    solution!
+     exact (hC1.2.1 hCb).1
 
   have hMa : Ma := by
-    rcases ha with hMa | hAa | hCa
-    · solution!
-        exact hMa
-    · solution!
-        exact absurd hAa hnAa
-    · solution!
-        exact absurd hCa hnCa
+    solution!
+     rcases ha with hMa | hAa | hCa
+     · exact hMa
+     · exact absurd hAa hnAa
+     · exact absurd hCa hnCa
 
   exact ⟨hAp, hCb, hMa⟩
+
+end Dresses
 ```
 ::::
 
@@ -435,6 +445,9 @@ end PL
 ```
 
 # As regras dos quantificadores em Lean
+%%%
+tag := "quantificadores-lean"
+%%%
 
 O mesmo tipo `Prop` em Lean não está limitado ao raciocínio proposicional. Também podemos representar lógica de primeira ordem em `Prop`. Como já falamos, o Lean se baseia em na teoria dos tipos, na qual se assume que cada variável pertence a algum tipo. Você pode pensar em um tipo como um "universo" ou um "domínio de discurso", no sentido da lógica de primeira ordem. Com a diferença importante de que em lógica de primeira ordem, entedemos o domínio da interpretação com um conjunto não vazio, e um tipo em Lean não necessariamente precisa ser _habitado_.
 
@@ -498,12 +511,12 @@ Prove o exemplo abaixo e reflita sobre porque não podemos substituir `→` por 
 
 ```lean
 example {U : Type} (R : U → U → Prop) :
-  (∃ y, ∀ x, R x y) → (∀ x, ∃ y, R x y) :=
- solution!(by
+  (∃ y, ∀ x, R x y) → (∀ x, ∃ y, R x y) := by
+ solution!
   intro h
   obtain ⟨d, hd⟩ := h
   intro x
-  exact ⟨d, hd x⟩)
+  exact ⟨d, hd x⟩
 ```
 ::::
 
@@ -518,7 +531,14 @@ example : ∃ n : Nat, n + n = 10 := by
 ```
 ::::
 
-# Prova por indução
+```lean
+end FOL
+```
+
+# Provas por Indução
+%%%
+tag := "induction"
+%%%
 
 Outra tática de prova que podemos precisar é a {tactic}`induction`. Ela prova algo para todo valor de um tipo indutivo, e não para um valor de cada vez.
 
@@ -532,10 +552,27 @@ example (n : Nat) : n + 0 = n := by
     linarith
 ```
 
-Ao longo do texto, outras táticas poderão ser usadas como: {tactic}`decide`, {tactic}`omega`, {tactic}`simp` e {tactic}`funext`, discutiremos quando forem necessárias.
+Ao longo do texto, outras táticas poderão ser usadas como: {tactic}`decide`, {tactic}`omega`,
+{tactic}`simp` e {tactic}`funext`, discutiremos quando forem necessárias.
 
+
+# Extensionalidade de Funções
+%%%
+tag := "funext"
+%%%
+
+Uma função admite duas leituras. Na leitura extensional, a função é uma tabela: o conjunto de pares entrada e saída. Uma conversão de Celsius para Fahrenheit é a tabela `[(0, 32), (100, 212),...]`. Na leitura intensional, a função indica como a saída é obtida a partir da entrada `λ x ↦ x * 9 / 5 + 32`. Uma receita que produz a tabela sem precisar listá-la. Em Lean, `def` escreve sempre a versão intensional, mas duas instruções diferentes podem ser a mesma função, no sentido extensional, se produzem a mesma tabela. É isso que `funext` verifica: duas funções são iguais quando concordam em todo ponto do domínio.
 
 ```lean
-end FOL
+def double₁ (x : Nat) := 2 * x
+def double₂ (x : Nat) := x + x
+
+example : double₁ = double₂ := by
+  funext n
+  rw [double₁, double₂]
+  exact (Nat.two_mul n)
+```
+
+```lean
 end Proof
 ```
