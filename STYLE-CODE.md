@@ -139,8 +139,15 @@ the chapter's directory — `Logic/PL/`, `Logic/FOL/` — which is what the
 default `htmlDepth` of 2 already asks for. A section that gets its own page
 needs its own `file := "Tag"`, or Verso builds the URL by sluggifying the
 Portuguese title and the accents come out mangled (`L___gica-proposicional`).
-None of this affects the generated Lean: the saver writes one file per
-chapter, and reads `file :=` only from chapters.
+
+`file :=` also names the generated Lean. A section that sets it becomes its
+own module in the extracted project — `CSwL/Logic/PL.lean` in the source
+becomes `CSwL/Logic/PL.lean` in the output — and the chapter becomes a glue
+module importing them, mirroring the source. A section without `file :=` is
+merged into its chapter's file, as every chapter's inline sections are. This
+is why the key must match the module name exactly: the extractor resolves a
+chapter's `import` against the *generated* names, and a mismatch is now an
+error rather than a dropped import.
 
 ### Exercises and solutions
 

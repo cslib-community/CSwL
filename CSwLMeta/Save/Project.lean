@@ -292,18 +292,26 @@ private def headerImports (src : String) : Array String := Id.run do
 /-- Every `import` a chapter needs in the extracted project, including those
 declared only in the header of a section it merges.
 
-The extracted project has one file per chapter: a section brought in with
-`{include 1 ...}` has its content merged into the chapter's buffer and gets no
-module of its own. An `import` written only in that section's header would
-therefore be dropped, and the generated file would use what it never imported —
-which shows up as an "unknown identifier" inside the extracted project's build,
-far from the file that caused it. So a section's header is read too, and its
+A section that sets `file :=` gets a module of its own in the extracted
+project (see `isOwnModule`), so it keeps its own header and the `import` of it
+in the chapter's header stays as it is — the module it names exists.
+
+A section without `file :=` is merged into its chapter's buffer and gets no
+module. An `import` written only in such a section's header would therefore be
+dropped, and the generated file would use what it never imported — which shows
+up as an "unknown identifier" inside the extracted project's build, far from
+the file that caused it. So a merged section's header is read too, and its
 imports are merged into the chapter's.
 
-`sf-in-lean` does not need this: there a section stays a module of its own, and
-`bundleLoop` copies it with its header intact. -/
+Note that both branches turn on `chapterModules`, which is built from the
+*generated* file names. An `import` whose spelling does not match the module
+name it refers to — `CSwL.IntroL` against a chapter emitted as `introL.lean` —
+looks like a merged section here, and its imports would be silently fetched
+from a file that does not exist. That is `reportError`ed below rather than
+passed over. -/
 private partial def chapterImports (modPrefix : String)
-    (chapterModules : List String) (file : String) : IO (List String) := do
+    (chapterModules : List String) (chapterSources : List String)
+    (file : String) : IO (List String) := do
   let src ← (IO.FS.readFile file).toBaseIO >>= fun
     | .ok s => pure s
     | .error _ => pure ""
@@ -313,7 +321,24 @@ private partial def chapterImports (modPrefix : String)
   let mut acc := raw.filter keepImport |>.filter (! isSection ·)
   for sec in raw.filter isSection do
     let path := (sec.replace "." "/") ++ ".lean"
-    for i in ← chapterImports modPrefix chapterModules path do
+    -- A merged section's source is a file that no chapter is generated from:
+    -- its content went into its chapter's buffer. If this path *is* a source
+    -- some chapter was generated from, the import names a real chapter whose
+    -- `file :=` is spelled differently from the module — `CSwL.IntroL`
+    -- against a chapter emitted as `introL.lean` — and dissolving it here
+    -- would drop it in silence.
+    if chapterSources.any (·.toLower == path.toLower) then
+      throw <| IO.userError <|
+        s!"`import {sec}` in {file} names a chapter that the extracted " ++
+        s!"project emits under a different module name. Its `file :=` does " ++
+        s!"not match the module the source imports, so the import would be " ++
+        s!"dropped and the generated project would use what it never " ++
+        s!"imported. Make `file :=` match, or fix the import."
+    if ! (← System.FilePath.pathExists path) then
+      throw <| IO.userError <|
+        s!"`import {sec}` in {file} names neither a generated module nor a " ++
+        s!"section file on disk ({path})."
+    for i in ← chapterImports modPrefix chapterModules chapterSources path do
       if ! acc.contains i then acc := acc ++ [i]
   return acc
 
@@ -358,6 +383,11 @@ private def emitSavedImpl (config : ExtractConfig) :
     -- `CSwL/Morphology/Phonemes.lean`).
     let chapterModules := entries.map (·.1) |>.filter (·.any (· == '/'))
       |>.map fun k => ((k.dropEnd 5).toString).replace "/" "."
+    -- The source paths some generated file was produced from. A buffer key is
+    -- the source's path in the repository, so an `import` resolving to one of
+    -- these names a real chapter or section — never a merged one, whose
+    -- content has no file of its own in the extracted project.
+    let chapterSources := entries.map (·.1) |>.filter (·.any (· == '/'))
     -- Picks each file's variant and prefixes the chapter's `import` header,
     -- already stripped of the infrastructure ones.
     let mut files : Array (String × String) := #[]
@@ -380,7 +410,8 @@ private def emitSavedImpl (config : ExtractConfig) :
         -- (flattened, one file per chapter), so the line itself is dropped
         -- -- but the section's *own* imports are picked up in its place, by
         -- `chapterImports`.
-        let imps ← chapterImports config.modPrefix chapterModules file
+        let imps ← chapterImports config.modPrefix chapterModules
+          chapterSources file
         for i in imps do
           let top := modTop i
           if pkgPrefixes.contains top then
