@@ -1,7 +1,6 @@
 import CSwLMeta
 import Bib
 import Mathlib.Tactic
-import CSwLCompat
 import CSwL.IntroL
 
 open Verso.Genre Manual

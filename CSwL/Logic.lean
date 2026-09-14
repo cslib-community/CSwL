@@ -3,7 +3,6 @@ import Bib
 import CSwL.Logic.Proof
 import CSwL.Logic.PL
 import CSwL.Logic.FOL
-import CSwLCompat
 
 import VersoManual
 
