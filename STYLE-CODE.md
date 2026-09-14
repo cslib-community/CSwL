@@ -40,6 +40,13 @@ presents fourteen tactics in a plain code fence — one line each, `rfl` through
 `funext` — and a scan that reads only ```` ```lean ```` blocks misses it. Check
 the prose before recording a gap.
 
+The scan has to be fence-aware in the other direction too, or it reports
+Portuguese words as Lean: "trivialmente" matches `trivial`, and a tactic named
+in a sentence is a mention, not a use. Search inside ```` ```lean ```` blocks
+with `--` comments stripped to find *uses*, then search the prose separately to
+find *presentations*; the rule is satisfied only when a presentation precedes
+the first use in book order.
+
 A feature marked **(solution only)** first appears inside a `solution!(…)`
 block. Those rows are a distinct case: the feature is invisible in the
 `student` and `terse` variants and visible in `solutions` and `grading`, so a
@@ -51,12 +58,12 @@ this way is usually a mistake; see "Known gaps."
 | Chapter | Commands and declarations | Types and syntax | Tactics |
 | --- | --- | --- | --- |
 | `IntroCS` | `namespace`, `def` (by pattern matching), `inductive`, `deriving Repr`, `example`, `#eval` | `Nat`, function type `→`, dot-notation constructors (`.num`) | `rfl`, `induction … with`, `rw`, `rewrite`, `unfold`, `repeat` |
-| `IntroL` | `#check`, `#print`, `theorem`, `structure`, `instance`, `section`, `variable` | `Type`, `Prop`, `Bool`, `List`, `Option`, `Char`, `String`, `fun`/`λ`, `match`, `if … then … else`, `⟨…⟩`, implicit `{}`, instance-implicit `[]`, `∘`, `BEq`, `List.all`/`List.any` | `funext`, `show` (solution only), `omega` (solution only), `decide` (solution only) |
-| `Logic/Proof` | `open` | `¬`, `∀`, `∃`, `∧`, `∨`, `↔`, `≠` | `intro`, `exact`, `apply`, `cases … with`, `constructor`, `obtain`, `have`, `use`, `left`, `right`, `rcases`, `by_cases`, `by_contra` |
-| `Logic/PL` | `abbrev`, `private` | `DecidableEq`, `×` | `simp` |
+| `IntroL` | `#check`, `#print`, `theorem`, `structure`, `instance`, `section`, `variable` | `Type`, `Prop`, `Bool`, `List`, `Option`, `Char`, `String`, `fun`/`λ`, `match`, `if … then … else`, `⟨…⟩`, implicit `{}`, instance-implicit `[]`, `∘`, `BEq`, `DecidableEq`, `List.all`/`List.any` | `funext` (solution only), `show` (solution only), `omega` (solution only), `decide` (solution only) |
+| `Logic/Proof` | `open` | `¬`, `∀`, `∃`, `∧`, `∨`, `↔`, `≠` | `intro`, `exact`, `apply`, `cases … with`, `constructor`, `obtain`, `have`, `use`, `left`, `right`, `rcases`, `by_cases`, `by_contra`, `assumption` |
+| `Logic/PL` | `abbrev`, `private` | `×` | `simp`, `native_decide` |
 | `Logic/FOL` | `mutual`, `deriving BEq` | `\|>`, `List.contains` | `induction … generalizing` |
-| `Sets` | — | `Set`, `Rel`, `Finset`, `Fintype`, `Setoid`, `∈`, `⊆`, `∪`, `∩` | `assumption`, `trivial`, `symm`, `simp_all` |
-| `SeaBattle` | — | `Fin` | `native_decide` |
+| `Sets` | — | `Set`, `Rel`, `Finset`, `Fintype`, `Setoid`, `∈`, `⊆`, `∪`, `∩`, `trivial` (term) | `symm`, `simp_all` |
+| `SeaBattle` | — | `Fin` | — |
 | `Morphology` | *(none new)* | — | — |
 | `InfEngine` | — | `do`-notation | — |
 | `English` | *(none new)* | *(none new)* | *(none new)* |
@@ -74,27 +81,31 @@ maintains.
 Open questions about the table, recorded so they are not lost. Each needs an
 author decision, not a mechanical fix.
 
-- **`native_decide`** is used eleven times in `SeaBattle.lean` (`:290`, `:291`,
-  `:307`, `:308`, `:334`, `:338`, `:342`, `:395`, `:396`, `:399`, `:402`) and
-  twice in `Morphology/SwedishPlural.lean` (`:69`, `:72`), and is presented
-  nowhere. It closes a goal by compiling and running it, trusting the compiler
-  rather than the kernel — a materially different promise from `decide`, and a
-  reader who meets it without being told will draw the wrong conclusion about
-  what a Lean proof is worth. Only the `SwedishPlural` uses carry an
-  explanation, in a Portuguese comment inside a solution (`:63-66`), which
-  reaches neither the student nor the English code-comment rule. The
-  `SeaBattle` uses are in ordinary code, not solutions, so the student does
-  see them.
-- **`trivial`** — one term-level use in `Sets.lean:507`, not presented
-  anywhere. Give it a line or replace it when that chapter is revised.
-- **`show`, `omega`, `decide` in `IntroL`** — all three appear only inside the
-  `twice` exercise's `solution!(…)` blocks (`:1154`, `:1155`, `:1158`), so the
-  student and `terse` variants never show them, but the `solutions` and
+- **`native_decide`** is named in the prose of three `Logic/PL` exercises
+  (`:282`, `:308`, `:348`) and used in their solutions, then used eleven times
+  in `SeaBattle.lean` (from `:290`) and twice in
+  `Morphology/SwedishPlural.lean` (`:69`, `:72`). It is told to the reader but
+  never *presented*: it closes a goal by compiling and running it, trusting
+  the compiler rather than the kernel — a materially different promise from
+  `decide`, and a reader who meets it without being told will draw the wrong
+  conclusion about what a Lean proof is worth. The only explanation anywhere
+  is a Portuguese comment inside a `SwedishPlural` solution (`:63-66`), which
+  reaches neither the student nor the English code-comment rule. `Logic/PL` is
+  where it is first met and so where the explanation belongs.
+- **`trivial`** — two term-level uses in `Sets.lean:517`, not presented
+  anywhere. It is listed in the table under types rather than tactics, since
+  that is what it is here. Give it a line or replace it when that chapter is
+  revised.
+- **`funext`, `show`, `omega`, `decide` in `IntroL`** — all four appear only
+  inside the `twice` exercise's `solution!(…)` blocks (`:1136-1138`, `:1141`),
+  so the student and `terse` variants never show them, but the `solutions` and
   `grading` variants do, and nothing presents them before `Logic/Proof`. This
   is the cost of moving every proof tactic out of `IntroL`: the chapter is now
   deliberately pre-proof, so presenting them here would undo that. Either move
   the exercise's tests to `Logic/Proof`, or weaken them to what `rfl` closes.
-  `decide` → `rfl` is known to work for `twice_test2`.
+  `decide` → `rfl` is known to work for `twice_test2`. (`funext` is discussed
+  in the prose at `:807`, but as the principle of function extensionality, not
+  as a tactic the reader is being handed.)
 
 `IntroCS` is the constraint's one accepted exception: it uses Lean that
 `IntroL` only presents later, deliberately, and the chapter says so where its
