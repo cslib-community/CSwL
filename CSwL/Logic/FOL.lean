@@ -124,7 +124,7 @@ def Formula.disjs {α : Type} : List (Formula α) → Formula α
   | f :: fs => .disj f (Formula.disjs fs)
 ```
 
-E a instância de `Repr` para exibirmos fórmulas de forma legível. Note que ela demanda que o tipo `α` tenha também uma instância de `Repr`.
+Um termo do tipo `Formula` não é muito legível, vamos implementar a instância de `Repr` para controlar a exibição destes termos. Note que ela demanda que o tipo `α` tenha também uma instância de `Repr`.
 
 ```lean
 def Formula.format {α} [Repr α] : Formula α → Std.Format
@@ -189,7 +189,6 @@ def Formula.freeVars {α} (vars : α → List Variable) :
 ```
 
 ::::exercise (rating := 2) (name := "closed-form")
-
 Escreva uma função `closedForm : Formula Variable → Bool` que verifica
 se uma fórmula é fechada. Aqui cada termo é uma variável, então
 extrair as variáveis de um termo é devolvê-lo numa lista de um
@@ -203,11 +202,9 @@ def freeVarsInFormula (f : Formula Variable) :
 def closedForm (f : Formula Variable) : Bool :=
   solution!((freeVarsInFormula f).isEmpty)
 ```
-
 ::::
 
 ::::exercise (rating := 1) (name := "implication-as-abbrev")
-
 Implicações e equivalências podem ser vistas como abreviações, pois se
 definem a partir de negação, conjunção e disjunção — as mesmas
 equivalências usadas na lógica proposicional. Escreva uma função
@@ -237,11 +234,9 @@ def withoutIDs (frm : Formula Variable) :
     | .forall_ v f => .forall_ v (withoutIDs f)
     | .exists_ v f => .exists_ v (withoutIDs f))
 ```
-
 ::::
 
 ::::exercise (rating := 2) (name := "negation-normal-form")
-
 Toda fórmula de lógica de predicados pode ser transformada em uma equivalente na *forma normal da negação* (NNF, "negation normal form"), onde negações só ocorrem diante de átomos. A receita é "empurrar" as negações através dos quantificadores por `¬ ∀x F ≡  ∃x ¬F` e `¬ ∃x F ≡ ∀x ¬F`, e através de disjunções e conjunções pelas leis de De Morgan: `¬(F1 ∧ F2) ≡ ¬F1 ∨ ¬F2` e `¬(F1 ∨ F2) ≡ ¬F1 ∧ ¬F2`. Finalmente, `¬¬F ≡ F` elimina dupla negação. Complete o código da função `nnf`.
 
 Dica: a receita acima diz o que fazer com `¬` diante de alguma subfórmula. Isso sugere duas funções, uma para cada situação em que uma subfórmula pode aparecer. As duas se chamam mutuamente, e por isso vão num bloco `mutual`.
@@ -291,16 +286,10 @@ end
 
 def Formula.nnf (f : Formula Variable) : Formula Variable :=
   solution!(nnfPos f)
-
-#eval Formula.neg formula2
-#eval (Formula.neg formula2).nnf
 ```
-
 ::::
 
-# Símbolos de função
-
-Termos denotam objetos do domínio, e diferentes termos podem denotar um mesmo objeto como o termo `(5 + 3) × 4`, `8 × 4` e `32`. Para representar termos mais complexos que apenas variáveis, a solução é introduzir símbolos funcionais para as operações entre termos. Da mesma forma como escolhemos representar relações binárias quaisquer, ao invés de fixar símbolos específicos para relações como "menor que".
+Termos denotam objetos do domínio, e diferentes termos podem denotar um mesmo objeto como os termos `(5 + 3) × 4`, `8 × 4` e `32`. Para representar termos mais complexos que apenas variáveis, a solução é introduzir símbolos funcionais para as operações entre termos.
 
 ```lean
 inductive Term where
@@ -374,11 +363,9 @@ def Formula.varsInForm (frm : Formula Term) : List Variable :=
     | .exists_ v f => v :: f.varsInForm
    tmp.eraseDups)
 ```
-
 ::::
 
 ::::exercise (rating := 2) (name := "free-vars-in-formula")
-
 Implemente `freeVarsInForm : Formula Term → List Variable`, que dá a
 lista de variáveis com ocorrências livres numa fórmula.
 
@@ -386,21 +373,23 @@ lista de variáveis com ocorrências livres numa fórmula.
 def Formula.freeVarsInForm (f : Formula Term) : List Variable :=
   solution!(f.freeVars varsInTerm)
 ```
-
 ::::
 
-::::exercise (rating := 2) (name := "open-form")
 
+::::exercise (rating := 2) (name := "open-form")
 Usando a função `freeVarsInForm`, complete a função `openForm`, que verifica se uma fórmula é aberta. Reaproveite as funções anteriores.
 
 ```lean
 def openForm (f : Formula Term) : Bool :=
   solution!(!f.freeVarsInForm.isEmpty)
 ```
-
 ::::
 
+
 # Semântica da lógica de predicados
+%%%
+tag := "fol-semantics"
+%%%
 
 Por conveniência, nos limitamos a um fragmento de língua com apenas três letras de predicado: `P` (unário), `R` (binário), e `S` (ternário).
 
