@@ -23,7 +23,7 @@ namespace PL
 tag := "pl-intro"
 %%%
 
-Em {ref "Proof"}["Proof"] as fórmulas proposicionais foram escritas diretamente como termos do tipo `Prop`, e usando táticas construimos provas de proposições `α` a partir de um conjunto de hipóteses `Γ`. Isto é, em Lean mostramos como derivar `α` a partir de `Γ`, isto é `Γ ⊢ α`, de forma sintática.
+Em {ref "Proof"}["Proof"] as fórmulas proposicionais foram escritas diretamente como termos do tipo `Prop`, e usando táticas construimos provas de proposições `α` a partir de um conjunto de hipóteses `Γ`. Isto é, mostramos como derivar `α` a partir de `Γ`, isto é `Γ ⊢ α`.
 
 Mas em Lean, `Prop` é um tipo e proposições particulares também são tipos. A variável `h` abaixo pode ser entendida como um identificador para uma "prova qualquer" da proposição `p ∧ q`. E Lean adota o princípio da "irrelevância da prova", ou seja, Lean não distingue diferentes provas de uma proposição. Como consequência, o tipo `Prop` não é computável, não é um "dado" que pode ser manipulado. Por exemplo, não conseguimos extrair os componentes de uma conjunção `a ∧ b`. Lean sabe que todas as provas de `a ∧ b` são irrelevantes e iguais, então ele não permite que você use uma prova para tomar decisões no mundo dos dados programáveis (`Type`). Em outras palavras, não podemos realizar casamento de padrões em `h` abaixo.
 
@@ -52,21 +52,9 @@ Em um problema com um número finito de proposições, e os números costumam se
 tag := "pl-syntax"
 %%%
 
-Formalmente, a sintaxe da LP é definida pela BNF abaixo. As variáveis proposicionais (ou símbolos sentenciais) são os `atom`. O uso do sufixo `'` no não-terminal `atom` é uma forma conveniente de expressar que podemos gerar quantos átomos forem necessários.
+Para construir fórmulas como dados, não poderemos mais usar a notação de Lean disponível para os termos do tipo `Prop`. Quando escrevemos `p ∧ q`, o símbolo `∧` é um operador infixado (aparece no meio dos argumentos) e representa o construtor {lean}`And.intro` do tipo {lean}`And`. Os operadores, para serem usados de forma infixada, precisam ter um mecanismo de precedência para permitir que possamos escrever termos ambiguos como `p ∧ q ∧ r` que terão sua leitura associada a `p ∧ (q ∧ r)` e não `(p ∧ q) ∧ r`. Nada disso estará ao nosso dispor.
 
-```bnf
-atom ::= "p" | "q" | "r" | atom"'" ;
-F    ::= atom
-  | "¬" F ("negação")
-  | "(" F "∧" F ")" ("conjunção")
-  | "(" F "∨" F ")" ("disjunção")
-  | "(" F "→" F ")" ("implicação")
-  | "(" F "↔" F ")" ("se-somente-se") ;
-```
-
-Com esta gramática, podemos gerar fórmulas como `¬¬¬p'''`, `((p ∨ p') ∧ p')`, `(p ∧ (p' ∧ p'''))`. Sem parênteses a gramática pode gerar strings ambíguas: `p ∧ p′ ∨ p″` lê-se tanto como `(p ∧ p′) ∨ p″` quanto como `p ∧ (p′ ∨ p″)`, e a ambiguidade estrutural afeta o significado, como na sentença "era jovem e bonita ou triste". Nem todos os conectivos precisam ser definidos como "primitivos". O conectivo `→` poderia ser definido como uma abreviação para `p → q ≃ ¬ p ∨ q`.
-
-A gramática acima será representada pelo tipo indutivo `Form`. Um átomo é identificado por um nome, e o nome é uma `String`. Isso dá o inventário ilimitado que a gramática pede sem precisar enumerar símbolo por símbolo.
+Nossas fórmulas serão representadas por termos do tipo indutivo `Form`. Um átomo é identificado por um nome, e o nome é uma `String`. Isso dá o inventário ilimitado que a gramática pede sem precisar enumerar símbolo por símbolo.
 
 ```lean
 inductive Form where
@@ -76,10 +64,38 @@ inductive Form where
   | neg (f : Form)
   | conj (f g : Form)
   | disj (f g : Form)
-  deriving DecidableEq
+  deriving DecidableEq, Repr
 ```
 
-Vale observar que a biblioteca `cslib` define o tipo `Cslib.Logic.PL.Proposition` que poderia ser usado nesta seção, mas isto introduziria uma complexidade desnecessária. Acima escolhemos não declarar os símbolos `→` e `↔` como construtores do tipo, eles serão funções que criam `Form` a partir de `Form`.
+Com este tipo, podemos representar fórmulas arbitrariamente complexas.
+
+```lean
+#eval
+  let p : Form := .atom "p"
+  let q : Form := .atom "q"
+  let f₁ : Form := .neg (.neg p)
+  let f₂ : Form := .disj (.neg p) q
+  Form.conj f₁ f₂
+```
+
+Como não temos símbolos infixados, não temos ambiguidade. As duas possíveis interpretações para a sentença ambigua em português "Maira é jovem e bonita ou triste" seriam:
+
+```lean
+namespace Maria
+
+def j : Form := .atom "MJ"
+def b : Form := .atom "MB"
+def t : Form := .atom "MT"
+
+#eval Form.conj j (.disj b t)
+#eval Form.disj (.conj j b) t
+
+end Maria
+```
+
+Vale observar que a biblioteca `cslib` define o tipo `Cslib.Logic.PL.Proposition` que poderia ser usado nesta seção, mas isto introduziria uma complexidade desnecessária.
+
+Nem todos os conectivos precisam ser definidos como "primitivos". Como vimos na seção {ref "pl-lean"}[pl-lean] a implicação pode ser definida como uma dijunção. E a dupla implicação como uma conjunção de implicações.
 
 ```lean
 def Form.impl (f g : Form) : Form := .disj (.neg f) g
@@ -111,6 +127,8 @@ Três pessoas são suspeitas de torcer pelo Bangu F.C. Aparecido entrevistou os 
 Termine a formalização dos depoimentos construindo uma expressão no tipo `Form`.
 
 ```lean
+namespace Bangu
+
 def A : Form := Form.atom "Auro"
 def J : Form := Form.atom "Joaquim"
 def C : Form := Form.atom "Claudia"
@@ -118,9 +136,10 @@ def C : Form := Form.atom "Claudia"
 def depo1 : Form := solution!(.conj (.neg J) C)
 def depo2 : Form := solution!(.impl (.neg A) (.neg C))
 def depo3 : Form := solution!(.conj C (.disj (.neg A) (.neg J)))
+
+end Bangu
 ```
 :::
-
 
 :::exercise (rating := 1) (name := "exclusive-or")
 A expressão `p ∨ q` é verdadeira mesmo quando `p` e `q` são ambos verdadeiros. Em português, "ou" costuma ser exclusivo, como em "Você pode ficar com o sorvete ou com o algodão-doce, mas não com os dois." Defina um conectivo `xor` para "ou exclusivo", usando os conectivos já definidos.
@@ -138,9 +157,12 @@ def form1 : Form :=
   .conj (.atom "p") (.neg (.atom "p"))
 
 def form2 : Form :=
-  Form.disjs [.atom "p1", .atom "p2", .atom "p3", .atom "p4"]
+  .disjs [.atom "p1", .atom "p2", .atom "p3", .atom "p4"]
 
-#eval form2
+def form3 : Form :=
+  let p : Form := .atom "p"
+  let q : Form := .atom "q"
+  .equi (.impl p q ) (.disj (.neg p) q)
 ```
 
 :::exercise (rating := 1) (name := "count-operators")
@@ -178,20 +200,22 @@ example : form2.depth = 3 := by decide
 :::
 
 :::exercise (rating := 2) (name := "collect-atoms")
-Implemente `propNames` para coletar a lista de nomes de átomos proposicionais que ocorrem numa fórmula. A lista resultante deve estar ordenada e sem repetições.
+Implemente `propNames` para coletar a lista de nomes de átomos proposicionais que ocorrem numa fórmula. A lista resultante deve estar ordenada e sem repetições. O exemplo pode ser provado com {tactic}`native_decide`.
 
 ```lean
-private def Form.propNamesRaw : Form → List String :=
-  solution!(fun
-    | .atom name => [name]
-    | .top => []
-    | .bot => []
-    | .neg f => f.propNamesRaw
-    | .conj f g => f.propNamesRaw ++ g.propNamesRaw
-    | .disj f g => f.propNamesRaw ++ g.propNamesRaw)
+def Form.propNamesRaw (f : Form) : List String :=  solution!(
+  match f with
+  | .atom name => [name]
+  | .top => []
+  | .bot => []
+  | .neg f => f.propNamesRaw
+  | .conj f g => f.propNamesRaw ++ g.propNamesRaw
+  | .disj f g => f.propNamesRaw ++ g.propNamesRaw)
 
 def Form.propNames (f : Form) : List String :=
   solution!(f.propNamesRaw.eraseDups.mergeSort (· ≤ ·))
+
+example : form1.propNames == ["p"] := solution!(by native_decide)
 ```
 :::
 
@@ -230,11 +254,15 @@ Chamamos as fórmulas que são sempre verdade para qualquer valoração de suas 
 Construa as valorações `vs1` e `vs2` de tal forma que os exemplos possam ser provados com a tática {tactic}`decide`.
 
 ```lean
-def form3 : Form :=
-  .disj (.atom "p") (.conj (.atom "q") (.atom "r"))
+namespace TestVals
 
-def form4 : Form :=
-  .neg (.conj (.atom "p") (.neg (.atom "q")))
+def p : Form := .atom "p"
+def q : Form := .atom "p"
+def r : Form := .atom "r"
+
+def form3 : Form := .disj p (.conj q r)
+
+def form4 : Form := .neg (.conj p (.neg q))
 
 def form5 : Form :=
   .conj (.atom "a") (.impl (.neg (.atom "b")) (.atom "c"))
@@ -242,13 +270,15 @@ def form5 : Form :=
 def vs1 : List (String × Bool) := solution!([("p", true),("q", true)])
 def vs2 : List (String × Bool) := solution!([("a", true),("b", true)])
 
-example : form3.eval vs1 = true := by solution!(decide)
-example : form4.eval vs1 = true := by solution!(decide)
-example : form5.eval vs2 = true := by solution!(decide)
+example : form3.eval vs1 = true := solution!(by decide)
+example : form4.eval vs1 = true := solution!(by decide)
+example : form5.eval vs2 = true := solution!(by decide)
+
+end TestVals
 ```
 :::
 
-A função a seguir gera a lista de todas as valorações sobre o conjunto dos nomes de átomos presentes em um termo do tipo `Form`. Com estas funções, podemos construir a tabela verdade de uma fórmula.
+A função a seguir gera a lista de todas as valorações sobre o conjunto dos nomes de átomos presentes em um termo do tipo `Form`.
 
 ```lean
 def genVals : List String → List Valuation
@@ -259,7 +289,11 @@ def genVals : List String → List Valuation
 
 def Form.allVals (f : Form) : List Valuation :=
   genVals f.propNames
+```
 
+Com estas funções, podemos construir a tabela verdade de uma fórmula.
+
+```lean
 #eval List.zip form1.allVals (form2.allVals.map (form2.eval ·))
 ```
 
@@ -273,9 +307,15 @@ def Form.satisfiable (f : Form) : Bool :=
   f.allVals.any (fun v => f.eval v)
 
 def Form.contradiction (f : Form) : Bool :=
-  ¬ f.satisfiable
+  !f.satisfiable
 
 #eval (form1.contradiction, (Form.neg form1).tautology, form1.satisfiable)
+```
+
+E como já sabemos da seção {ref "pl-lean"}[pl-lean], podemos mostrar que {name}`form3` é uma tautologia.
+
+```lean
+#eval form3.tautology
 ```
 
 :::exercise (rating := 1) (name := "def-contingente")
@@ -283,7 +323,7 @@ Complete a definição de fórmula contingente. Para provar o exemplo, use {tact
 
 ```lean
 def Form.contingent (f : Form) : Bool :=
-  solution!(f.satisfiable ∧ ¬ f.tautology)
+  solution!(f.satisfiable && !f.tautology)
 
 example : (Form.atom "q").satisfiable = true := by
   solution!(native_decide)
@@ -314,8 +354,8 @@ def q : Form := Form.atom "q"
 def Feq1 : Form := Form.neg (.equi p q)
 def Feq2 : Form := solution!(.disj (.conj (.neg p) q) (.conj (.neg q) p))
 
-example : Feq1.equivalent Feq2 := by
-  solution!(native_decide)
+example : Feq1.equivalent Feq2 = true :=
+  solution!(by native_decide)
 ```
 :::
 
@@ -348,10 +388,14 @@ def Form.impliesL (ps : List Form) (c : Form) : Bool :=
 Complete a definição de `banguSolution` para que a fórmula represente a solução do problema dos torcedores do Bangu F.C. assumindo que os 3 depoimentos foram verdadeiros. A prova do exemplo é completada com {tactic}`native_decide`.
 
 ```lean
+namespace Bangu
+
 def banguSolution : Form := solution!(.conjs [A, (.neg J), C])
 
 example : Form.impliesL [depo1, depo2, depo3] banguSolution = true :=
-  by solution!(native_decide)
+  solution!(by native_decide)
+
+end Bangu
 ```
 :::
 
