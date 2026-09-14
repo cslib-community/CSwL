@@ -72,14 +72,23 @@ structure ExtractConfig where
   modPrefix : String
   variant : Variant
   /-- Run `lake build` inside the generated project, to check that it
-  compiles on its own. Stays `false` for two reasons, both measured and not
-  hypothetical: (a) chapters import Mathlib, so the generated project would
-  compile Mathlib from scratch on every `make`; (b) in the `grading` variant
-  the autograder requires the `v4.33.0` toolchain and ours is
-  `v4.33.0-rc2` -- the same mismatch that kept the autograder out of
-  `CSwL`'s own `lakefile.toml`, and which remains open for the real
-  chapters (`Placeholder` does not import Mathlib, so for it the generated
-  `grading` project is pure autograder). -/
+  compiles on its own. On for `solutions` and off everywhere else.
+
+  The book's own build says nothing about this: there a solution is
+  elaborated in place, so a chapter can compile while the project handed to
+  the student does not. Every defect fixed for issue #22 had that shape.
+
+  Only `solutions` is verified. `student` and `terse` replace answers with
+  `sorry`, so their generated projects fail *by design* and verifying them
+  would report expected failures as errors. `grading` is the same Lean with
+  the autograder's attributes on top.
+
+  The cost, measured rather than assumed: the generated project vendors its
+  own Mathlib, 7.5 GB per variant, and once built an incremental `lake
+  build` is about three seconds. It is not rebuilt on every `make`, but
+  `make clean` removes `_out/` and the next build pays for it again. The
+  toolchain objection that once kept this off is gone -- the generated
+  project and `CSwL` are both on `v4.33.0`. -/
   verify : Bool := false
 
 /-! ## Generated Lake project template -/
@@ -443,7 +452,11 @@ def emitSavedStudent (vol : String) :=
 
 /-- `ExtraStep` for the `solutions` variant: answer keys shown. -/
 def emitSavedSolutions (vol : String) :=
-  emitSavedImpl { modPrefix := vol, variant := .solutions }
+  -- `verify := true` here only: this is the one variant whose proofs are all
+  -- meant to be complete, so "the generated project compiles" is both
+  -- meaningful and true. `student` and `terse` carry `sorry` by design, and
+  -- `grading` adds autograder attributes over the same Lean.
+  emitSavedImpl { modPrefix := vol, variant := .solutions, verify := true }
 
 /-- `ExtraStep` for the `terse` (lecture) variant: answer keys elided and
 proofs marked with `workinclass!` become `sorry`, to be done live. -/
