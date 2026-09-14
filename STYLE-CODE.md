@@ -51,13 +51,13 @@ this way is usually a mistake; see "Known gaps."
 | Chapter | Commands and declarations | Types and syntax | Tactics |
 | --- | --- | --- | --- |
 | `IntroCS` | `namespace`, `def` (by pattern matching), `inductive`, `deriving Repr`, `example`, `#eval` | `Nat`, function type `→`, dot-notation constructors (`.num`) | `rfl`, `induction … with`, `rw`, `rewrite`, `unfold`, `repeat` |
-| `IntroL` | `#check`, `#print`, `theorem`, `structure`, `instance`, `section`, `variable` | `Type`, `Prop`, `Bool`, `List`, `Option`, `Char`, `String`, `fun`/`λ`, `match`, `if … then … else`, `⟨…⟩`, implicit `{}`, instance-implicit `[]`, `∘`, `BEq` | `funext`, `show` (solution only), `omega` (solution only), `decide` (solution only) |
+| `IntroL` | `#check`, `#print`, `theorem`, `structure`, `instance`, `section`, `variable` | `Type`, `Prop`, `Bool`, `List`, `Option`, `Char`, `String`, `fun`/`λ`, `match`, `if … then … else`, `⟨…⟩`, implicit `{}`, instance-implicit `[]`, `∘`, `BEq`, `List.all`/`List.any` | `funext`, `show` (solution only), `omega` (solution only), `decide` (solution only) |
 | `Logic/Proof` | `open` | `¬`, `∀`, `∃`, `∧`, `∨`, `↔`, `≠` | `intro`, `exact`, `apply`, `cases … with`, `constructor`, `obtain`, `have`, `use`, `left`, `right`, `rcases`, `by_cases`, `by_contra` |
 | `Logic/PL` | `abbrev`, `private` | `DecidableEq`, `×` | `simp` |
-| `Logic/FOL` | `mutual` | `\|>` | — |
+| `Logic/FOL` | `mutual`, `deriving BEq` | `\|>`, `List.contains` | `induction … generalizing` |
 | `Sets` | — | `Set`, `Rel`, `Finset`, `Fintype`, `Setoid`, `∈`, `⊆`, `∪`, `∩` | `assumption`, `trivial`, `symm`, `simp_all` |
 | `SeaBattle` | — | `Fin` | `native_decide` |
-| `Morphology` | `deriving BEq` | — | — |
+| `Morphology` | *(none new)* | — | — |
 | `InfEngine` | — | `do`-notation | — |
 | `English` | *(none new)* | *(none new)* | *(none new)* |
 

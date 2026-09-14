@@ -190,7 +190,8 @@ Two consequences of moving 2.3 here:
 
 ### 3. `Logic.lean` — CSwFP/4.4–4.7, 5.2, 5.3, 5.5
 
-Two files, `PL.lean` (propositional logic) and `FOL.lean` (predicate logic).
+Three files: `Proof.lean` (proving in Lean), `PL.lean` (propositional logic)
+and `FOL.lean` (predicate logic), included in that order.
 
 Doing logic in Lean is doing deduction — `intro` is →-introduction, `constructor` is ∧-introduction, `cases` on ∨ is ∨-elimination. CSwFP reaches deduction only in its inference engine (5.7); here it arrives with the logic itself. Deduction lives at the meta level, in `Prop` and the tactics.
 
@@ -204,14 +205,23 @@ state. Those two carry a structure of their own, and part 1's subheadings, one
 per connective, are that structure — a connective's introduction and elimination
 rules are what the section teaches.
 
-**The chapter's opening example is not CSwFP's.** The potassium/chlorine
-example that opens `PL.lean` — `K` for "traces of potassium were observed", `C`
-for "the sample contained chlorine", and the four compound sentences built from
-them — has no counterpart in CSwFP, whose chapter 4 opens with Sea Battle. It
-is adapted from the opening of Enderton's *A Mathematical Introduction to
-Logic*, and the prose cites it as such. Recorded here because the rest of parts
-2 and 3 *are* translations, and a reader of this document checking coverage
-would otherwise look for a source passage that does not exist.
+**The chapter's opening example was not CSwFP's, and is now removed.**
+`PL.lean` used to open with a potassium/chlorine example adapted from
+Enderton's *A Mathematical Introduction to Logic* — `K` for "traces of
+potassium were observed", `C` for "the sample contained chlorine", four
+compound sentences, and a truth table over them. It had no counterpart in
+CSwFP, whose chapter 4 opens with Sea Battle. It went out with the chapter
+reorganization of 2026-09-13: it taught the basics of propositional logic,
+which `Proof.lean` now declares a prerequisite, and the chapter's own subject
+is formalizing rather than logic itself. The `enderton2001` entry is left in
+`Bib.lean`, unused. Recorded because a reader checking coverage might look for
+a source passage for the old opening and find none.
+
+**The dresses puzzle moved to `Proof.lean`.** It was a `:::quiz` in `PL.lean`'s
+introduction, and the section "Lógica Proposicional em Lean" — now in
+`Proof.lean` — formalized it, opening with "Continuando a partir do quiz
+anterior". The move broke that reference, so the puzzle goes with the section
+that solves it, no longer as a quiz but as the worked example that opens it.
 
 Two divergences inside the translated part. CSwFP gives the semantics in two
 sections, "Semantics of Propositional Logic" and "Propositional Reasoning in
@@ -220,14 +230,45 @@ the definitions are already Lean from the first line, so there is no later point
 at which implementation begins. And the discussion of what an empty conjunction
 should be worth does not arise, since `top` and `bot` are constructors.
 
-`PL.lean`, in this internal order:
+**Proving in Lean is a section of its own, and it comes first.** The meta
+level used to be presented three times: `IntroL.lean` introduced `Prop`, and
+then `PL.lean` and `FOL.lean` each opened with the tactics for their own
+connectives before reaching their actual subject. `Proof.lean` now holds all of
+it — `Prop`, what counts as a proof, the tactics as the rules they are
+(`apply`; `constructor` and anonymous constructors for ∧ and ↔; `left`, `right`
+and `cases` for ∨; `False.elim` and `absurd` for ¬; `by_contra`, `by_cases` and
+`em`; `intro`/`apply` for ∀, `use` and `obtain` for ∃), and proof by induction.
+`IntroL.lean` is left deliberately pre-proof: it uses `example`, `theorem` and
+`rfl` only as the shape an exercise's tests take, and says so.
 
-1. **`Prop` and proof in Lean** — meta level. Tactics presented as the rules they are, building on the `rfl`/`intro`/`exact`/`decide` of `IntroL.lean`: `apply`; `constructor` and anonymous constructors for ∧ and ↔; `left`, `right` and `cases` for ∨; `False.elim` and `absurd` for ¬; `by_contra`, `by_cases` and `em` for classical reasoning.
-2. **`Form` as syntax** — object level: BNF, `inductive Form` (4.4). Glued to it, the section that separates the two levels: `Form.conj p q` is data, `p ∧ q` is a proposition. Glued, not deferred to the end of the chapter — the confusion is born the instant the `inductive` appears. This is a cost Lean creates and Haskell does not have: there the meta level is invisible, living in the prose, so `data Form = ...` cannot be confused with it.
-3. **Valuation** — 5.2 and 5.3: truth tables, consequence, `update` over valuations.
-4. **The bridge** — interpreting `Form` into `Prop` and proving `eval v F = true ↔ ⟦F⟧`. Where deduction and valuation meet. CSwFP cannot have this section.
+The consequence is that `PL.lean` and `FOL.lean` now have the same three-part
+shape, and neither teaches Lean tactics:
 
-`FOL.lean` mirrors `PL.lean`'s order: the quantifier rules first — `intro`/`apply` for ∀, `use` and `obtain` for ∃ — then 4.5, 4.6, 4.7, then 5.5. Putting the tactics last would have made the two logic chapters teach the same thing in opposite positions, for no reason.
+1. **Syntax as data** — BNF, then the `inductive` (4.4 for `Form`, 4.5–4.7 for `Formula`). Glued to it in `PL.lean`, the section that separates the two levels: `Form.conj p q` is data, `p ∧ q` is a proposition. Glued, not deferred — the confusion is born the instant the `inductive` appears. This is a cost Lean creates and Haskell does not have: there the meta level is invisible, living in the prose, so `data Form = ...` cannot be confused with it.
+2. **Computable semantics** — 5.2 and 5.3 for `Form.eval` over valuations; 5.5 for `Formula.eval` over a model.
+3. **The bridge** — interpreting the syntax into `Prop` (`denote`) and proving that the two readings agree. CSwFP cannot have this section.
+
+**`FOL.lean` gained its bridge section.** It previously had only a `Prop`-valued
+`Formula.holds` and no computable semantics at all, so the chapter did not in
+fact mirror `PL.lean` — there was nothing to bridge *from*. It now follows the
+same shape: `Interp` returns `Bool` and `Formula.eval` computes, `Denot` returns
+`Prop` and `Formula.denote` interprets, and `Formula.eval_iff_denote` relates
+them. The bridge theorem needs a hypothesis `PL.lean`'s does not: `eval` decides
+a quantifier by walking a list `dom`, so it agrees with the `∀` of Lean only
+when `dom` lists every element of the domain. That hypothesis is the formal
+counterpart of a real limitation, and the prose says so.
+
+**The model in `FOL.lean` is CSwFP/6's, in fragment.** Chapter 6's model
+(`src/Model.hs`) is pulled forward to give 5.5 something concrete to evaluate
+against: ten of the twenty-seven entities, and eight predicates
+(`girl`, `boy`, `princess`, `dwarf`, `giant`, `child`, `love`, `defeat`) with
+the original's extensions, restricted to the entities kept. The one place this
+bites is `defeat`, which in the original is the dwarf/giant rule *plus* the
+pairs `(A,W)` and `(A,V)`; the wizards `W` and `V` are outside the fragment, so
+only the rule survives. The natural-language translation that chapter 6
+builds on it is not pulled forward — only the model. The previous example was a
+three-element `Nat` domain with predicates named `P` and `R`, which could not
+show why a *finite, listed* domain is what makes evaluation possible.
 
 **`Formula` is binary too.** Its `conj` and `disj` take two arguments, with `top` and `bot` as constructors and `Formula.conjs`/`Formula.disjs` recovering the n-ary notation — the same design as `Form`, for the same reason. A constructor holding a `List (Formula α)` would make the type a nested inductive, costing `induction` and `deriving`. The `List α` in `atom name (args : List α)` does not: `α` is a parameter, not the type being defined, so an atom may still take any number of arguments. With that, the definition of truth in 5.5 is a plain recursion, one case per constructor, instead of three mutually recursive functions. The one `mutual` block left in the chapter belongs to `Term`, where a list of terms inside `Term` is what function symbols of arbitrary arity require.
 

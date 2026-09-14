@@ -19,11 +19,7 @@ htmlSplit := .never
 file := "Logic"
 %%%
 
-O capítulo tem três seções. A primeira é sobre provar em Lean: o tipo `Prop`,
-o que conta como prova, e as táticas que constroem uma. As outras duas
-implementam a lógica proposicional e a de predicados como tipos de dados,
-cada uma com sua sintaxe, sua semântica computável, e a ponte entre a fórmula
-como dado e a proposição que ela afirma.
+O capítulo tem três seções. Em {ref "Proof"}[Proof] vamos usar Lean como assistente de prova, entendendo como usar o tipo `Prop` e como construir provas de proposições a partir de termos ou táticas. Em {ref "PL"}[PL] trataremos da implementação de lógica proposicional usando Lean como linguagem de programação, daremos a sintática e semântica de PL. Finalmente, em {ref "FOL"}[FOL], vamos implementar a lógica de predicados, novamente com sua sintaxe e semântica computável.
 
 {include 1 CSwL.Logic.Proof}
 

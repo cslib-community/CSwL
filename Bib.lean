@@ -104,6 +104,15 @@ def enderton2001 : Article where
   volume  := inlines!""
   number  := inlines!""
 
+def nederpelt2014 : Article where
+  title   := inlines!"Type Theory and Formal Proof: An Introduction"
+  authors := #[inlines!"Rob Nederpelt", inlines!"Herman Geuvers"]
+  journal := inlines!"Cambridge University Press, Cambridge"
+  year    := 2014
+  month   := none
+  volume  := inlines!""
+  number  := inlines!""
+
 def FAA2025 : Article where
   title   := inlines!"Formalizing Analysis of Algorithms, Autumn 2025"
   authors := #[inlines!"Sorrachai Yingchareonthawornchai"]

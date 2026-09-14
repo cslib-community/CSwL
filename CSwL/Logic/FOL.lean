@@ -16,13 +16,24 @@ tag := "FOL"
 namespace FOL
 ```
 
-Frases como "Todo príncipe viu uma dama" não podem ser expressas em lógica proposicional — ficariam como átomos `p`/`q` totalmente desconectados, sem capturar que a mesma entidade que é "príncipe" foi a que realizou o ato de ver. Lógica de predicados acrescenta três ingredientes:
+# Introdução
+%%%
+tag := "fol-intro"
+%%%
 
-* proposições básicas, predicados `n`-ário seguidos de `n` variáveis;
+Se usarmos lógica proposicional para formalizar a frase "Toda maça é vermelha", teremos uma letra proposicional, um átomo indivisível que não nos permitiria capturar a idéia do quantificador e da dependencia declarada entre as _coisas_ que são maças e a cor destas mesmas _coisas_. Lógica de predicados acrescenta três ingredientes:
+
+* termos para representar indivíduos de um domínio. Os termos poderão ser variáveis ou funções aplicadas sobre termos;
+* proposições básicas serão predicados `n`-ários sobre termos;
 * fórmulas universalmente quantificadas, `∀` seguido de variável e fórmula;
 * fórmulas existencialmente quantificadas, `∃` seguido de variável e fórmula.
 
-Também chamada de "lógica de primeira ordem" (FOL, "first order logic") está relacionado a quantificação ser sobre entidades, objetos de primeira ordem. Vamos assumir que predicados aridade até 3 (relações unárias, binárias e ternárias). Relações com mais de três argumentos quase nunca são necessárias para capturar a semântica de linguagem natural. A BNF completa segue abaixo e gera fórmulas como `¬P x`, `∀ x R x x` e `∀ x ∃ y R x y`.
+# Sintaxe de Lógica de Primeira Ordem
+%%%
+tag := "fol-syntax"
+%%%
+
+Também chamada de "lógica de primeira ordem" (FOL, "first order logic"). Vamos assumir que predicados terão aridade de 1 até 3 (relações unárias, binárias e ternárias). Relações com mais de três argumentos quase nunca são necessárias para capturar a semântica de linguagem natural. A BNF completa segue abaixo e gera fórmulas como `¬P x`, `∀ x R x x` e `∀ x ∃ y R x y`.
 
 ```bnf
 v    ::= "x" | "y" | "z" | v "'" ;
@@ -39,12 +50,8 @@ F    ::= atom
   | "∃" v F ("quantificação existencial") ;
 ```
 
-Em Lean, o mesmo tipo `Prop` em Lean pode ser usado na representação de fórmulas de primeira ordem. Também veremos como as fórmulas podem ser manipuladas como dados.
-
-# Ligação de variáveis
-
-Numa fórmula `∀x F` (ou `∃x F`), o quantificador liga toda ocorrência de
-`x` em `F` que não esteja já ligada por um `∀x`/`∃x` interno a `F`. Uma fórmula é *aberta* se tem ao menos uma ocorrência livre de variável, e *fechada* (também chamada *sentença*) caso contrário. Por exemplo, `(Px ∧ ∃x Rxx)` é aberta, o `x` de `Px` está fora do escopo do `∃x`. Mas `∃x (Px ∧ ∃x Rxx)` é uma sentença.
+Em uma fórmula `∀x F` (ou `∃x F`), o quantificador liga toda ocorrência de
+`x` em `F` que não esteja já ligada por um `∀x`/`∃x` interno a `F`. Uma fórmula é *aberta* se tem ao menos uma ocorrência livre de variável, e *fechada* (também chamada *sentença*) caso contrário. Por exemplo, `(P x ∧ ∃x, R x x)` é aberta, o `x` de `P x` está fora do escopo do `∃x`. Mas `∃x (P x ∧ ∃x R x x)` é uma sentença.
 
 Essa distinção é o que motiva a ambiguidade de escopo de "Todo príncipe viu uma dama". Duas leituras possíveis, "para cada príncipe existe uma dama (talvez diferente) que ele viu" contra "existe uma dama que todo príncipe viu", formalizadas respectivamente como:
 
@@ -57,20 +64,14 @@ Repare que a leitura universal usa `→` como conectivo principal, e
 a existencial usa `∧`. Já "Algum príncipe viu uma dama bonita" admite apenas uma formalização, `∃x∃y (Prince x ∧ Lady y ∧ Beautiful y ∧ Saw x y)`.
 
 :::dev "Alexandre (arademaker)"
-
 Em Lean, indexar por aridade é mais natural do que empilhar primos: um
 `structure PredSymbol` com campos `name : String` e `arity : Nat` já
 representa "infinitos predicados de cada aridade finita" sem precisar
 de uma família de gramáticas, uma por aridade. Fica como observação,
 `Formula` (abaixo) não adota `PredSymbol`.
-
 :::
 
-
-# O tipo Fórmulas de FOL
-
-Uma variável carrega nome e um índice (lista de naturais usada para gerar
-variáveis "frescas" a partir de uma dada variável):
+Como fizemos em {ref "pl-syntax"}[pl-syntax], vamos agora definir um tipo para representar fórmulas FOL. Uma variável carrega nome e um índice (lista de naturais usada para gerar variáveis "frescas" a partir de uma dada variável):
 
 ```lean
 structure Variable where
@@ -402,10 +403,10 @@ def openForm (f : Formula Term) : Bool :=
 
 Por conveniência, nos limitamos a um fragmento de língua com apenas três letras de predicado: `P` (unário), `R` (binário), e `S` (ternário).
 
-Como deve ser uma estrutura extralinguística para as constantes `P`, `R` e `S`? Tal estrutura deve conter ao menos um domínio de discurso `D`, formado por entidades individuais, com uma interpretação para `P`, para `R` e para `S`. Essas interpretações são dadas por uma função `Interp`, que a cada nome de predicado e a cada lista de elementos do domínio associa a afirmação de que a relação vale entre eles.
+Como deve ser uma estrutura extralinguística para as constantes `P`, `R` e `S`? Tal estrutura deve conter ao menos um domínio de discurso `D`, formado por entidades individuais, com uma interpretação para `P`, para `R` e para `S`. Essas interpretações são dadas por uma função `Interp`, que a cada nome de predicado e a cada lista de elementos do domínio associa um valor de verdade.
 
 ```lean
-abbrev Interp (D : Type) := String → List D → Prop
+abbrev Interp (D : Type) := String → List D → Bool
 ```
 
 Um conjunto de símbolos de relação, com suas aridades, especifica uma linguagem
@@ -414,17 +415,54 @@ não vazio `D` com uma função de interpretação para os símbolos de relaçã
 é chamada de *modelo* para `L`. Sempre suporemos que o domínio de um modelo é não
 vazio.
 
-Eis um modelo concreto, com domínio de três elementos. `P` vale para `1` ou `3`;
-`R` relaciona `1` a `1` e `2`, `2` a `2`, e `3` a `1` e `2`.
+Eis um modelo concreto: dez entidades de contos de fadas, nomeadas por letras.
+Nada aqui depende da escolha das letras — o que importa é que o domínio seja
+finito e que cada predicado diga, de cada entidade, se vale ou não.
 
 ```lean
-def M : Interp Nat
-  | "P", [d] => d = 1 ∨ d = 3
-  | "R", [d, e] =>
-      (d = 1 ∧ (e = 1 ∨ e = 2))
-      ∨ (d = 2 ∧ e = 2)
-      ∨ (d = 3 ∧ (e = 1 ∨ e = 2))
-  | _, _ => False
+inductive Entity where
+  | A | B | D | E | G | M | R | S | T | Y
+deriving Repr, DecidableEq, BEq
+
+def entities : List Entity :=
+  [.A, .B, .D, .E, .G, .M, .R, .S, .T, .Y]
+```
+
+`S` é Branca de Neve, `A` é Alice, `D` é Dorothy, `G` é Cachinhos Dourados,
+`M` é o Pequeno Mook, `Y` é Atreyu, `E` é a princesa, `B` e `R` são os anões,
+e `T` é o gigante.
+
+Os predicados unários são a pertinência a uma lista, exatamente como no
+original. Os binários se dão por enumeração dos pares, ou por uma regra.
+
+```lean
+def girl     : Entity → Bool := ([Entity.S, .A, .D, .G].contains ·)
+def boy      : Entity → Bool := ([Entity.M, .Y].contains ·)
+def princess : Entity → Bool := ([Entity.E].contains ·)
+def dwarf    : Entity → Bool := ([Entity.B, .R].contains ·)
+def giant    : Entity → Bool := ([Entity.T].contains ·)
+def child    : Entity → Bool := fun x => girl x || boy x
+
+def love : Entity → Entity → Bool := fun x y =>
+  [(Entity.Y, Entity.E), (.B, .S), (.R, .S)].contains (x, y)
+
+def defeat : Entity → Entity → Bool := fun x y => dwarf x && giant y
+```
+
+A função de interpretação amarra os nomes de predicado ao modelo. Nomes fora
+da lista, ou usados com o número errado de argumentos, recebem `false`.
+
+```lean
+def int0 : Interp Entity
+  | "Girl",     [x]    => girl x
+  | "Boy",      [x]    => boy x
+  | "Princess", [x]    => princess x
+  | "Dwarf",    [x]    => dwarf x
+  | "Giant",    [x]    => giant x
+  | "Child",    [x]    => child x
+  | "Love",     [x, y] => love x y
+  | "Defeat",   [x, y] => defeat x y
+  | _, _ => false
 ```
 
 Dada uma estrutura com função de interpretação `M = (D, I)`, podemos definir uma
@@ -450,33 +488,76 @@ noção `M ⊨ᵍ F`, "F é verdadeira em M sob a atribuição g", ou: "g satisf
 modelo M".
 
 O que segue é uma definição recursiva de verdade para as fórmulas da lógica de
-predicados. As cláusulas dos quantificadores são as que fazem a atribuição mudar:
-`∀v F` vale quando `F` vale para toda escolha de valor de `v`, e `∃v F` quando
-vale para ao menos uma.
+predicados. Como em {ref "PL"}[lógica proposicional], a definição *calcula*: o
+resultado é um `Bool`, e o valor de uma fórmula pode ser obtido com `#eval`. As
+cláusulas dos quantificadores são as que fazem a atribuição mudar: `∀v F` vale
+quando `F` vale para toda escolha de valor de `v`, e `∃v F` quando vale para ao
+menos uma.
+
+Aqui aparece a diferença em relação à lógica proposicional. Para decidir um
+quantificador é preciso percorrer o domínio, e percorrer exige que o domínio
+esteja disponível como uma lista. Por isso `eval` recebe um argumento a mais,
+`dom`, e usa `List.all` e `List.any` — as versões computáveis de `∀` e `∃`.
 
 ```lean
-def Formula.holds {D : Type} (I : Interp D)
-  (g : Assign D) : Formula Variable → Prop
+def Formula.eval {D : Type} [DecidableEq D]
+    (dom : List D) (I : Interp D)
+    (g : Assign D) : Formula Variable → Bool
   | .atom name args => I name (args.map g)
-  | .eq t1 t2 => g t1 = g t2
-  | .top => True
-  | .bot => False
-  | .neg f => ¬ Formula.holds I g f
+  | .eq t1 t2 => g t1 == g t2
+  | .top => true
+  | .bot => false
+  | .neg f => !(Formula.eval dom I g f)
   | .impl f1 f2 =>
-    Formula.holds I g f1 → Formula.holds I g f2
+    !(Formula.eval dom I g f1) || Formula.eval dom I g f2
   | .equi f1 f2 =>
-    Formula.holds I g f1 ↔ Formula.holds I g f2
+    Formula.eval dom I g f1 == Formula.eval dom I g f2
   | .conj f1 f2 =>
-    Formula.holds I g f1 ∧ Formula.holds I g f2
+    Formula.eval dom I g f1 && Formula.eval dom I g f2
   | .disj f1 f2 =>
-    Formula.holds I g f1 ∨ Formula.holds I g f2
+    Formula.eval dom I g f1 || Formula.eval dom I g f2
   | .forall_ v f =>
-    ∀ d : D, Formula.holds I (g.update v d) f
+    dom.all fun d => Formula.eval dom I (g.update v d) f
   | .exists_ v f =>
-    ∃ d : D, Formula.holds I (g.update v d) f
+    dom.any fun d => Formula.eval dom I (g.update v d) f
 ```
 
-Um caso por construtor, e cada caso troca o construtor pelo conectivo correspondente do Lean. Se avaliamos fórmulas fechadas, isto é, sem variáveis livres, a atribuição `g` se torna irrelevante.
+Um caso por construtor, e cada caso troca o construtor pela operação
+correspondente sobre `Bool`. Se avaliamos fórmulas fechadas, isto é, sem
+variáveis livres, a atribuição `g` se torna irrelevante — mas ainda é preciso
+fornecer alguma.
+
+```lean
+def g0 : Assign Entity := fun _ => .S
+
+def someDwarfDefeatsSomeGiant : Formula Variable :=
+  .exists_ x (.conj (.atom "Dwarf" [x])
+    (.exists_ y (.conj (.atom "Giant" [y])
+                       (.atom "Defeat" [x, y]))))
+
+def everyChildIsGirlOrBoy : Formula Variable :=
+  .forall_ x (.impl (.atom "Child" [x])
+    (.disj (.atom "Girl" [x]) (.atom "Boy" [x])))
+
+def everyDwarfLovesAPrincess : Formula Variable :=
+  .forall_ x (.impl (.atom "Dwarf" [x])
+    (.exists_ y (.conj (.atom "Princess" [y])
+                       (.atom "Love" [x, y]))))
+```
+
+```lean (name := folEval1)
+#eval (Formula.eval entities int0 g0 someDwarfDefeatsSomeGiant,
+       Formula.eval entities int0 g0 everyChildIsGirlOrBoy,
+       Formula.eval entities int0 g0 everyDwarfLovesAPrincess)
+```
+
+```leanOutput folEval1
+(true, true, false)
+```
+
+A terceira é falsa no modelo: os anões `B` e `R` amam `S`, que é Branca de
+Neve, e Branca de Neve não é a princesa. Quem ama a princesa é `Y`, que não é
+anão.
 
 A definição de verdade faz uso essencial das atribuições e, ainda assim, nos
 exercícios em que se olha apenas para fórmulas fechadas, a verdade ou a falsidade
@@ -567,31 +648,10 @@ def knightFightsDragon : Formula Variable :=
       (.atom "Fights" [x, y]))))
 ```
 
-A fórmula é uma proposta; a verificação é mostrar que ela afirma o que se
-queria. `Formula.holds` leva uma fórmula à proposição que ela afirma, dada uma
-interpretação, então basta enunciar a condição de verdade pretendida com os
-quantificadores do próprio Lean e exigir que as duas coincidam. Como `holds`
-calcula, cada teorema fecha por `Iff.rfl`.
-
-```lean
-theorem someoneWalksAndTalks_means {D : Type}
-    (I : Interp D) (g : Assign D) :
-    Formula.holds I g someoneWalksAndTalks ↔
-      ((∃ d : D, I "Walk" [d]) ∧ (∃ d : D, I "Talk" [d])) :=
-  solution!(Iff.rfl)
-
-theorem knightFightsDragon_means {D : Type}
-    (I : Interp D) (g : Assign D) :
-    Formula.holds I g knightFightsDragon ↔
-      (∀ a : D, ∀ b : D,
-        I "Knight" [a] ∧ I "Dragon" [b] ∧ I "Finds" [a, b] →
-        I "Fights" [a, b]) :=
-  solution!(Iff.rfl)
-```
-
-O segundo é o que torna a discussão abaixo verificável: a força universal dos
-indefinidos não é uma opinião sobre a tradução, é o que o `∀` do lado direito
-diz, e o `Iff.rfl` confirma que a fórmula proposta diz o mesmo.
+A fórmula é uma proposta; a verificação de que ela afirma o que se queria fica
+para a seção seguinte, que dá o meio de enunciar a condição de verdade
+pretendida com os quantificadores do próprio Lean e exigir que as duas
+coincidam.
 
 :::solution
 As duas primeiras são diretas, mas repare no escopo da negação em (2): _no
@@ -634,6 +694,108 @@ dê um contraexemplo.
 :::
 
 ::::
+
+# Traduzindo `Formula` para `Prop`
+
+Como em {ref "PL"}[lógica proposicional], fechamos o capítulo ligando as duas
+leituras de uma fórmula. `Formula.eval` calcula um `Bool`; `Formula.denote`
+produz a proposição que a fórmula afirma. A interpretação muda junto: onde
+`Interp` devolvia um `Bool`, `Denot` devolve uma `Prop`.
+
+```lean
+abbrev Denot (D : Type) := String → List D → Prop
+
+def Formula.denote {D : Type} (I : Denot D)
+    (g : Assign D) : Formula Variable → Prop
+  | .atom name args => I name (args.map g)
+  | .eq t1 t2 => g t1 = g t2
+  | .top => True
+  | .bot => False
+  | .neg f => ¬ Formula.denote I g f
+  | .impl f1 f2 =>
+    Formula.denote I g f1 → Formula.denote I g f2
+  | .equi f1 f2 =>
+    Formula.denote I g f1 ↔ Formula.denote I g f2
+  | .conj f1 f2 =>
+    Formula.denote I g f1 ∧ Formula.denote I g f2
+  | .disj f1 f2 =>
+    Formula.denote I g f1 ∨ Formula.denote I g f2
+  | .forall_ v f =>
+    ∀ d : D, Formula.denote I (g.update v d) f
+  | .exists_ v f =>
+    ∃ d : D, Formula.denote I (g.update v d) f
+```
+
+Cada caso troca um construtor de `Formula` pelo conectivo correspondente de
+`Prop` — o `conj` do dado vira o `∧` da proposição, e o `forall_` vira o `∀`
+do próprio Lean.
+
+Com isso podemos voltar às traduções do exercício anterior e verificá-las.
+Enunciamos a condição de verdade pretendida à direita, com os quantificadores
+do Lean, e exigimos que coincida com o que a fórmula proposta afirma. Como
+`denote` calcula, cada teorema fecha por `Iff.rfl`.
+
+```lean
+theorem someoneWalksAndTalks_means {D : Type}
+    (I : Denot D) (g : Assign D) :
+    Formula.denote I g someoneWalksAndTalks ↔
+      ((∃ d : D, I "Walk" [d]) ∧ (∃ d : D, I "Talk" [d])) :=
+  solution!(Iff.rfl)
+
+theorem knightFightsDragon_means {D : Type}
+    (I : Denot D) (g : Assign D) :
+    Formula.denote I g knightFightsDragon ↔
+      (∀ a : D, ∀ b : D,
+        I "Knight" [a] ∧ I "Dragon" [b] ∧ I "Finds" [a, b] →
+        I "Fights" [a, b]) :=
+  solution!(Iff.rfl)
+```
+
+O segundo é o que torna verificável a discussão sobre os indefinidos: a força
+universal de _a knight_ e _a dragon_ não é uma opinião sobre a tradução, é o
+que o `∀` do lado direito diz, e o `Iff.rfl` confirma que a fórmula proposta
+diz o mesmo.
+
+Falta o teorema que diz que as duas leituras concordam. Ele precisa de uma
+hipótese que não aparecia em lógica proposicional: `eval` decide um
+quantificador percorrendo `dom`, então só podemos esperar que ele concorde com
+o `∀` do Lean — que fala de *todo* elemento do tipo `D` — se `dom` de fato
+listar todos eles. É isso que `hdom` exige.
+
+```lean
+theorem Formula.eval_iff_denote {D : Type} [DecidableEq D]
+    (dom : List D) (hdom : ∀ d : D, d ∈ dom)
+    (I : Interp D) (g : Assign D) (f : Formula Variable) :
+    f.eval dom I g = true ↔
+      f.denote (fun n as => I n as = true) g := by
+  induction f generalizing g with
+  | atom name args => simp [Formula.eval, Formula.denote]
+  | eq t1 t2 => simp [Formula.eval, Formula.denote]
+  | top => simp [Formula.eval, Formula.denote]
+  | bot => simp [Formula.eval, Formula.denote]
+  | neg f ih => simp [Formula.eval, Formula.denote, ← ih]
+  | impl f1 f2 ih1 ih2 =>
+      simp [Formula.eval, Formula.denote, ← ih1, ← ih2]
+      cases Formula.eval dom I g f1 <;> simp
+  | equi f1 f2 ih1 ih2 =>
+      simp [Formula.eval, Formula.denote, ← ih1, ← ih2]
+  | conj f1 f2 ih1 ih2 =>
+      simp [Formula.eval, Formula.denote, ih1, ih2]
+  | disj f1 f2 ih1 ih2 =>
+      simp [Formula.eval, Formula.denote, ih1, ih2]
+  | forall_ v f ih =>
+      simp [Formula.eval, Formula.denote, ih]
+      exact ⟨fun h d => h d (hdom d), fun h d _ => h d⟩
+  | exists_ v f ih =>
+      simp [Formula.eval, Formula.denote, ih]
+      exact ⟨fun ⟨d, _, h⟩ => ⟨d, h⟩,
+             fun ⟨d, h⟩ => ⟨d, hdom d, h⟩⟩
+```
+
+A hipótese `hdom` é a contrapartida formal de uma limitação real: só se pode
+calcular o valor de uma fórmula quantificada quando o domínio é finito e
+conhecido. Para domínios infinitos, `denote` continua dizendo o que a fórmula
+afirma, mas nenhum `#eval` responde.
 
 ```lean
 end FOL
