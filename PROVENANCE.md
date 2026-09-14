@@ -210,6 +210,13 @@ consequences hold, 5.19 and 5.20 the same for predicate logic. In this book
 loses its point. They are worth keeping only if reformulated as proofs about
 the definitions rather than queries against them.
 
+For 5.19 and 5.20 this became true only with the chapter reorganization of
+2026-09-13, which gave `FOL.lean` a computable `Formula.eval`; before that the
+chapter had no way to evaluate a formula at all, and the two were unported for
+want of a semantics rather than for having too easy an answer. They are now the
+strongest candidates for reformulation as proofs, since the model to state them
+against is in the chapter.
+
 **It asks for a variant implementation.** CSwFP/5.11 asks for a check of logical
 equivalence, which `Form.equivalent` already is; 5.12 asks to reimplement the
 semantics with `[String]` instead of `[(String, Bool)]` for valuations.

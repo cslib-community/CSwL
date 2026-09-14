@@ -18,103 +18,38 @@ namespace PL
 ```
 
 # Introdução
+%%%
+tag := "pl-intro"
+%%%
 
-A lógica proposicional (PL, "Propositional Logic") trata de fórmulas construídas a partir de variáveis proposicionais usando os conectivos `¬`, `∧`, `∨`, `→` e `↔`. Intuitivamente, uma variável proposicional `p` representa uma sentença ou proposição que pode ser verdadeira ou falsa. Podemos usar lógica proposicional para fugir das impressões das línguas naturais. Queremos tornar precisa a noção de que uma proposição `α` decorre de outra proposição `β`.
+Em {ref "Proof"}["Proof"] as fórmulas proposicionais foram escritas diretamente como termos do tipo `Prop`, e usando táticas construimos provas de proposições `α` a partir de um conjunto de hipóteses `Γ`. Isto é, em Lean mostramos como derivar `α` a partir de `Γ`, isto é `Γ ⊢ α`, de forma sintática.
 
-Como primeiro exemplo, adaptado de {citet Bib.enderton2001}[], a sentença "traços de potássio foram observados" pode ser traduzida para a linguagem formal como o símbolo `K`. Já para a sentença relacionada "traços de potássio não foram observados", podemos usar `¬ K`. Aqui `¬` é o nosso símbolo de negação, lido como "não". Poderíamos também pensar em traduzir "traços de potássio não foram observados" por algum símbolo novo `J`, mas preferimos decompor sentenças em suas partes atômicas tanto quanto possível. Para uma sentença não relacionada, "a amostra continha cloro" escolhemos o símbolo `C`. Assim, as seguintes sentenças compostas podem ser formalizadas.
+Mas em Lean, `Prop` é um tipo e proposições particulares também são tipos. A variável `h` abaixo pode ser entendida como um identificador para uma "prova qualquer" da proposição `p ∧ q`. E Lean adota o princípio da "irrelevância da prova", ou seja, Lean não distingue diferentes provas de uma proposição. Como consequência, o tipo `Prop` não é computável, não é um "dado" que pode ser manipulado. Por exemplo, não conseguimos extrair os componentes de uma conjunção `a ∧ b`. Lean sabe que todas as provas de `a ∧ b` são irrelevantes e iguais, então ele não permite que você use uma prova para tomar decisões no mundo dos dados programáveis (`Type`). Em outras palavras, não podemos realizar casamento de padrões em `h` abaixo.
 
-- A sentença "Se traços de potássio foram observados, então a amostra não continha cloro." é formalizada como `(K → (¬C))` com símbolo `→` significando "se ... então ...".
-- A sentença "A amostra continha cloro, e traços de potássio foram observados." é formalizada como `(C ∧ K)` com símbolo `∧` significando a conjunção "e".
-- A sentença "Ou traços de potássio não foram observados, ou a amostra não continha cloro." formalizamos como `((¬K) ∨ (¬C))` com símbolo `∨` significando a disjunção "ou".
-- E a sentença "Nem a amostra continha cloro, nem traços de potássio foram observados." é formalizada como `(¬(C ∨ K))` ou `((¬C) ∧ (¬K))`, são *equivalentes*.
-
-Sempre que nos é dada a verdade ou falsidade das partes atômicas de uma sentença, podemos  calcular a verdade ou falsidade da sentença. Suponha, por exemplo, que um químico saia do laboratório e anuncie que observou traços de potássio, mas que a amostra não continha cloro. A partir destas afirmações, podemos então determinar quais das sentenças acima são verdadeiras ou falsas. De fato, podemos construir uma tabela analisando os valores das sentenças para cada possível combinação possível dos valores verdade das proposições atômicas.
-
-:::table +header (align := center)
-*
-  * `K`
-  * `C`
-  * `(¬(C ∨ K))`
-  * `((¬C) ∧ (¬K))`
-*
-  * F
-  * F
-  * T
-  * T
-*
-  * F
-  * T
-  * F
-  * F
-*
-  * T
-  * F
-  * F
-  * F
-*
-  * T
-  * T
-  * F
-  * F
-:::
-
-::::quiz
-Três irmãs - Ana, Maria e Cláudia — foram a uma festa com vestidos de cores
-diferentes. Uma vestiu azul, a outra branco, e a terceira, preto.
-
-Chegando à festa, o anfitrião perguntou quem era cada uma delas.
-
-- A de azul respondeu: "Ana é a que está de branco";
-- A de branco disse: "Eu sou Maria";
-- A de preto respondeu: "Cláudia é quem está de branco".
-
-O anfitrião foi capaz de identificar cada irmã considerando que:
-
-- Ana sempre diz a verdade;
-- Maria às vezes diz a verdade;
-- Cláudia nunca diz a verdade.
-
-:::quizSolution
-Ana é quem veste preto, Cláudia quem veste branco e Maria quem veste azul.
-:::
-
-::::
-
-Podemos formalizar o problema anterior em LP.  Uma das motivações é tornar a argumentação  precisa e convincente e, se possível, mecânica.
-
-Para isso, primeiro precisamos identificar as proposições mais elementares do problema e associar cada proposição a um símbolo. Em seguida, precisamos formalizar cada afirmação (ou enunciado) do problema como uma fórmula em LP. Vamos chamar de `Γ` o conjunto destas fórmulas. Também precisamos formalizar a resposta em uma fórmula em LP, vamos chamar de `α`.
-
-Finalmente, precisamos de um método para definir se a fórmula `α` é *consequência lógica* das premissas `Γ`. Um dos métodos possíveis é semântico. Quando para toda possível escolha de valores verdade para os símbolos proposicionais, sempre que todas as premissas forem *verdade* a conclusão deve ser *verdade*. Usamos a notação `Γ ⊧ α` para indicar que `α` é consequência lógica  das premissas.
-
-No problema dos vestidos, o número de personagens e atributos é finito, portanto há apenas um número finito de possíveis proposições. Os números também são pequenos o suficiente para que análise sistemática de todas as combinações de valores verdade seja viável na prática. Para demonstrar que todo número par maior que dois pode ser escrito como uma soma de dois números primos esta estratégia não seria válida.
-
-# Sintaxe
-
-Em Lean, `Prop` é um tipo e proposições particulares também são tipos. A variável `h` abaixo pode ser entendida como um identificador para uma "prova qualquer" da proposição `p ∨ q`.
-
-```lean
+```lean +error
 section
 variable (p q : Prop)
 
-#check p ∨ q
-variable (h : p ∨ q)
-```
+variable (h : p ∧ q)
+#check p ∧ q
+#check h
 
-Mas Lean adota o princípio da "irrelevância da prova", ou seja, Lean não distingue diferentes provas de uma proposição. Como consequência, o tipo `Prop` não é computável, não é um "dado" que pode ser manipulado. Por exemplo, não conseguimos extrair os componentes de uma conjunção `a ∧ b`, para fora do tipo `Prop`. Lean proíbe a extração de `Prop` para `Type`, ele sabe que todas as provas de `a ∧ b` são irrelevantes e iguais, então ele não permite que você use uma prova para tomar decisões no mundo dos dados programáveis (`Type`).
-
-```lean +error
-variable (a b : Prop)
-
-def cannotExtractLeft (h : a ∧ b) : Type :=
+def doesNotWork (h : p ∧ q) : Type :=
   match h with
   | And.intro ha hb => ha
-```
 
-```lean
 end
 ```
 
-Como vamos precisar manipular fórmulas lógicas, teremos que definir um tipo de dado para representar fórmulas proposicionais.
+Nesta seção, queremos manipular fórmulas e decidir quando uma fórmula `α` é consequência lógica de `β`, isto é `β ⊧ α `. A noção de consequência lógica é semântica. Para toda possível escolha de valores verdade para os símbolos proposicionais em `α` e `β`, sempre que `β` for verdade, `α` deve ser verdade. Para _computar_ o valor verdade de uma fórmula, vamos precisar manipula a formula como dado, e calcular seu valor verdade a partir do mapeamento de variáveis proposicionais em valores verdade. Em tempo, a relação dentre duas fórmulas pode ser naturalmente estendida para uma relação entre um conjunto de fórmulas `Γ` e uma fórmula, `Γ ⊧ α`.
+
+Em um problema com um número finito de proposições, e os números costumam ser pequenos o suficiente para que a análise sistemática de todas as combinações de valores verdade seja viável na prática. Para demonstrar que todo número par maior que dois pode ser escrito como uma soma de dois números primos esta estratégia não seria válida.
+
+
+# Sintaxe de Lógica Proposicional
+%%%
+tag := "pl-syntax"
+%%%
 
 Formalmente, a sintaxe da LP é definida pela BNF abaixo. As variáveis proposicionais (ou símbolos sentenciais) são os `atom`. O uso do sufixo `'` no não-terminal `atom` é uma forma conveniente de expressar que podemos gerar quantos átomos forem necessários.
 
@@ -128,9 +63,9 @@ F    ::= atom
   | "(" F "↔" F ")" ("se-somente-se") ;
 ```
 
-Com esta gramática, podemos gerar fórmulas como `¬¬¬p'''`, `((p ∨ p') ∧ p')`, `(p ∧ (p' ∧ p'''))`. Sem parênteses a gramática pode gerar strings ambíguas: `p ∧ p′ ∨ p″` lê-se tanto como `(p ∧ p′) ∨ p″` quanto como `p ∧ (p′ ∨ p″)`, e a ambiguidade estrutural afeta o significado, como na sentença "era jovem e bonita ou triste". Nem todos os conectivos precisam ser definidos como "primitivos". Em algumas apresentações, o conectivo `→` é definido como uma abreviação para `p → q ≃ ¬ p ∨ q`.
+Com esta gramática, podemos gerar fórmulas como `¬¬¬p'''`, `((p ∨ p') ∧ p')`, `(p ∧ (p' ∧ p'''))`. Sem parênteses a gramática pode gerar strings ambíguas: `p ∧ p′ ∨ p″` lê-se tanto como `(p ∧ p′) ∨ p″` quanto como `p ∧ (p′ ∨ p″)`, e a ambiguidade estrutural afeta o significado, como na sentença "era jovem e bonita ou triste". Nem todos os conectivos precisam ser definidos como "primitivos". O conectivo `→` poderia ser definido como uma abreviação para `p → q ≃ ¬ p ∨ q`.
 
-Como anteriormente, iremos formalizar a gramática acima como um tipo indutivo. Um átomo é identificado por um nome, e o nome é uma `String`. Isso dá o inventário ilimitado que a gramática pede sem precisar enumerar símbolo por símbolo.
+A gramática acima será representada pelo tipo indutivo `Form`. Um átomo é identificado por um nome, e o nome é uma `String`. Isso dá o inventário ilimitado que a gramática pede sem precisar enumerar símbolo por símbolo.
 
 ```lean
 inductive Form where
@@ -151,7 +86,7 @@ def Form.equi (f g : Form) : Form :=
   .conj (Form.impl f g) (Form.impl g f)
 ```
 
-A conjunção e a disjunção são binárias. Poderiam receber uma lista de fórmulas `conj (fs : List Form)`, mas um construtor que guarda uma `List Form` dentro do próprio tipo o torna um indutivo _nested_, mais complicado em Lean. Mas podemos definir funções que recebem listas de fórmulas e constrem conjunções e disjunções. Abaixo `top`/`bot` são a base da recursão de `conjs`/`disjs`. Uma conjunção vazia é sempre verdadeira, uma disjunção vazia é sempre falsa.
+A conjunção e a disjunção são binárias. Poderiam receber uma lista de fórmulas `conj (fs : List Form)`, mas um construtor que guarda uma `List Form` dentro do próprio tipo o torna um indutivo _nested_, mais complicado de manipular em Lean. Mas podemos definir funções que recebem listas de fórmulas e constrem conjunções e disjunções. Abaixo `top`/`bot` são a base da recursão de `conjs`/`disjs`. Uma conjunção vazia é sempre verdadeira, uma disjunção vazia é sempre falsa.
 
 ```lean
 def Form.conjs : List Form → Form
@@ -165,7 +100,7 @@ def Form.disjs : List Form → Form
   | f :: fs => .disj f (Form.disjs fs)
 ```
 
-::::exercise (rating := 1) (name := "bangu-form")
+:::exercise (rating := 1) (name := "bangu-form")
 Três pessoas são suspeitas de torcer pelo Bangu F.C. Aparecido entrevistou os três, para tentar descobrir, e obteve os seguintes depoimentos:
 
 - Auro: Joaquim não torce pelo BFC e Cláudia torce pelo BFC.
@@ -183,18 +118,17 @@ def depo1 : Form := solution!(.conj (.neg J) C)
 def depo2 : Form := solution!(.impl (.neg A) (.neg C))
 def depo3 : Form := solution!(.conj C (.disj (.neg A) (.neg J)))
 ```
-::::
+:::
 
 
-::::exercise (rating := 1) (name := "exclusive-or")
-
+:::exercise (rating := 1) (name := "exclusive-or")
 A expressão `p ∨ q` é verdadeira mesmo quando `p` e `q` são ambos verdadeiros. Em português, "ou" costuma ser exclusivo, como em "Você pode ficar com o sorvete ou com o algodão-doce, mas não com os dois." Defina um conectivo `xor` para "ou exclusivo", usando os conectivos já definidos.
 
 ```lean
 def Form.xor (f g : Form) : Form :=
   solution!(.disj (.conj f (.neg g)) (.conj (.neg f) g))
 ```
-::::
+:::
 
 O tipo `Form` é um `inductive`. Um valor de `Form` é dado. Nenhum dos exercícios abaixo seriam possíveis em `Prop`. Não há como perguntar "quantos `∧` tem esta proposição" a um valor de tipo `Prop`, porque `Prop` não guarda a fórmula que o provou.  Vamos definir duas fórmulas para usar nos exercícios seguintes.
 
@@ -208,8 +142,8 @@ def form2 : Form :=
 #eval form2
 ```
 
-::::exercise (rating := 1) (name := "count-operators")
-Implemente uma função `opsNr` para contar o número de operadores de uma fórmula.
+:::exercise (rating := 1) (name := "count-operators")
+Implemente uma função `opsNr` para contar o número de operadores de uma fórmula. a tática {tactic}`decide` é como pedir ao Lean para executar a decisão de uma proposição booleana e, se o resultado for true, transformar esse resultado em uma prova.
 
 ```lean
 def Form.opsNr : Form → Nat :=
@@ -221,11 +155,11 @@ def Form.opsNr : Form → Nat :=
     | .conj f g => 1 + f.opsNr + g.opsNr
     | .disj f g => 1 + f.opsNr + g.opsNr)
 
-theorem opsNr_test : form1.opsNr = 2 := solution!(by decide)
+example : form2.opsNr = 3 := by decide
 ```
-::::
+:::
 
-::::exercise (rating := 1) (name := "formula-depth")
+:::exercise (rating := 1) (name := "formula-depth")
 Implemente uma função `depth` para calcular a profundidade da árvore de análise de uma fórmula.
 
 ```lean
@@ -238,12 +172,11 @@ def Form.depth : Form → Nat :=
     | .conj f g => 1 + max f.depth g.depth
     | .disj f g => 1 + max f.depth g.depth)
 
-theorem depth_test : form1.depth = 2 := solution!(by decide)
+example : form2.depth = 3 := by decide
 ```
-::::
+:::
 
-::::exercise (rating := 2) (name := "collect-atoms")
-
+:::exercise (rating := 2) (name := "collect-atoms")
 Implemente `propNames` para coletar a lista de nomes de átomos proposicionais que ocorrem numa fórmula. A lista resultante deve estar ordenada e sem repetições.
 
 ```lean
@@ -259,24 +192,25 @@ private def Form.propNamesRaw : Form → List String :=
 def Form.propNames (f : Form) : List String :=
   solution!(f.propNamesRaw.eraseDups.mergeSort (· ≤ ·))
 ```
-::::
+:::
 
-# Semântica
 
-Vimos que a noção de "derivação" é diretamente implementada no Lean. Isto é, dizemos que `P ∧ Q ⊢ P` porque conseguimos construir uma prova de `P` a partir da existência de uma prova de `P ∧ Q`.
+# Semântica de Lógica Proposicional
+%%%
+tag := "pl-semantics"
+%%%
 
-Mas as regras de derivação que usamos correspondem a (ou são justificadas por) uma noção semântica de *consequência lógica*, `P ∧ Q ⊧ P`. Entendemos que `P` deve ser verdade sempre que `P ∧ Q` for verdade, para qualquer possível tradução de `P` e `Q` de volta para expressões em uma linguagem natural. Para formalizar esta noção de "todas as possíveis traduções", vamos precisar de um processo para avaliar fórmulas lógicas em valores verdade.
+Todas as regras de derivação que usamos em {ref "Proof"}["Proof"] são justificadas por uma noção semântica de *consequência lógica*. Entendemos que `P` deve ser verdade sempre que `P ∧ Q` for verdade, para qualquer possível tradução de `P` e `Q` de volta para expressões em uma linguagem natural, por isso aceitamos `P ∧ Q ⊧ P`.  Para formalizar esta noção de "todas as possíveis traduções", vamos precisar de um processo para avaliar fórmulas lógicas em valores verdade.
 
 Vamos chamar de *valorações* um mapeamento de símbolos proposicionais no conjunto dos booleanos, que em Lean correspondem aos valores `True` e `False` do tipo `Bool`.
 
-Uma valoração é uma lista de pares, e um átomo ausente da lista conta como
-falso.
+Podemos representar uma valoração como uma lista de pares, e um átomo ausente da lista conta como falso.
 
 ```lean
 abbrev Valuation := List (String × Bool)
 ```
 
-Se `V` é uma valoração, ela se estende a uma função que mapea qualquer fórmula para um valor de verdade. A extensão é definida por recursão sobre a estrutura da fórmula, um caso por construtor. Os construtores `top` e `bot` são constantes, nenhuma valoração os afeta.
+Se `V` é uma valoração, ela se estende a uma função que mapea qualquer fórmula para um valor de verdade. A extensão é definida por recursão sobre a estrutura da fórmula, um caso por construtor. Os construtores `top` e `bot` são constantes, nenhuma valoração os afeta. Se um átomo ocorrer mais de uma vez, vamos assumir que seu valor verdade é a primeira ocorrência dele na lista, isto corresponde ao comportamento da função {name}`List.lookup`.
 
 ```lean
 def Form.eval (f : Form) (v : Valuation) : Bool :=
@@ -289,34 +223,46 @@ def Form.eval (f : Form) (v : Valuation) : Bool :=
   | .disj g h => g.eval v || h.eval v
 ```
 
-Chamamos de *tautologias* (válidas) as fórmulas que são sempre verdade, independente da valoração. A notação usual para "`α` é uma tautologia" é `⊨ α`. As fórmulas que são sempre falsas para toda valoração são chamadas de *contradições* (ou insatisfatíveis) e podemos concluir que se `α` é uma contradição, então `⊨ ¬ α` (sua negação é válida). Uma fórmula é *satisfatível* se há ao menos uma valoração que a torna verdadeira. Uma fórmula é *contingente* se é satisfatível mas não é uma tautologia. Toda tautologia é satisfatível, mas nem toda fórmula satisfatível é uma tautologia.
+Chamamos as fórmulas que são sempre verdade para qualquer valoração de suas variáveis proposicionais de *tautologias*, ou, simplesmente, fórmulas *válidas*. Se `α` é uma tautologia, significa que `⊨ α`, não depende de nenhuma hipótese para ser verdade. As fórmulas que são sempre falsas para toda valoração são chamadas de *contradições* (ou insatisfatíveis). Uma fórmula é *satisfatível* se há pelo menos uma valoração que a torna verdadeira. Uma fórmula é *contingente* se existe pelo menos uma valoração que torna a fórmula verdadeira e pelo menos uma que a torna falsa. Podemos concluir que se `α` é uma contradição, então `⊨ ¬ α` (sua negação é válida). Toda tautologia é satisfatível, mas nem toda fórmula satisfatível é uma tautologia.
+
+:::exercise (rating := 1) (name := "taut-contradiction")
+Construa as valorações `vs1` e `vs2` de tal forma que os exemplos possam ser provados com a tática {tactic}`decide`.
 
 ```lean
-def taut  : Form :=  (.disj (.atom "p") (.neg (.atom "p")))
-def unsat : Form :=  (.conj (.atom "p") (.neg (.atom "p")))
+def form3 : Form :=
+  .disj (.atom "p") (.conj (.atom "q") (.atom "r"))
 
-#eval taut.eval [("p1", True)]
-#eval taut.eval [("p1", False)]
-#eval unsat.eval [("p", False)]
-#eval unsat.eval [("p", True)]
+def form4 : Form :=
+  .neg (.conj (.atom "p") (.neg (.atom "q")))
+
+def form5 : Form :=
+  .conj (.atom "a") (.impl (.neg (.atom "b")) (.atom "c"))
+
+def vs1 : List (String × Bool) := solution!([("p", true),("q", true)])
+def vs2 : List (String × Bool) := solution!([("a", true),("b", true)])
+
+example : form3.eval vs1 = true := by solution!(decide)
+example : form4.eval vs1 = true := by solution!(decide)
+example : form5.eval vs2 = true := by solution!(decide)
 ```
+:::
 
 A função a seguir gera a lista de todas as valorações sobre o conjunto dos nomes de átomos presentes em um termo do tipo `Form`. Com estas funções, podemos construir a tabela verdade de uma fórmula.
 
 ```lean
 def genVals : List String → List Valuation
   | [] => [[]]
-  | name :: names =>
-      (genVals names).map ((name, true) :: ·)
-      ++ (genVals names).map ((name, false) :: ·)
+  | n :: ns =>
+    let vs := (genVals ns)
+    vs.map ((n, true) :: ·) ++ vs.map ((n, false) :: ·)
 
 def Form.allVals (f : Form) : List Valuation :=
   genVals f.propNames
 
-#eval List.zip form2.allVals (form2.allVals.map (form2.eval ·))
+#eval List.zip form1.allVals (form2.allVals.map (form2.eval ·))
 ```
 
-Para decidir se uma fórmula é tautologia, satisfatível ou contradição, podemos percorrer todas as valorações relevantes, que são finitas, porque uma fórmula tem finitos átomos.
+Para decidir se uma fórmula é tautologia, satisfatível ou contradição, podemos percorrer todas as valorações possíveis, que são finitas, porque uma fórmula tem finitos átomos.
 
 ```lean
 def Form.tautology (f : Form) : Bool :=
@@ -326,12 +272,22 @@ def Form.satisfiable (f : Form) : Bool :=
   f.allVals.any (fun v => f.eval v)
 
 def Form.contradiction (f : Form) : Bool :=
-  !f.satisfiable
+  ¬ f.satisfiable
 
-#eval (form1.contradiction,
-       (Form.neg form1).tautology,
-       form2.satisfiable)
+#eval (form1.contradiction, (Form.neg form1).tautology, form1.satisfiable)
 ```
+
+:::exercise (rating := 1) (name := "def-contingente")
+Complete a definição de fórmula contingente. Para provar o exemplo, use {tactic}`native_decide`.
+
+```lean
+def Form.contingent (f : Form) : Bool :=
+  solution!(f.satisfiable ∧ ¬ f.tautology)
+
+example : (Form.atom "q").satisfiable = true := by
+  solution!(native_decide)
+```
+:::
 
 A seguir, escrevemos implies para a relação de consequência lógica, chamando atenção para a relação entre `P ⊨ Q` e `⊨ P → Q`. Uma proposição `Q` é consequência lógica de `P` se, e somente se, a implicação `P → Q` é uma tautologia. Se `P → Q ≡ ¬ P ∨ Q ≡ ¬ (P ∧ ¬ Q)` então podemos também dizer que `P ⊧ Q` se e somente se `⊨ ¬ (P ∧ ¬ Q)`.
 
@@ -347,85 +303,36 @@ def Form.equivalent (f g : Form) : Bool :=
   f.implies g && g.implies f
 ```
 
-A nossa definição de `Form.impl` acima pode ser justificada pelas equivalência abaixo. A relação de equivalência entre fórmulas é transitiva.
+:::exercise (rating := 2) (name := "equiv-cases")
+Complete a definição de `Feq2` com uma fómula equivalente a `Feq1` e feche o exemplo com {tactic}`native_decide`.
 
 ```lean
-#eval
-  let p := (.atom "p")
-  let q := (.atom "q")
+def p : Form := Form.atom "p"
+def q : Form := Form.atom "q"
 
-  let α := (Form.impl p q)
-  let β := Form.disj (.neg p) q
-  let γ := Form.neg $ .conj p (.neg q)
+def Feq1 : Form := Form.neg (.equi p q)
+def Feq2 : Form := solution!(.disj (.conj (.neg p) q) (.conj (.neg q) p))
 
-  let r1 := [Form.equivalent α β, Form.equivalent β γ, Form.equivalent α γ]
-  let r2 := [Form.implies p (.disj p q), (Form.impl p (.disj p q)).tautology]
-  let r3 := [Form.implies (.disj p q) p, (Form.impl (.disj p q) p).tautology]
-  let r4 := [Form.implies (Form.conj p (.neg p)) q]
-  (r1, r2, r3, r4)
+example : Feq1.equivalent Feq2 := by
+  solution!(native_decide)
 ```
+:::
 
-A semântica da lógica proposicional também pode ser dada em formato de
-*atualização*. Fixe primeiro um conjunto de valorações relevantes como
-estado corrente e depois defina uma função de atualização que deixa apenas as
-valorações que satisfazem uma dada fórmula.
+A semântica da lógica proposicional também pode ser dada em formato de *atualização*. Fixe primeiro um conjunto de valorações como estado corrente e depois defina uma função de atualização que deixa apenas as valorações que satisfazem uma dada fórmula.
 
 ```lean
 def update (vals : List Valuation) (f : Form) : List Valuation :=
   vals.filter (fun v => f.eval v)
 ```
 
-Atualizar o estado de todas as valorações relevantes com uma contradição não deixa nada; atualizar com uma tautologia não tira nada. Atualizar com uma fórmula contingente tira alguma coisa, e atualizar com sua negação tira o complemento.
+Atualizar o estado de todas as valorações com uma contradição não deixa nada; atualizar com uma tautologia não tira nada. Atualizar com uma fórmula contingente tira alguma coisa, e atualizar com sua negação tira o complemento.
 
 ```lean
+#eval form1.allVals
 #eval (update form1.allVals form1)
 #eval (update form1.allVals (.neg form1))
-#eval (form2.allVals.length,
-       (update form2.allVals form2).length,
-       (update form2.allVals (.neg form2)))
+#eval (update form2.allVals (.neg form2))
 ```
-
-::::exercise (rating := 1) (name := "valuation-table")
-Seja `V` dada por `p ↦ 0`, `q ↦ 1`, `r ↦ 1`. Dê os valores das fórmulas
-seguintes: `¬p ∨ p`, `p ∧ ¬p`, `¬¬(p ∨ ¬r)`, `¬(p ∧ ¬r)`, `p ∨ (q ∧ r)`.
-
-```lean
-namespace ValuationTableEx
-
-def p := Form.atom "p"
-def q := Form.atom "q"
-def r := Form.atom "r"
-
-def vs : Valuation :=
-  [("p", false), ("q", true), ("r", true)]
-
-example :
- (Form.disj (.neg p) p).eval vs = solution!(true) :=
- by decide
-
-example :
- (Form.neg (.neg (.conj p (.neg r)))).eval vs = solution!(false) :=
- by decide
-
-example :
- (Form.neg (.conj p (.neg r))).eval vs = solution!(true) :=
- by decide
-
-example :
- (Form.disj p (.conj q r)).eval vs = solution!(true) :=
- by decide
-
-end ValuationTableEx
-```
-::::
-
-::::exercise (rating := 1) (name := "negated-tautology")
-Explique por que a negação de uma tautologia é sempre uma contradição, e vice-versa.
-
-:::solution
-Uma fórmula `F` é tautologia quando `F.eval v = true` para toda `v`. Como `(Form.neg F).eval v = !(F.eval v)`, isso vale exatamente quando `(Form.neg F).eval v = false` para toda `v`, que é a definição de contradição. O argumento se lê igual nas duas direções.
-:::
-::::
 
 ::::exercise (rating := 2) (name := "implies-list")
 Estenda a checagem de implicação proposicional para o caso de uma lista de premissas. O tipo é `Form.impliesL : List Form → Form → Bool`.
@@ -436,22 +343,21 @@ def Form.impliesL (ps : List Form) (c : Form) : Bool :=
 ```
 ::::
 
-::::exercise (rating := 1) (name := "bangu-proof")
-Como podemos identificar os torcedores do Bangu e os não torcedores, supondo que todos os depoimentos são verdadeiros?
+:::exercise (rating := 1) (name := "bangu-proof")
+Complete a definição de `banguSolution` para que a fórmula represente a solução do problema dos torcedores do Bangu F.C. assumindo que os 3 depoimentos foram verdadeiros. A prova do exemplo é completada com {tactic}`native_decide`.
 
-:::solution
 ```lean
-#eval Form.impliesL [depo1, depo2, depo3] A
-#eval Form.impliesL [depo1, depo2, depo3] J
-#eval Form.impliesL [depo1, depo2, depo3] C
+def banguSolution : Form := solution!(.conjs [A, (.neg J), C])
+
+example : Form.impliesL [depo1, depo2, depo3] banguSolution = true :=
+  by solution!(native_decide)
 ```
 :::
-::::
 
 
 # Traduzindo `Form` para `Prop`
 
-O capítulo começou distinguindo raciocinar em lógica proposicional de raciocinar sobre fórmulas dela. Temos que `p ∧ q` é uma proposição, do tipo `Prop` e `Form.conj p q` é um termo (dado) do tipo `Form`. A ligação é uma função que interpreta cada fórmula como a proposição que ela afirma, dada uma valoração.
+O mapeamento de `Form` em `Prop` pode ser definido como uma função que interpreta cada fórmula como a proposição que ela afirma, dada uma valoração.
 
 ```lean
 def Form.denote (f : Form) (v : Valuation) : Prop :=
@@ -464,7 +370,7 @@ def Form.denote (f : Form) (v : Valuation) : Prop :=
   | .disj g h => g.denote v ∨ h.denote v
 ```
 
-Repare no que cada caso faz: ele troca um construtor de `Form` pelo conectivo correspondente de `Prop`. O `conj` do dado vira o `∧` da proposição, o `neg` vira o `¬`. O teorema que fecha o capítulo diz que as duas leituras concordam: computar dá `true` exatamente quando a proposição vale.
+Repare no que cada caso faz: ele troca um construtor de `Form` pelo conectivo correspondente de `Prop`. O `conj` do dado vira o `∧` da proposição, o `neg` vira o `¬`. O teorema que fecha o capítulo diz que as duas leituras concordam. Dada uma valoração, computar o valor verdade de uma fórmula resulta em `true` exatamente quando a proposição resultande da fórmula para a mesma valoração tem prova.
 
 ```lean
 theorem Form.eval_iff_denote (f : Form) (v : Valuation) :
