@@ -16,6 +16,8 @@ the text — the same convention as `sf-in-lean/Bib.lean`, which records books
 
 namespace Bib
 
+
+
 def logicandproof : Article where
   title  := inlines!"Logic and Proof"
   authors := #[inlines!"Jeremy Avigad", inlines!"Joseph Hua",
@@ -112,6 +114,16 @@ def nederpelt2014 : Article where
   month   := none
   volume  := inlines!""
   number  := inlines!""
+
+def wadler2003 : Article where
+  title   := inlines!"A Prettier Printer"
+  authors := #[inlines!"Philip Wadler"]
+  journal := inlines!"The Fun of Programming: A symposium in honour of Richard Bird's 60th birthday, Oxford"
+  year    := 2003
+  month   := none
+  volume  := inlines!""
+  number  := inlines!""
+  url     := "https://homepages.inf.ed.ac.uk/wadler/papers/prettier/prettier.pdf"
 
 def FAA2025 : Article where
   title   := inlines!"Formalizing Analysis of Algorithms, Autumn 2025"

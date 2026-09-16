@@ -1,13 +1,14 @@
 import CSwLMeta
 import Bib
 import Mathlib.Tactic.Use
+import CSwL.Logic.PL
 
 open Verso.Genre Manual
 open CSwLMeta
 
 set_option verso.code.warnLineLength 100
 
-#doc (Manual) "Lógica de predicados" =>
+#doc (Manual) "Lógica de Primeira Ordem" =>
 %%%
 tag := "FOL"
 file := "FOL"
@@ -22,7 +23,7 @@ namespace FOL
 tag := "fol-intro"
 %%%
 
-Se usarmos lógica proposicional para formalizar a frase "Toda maça é vermelha", teremos uma letra proposicional, um átomo indivisível que não nos permitiria capturar a idéia do quantificador e da dependencia declarada entre as _coisas_ que são maças e a cor destas mesmas _coisas_. Lógica de predicados acrescenta os seguintes ingredientes a sintaxe de Lógica Proposicional:
+Se usarmos lógica proposicional para formalizar a frase "Toda maçã é vermelha", teremos uma letra proposicional, um átomo indivisível que não nos permitiria capturar a idéia do quantificador e da dependencia declarada entre as _coisas_ que são maçãs e a cor destas mesmas _coisas_. A Lógica de Predicados, também chamada Lógica de Primeira Ordem (FOL, "first order logic") acrescenta os seguintes ingredientes a sintaxe de Lógica Proposicional:
 
 * termos para representar indivíduos de um domínio. Os termos poderão ser variáveis ou funções aplicadas sobre termos;
 * proposições básicas serão predicados `n`-ários sobre termos;
@@ -30,39 +31,18 @@ Se usarmos lógica proposicional para formalizar a frase "Toda maça é vermelha
 * fórmulas existencialmente quantificadas, `∃` seguido de variável e fórmula.
 
 
-# Sintaxe de Lógica de Primeira Ordem
+# Sintaxe de FOL
 %%%
 tag := "fol-syntax"
 %%%
 
-Também chamada de "lógica de primeira ordem" (FOL, "first order logic"). Vamos assumir que predicados terão aridade de 1 até 3 (relações unárias, binárias e ternárias). Relações com mais de três argumentos quase nunca são necessárias para capturar a semântica de linguagem natural.
+Nossa sintaxe terá dois elementos principais, termos e fórmulas.
 
-A BNF completa segue abaixo e gera fórmulas como `¬P x`, `∀ x R x x` e `∀ x ∃ y R x y`. Note que não podemos aidna construir fórmulas com termos complexos como `∃ x P (f x)`, onde temos a função `f` recebendo uma variável e este termo passado como argumento para o predicado `P`. Nossos termos são apenas variáveis.
+Os _termos_ podem ser variáveis ou funções aplicadas a outros termos. Uma constante será uma função que não recebe argumentos. As _fórmulas_ usarão os mesmos conectivos da lógica proposicional, mas acrescentaremos os quantificadores existencial e universal. Podemos escrever `¬P x`, `∀ x R x x` e `∀ x ∃ y R x (f y)`, onde `P` e `R` são símbolos predicativos e `f` é um símbolo funcional.
 
-```bnf
-v    ::= "x" | "y" | "z" | v "'" ;
-P    ::= "P" | P "'" ;
-R    ::= "R" | R "'" ;
-S    ::= "S" | S "'" ;
-atom ::= P v | R v v | S v v v ;
-F    ::= atom
-  | "(" v "=" v ")" ("identidade")
-  | "¬" F ("negação")
-  | "(" F "∧" F ")" ("conjunção")
-  | "(" F "∨" F ")" ("disjunção")
-  | "∀" v F ("quantificação universal")
-  | "∃" v F ("quantificação existencial") ;
-```
+O nome Lógica de Primeira Ordem (FOL, "first order logic") vem da idéia de que estamos quantificando sobre indivíduous de um domínio, objetos de primeira ordem. Como fizemos em {ref "pl-syntax"}[pl-syntax], nossa sintaxe será formalizada como tipos indutivos.
 
-:::dev "Alexandre (arademaker)"
-Em Lean, indexar por aridade é mais natural do que empilhar primos: um
-`structure PredSymbol` com campos `name : String` e `arity : Nat` já
-representa "infinitos predicados de cada aridade finita" sem precisar
-de uma família de gramáticas, uma por aridade. Fica como observação,
-`Formula` (abaixo) não adota `PredSymbol`.
-:::
-
-Como fizemos em {ref "pl-syntax"}[pl-syntax], vamos agora definir um tipo para representar fórmulas FOL. Uma variável carrega nome e um índice (lista de naturais usada para gerar variáveis "frescas" a partir de uma dada variável):
+Uma variável carrega nome e um índice (lista de naturais usada para gerar "novas" variáveis a partir de uma dada variável):
 
 ```lean
 structure Variable where
@@ -83,7 +63,40 @@ def y : Variable := ⟨"y", []⟩
 def z : Variable := ⟨"z", []⟩
 ```
 
-`Formula α` é parametrizado no tipo dos termos que preenchem os predicados. Por ora nossos termos são apenas `Variable`.
+Termos denotam objetos do domínio, e diferentes termos podem denotar um mesmo objeto como os termos `(5 + 3) × 4`, `8 × 4` e `32`. Para representar termos mais complexos que apenas variáveis, a solução é introduzir símbolos funcionais para as operações entre termos.
+
+```lean
+inductive Term where
+  | var (v : Variable)
+  | struct (name : String) (args : List Term)
+
+def Term.format : Term → Std.Format
+  | .var v => repr v
+  | .struct name [] => name
+  | .struct name args =>
+    name ++ "[" ++
+      Std.Format.joinSep
+        (args.map Term.format) "," ++ "]"
+
+instance : Repr Term := ⟨fun t _ => t.format⟩
+
+def tx : Term := .var x
+def ty : Term := .var y
+def tz : Term := .var z
+def tf : Term := .struct "f" [tx,.struct "g" [ty]]
+```
+
+Constantes podem ser representadas como funções com aridade zero, ou seja, com a lista de argumentos vazia, {lean}`Term.struct "c" []`
+
+:::dev "Alexandre (arademaker)"
+Em Lean, indexar por aridade é mais natural do que empilhar primos: um
+`structure PredSymbol` com campos `name : String` e `arity : Nat` já
+representa "infinitos predicados de cada aridade finita" sem precisar
+de uma família de gramáticas, uma por aridade. Fica como observação,
+`Formula` (abaixo) não adota `PredSymbol`.
+:::
+
+`Formula α` é parametrizado no tipo dos termos que preenchem os predicados. Se usarmos `Formula Variable` estamos permitindo apenas fórmulas cujos termos são apenas variáveis. Se usarmos `Formula Term` temos nossa sintaxe completa.
 
 ```lean
 inductive Formula (α : Type) where
@@ -100,7 +113,11 @@ inductive Formula (α : Type) where
   | exists_ (v : Variable) (f : Formula α)
 ```
 
-A conjunção e a disjunção são binárias, e `top` e `bot` são construtores próprios — o mesmo que fizemos para as fórmulas proposicionais, pelo mesmo motivo. O `α` em `atom` não cria esse problema, porque é parâmetro, não o próprio tipo. A notação n-ária se recupera com as funções abaixo. Uma conjunção vazia é `top`, uma disjunção vazia é `bot`, como fizemos em LP.
+A conjunção e a disjunção são binárias, e `top` e `bot` são construtores próprios, o mesmo que fizemos para as fórmulas proposicionais.
+
+Importante observar que o tipo {lean}`Formula` daqui é diferente do tipo {lean}`PL.Formula`. Observamos ainda que nossa linguagem FOL está sendo implementada em Lean, que aqui funciona como meta-linguagem. Em tipos dependentes, não fazemos a distinção entre termos e fórmulas. Como vimos em {ref "IntroL"}[IntroL], em Lean toda expressão é um termo e todo termo tem um tipo. Então quando falarmos em termos, ora estamos falando do termo Lean que pode representar uma {lean}`Formula` ou {lean}`Term` de FOL.
+
+Também como fizemos para {lean}`PL.Formula`, a notação n-ária de {name}`Formula.conj` e {name}`Formula.disj` introduzimos com as funções abaixo. Uma conjunção vazia é `top`, uma disjunção vazia é `bot`.
 
 ```lean
 def Formula.conjs {α : Type} : List (Formula α) → Formula α
@@ -114,7 +131,7 @@ def Formula.disjs {α : Type} : List (Formula α) → Formula α
   | f :: fs => .disj f (Formula.disjs fs)
 ```
 
-Um termo do tipo `Formula` não é muito legível, vamos implementar a instância de `Repr` para controlar a exibição destes termos. Note que ela demanda que o tipo `α` tenha também uma instância de `Repr`.
+Um termo (Lean) do tipo `Formula` não é muito legível, vamos implementar a instância de `Repr` para controlar a exibição destes termos. Note que ela demanda que o tipo `α` tenha também uma instância de `Repr`, que já implementamos para {name}`Variable` e {name}`Term`.
 
 ```lean
 def Formula.format {α} [Repr α] : Formula α → Std.Format
@@ -134,15 +151,14 @@ def Formula.format {α} [Repr α] : Formula α → Std.Format
     f!"({f1.format} & {f2.format})"
   | .disj f1 f2 =>
     f!"({f1.format} | {f2.format})"
-  | .forall_ v f => f!"∀ {repr v} {f.format}"
-  | .exists_ v f => f!"∃ {repr v} {f.format}"
+  | .forall_ v f => f!"∀{repr v} {f.format}"
+  | .exists_ v f => f!"∃{repr v} {f.format}"
 
 instance {α} [Repr α] : Repr (Formula α) :=
   ⟨fun f _ => f.format⟩
-
 ```
 
-A seguir, `formula1` expressa que o predicado `R` é reflexivo enquanto `formula2` expressa que ele é simétrico. Quando escrevermos `#eval formula1`, Lean irá procurar por esta instância de `Repr` para o tipo `Formula` declarada acima. O {name}`Std.Format` não é uma `String`, é um tipo que representa um documento com quebras de linha e identação. Nossa implementação está bastante simplificada.
+A seguir, `formula1` expressa que o predicado `R` é reflexivo enquanto `formula2` expressa que ele é simétrico. Note que para estes dois exemplos, não precisamos usar termos envolvendo funções, logo usamos apenas {lean}`Formula Variable`.
 
 ```lean
 def formula1 : Formula Variable :=
@@ -154,11 +170,9 @@ def formula2 : Formula Variable :=
 ```
 
 Em uma fórmula `∀x F` (ou `∃x F`), o quantificador liga toda ocorrência de
-`x` em `F` que não esteja já ligada por um `∀x`/`∃x` interno a `F`. Uma fórmula é *aberta* se tem ao menos uma ocorrência livre de variável, e *fechada* (também chamada *sentença*) caso contrário. Por exemplo, `(P x ∧ ∃x, R x x)` é aberta, o `x` de `P x` está fora do escopo do `∃x`. Mas `∃x (P x ∧ ∃x R x x)` é uma sentença.
+`x` em `F` que não esteja já ligada por um `∀x` (ou `∃x`) interno a `F`. Uma fórmula é *aberta* se tem ao menos uma ocorrência livre de variável, e *fechada* (também chamada *sentença*) caso contrário. Por exemplo, `(P x ∧ ∃x, R x x)` é aberta, o `x` de `P x` está fora do escopo do `∃x`. Mas `∃x (P x ∧ ∃x R x x)` é uma sentença.
 
-Essa distinção é o que motiva a ambiguidade de escopo de "Todo príncipe viu uma dama". Existem duas leituras possíveis. A primeira seria "para cada príncipe existe uma dama (talvez diferente) que ele viu" que podemos formalizar como `∀x (Prince x → ∃y (Lady y ∧ Saw x y))`. A segunda leitura seria "existe uma dama que todo príncipe viu" formalizada como `∃y (Lady y ∧ ∀x (Prince x → Saw x y))`. Repare que a leitura universal usa `→` como conectivo principal dentro da subfórmula, e a existencial usa `∧`. Já "Algum príncipe viu uma dama bonita" admite apenas uma formalização, `∃x∃y (Prince x ∧ Lady y ∧ Beautiful y ∧ Saw x y)`.
-
-Coletar as variáveis livres de uma fórmula é uma operação recorrente. Definimos uma só vez, deixando como parâmetro a função que extrai as variáveis de um termo — o que muda de um caso para outro é apenas ela. Nos quantificadores, `filter` remove a variável ligada, e remove *todas* as suas ocorrências.
+Coletar as variáveis livres de uma fórmula é uma operação recorrente. Abaixo, definimos a função freeVars que recebe como parâmetro uma função que extrai as variáveis de um termo. Para {lean}`formula1`, só precisamos de uma função que transforme uma variável em uma lista com ela mesma. Para fórmulas que podem conter termos complexos, {lean}`Formula Term`, nossa função terá que percorrer todo o termo coletando as variáveis. Nos quantificadores, `filter` remove todas as ocorrências da variável ligada.
 
 ```lean
 def Formula.freeVars {α} (vars : α → List Variable) :
@@ -177,7 +191,7 @@ def Formula.freeVars {α} (vars : α → List Variable) :
 ```
 
 ::::exercise (rating := 2) (name := "closed-form")
-Escreva uma função `closedForm : Formula Variable → Bool` que verifica
+Complete o código da função `closedForm` abaixo que verifica
 se uma fórmula é fechada. Aqui cada termo é uma variável, então
 extrair as variáveis de um termo é devolvê-lo numa lista de um
 elemento.  As fórmulas fechadas são as que têm a lista de livres vazia.
@@ -191,16 +205,13 @@ def closedForm (f : Formula Variable) : Bool :=
 ::::exercise (rating := 1) (name := "implication-as-abbrev")
 Implicações e equivalências podem ser vistas como abreviações, pois se
 definem a partir de negação, conjunção e disjunção — as mesmas
-equivalências usadas na lógica proposicional. Escreva uma função
-`withoutIDs : Formula Variable → Formula Variable` que substitui cada
-fórmula por uma equivalente sem ocorrências de `impl` ou `equi`.
+equivalências usadas na lógica proposicional. Escreva uma função `withoutIDs` que substitui cada fórmula por uma equivalente sem ocorrências de `impl` ou `equi`. Note que a função não depende do tipo `α`.
 
 ```lean
-def withoutIDs (frm : Formula Variable) :
-    Formula Variable :=
+def withoutIDs {α : Type} (frm : Formula α) : Formula α :=
   solution!(
     match frm with
-    | .atom name args => .atom name args
+    | .atom name as => .atom name as
     | .eq t1 t2 => .eq t1 t2
     | .top => .top
     | .bot => .bot
@@ -223,20 +234,20 @@ def withoutIDs (frm : Formula Variable) :
 ::::exercise (rating := 2) (name := "negation-normal-form")
 Toda fórmula de lógica de predicados pode ser transformada em uma equivalente na *forma normal da negação* (NNF, "negation normal form"), onde negações só ocorrem diante de átomos. A receita é "empurrar" as negações através dos quantificadores por `¬ ∀x F ≡  ∃x ¬F` e `¬ ∃x F ≡ ∀x ¬F`, e através de disjunções e conjunções pelas leis de De Morgan: `¬(F1 ∧ F2) ≡ ¬F1 ∨ ¬F2` e `¬(F1 ∨ F2) ≡ ¬F1 ∧ ¬F2`. Finalmente, `¬¬F ≡ F` elimina dupla negação. Complete o código da função `nnf`.
 
-Dica: a receita acima diz o que fazer com `¬` diante de alguma subfórmula. Isso sugere duas funções, uma para cada situação em que uma subfórmula pode aparecer. As duas se chamam mutuamente, e por isso vão num bloco `mutual`.
+Dica: a receita acima diz o que fazer com a negação diante de alguma subfórmula. Isso sugere duas funções, uma para cada situação em que uma subfórmula pode aparecer. As duas se chamam mutuamente, e por isso vão num bloco `mutual`.
 
 - `nnfPos f` devolve a NNF de `f`;
 - `nnfNeg f` devolve a NNF de `¬f`.
 
 Trate `impl` e `equi` diretamente nas duas funções, sem passar por
-`withoutIDs`.
+`withoutIDs`. E novamente, observe que a função não depende do tipo `α`.
 
 ```lean
 mutual
-def nnfPos (frm : Formula Variable) : Formula Variable :=
+def nnfPos {α} (frm : Formula α) : Formula α :=
  solution!(
   match frm with
-  | .atom n a => .atom n a
+  | .atom n as => .atom n as
   | .eq t1 t2 => .eq t1 t2
   | .top => .top
   | .bot => .bot
@@ -250,10 +261,10 @@ def nnfPos (frm : Formula Variable) : Formula Variable :=
   | .forall_ v f => .forall_ v (nnfPos f)
   | .exists_ v f => .exists_ v (nnfPos f))
 
-def nnfNeg (frm : Formula Variable) : Formula Variable :=
+def nnfNeg {α} (frm : Formula α) : Formula α :=
  solution!(
   match frm with
-  | .atom n a => .neg (.atom n a)
+  | .atom n as => .neg (.atom n as)
   | .eq t1 t2 => .neg (.eq t1 t2)
   | .top => .bot
   | .bot => .top
@@ -268,38 +279,16 @@ def nnfNeg (frm : Formula Variable) : Formula Variable :=
   | .exists_ v f => .forall_ v (nnfNeg f))
 end
 
-def Formula.nnf (f : Formula Variable) : Formula Variable :=
+def Formula.nnf {α : Type} (f : Formula α) : Formula α :=
   solution!(nnfPos f)
 ```
 ::::
 
-Termos denotam objetos do domínio, e diferentes termos podem denotar um mesmo objeto como os termos `(5 + 3) × 4`, `8 × 4` e `32`. Para representar termos mais complexos que apenas variáveis, a solução é introduzir símbolos funcionais para as operações entre termos.
+Um termo `t` é *livre para* a variável `v` na fórmula `F` se toda ocorrência livre de `v` em `F` pode ser substituída por `t` sem que nenhuma das variáveis de `t` fique ligada. Por exemplo, `y` é livre para `x` em `Px → ∀x Px`, mas o mesmo termo não é livre para `x` em `∀y R[x,y] → ∀x R[x,x]`. Da mesma forma, `g[x,y]` não é livre para `x` em `∀y R[x,y] → ∀x R[x,x]`.
 
-```lean
-inductive Term where
-  | var (v : Variable)
-  | struct (name : String) (args : List Term)
+Um termo livre para uma variável `v` pode ser substituído nas ocorrências livres de `v` sem uma mudança não intencional de significado. Considere a fórmula aberta `∀y R[x,y] → ∀x R[x,x]`. Se substituirmos a ocorrência livre de `x` nessa fórmula por `y`, obtemos uma fórmula fechada `∀y R[y,y] → ∀x R[x,x]`, uma variável acabou capturada.
 
-def Term.format : Term → Std.Format
-  | .var v => repr v
-  | .struct name [] => name
-  | .struct name args =>
-    name ++ "[" ++
-      Std.Format.joinSep
-        (args.map Term.format) "," ++ "]"
-
-instance : Repr Term := ⟨fun t _ => t.format⟩
-
-def tx : Term := .var x
-def ty : Term := .var y
-def tz : Term := .var z
-```
-
-Um termo `t` é *livre para* a variável `v` na fórmula `F` se toda ocorrência livre de `v` em `F` pode ser substituída por `t` sem que nenhuma das variáveis de `t` fique ligada. Por exemplo, `y` é livre para `x` em `Px → ∀x Px`, mas o mesmo termo não é livre para `x` em `∀y Rxy → ∀x Rxx`. Da mesma forma, `g(x,y)` não é livre para `x` em `∀y Rxy → ∀x Rxx`.
-
-Um termo livre para uma variável `v` pode ser substituído nas ocorrências livres de `v` sem uma mudança não intencional de significado. Considere a fórmula aberta `∀y Rxy → ∀x Rxx`. Se substituirmos a ocorrência livre de `x` nessa fórmula por `y`, obtemos uma fórmula fechada `∀y Ryy → ∀x Rxx`. Uma variável que originalmente era livre acabou capturada.
-
-Se `t` não é livre para `v` em `F`, podemos sempre renomear as variáveis ligadas de `F` para garantir que a substituição de `t` por `v` em `F` tenha o significado correto. Embora `g(y,c)` não seja livre para `x` em `∀y Rxy → ∀x Rxx`, o termo é livre para `x` em `∀z Rxz → ∀x Rxx`, que é uma chamada *variante alfabética* da fórmula original. Uma variante alfabética de uma fórmula é uma fórmula que difere da original apenas por usar variáveis ligadas diferentes.
+Se `t` não é livre para `v` em `F`, podemos sempre renomear as variáveis ligadas de `F` para garantir que a substituição de `t` por `v` em `F` tenha o significado correto. Embora `g[y,c]` não seja livre para `x` em `∀y R[x,y] → ∀x R[x,x]`, o termo é livre para `x` em `∀z R[xz] → ∀x R[x,x]`, que é uma chamada *variante alfabética* (nomes diferentes para as variáveis ligadas) da fórmula original.
 
 A função `isVar` verifica se um termo é uma variável. As funções `varsInTerm` e `varsInTerms` retornam as variáveis que ocorrem num termo ou numa lista de termos sem duplicatas.
 
@@ -315,14 +304,10 @@ def varsInTerm : Term → List Variable
 
 def varsInTerms (ts : List Term) : List Variable :=
   ts.map varsInTerm |>.flatten |>.eraseDups
-
 end
 ```
 
-Agora que temos o tipo `Term` podemos usar `Formula Term` ao invés de `Formula Variable`.
-
 ::::exercise (rating := 1) (name := "vars-in-formula")
-
 Implemente uma função `varsInForm : Formula Term → List Variable` que
 dá a lista de variáveis que ocorrem numa fórmula. Aqui não se trata de
 ocorrências *livres*: conte todas, inclusive a variável que cada
@@ -349,6 +334,7 @@ def Formula.varsInForm (frm : Formula Term) : List Variable :=
 ```
 ::::
 
+
 ::::exercise (rating := 2) (name := "free-vars-in-formula")
 Implemente `freeVarsInForm : Formula Term → List Variable`, que dá a
 lista de variáveis com ocorrências livres numa fórmula.
@@ -370,7 +356,7 @@ def openForm (f : Formula Term) : Bool :=
 ::::
 
 
-# Semântica da lógica de predicados
+# Semântica de FOL
 %%%
 tag := "fol-semantics"
 %%%
