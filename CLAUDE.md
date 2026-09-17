@@ -39,7 +39,7 @@ Using Verso, we could also create slides; see https://github.com/arademaker/sviL
 
 The textbook will be written in Portuguese. Later, we plan to translate it back into English. 
 
-But all names in the Lean code are in English; comments in the Lean code are also in English. This applies to the code presented to the students and also the code of the project itself, the Lean code that produces the book (verso extensions, infrastructure, etc)
+But all identifiers in the Lean code are in English; comments and docstrings in the Lean code are also in English. This applies to the code presented to the students and also the code of the project itself, the Lean code that produces the book (verso extensions, infrastructure, etc)
 
 The repo README is in English. All documentation *about* the project should be in English. Use English for git commit messages as well.
 

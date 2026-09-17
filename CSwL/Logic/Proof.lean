@@ -24,9 +24,9 @@ namespace Proof
 
 # O tipo {lean}`Prop` e Provas
 
-O que diferencia Lean de outras linguagens como Python e Java é a capacidade de na mesma linguagem que usamos para 'programar' funções, escrevermos 'provas' sobre estas funções.
+O que diferencia Lean de outras linguagens como Python ou Java, é a capacidade de usarmos a mesma linguagem para programar funções e escrever provas sobre estas funções.
 
-Uma proposição é um enunciado que pode ser verdadeiro ou falso. O enunciado `1 = 1` é verdadeiro, enquanto `square₁ 12 = 2` é falso. Toda proposição é todo tipo `Prop` {citep Bib.FAA2025}[]. Podemos declarar proposições, mas não podemos _avaliar_ uma proposição. Note que perguntar pelo tipo não é o mesmo que decidir se ela é verdadeira.
+Uma proposição é um enunciado que pode ser verdadeiro ou falso. O enunciado `1 = 1` é verdadeiro, enquanto `square₁ 12 = 2` é falso. Toda proposição é um tipo em `Prop` {citep Bib.FAA2025}[]. Podemos declarar proposições, mas não podemos _avaliar_ uma proposição. Note que perguntar pelo tipo não é o mesmo que decidir se ela é verdadeira.
 
 ```lean
 def p₁ : Prop := 1 = 1
@@ -46,7 +46,7 @@ theorem OneEqSelf : 1 = 1 := Eq.refl 1
 
 Acontece que, para propriedades um pouco menos triviais, o termo para provar uma proposição pode ficar grande e pouco natural de escrever manualmente. É aí que entra a palavra `by`. Ela introduz um _modo_ chamado 'tactic mode' onde usamos uma pequena linguagem de comandos (táticas) em que descrevemos como a prova deve ser montada e deixamos o Lean construir o termo por nós.
 
-A tática {tactic}`rfl` prova igualdades quando os dois lados são iguais por definição, isto é, quando Lean consegue reduzi-los até a mesma expressão por computação. Essa redução inclui, por exemplo, a expansão de definições, a aplicação de funções e a avaliação de `let`. Isso é uma consequência importante da fundação de Lean em Calculus of Inductive Constructions (CiC) {citep Bib.nederpelt2014}[]: expressões de tipos e programas podem ser computadas e comparadas por redução. Assim, `rfl` é frequentemente usado para dizer que os dois lados são iguais porque são o mesmo valor depois de reduzir o código. O comando `#print double_theorem` irá mostrar que a tática {tactic}`rfl` construiu o termo {name}`Eq.refl`.
+A tática {tactic}`rfl` prova igualdades quando os dois lados são iguais por definição, isto é, quando Lean consegue reduzi-los até a mesma expressão por computação. Essa redução inclui, por exemplo, a expansão de definições, a aplicação de funções e a avaliação de `let`. Isso é uma consequência importante da fundação de Lean em _Calculus of Inductive Constructions_ (CIC) {citep Bib.nederpelt2014}[]: expressões de tipos e programas podem ser computadas e comparadas por redução. Assim, `rfl` é frequentemente usado para dizer que os dois lados são iguais porque são o mesmo valor depois de reduzir o código. O comando `#print double_theorem` irá mostrar que a tática {tactic}`rfl` construiu o termo {name}`Eq.refl`.
 
 ```lean
 def double (n : Nat) := n + n
@@ -54,7 +54,7 @@ def double (n : Nat) := n + n
 theorem double_theorem : double 5 = 5 + 5 := by rfl
 ```
 
-A tática {tactic}`rfl` tem limitações, embora possamos provar que duas funções são identificas a menos da sua mudança nos nomes dos parâmetros, precisamos do teorema sobre a comutatividade dos naturais para provar o segundo exemplo.
+O tática {tactic}`rfl` só funciona quando os dois lados são idênticos por definição. Para propriedades que exigem leis algébricas (como a comutatividade da multiplicação), precisamos aplicar teoremas específicos, como {name}`Nat.mul_comm`.
 
 ```lean
 example (z : Nat) : (λ x ↦ 2 * x) z = (fun y => 2 * y) z := by
@@ -64,13 +64,9 @@ example (z : Nat) : (λ x ↦ 2 * x) z = (fun y => y * 2) z := by
   exact Nat.mul_comm 2 z
 ```
 
-Além de {tactic}`rfl`, um pequeno repertório de táticas resolve o que os capítulos
-seguintes precisam.
-
-
 ::::exercise (rating := 1) (name := "rfl-arithmetic")
 
-Complete a prova abaixo usando a tática {tactic}`rfl`. Esta é a primeira prova que do [Natural Number Game](https://adam.math.hhu.de/#/g/leanprover-community/nng4/). O leitor está convidado a jogar NNG para uma boa introdução a provas no Lean.
+Complete a prova abaixo usando a tática {tactic}`rfl`. Esta é a primeira prova do [Natural Number Game](https://adam.math.hhu.de/#/g/leanprover-community/nng4/). O leitor está convidado a jogar NNG para uma boa introdução a provas no Lean.
 
 ```lean
 example (x q : Nat) : 37 * x + q = 37 * x + q :=
@@ -89,7 +85,7 @@ namespace PL
 
 Os conectivos lógicos  `∧`, `∨`, `→`, `↔` e `¬` estão disponíveis diretamente no Lean, de modo que uma fórmula proposicional pode ser representada como uma proposição em Lean. Isso nos fornece uma ponte conveniente entre a semântica da linguagem natural e o raciocínio formal. Podemos traduzir o conteúdo semântico de uma sentença para uma proposição em Lean e, em seguida, usar Lean para verificar se uma conclusão decorre de um conjunto de hipóteses.
 
-Chamamos "sistema dedutivo" um conjunto das regras de dedução. Existem vários sistemas dedutivos. A formalização de Prop em Lean corresponde a implementação do sistema chamado *dedução natural* definido por Gerhard Gentzen em 1930s. Usando as regras de dedução natural, podemos provar que uma fórmula `α` pode ser derivada a partir de um conjunto de fórmulas `Γ`, dizemos que `Γ ⊢ α`. Dizemos que `⊢ α` quando a fórmula `α` é válida, uma tautologia.
+Chamamos "sistema dedutivo" um conjunto das regras de dedução. Existem vários sistemas dedutivos. A formalização de Prop em Lean corresponde a implementação do sistema chamado *dedução natural* definido por Gerhard Gentzen em 1930. Usando as regras de dedução natural, podemos provar que uma fórmula `α` pode ser derivada a partir de um conjunto de fórmulas `Γ`, dizemos que `Γ ⊢ α`. Dizemos que `⊢ α` quando a fórmula `α` é válida, uma tautologia.
 
 Neste sistema dedutivo, cada conectivo vem com dois tipos de regra. As de *introdução*, que dizem como construir uma prova cuja conclusão usa o conectivo, e as de *eliminação*, que dizem como usar uma prova cuja hipótese o usa.
 
@@ -97,7 +93,9 @@ Neste sistema dedutivo, cada conectivo vem com dois tipos de regra. As de *intro
 variable {P Q R : Prop}
 ```
 
-A regra de introdução de `→` diz que para provar `P → Q`, supomos `P` e derivamos `Q`. A tatica `intro` move o antecedente para as hipóteses. A regra de eliminação é a chamada regra *modus ponens*. De `P → Q` e de `P`, conclua `Q`. Em Lean isso é aplicação `h hP` já é a prova de `Q`. A tática `apply` faz o mesmo de trás para frente, ela transforma o objetivo `Q` no objetivo `P`. A {tactic}`exact` fecha a prova indicando a hipótese cujo tipo corresponde ao _goal_ aberto. A {tactic}`assumption` fecha o _goal_ quando o tipo de alguma das hipóteses corresponde ao tipo do _goal_, sem precisarmos passar a hipótese nominalmente, como quando usamos {tactic}`exact`.
+A regra de introdução de `→` diz que para provar `P → Q`, supomos `P` e derivamos `Q`. A tatica `intro` move o antecedente para as hipóteses.
+
+A regra de eliminação é a chamada regra *modus ponens*. A partir de `P → Q` e de `P`, podemos concluir `Q`. O termo Lean `h hP` já é a prova de `Q`. A tática `apply` faz o mesmo de trás para frente, ela transforma o objetivo `Q` no novo objetivo `P`. A {tactic}`exact` fecha a prova fornecendo a hipótese cujo tipo coincide com o tipo do objetivo. A {tactic}`assumption` busca automaticamente se alguma hipótese do contexto coincide com o objetivo, sem que seja necessário nomeá-la explicitamente.
 
 ```lean
 example : P → (Q → P) := by
@@ -113,7 +111,7 @@ example (h₁ : P → Q) (h₂ : Q → R) : P → R := by
 example (h : P → Q) (hP : P) : Q := h hP
 ```
 
-Para a conjunção. Provar `P ∧ Q` depende de uma prova de `P` e `Q`. A tática `constructor` parte o objetivo em dois; o construtor anônimo `⟨_, _⟩` faz o mesmo em forma de termo. A eliminação de `∧` em `P ∧ Q` significa que podemos concluir `P` ou `Q`. São duas regras, e em Lean são as projeções `.1` (ou `.left`) e `.2` (ou `.right`). A tática `obtain` desmonta a hipótese de uma vez, dando nome às duas partes.
+Para a conjunção, provar `P ∧ Q` depende de uma prova de `P` e de uma prova de `Q`. A tática {tactic}`constructor` divide o objetivo em dois novos objetivos; o construtor anônimo `⟨_, _⟩` faz o mesmo em forma de termo. A eliminação de `∧` em `P ∧ Q` significa que podemos concluir `P` ou `Q`. São duas regras, e em Lean são as projeções `.1` (ou `.left`) e `.2` (ou `.right`). A tática `obtain` desmonta a hipótese de uma vez, dando nome às duas partes.
 
 
 ```lean
@@ -132,8 +130,7 @@ example (h : P ∧ Q) : Q ∧ P := by
 example (h : P ∧ Q) : Q ∧ P := ⟨h.2, h.1⟩
 ```
 
-Para provar `P ∨ Q` basta provar um dos dois lados. São duas regras, e as táticas `left` e `right` escolhem qual. A eliminação de `∨` é a prova por casos. De `P ∨ Q` não se sabe qual dos dois vale. Para concluir `R` a partir dela é preciso concluir `R` nos dois casos. A tática `cases` abre exatamente esses dois objetivos.
-
+Para provar `P ∨ Q` basta provar um dos dois lados. São duas regras, e os construtores {name}`Or.inl` e {name}`Or.inr` formalizam isso. A regra de eliminação da disjunção é o teorema {name}`Or.elim`, a chamada "prova por casos". Dada a hipótese `P ∨ Q`, não sabemos qual das duas proposições é verdadeira. Portanto, para concluir `R`, precisamos provar `R` em ambos os casos (assumindo `P` no primeiro e `Q` no segundo). A tática {tactic}`cases` gera exatamente esses dois cenários.
 
 ```lean
 example (hP : P) : P ∨ Q := by
@@ -146,8 +143,7 @@ example (h : P ∨ Q) : Q ∨ P := by
   | inr hQ => left; exact hQ
 ```
 
-Não há um conectivo primitivo para a negação: `¬ P` é notação para `P → False` onde `False` é a proposição sem nenhuma prova. A introdução de `¬` é a introdução de `→`, para provar `¬P`, suponha `P` e derive `False`. A eliminação é a eliminação de `→`. A regra que a tradição chama de *ex falso quodlibet* (princípio da explosão), é uma regra que dita que, a partir de uma contradição ou de uma premissa falsa, qualquer conclusão pode ser deduzida. `False.elim` em Lean. As duas juntas são `absurd`.
-
+Não há um conectivo primitivo para a negação: `¬ P` é notação para `P → False` onde `False` é a proposição que não possui prova. Desta forma, a introdução da negação usa a mesma regra da introdução da implicação `→`. Para provar `¬P`, supomos `P` para derivar `False`. A eliminação é a eliminação de `→`. A regra que a tradição chama de *ex falso quodlibet* (princípio da explosão), a partir de uma contradição ou de uma premissa falsa, qualquer conclusão pode ser deduzida. `False.elim` em Lean. As duas juntas são `absurd`.
 
 ```lean
 example (h : P → Q) : ¬Q → ¬P := by
@@ -159,7 +155,7 @@ example (h : False) : P := False.elim h
 example (hP : P) (hn : ¬P) : Q := absurd hP hn
 ```
 
-A `P ↔ Q` é a conjunção das duas implicações, e as regras seguem disso. A tática `constructor` parte o objetivo nas duas direções, e `.mp` e `.mpr` são as eliminações de `P → Q` e de `Q → P`.
+A bicondicional `P ↔ Q` é definida como a conjunção das duas implicações ((P → Q) ∧ (Q → P)), a tática {tactic}`constructor` evoca {name}`Iff.intro` que transforma o objetivo da prova em duas provas, uma para cada direção.
 
 ```lean
 example : P ∧ Q ↔ Q ∧ P := by
@@ -170,7 +166,10 @@ example : P ∧ Q ↔ Q ∧ P := by
 example (h : P ↔ Q) (hP : P) : Q := h.mp hP
 ```
 
-Até aqui não usamos em nenhum momento "ou `P` vale ou não vale". Todas as regras até aqui são *construtivas*, uma prova de `P ∨ Q` traz consigo qual dos dois lados foi usado. Uma prova de `P` é uma construção de `P`.  O raciocínio *clássico* acrescenta o princípio chamado de terceiro excluído. Dele saem as duas táticas. A primeira é `by_cases`, que parte a prova em dois casos, supondo `P` num e `¬P` no outro. E a tatica `by_contra` prova `P` supondo `¬P` e derivando `False`, a redução ao absurdo.
+Até este ponto, todas as regras que utilizamos pertencem à *lógica construtiva* (ou intuicionista). Nela, provar uma disjunção `P ∨ Q` exige construir explicitamente uma prova de `P` ou uma prova de `Q`. Não é permitido afirmar que "um dos dois é verdade" sem saber qual. Em particular, a lógica construtiva não assume que toda proposição é necessariamente verdadeira ou falsa. A *lógica clássica* acrescenta o princípio do terceiro excluído, {name}`Classical.em`, que afirma que para qualquer proposição `P`, vale `P ∨ ¬P`. A partir desse princípio, derivamos duas táticas fundamentais para provas clássicas:
+
+- {tactic}`by_cases`. Quando usamos `by_case (hp : P)`, o objetivo atual é dividido em dois casos independentes, um assumindo `hP : P` (`P` é verdadeiro) e outro assumindo `hP : ¬P` (`P` é falso).
+- {tactic}`by_contra`: Realiza a prova por redução ao absurdo. Para provar `P`, supõe-se que `P` e o objetivo torna-se derivar uma contradição (False).
 
 ```lean
 example : P ∨ ¬P := Classical.em P
@@ -302,7 +301,7 @@ example (P Q R : Prop) (h : P → Q) (h2 : Q → R) : P → R := by
 ::::
 
 ::::exercise (rating := 1) (name := "unfold-direct-proof")
-Em algumas provas, podemos precisar expandir uma definição antes de qualquer outro passo de manipulação dos conectivos lógicos. Logo após introduzir o antecedente da implicaçõa como hipótese, considere `unfold E at h` para expandir a definição de `E` na hipótese recém introduzida `h`. Feche a prova com a táctica {tactic}`linarith`.
+Em algumas provas, podemos precisar expandir uma definição antes de qualquer outro passo de manipulação dos conectivos lógicos. Logo após introduzir o antecedente da implicação como hipótese, considere `unfold E at h` para expandir a definição de `E` na hipótese recém introduzida `h`. Feche a prova com a táctica {tactic}`linarith`.
 
 ```lean
 def E (x y : Nat) : Prop := x = y
@@ -351,7 +350,7 @@ namespace Dresses
 variable (Aa Ab Ap Ma Mb Mp Ca Cb Cp  : Prop)
 ```
 
-A ideia é que as condições do problema sejam traduzidas em fórmulas proposicionais. Por exemplo, podemos formalizar a sentença "Ana veste azul, branco ou preto" como {lean}`Aa ∨ Ab ∨ Ap`. Note que a fórmula não foi obtida diretamente a partir da construção linguística original, uma oração coordenando seus constituintes no predicado. Intuitivamente, a sentença foi antes interpretada como três orações coordenadas, "Ana veste azul ou Ana veste branco ou Ana veste preto".
+A ideia é que as condições do problema sejam traduzidas em fórmulas proposicionais. Por exemplo, podemos formalizar a sentença "Ana veste azul, branco ou preto" como {lean}`Aa ∨ Ab ∨ Ap`. Note que a fórmula não foi obtida diretamente a partir da construção linguística original, uma oração coordenando seus constituintes no predicado. Intuitivamente, a sentença foi antes interpretada como três orações coordenadas: "Ana veste azul ou Ana veste branco ou Ana veste preto".
 
 A formalização completa do problema deve levar em consideração não apenas o que foi dito explicitamente mas algumas condições implicitamente assumidas. Primeiro que cada irmã veste uma das cores.
 
@@ -444,14 +443,14 @@ end Dresses
 end PL
 ```
 
-# As regras dos quantificadores em Lean
+# As regras dos Quantificadores em Lean
 %%%
 tag := "quantificadores-lean"
 %%%
 
-O mesmo tipo `Prop` em Lean não está limitado ao raciocínio proposicional. Também podemos representar lógica de primeira ordem em `Prop`. Como já falamos, o Lean se baseia em na teoria dos tipos, na qual se assume que cada variável pertence a algum tipo. Você pode pensar em um tipo como um "universo" ou um "domínio de discurso", no sentido da lógica de primeira ordem. Com a diferença importante de que em lógica de primeira ordem, entedemos o domínio da interpretação com um conjunto não vazio, e um tipo em Lean não necessariamente precisa ser _habitado_.
+O tipo {lean}`Prop` não está limitado ao raciocínio proposicional; ele também nos permite representar proposições da lógica de primeira ordem. Como vimos, o Lean é fundamentado na teoria dos tipos, na qual toda variável pertence a algum tipo. Podemos entender um tipo como o "universo" ou "domínio de discurso" da lógica formal. No entanto, como veremos, há uma diferença importante: enquanto a lógica de primeira ordem clássica exige que o domínio de interpretação seja sempre um conjunto não-vazio, em Lean um tipo não precisa ser necessariamente habitado.
 
-A expressividade de `Prop` vai além de lógica de primeira ordem. Poderíamos ainda falar de lógicas [polissortidas](https://en.wikipedia.org/wiki/First-order_logic) onde poderíamos ter mais de um tipo usado em uma mesma expressão lógica. Por exemplo, podemos querer usar a lógica de primeira ordem para geometria, com quantificadores sobre pontos e linhas. Mas nesta seção, nos restringimos os predicados a um único universo `U`.
+A expressividade de {lean}`Prop` vai além de lógica de primeira ordem. Poderíamos ainda falar de lógicas [polissortidas](https://en.wikipedia.org/wiki/First-order_logic) onde poderíamos ter mais de um tipo usado em uma mesma expressão lógica. Por exemplo, podemos querer usar a lógica de primeira ordem para geometria, com quantificadores sobre pontos e linhas. Mas nesta seção, nos restringimos os predicados a um único universo `U`.
 
 ```lean
 section FOL
@@ -460,10 +459,9 @@ variable (U : Type)
 variable (P Q : U → Prop)
 ```
 
-Seguindo a apresentação de Lógica Proposicional, quatro novas regras precisam ser explicadas, duas para cada quantificador.
+Seguindo a estrutura da seção anterior, explicaremos quatro novas regras: duas para o quantificador universal (`∀`) e duas para o existencial (`∃`).
 
-A introdução de `∀` diz que para provar que algo vale de todo `x`, tome um `x`
-arbitrário e prove que vale para ele. É a mesma `intro` agora sobre um objeto em vez de uma hipótese. A eliminação de `∀` é aplicação: de `∀ x P x` e de um objeto `d`, sai `P d`.
+A introdução de `∀` estabelece que, para provar que uma propriedade vale para todo `x`, basta tomar um `x` arbitrário e demonstrar que a propriedade se aplica a ele. Em modo de tática, usamos a mesma tática {tactic}`intro`, mas agora ela adiciona um novo objetovo no contexto, também como variável do tipo apropriado, em vez de uma hipótese do tipo {lean}`Prop`. A eliminação de `∀` é feita por aplicação direta: se temos uma prova `h : ∀ x, P x` e um objeto `d`, a aplicação `h d` nos fornece uma prova de `P d`, desde que os tipos obviamente sejam compatíveis.
 
 ```lean
 example (h : ∀ x, P x) : ∀ y, P y := by
@@ -471,7 +469,7 @@ example (h : ∀ x, P x) : ∀ y, P y := by
   exact h n
 ```
 
-A introdução de `∃` exige exibir a testemunha. A tática `use` substitui a variável quantificada pelo objeto passado, e deixa como objetivo o que falta provar sobre ele.
+A introdução de `∃` exige uma testemunha (o objeto que satisfaz a propriedade). Em modo de tática, a tática {tactic}`use` substitui a variável quantificada pelo objeto fornecido e deixa como novo objetivo a prova de que tal objeto satisfaz o predicado. Em modo de termo, isso é feito pelo construtor {name}`Exists.intro`.
 
 ```lean
 example (y : U) (h : P y) : ∃ x, P x :=
@@ -481,7 +479,7 @@ example (y : U) (h : P y) : ∃ x, P x := by
   use y
 ```
 
-A eliminação de `∃` é a mais delicada. De `∃ x P x` sabe-se que há uma testemunha, mas não sabemos qual elemento do domínio ela é. A tática `obtain` aplica o teorema `Exists.elim`, introduz com um nome, junto com a propriedade que ele satisfaz.
+A eliminação de `∃` é a regra mais delicada. De `∃ x, P x` sabe-se que há uma testemunha, mas não sabemos qual elemento do domínio usar. A tática {tactic}`obtain` aplica o teorema {name}`Exists.elim`, introduzindo a testemunha com um nome no contexto, junto com a propriedade que ela satisfaz.
 
 ```lean
 example (h : ∃ x, P x ∧ Q x) : ∃ x, Q x := by
@@ -495,7 +493,9 @@ example (h : ∃ x, P x ∧ Q x) : ∃ x, Q x := by
   exact ⟨d, hQ⟩
 ```
 
-A demonstração abaixo não é válida se não declararmos uma variável `u : U`, mesmo que `u` não apareça no enunciado do teorema. Isso destaca uma diferença entre a lógica de primeira ordem e a lógica implementada em Lean. Na dedução natural, podemos provar `∀ x P x → ∃ x P x`, o que mostra que nosso sistema de prova assume implicitamente que o universo tem pelo menos um objeto. Em contraste, em Lean, é possível que um tipo esteja vazio, e, portanto, a prova requer uma suposição explícita de que existe um elemento `u : U`.
+Tendo apresentado as regras de introdução e eliminação dos quantificadores, é importante observar como o Lean trata a existência de valores em um tipo na prática.
+
+A demonstração abaixo de `(∀ x, P x) → ∃ x, P x` só é válida se declararmos previamente uma variável `u : U`. Isso evidencia uma diferença sutil entre a lógica de primeira ordem tradicional e a implementação no Lean: enquanto a dedução natural clássica assume implicitamente que o universo de discurso é sempre não-vazio, no Lean um tipo pode ser vazio (não-habitado). Assim, para instanciar a testemunha com `use u`, precisamos fornecer a suposição explícita de que existe ao menos um elemento `u : U`. Uma outra forma de ter o mesmo efeito seria demandar que o tipo `U` implemente a classe {name}`Nonempty`.
 
 ```lean
 variable (u : U)
@@ -540,9 +540,9 @@ end FOL
 tag := "induction"
 %%%
 
-Outra tática de prova que podemos precisar é a {tactic}`induction`. Ela prova algo para todo valor de um tipo indutivo, e não para um valor de cada vez.
+Uma das ferramentas fundamentais no Lean é a tática `{tactic}induction`. Em vez de provar uma propriedade para elementos individuais, ela permite demonstrar que uma afirmação é válida para todos os valores de um tipo indutivo (como os `Nat`).
 
-Considere o exemplo abaixo e a esperada _prova por indução_ que faríamos no papel. Mostramos para o caso base, que em `Nat` é o `zero` e depois o passo indutivo, cuja hipótese de indução é nomeada como `ih`.
+Considere o exemplo abaixo de uma prova por indução. Primeiro, demonstramos a propriedade para o caso onde `n` é o termo {name}`Nat.zero`. Em seguida, provamos o passo indutivo, quando `n` é um termo gerado pelo construtor {name}`Nat.succ` e quando assumimos que a propriedade vale para um `a` (armazenada na hipótese de indução `ih`) e demonstramos que ela se mantém para o seu sucessor `a + 1`.
 
 ```lean
 example (n : Nat) : n + 0 = n := by
@@ -552,8 +552,7 @@ example (n : Nat) : n + 0 = n := by
     linarith
 ```
 
-Ao longo do texto, outras táticas poderão ser usadas como: {tactic}`decide`, {tactic}`omega`,
-{tactic}`simp` e {tactic}`funext`, discutiremos quando forem necessárias.
+Outras táticas como {tactic}`decide`, {tactic}`omega` e {tactic}`simp` aparecerão em momentos específicos dos capítulos seguintes e serão explicadas à medida que se fizerem necessárias.
 
 
 # Extensionalidade de Funções
@@ -561,7 +560,9 @@ Ao longo do texto, outras táticas poderão ser usadas como: {tactic}`decide`, {
 tag := "funext"
 %%%
 
-Uma função admite duas leituras. Na leitura extensional, a função é uma tabela: o conjunto de pares entrada e saída. Uma conversão de Celsius para Fahrenheit é a tabela `[(0, 32), (100, 212),...]`. Na leitura intensional, a função indica como a saída é obtida a partir da entrada `λ x ↦ x * 9 / 5 + 32`. Uma receita que produz a tabela sem precisar listá-la. Em Lean, `def` escreve sempre a versão intensional, mas duas instruções diferentes podem ser a mesma função, no sentido extensional, se produzem a mesma tabela. É isso que `funext` verifica: duas funções são iguais quando concordam em todo ponto do domínio.
+Uma função pode ser compreendida sob duas perspectivas. Na perspectiva extensional, a função é vista como uma relação ou tabela de mapeamento — o conjunto de todos os pares de entrada e saída, como a tabela `{(0, 32), (100, 212), ...}`. Na perspectiva intensional, a função é o próprio algoritmo ou instrução que calcula a saída a partir da entrada, como a expressão {lean}`λ x ↦ x * 9 / 5 + 32`, uma "receita" que gera a tabela sem precisar enumerá-la.
+
+No Lean, o comando `def` sempre define funções no sentido intensional. No entanto, duas definições intencionalmente distintas podem representar a mesma função no sentido extensional, desde que produzam a mesma saída para cada entrada. É esse o princípio da extensionalidade de funções: a tática {tactic}`funext` transforma o objetivo de provar que duas funções são iguais (f = g) no objetivo de demonstrar que elas coincidem para todo ponto do domínio para o qual são definidas.
 
 ```lean
 def double₁ (x : Nat) := 2 * x
