@@ -58,10 +58,10 @@ this way is usually a mistake; see "Known gaps."
 | Chapter | Commands and declarations | Types and syntax | Tactics |
 | --- | --- | --- | --- |
 | `IntroCS` | `namespace`, `def` (by pattern matching), `inductive`, `deriving Repr`, `example`, `#eval` | `Nat`, function type `→`, dot-notation constructors (`.num`) | `rfl`, `induction … with`, `rw`, `rewrite`, `unfold`, `repeat` |
-| `IntroL` | `#check`, `#print`, `theorem`, `structure`, `instance`, `section`, `variable` | `Type`, `Prop`, `Bool`, `List`, `Option`, `Char`, `String`, `fun`/`λ`, `match`, `if … then … else`, `⟨…⟩`, implicit `{}`, instance-implicit `[]`, `∘`, `BEq`, `DecidableEq`, `List.all`/`List.any` | `funext` (solution only), `show` (solution only), `omega` (solution only), `decide` (solution only) |
+| `IntroL` | `#check`, `#print`, `theorem`, `structure`, `instance`, `section`, `variable` | `Type`, `Prop`, `Bool`, `List`, `Option`, `Char`, `String`, `fun`/`λ`, `match`, `if … then … else`, `⟨…⟩`, implicit `{}`, instance-implicit `[]`, `∘`, `BEq`, `DecidableEq`, `List.all`/`List.any` | *(none — the chapter is deliberately pre-proof)* |
 | `Logic/Proof` | `open` | `¬`, `∀`, `∃`, `∧`, `∨`, `↔`, `≠` | `intro`, `exact`, `apply`, `cases … with`, `constructor`, `obtain`, `have`, `use`, `left`, `right`, `rcases`, `by_cases`, `by_contra`, `assumption` |
 | `Logic/PL` | `abbrev`, `private` | `×` | `simp`, `native_decide` |
-| `Logic/FOL` | `mutual`, `deriving BEq` | `\|>`, `List.contains` | `induction … generalizing` |
+| `Logic/FOL` | `mutual` | `\|>` | `induction … generalizing`, `decide`, `refine`, `omega`, `absurd` (term) |
 | `Sets` | — | `Set`, `Rel`, `Finset`, `Fintype`, `Setoid`, `∈`, `⊆`, `∪`, `∩`, `trivial` (term) | `symm`, `simp_all` |
 | `SeaBattle` | — | `Fin` | — |
 | `Morphology` | *(none new)* | — | — |
@@ -96,16 +96,20 @@ author decision, not a mechanical fix.
   anywhere. It is listed in the table under types rather than tactics, since
   that is what it is here. Give it a line or replace it when that chapter is
   revised.
-- **`funext`, `show`, `omega`, `decide` in `IntroL`** — all four appear only
-  inside the `twice` exercise's `solution!(…)` blocks (`:1136-1138`, `:1141`),
-  so the student and `terse` variants never show them, but the `solutions` and
-  `grading` variants do, and nothing presents them before `Logic/Proof`. This
-  is the cost of moving every proof tactic out of `IntroL`: the chapter is now
-  deliberately pre-proof, so presenting them here would undo that. Either move
-  the exercise's tests to `Logic/Proof`, or weaken them to what `rfl` closes.
-  `decide` → `rfl` is known to work for `twice_test2`. (`funext` is discussed
-  in the prose at `:807`, but as the principle of function extensionality, not
-  as a tactic the reader is being handed.)
+- **`decide` in `Logic/FOL`** — used once, by `mem_vertices`
+  (`cases v <;> decide`), and presented in the sentence right after it: it
+  closes a decidable proposition by computing it. That is the whole of what the
+  chapter needs from it; `Sets` still develops `Decidable` properly. `omega`,
+  `refine` and the term-level `absurd` arrive in the same chapter's
+  infinite-domain section, in exposition rather than in an exercise, and are
+  *not* presented — see the next entry.
+- **`omega`, `refine`, `absurd` in `Logic/FOL`'s `fol-infinite` section** —
+  they appear in `le_foldr_max` and `no_list_lists_Nat`, which are shown with
+  their proofs as exposition. No exercise asks the reader to reproduce either,
+  so the question is whether a proof the reader only *reads* counts as handing
+  them a tactic. If it does, three short lines of presentation are owed; if it
+  does not, this row is evidence rather than a gap. Author's call, and the
+  cheaper fix is the three lines.
 
 `IntroCS` is the constraint's one accepted exception: it uses Lean that
 `IntroL` only presents later, deliberately, and the chapter says so where its

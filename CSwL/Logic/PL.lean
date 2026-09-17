@@ -99,11 +99,11 @@ Nem todos os conectivos precisam ser definidos como "primitivos". Como vimos na 
 
 ```lean
 def Formula.impl (f g : Formula) : Formula := .disj (.neg f) g
-def Formula.equi (f g : Formula) : Formula :=
+def Formula.iff (f g : Formula) : Formula :=
   .conj (Formula.impl f g) (Formula.impl g f)
 ```
 
-A conjunção e a disjunção são binárias. Poderiam receber uma lista de fórmulas `conj (fs : List Formula)`, mas um construtor que guarda uma `List Form` dentro do próprio tipo o torna um indutivo _nested_, mais complicado de manipular em Lean. Mas podemos definir funções que recebem listas de fórmulas e constrem conjunções e disjunções. Abaixo `top`/`bot` são a base da recursão de `conjs`/`disjs`. Uma conjunção vazia é sempre verdadeira, uma disjunção vazia é sempre falsa.
+A conjunção e a disjunção são binárias. Poderiam receber uma lista de fórmulas `conj (fs : List Formula)`, mas um construtor que guarda uma `List Form` dentro do próprio tipo o torna um indutivo _nested_, mais complicado de manipular em Lean. Mas podemos definir funções que recebem listas de fórmulas e constrem conjunções e disjunções. Abaixo `top`/`bot` são a base da recursão de `conjs`/`disjs`.
 
 ```lean
 def Formula.conjs : List Formula → Formula
@@ -117,6 +117,16 @@ def Formula.disjs : List Formula → Formula
   | f :: fs => .disj f (Formula.disjs fs)
 ```
 
+Note que {name}`Formula.bot` é o elemento neutro da dijunção, `bot ∨ a`. E {name}`Formula.top` é o elemento neutro da conjunção, `top ∧ a`. Uma conjunção vazia é sempre verdadeira, uma disjunção vazia é sempre falsa. O que sugere as implementações alternativas a seguir.
+
+```lean
+def Formula.conjs₁ (fs : List Formula) : Formula :=
+  fs.foldl .conj .top
+
+def Formula.disjs₁ (fs : List Formula) : Formula :=
+  fs.foldl .disj .bot
+```
+
 :::exercise (rating := 1) (name := "bangu-form")
 Três pessoas são suspeitas de torcer pelo Bangu F.C. Aparecido entrevistou os três, para tentar descobrir, e obteve os seguintes depoimentos:
 
@@ -124,7 +134,7 @@ Três pessoas são suspeitas de torcer pelo Bangu F.C. Aparecido entrevistou os 
 - Joaquim: Se Auro não torce pelo BFC, Cláudia também não torce pelo BFC.
 - Cláudia: Eu torço pelo BFC, mas pelo menos um dos outros não torce pelo BFC.
 
-Termine a formalização dos depoimentos construindo uma expressão no tipo `Form`.
+Termine a formalização dos depoimentos construindo uma expressão no tipo {name}`Formula`.
 
 ```lean
 namespace Bangu
@@ -162,7 +172,7 @@ def form2 : Formula :=
 def form3 : Formula :=
   let p : Formula := .atom "p"
   let q : Formula := .atom "q"
-  .equi (.impl p q ) (.disj (.neg p) q)
+  .iff (.impl p q ) (.disj (.neg p) q)
 ```
 
 :::exercise (rating := 1) (name := "count-operators")
@@ -235,7 +245,7 @@ Podemos representar uma valoração como uma lista de pares, e um átomo ausente
 abbrev Valuation := List (String × Bool)
 ```
 
-Se `V` é uma valoração, ela se estende a uma função que mapea qualquer fórmula para um valor de verdade. A extensão é definida por recursão sobre a estrutura da fórmula, um caso por construtor. Os construtores `top` e `bot` são constantes, nenhuma valoração os afeta. Se um átomo ocorrer mais de uma vez, vamos assumir que seu valor verdade é a primeira ocorrência dele na lista, isto corresponde ao comportamento da função {name}`List.lookup`.
+Se `V` é uma valoração, ela se estende a uma função que mapea qualquer fórmula para um valor de verdade. A extensão é definida por recursão sobre a estrutura da fórmula, um caso por construtor. Os construtores {name}`Formula.top` e {name}`Formula.bot` são constantes, nenhuma valoração os afeta. Se um átomo ocorrer mais de uma vez, vamos assumir que seu valor verdade é a primeira ocorrência dele na lista, isto corresponde ao comportamento da função {name}`List.lookup`.
 
 ```lean
 /-- The evaluation of a formula `f` in a valuation `v`. -/
@@ -251,7 +261,7 @@ def Formula.eval (f : Formula) (v : Valuation) : Bool :=
 
 Chamamos as fórmulas que são sempre verdade para qualquer valoração de suas variáveis proposicionais de *tautologias*, ou, simplesmente, fórmulas *válidas*. Se `α` é uma tautologia, significa que `⊨ α`, não depende de nenhuma hipótese para ser verdade. As fórmulas que são sempre falsas para toda valoração são chamadas de *contradições* (ou insatisfatíveis). Uma fórmula é *satisfatível* se há pelo menos uma valoração que a torna verdadeira. Uma fórmula é *contingente* se existe pelo menos uma valoração que torna a fórmula verdadeira e pelo menos uma que a torna falsa. Podemos concluir que se `α` é uma contradição, então `⊨ ¬ α` (sua negação é válida). Toda tautologia é satisfatível, mas nem toda fórmula satisfatível é uma tautologia.
 
-:::exercise (rating := 1) (name := "taut-contradiction")
+:::exercise (rating := 1) (name := "valuations")
 Construa as valorações `vs1` e `vs2` de tal forma que os exemplos possam ser provados com a tática {tactic}`decide`.
 
 ```lean
@@ -279,7 +289,7 @@ end TestVals
 ```
 :::
 
-A função a seguir gera a lista de todas as valorações sobre o conjunto dos nomes de átomos presentes em um termo do tipo `Formula`.
+A função a seguir gera a lista de todas as valorações sobre o conjunto dos nomes de átomos presentes em um termo do tipo {name}`Formula`.
 
 ```lean
 def genVals : List String → List Valuation
@@ -361,18 +371,25 @@ theorem top_equiv_taut (f : Formula)
   simp [List.all_eq_true]
 ```
 
-:::exercise (rating := 2) (name := "equiv-cases")
-Complete a definição de `Feq2` com uma fómula equivalente a `Feq1` e feche o exemplo com {tactic}`native_decide`.
+:::exercise (rating := 2) (name := "pl-equivalent")
+Complete a definição de `Feq2` com uma fómula equivalente mas sintaticamente diferente de `Feq1` e feche o exemplo com {tactic}`native_decide`.
 
 ```lean
+namespace Eqs
 def p : Formula := .atom "p"
 def q : Formula := .atom "q"
 
-def Feq1 : Formula := .neg (.equi p q)
-def Feq2 : Formula := solution!(.disj (.conj (.neg p) q) (.conj (.neg q) p))
+def F0 : Formula := .neg (.neg p)
+def F1 : Formula := solution!(p)
+def F2 : Formula := .neg (.iff p q)
+def F3 : Formula := solution!(.disj (.conj (.neg p) q) (.conj (.neg q) p))
 
-example : Feq1.equivalent Feq2 = true :=
+example : F0.equivalent F1 = true :=
   solution!(by native_decide)
+
+example : F2.equivalent F3 = true :=
+  solution!(by native_decide)
+end Eqs
 ```
 :::
 

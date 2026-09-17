@@ -117,14 +117,51 @@ propositional logic that it never gave. Two exercises went with it,
 
 ### `Logic/PL.lean` — CSwFP/4.4
 
-| CSwL id           | Rating | CSwFP         | Page | Notes              |
-|-------------------|--------|---------------|------|--------------------|
-| —                 | —      | Exercise 4.9  | 74   | dropped 2026-09-02 |
-| `exclusive-or`    | 1      | Exercise 4.10 | 74   |                    |
-| —                 | —      | Exercise 4.11 | 74   | dropped 2026-09-02 |
-| `count-operators` | 1      | Exercise 4.12 | 75   |                    |
-| `formula-depth`   | 1      | Exercise 4.13 | 75   |                    |
-| `collect-atoms`   | 2      | Exercise 4.14 | 75   |                    |
+Exercise 4.9 traducao de sentencas 
+= bangu-form
+obs: talvez mais um?
+
+Exercise 4.10 implementar xor
+= exclusive-or
+
+Exercise 4.11 
+obs: precisa da contextfreegrammar de mathlib
+
+Exercise 4.12 opsNr 
+= count-operators
+
+Exercise 4.13 depth 
+= formula-depth
+
+Exercise 4.14 propNames 
+= collect-atoms
+
+Exercise 5.4 dada uma V qual valor de formulas, ja transformei em "me da uma V para fazer F verdade"
+= valuations
+obs: talvez uma formula adicional para exercicio ficar mais interessante
+
+Exercise 5.5 Explain why the negation of a tautology is always a contradiction, and vice-versa ~> como tirar o explain ?
+
+Exercise 5.6 quais formulas sao sat e para elas me da v!
+
+Exercise 5.7 quais equiv sao verdade!
+= pl-equivalent
+obs: completar com as outras formulas
+
+Exercise 5.8 Which of the following are true?
+
+Exercise 5.9 Show that the following principle of contraposition is true
+   F1 |=F2 iff ¬F2 |=¬F1.
+
+Exercise 5.10 implementar impliesL
+
+Exercise 5.11 implementar propEquiv
+
+Exercise 5.12 Instead of the data type [(String,Bool)] for valuations, we might as
+well simply have used [String], with presence or absence in the list indicating truth or
+falsity. Reimplement the semantics of propositional formulas using this data type.
+
+
 
 Exercises 4.9 and 4.11 were ported and then dropped when the chapter
 was restructured around worked arguments. 4.9 asked for three
@@ -181,6 +218,25 @@ exercise, since 4.23 asked for the function that 4.24 builds on.
 | —                      | —      | Exercise 5.23 | 104  | not ported |
 | `valid-consequence`    | 2      | Exercise 5.24 | 104  | prose      |
 
+### `Logic/FOL.lean` — CSwFP/6.5
+
+| CSwL id       | Rating | CSwFP | Page | Notes                          |
+|---------------|--------|-------|------|--------------------------------|
+| `lift-assign` | 1      | —     | 144  | new; see below                 |
+| —             | —      | Exercise 6.6 | 146 | not ported              |
+
+`lift-assign` has no CSwFP counterpart: 6.5 gives `liftLookup` as text, not as
+an exercise. It asks for the `.struct` case of `liftAssign`, the recursion that
+values a structured term, and it is the one step of that section worth making
+the reader take — the shape is already familiar from `varsInTerm`, and what is
+new is that the recursive results go to the interpretation of the function
+symbol.
+
+CSwFP/6.6 asks what `formula3` expresses under `<`, whether it holds on the
+naturals, and whether it holds on the rationals. It is not ported: the answer
+is either an `#eval` or a paragraph, and this book's exercises complete a
+definition or a proof.
+
 ### `InfEngine.lean` — CSwFP/5.7
 
 | CSwL id | Rating | CSwFP         | Page | Notes      |
@@ -195,12 +251,18 @@ An exercise absent from the tables above is a decision, not an oversight. The
 reasons fall into three kinds.
 
 **It asks for a construction the chapter does not have.** CSwFP/5.21 defines
-substitution of a name for a variable in a term; 5.22 asks for a truth
-definition that replaces assignments by names plus substitution; 5.23 asks for
-the truth definition extended to structured terms. All three need substitution,
-which `FOL.lean` never defines, and 5.23 additionally needs the interpretation
-of function symbols. Writing those constructions is a chapter's worth of work,
-not an exercise's.
+substitution of a name for a variable in a term, and 5.22 asks for a truth
+definition that replaces assignments by names plus substitution. Both need
+substitution, which `FOL.lean` never defines, and writing it is a chapter's
+worth of work, not an exercise's.
+
+CSwFP/5.23 — the truth definition extended to structured terms — was unported
+for the same reason until the `fol-terms` section was added: it needed the
+interpretation of function symbols, which the chapter now has as `FInterp` and
+`liftAssign`. The section supplies that development in the text, and
+`lift-assign` above is the exercise drawn from it; 5.23 as stated asks for the
+whole evaluator, which here is one instantiation of `Formula.eval` rather than
+a second function.
 
 **It is answered by something the chapter already states.** CSwFP/5.6 asks which
 of three formulas are satisfiable, 5.7 which equivalences hold, 5.8 which

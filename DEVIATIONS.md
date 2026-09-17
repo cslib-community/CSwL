@@ -268,17 +268,86 @@ a quantifier by walking a list `dom`, so it agrees with the `∀` of Lean only
 when `dom` lists every element of the domain. That hypothesis is the formal
 counterpart of a real limitation, and the prose says so.
 
-**The model in `FOL.lean` is CSwFP/6's, in fragment.** Chapter 6's model
-(`src/Model.hs`) is pulled forward to give 5.5 something concrete to evaluate
-against: ten of the twenty-seven entities, and eight predicates
-(`girl`, `boy`, `princess`, `dwarf`, `giant`, `child`, `love`, `defeat`) with
-the original's extensions, restricted to the entities kept. The one place this
-bites is `defeat`, which in the original is the dwarf/giant rule *plus* the
-pairs `(A,W)` and `(A,V)`; the wizards `W` and `V` are outside the fragment, so
-only the rule survives. The natural-language translation that chapter 6
-builds on it is not pulled forward — only the model. The previous example was a
-three-element `Nat` domain with predicates named `P` and `R`, which could not
-show why a *finite, listed* domain is what makes evaluation possible.
+**The model in `FOL.lean` is Enderton's, not CSwFP/6's.** Chapter 6's
+fairy-tale model (`src/Model.hs`) was pulled forward for a while, to give 5.5
+something concrete to evaluate against. It is not any more, for two reasons.
+
+The first is that it belongs to CSwFP/6, which lands in `English.lean`: the
+model exists to interpret the English fragment, so presenting it here and again
+there would break the rule in `STYLE-WRITING.md` against presenting a
+definition that a later chapter rephrases under the same name. It also arrived
+unmotivated — ten named entities and eight predicates, several chapters before
+anything linguistic.
+
+The second is that the section needs far less. What it teaches is that deciding
+a quantifier means walking the domain, and eight predicates do not teach that
+better than one does. The model is now the four-vertex directed graph of
+{citep Bib.enderton2001}[]: a domain `{a, b, c, d}` and a single binary
+predicate `E` with `E = {⟨a,b⟩, ⟨b,a⟩, ⟨b,c⟩, ⟨c,c⟩}`. Four formulas are
+evaluated against that one fixed model rather than a fixed formula against
+varying predicates, which is the tighter comparison; `d`, isolated, is the
+witness that makes `∃x ∀y ¬E y x` true, and Enderton's own remark that the
+symbolic version reads more easily than the English one survives the move.
+
+Removing the fairy-tale model also removed the `FOL.Entity` / `Sets.Entity`
+name collision that `Sets.lean` carried a dev note about.
+
+**The domain is an `inductive` plus a `List`, and a theorem joins them.**
+Declaring four constructors and then repeating them in `vertices` is a
+duplication, and a silent hazard: a list that omits a constructor makes `eval`
+run over a smaller domain than intended, with nothing to catch it. So the
+chapter proves `mem_vertices : ∀ v, v ∈ vertices` by `cases v <;> decide`.
+That one line is exactly the `hdom` hypothesis `eval_iff_denote` requires, so
+`eval_iff_denote_B` instantiates the bridge theorem on the model with no
+hypothesis left to discharge. The completeness of the domain is thereby visible
+in the source rather than assumed.
+
+**`Fintype` was considered for this and rejected.** The alternative was to drop
+`dom : List D` and decide quantifiers with `[Fintype D]` and
+`decide (∀ d : D, …)`. It works — the resulting bridge theorem has no `hdom`
+and both quantifier cases close by a bare `simp` — and it is still the wrong
+choice, because `Fintype.decidableForallFintype` is *defined* as
+`decidable_of_iff (∀ a ∈ Finset.univ, p a)`: a fold over a finite set, walking
+every element exactly as `List.all` does. It is the same mechanism with the
+hypothesis relocated into an instance where the reader can no longer see it, at
+the cost of a type class, a hand-written instance and a duplicated recursion.
+
+Three findings from building it, recorded so the question is not reopened:
+`deriving Fintype` fails on this toolchain (`enumList_nodup` type mismatch), so
+the instance must be written by hand and repeats the constructors anyway; there
+is no computable route from a `Fintype` to a `List` of its elements
+(`Finset.univ.toList` and `Multiset.toList` are noncomputable, and
+`Finset.univ.val.unquot` is unsafe); and `Fintype Nat` is refutable in one line
+(`not_finite Nat`), so that route reaches infinite domains no better than the
+list one does.
+
+**One evaluator, parameterized, where CSwFP has two.** CSwFP writes `eval` for
+`Formula Variable` and a near-identical `evl` for `Formula Term`, differing
+only in how a term is valued. Here `Formula.eval` and `Formula.denote` take
+that as a parameter, `tval : Assign D → α → D`, and one definition serves both:
+`varVal` for variables, `liftAssign fint` for structured terms. The parameter
+takes the assignment and not just the term because the quantifier cases update
+`g` and the term valuation has to see the update. This mirrors
+`Formula.freeVars`, which the chapter already parameterizes over how to extract
+a term's variables, and it leaves `eval_iff_denote` unchanged — same statement,
+same proof, now quantified over `α`.
+
+**CSwFP/6.5's `[0..]` becomes a theorem.** The original evaluates over the
+infinite domain `[0..]`, relying on Haskell's laziness, and observes that the
+procedure "will keep on trying candidates". That cannot be ported: Lean is not
+lazy and `[0..]` is not constructible, so the computation cannot even start.
+What the chapter says instead is stronger, and proved — `no_list_lists_Nat`
+shows `∀ dom : List Nat, ∃ n, n ∉ dom`, so `eval_iff_denote`'s `hdom` is
+*unsatisfiable* over `Nat` and no domain list exists to supply. `denote`
+meanwhile needs no list, and `forallExistsR_true` proves `∀x ∃y R[x,y]` for any
+interpretation reading `R` as `<`. The difference worth stating in the prose is
+epistemic rather than a claim of superiority: in Haskell the limitation is
+demonstrable, in Lean it is provable.
+
+The helper `le_foldr_max` is proved inline rather than imported. Mathlib's
+`List.single_le_sum` needs an `IsOrderedAddMonoid` instance that the chapter's
+imports do not carry, and widening them for one side remark costs more than the
+five-line induction.
 
 **`Formula` is binary too.** Its `conj` and `disj` take two arguments, with `top` and `bot` as constructors and `Formula.conjs`/`Formula.disjs` recovering the n-ary notation — the same design as `Form`, for the same reason. A constructor holding a `List (Formula α)` would make the type a nested inductive, costing `induction` and `deriving`. The `List α` in `atom name (args : List α)` does not: `α` is a parameter, not the type being defined, so an atom may still take any number of arguments. With that, the definition of truth in 5.5 is a plain recursion, one case per constructor, instead of three mutually recursive functions. The one `mutual` block left in the chapter belongs to `Term`, where a list of terms inside `Term` is what function symbols of arbitrary arity require.
 
@@ -379,11 +448,26 @@ This is where the rest of 2.5 lands. The type BNF `τ ::= b | (τ → τ)` says 
 
 `INF` is part of the 4.2 grammar but has no translation in CSwFP/6; it is not required by `ModelChecking.lean`.
 
-### 9. `ModelChecking.lean` — CSwFP/6
+### 9. CSwFP/6 — in `English.lean`
 
 Sections 6.1–6.5; 6.6 (Further Reading) omitted.
 
-**This chapter must come after `English.lean`.** CSwFP/6 does not merely allude to the fragment of 4.2 — it is built on it. The text says so ("to translate the fragment from Section 4.2 into predicate logic, all we have to do is find appropriate translations for all the categories in the grammar"), and the code confirms it: `MCWPL.hs` imports the syntax module and its first definition is `lfSent :: Sent -> LF`, destructuring `Sent np vp`. Placing the English fragment after model checking would use the grammar before presenting it.
+**This material lands in `English.lean`, not in a chapter of its own.** The
+plan once called for a separate `ModelChecking.lean`, and the table above and
+the references below still use that name for the material; they should be read
+as naming CSwFP/6's content, wherever it sits. The reason it belongs with the
+English fragment is the one given immediately below: it is built on that
+fragment, so the two are one development, not two.
+
+What this means for `FOL.lean` is recorded in the `Logic.lean` section above:
+the fairy-tale model of 6.3 is *not* pulled forward into it any more. It
+arrives here, next to the grammar it interprets, and `FOL.lean` evaluates
+against Enderton's four-vertex graph instead. Sections 6.5's structured-term
+evaluation and its `[0..]` discussion, by contrast, *are* in `FOL.lean`: they
+are about the evaluator rather than about the fragment, and the chapter that
+defines `Term` is where they belong.
+
+**This material must come after the fragment of 4.2.** CSwFP/6 does not merely allude to the fragment of 4.2 — it is built on it. The text says so ("to translate the fragment from Section 4.2 into predicate logic, all we have to do is find appropriate translations for all the categories in the grammar"), and the code confirms it: `MCWPL.hs` imports the syntax module and its first definition is `lfSent :: Sent -> LF`, destructuring `Sent np vp`. Placing the English fragment after model checking would use the grammar before presenting it.
 
 This is also why `Sets.lean` reads best just before it, though it is not required: `Model.hs` builds the model with `OnePlacePred = Entity -> Bool` and `list2OnePlacePred xs = \x -> elem x xs` — the characteristic function of 2.3 and the set-as-predicate of 2.1, applied. The choice between `Set Entity` and `Entity → Bool` is exactly the one `Sets.lean` makes.
 

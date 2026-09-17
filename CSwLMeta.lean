@@ -4,6 +4,7 @@
 -- Adding one of those is copying the file and adding an `import` here.
 import CSwLMeta.Bnf
 import CSwLMeta.Comment
+import CSwLMeta.Diagrams
 import CSwLMeta.DisplayMath
 import CSwLMeta.Exercise
 import CSwLMeta.Grade
