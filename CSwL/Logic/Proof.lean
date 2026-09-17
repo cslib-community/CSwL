@@ -54,7 +54,7 @@ def double (n : Nat) := n + n
 theorem double_theorem : double 5 = 5 + 5 := by rfl
 ```
 
-O tática {tactic}`rfl` só funciona quando os dois lados são idênticos por definição. Para propriedades que exigem leis algébricas (como a comutatividade da multiplicação), precisamos aplicar teoremas específicos, como {name}`Nat.mul_comm`.
+A tática {tactic}`rfl` só funciona quando os dois lados são idênticos por definição. Para propriedades que exigem leis algébricas (como a comutatividade da multiplicação), precisamos aplicar teoremas específicos, como {name}`Nat.mul_comm`.
 
 ```lean
 example (z : Nat) : (λ x ↦ 2 * x) z = (fun y => 2 * y) z := by
@@ -130,7 +130,7 @@ example (h : P ∧ Q) : Q ∧ P := by
 example (h : P ∧ Q) : Q ∧ P := ⟨h.2, h.1⟩
 ```
 
-Para provar `P ∨ Q` basta provar um dos dois lados. São duas regras, e os construtores {name}`Or.inl` e {name}`Or.inr` formalizam isso. A regra de eliminação da disjunção é o teorema {name}`Or.elim`, a chamada "prova por casos". Dada a hipótese `P ∨ Q`, não sabemos qual das duas proposições é verdadeira. Portanto, para concluir `R`, precisamos provar `R` em ambos os casos (assumindo `P` no primeiro e `Q` no segundo). A tática {tactic}`cases` gera exatamente esses dois cenários.
+Para provar `P ∨ Q` basta provar um dos dois lados. São duas regras, e os construtores {name}`Or.inl` (aplicado pela tática {tactic}`left`) e {name}`Or.inr` (aplicado pela tática {tactic}`right`) formalizam elas. A regra de eliminação da disjunção é o teorema {name}`Or.elim`, a chamada "prova por casos". Dada a hipótese `P ∨ Q`, não sabemos qual das duas proposições é verdadeira. Portanto, para concluir `R`, precisamos provar `R` em ambos os casos (assumindo `P` no primeiro e `Q` no segundo). A tática {tactic}`cases` gera exatamente esses dois cenários.
 
 ```lean
 example (hP : P) : P ∨ Q := by
@@ -155,7 +155,7 @@ example (h : False) : P := False.elim h
 example (hP : P) (hn : ¬P) : Q := absurd hP hn
 ```
 
-A bicondicional `P ↔ Q` é definida como a conjunção das duas implicações ((P → Q) ∧ (Q → P)), a tática {tactic}`constructor` evoca {name}`Iff.intro` que transforma o objetivo da prova em duas provas, uma para cada direção.
+A bicondicional `P ↔ Q` é definida como a conjunção das duas implicações ((P → Q) ∧ (Q → P)), a tática {tactic}`constructor` evoca {name}`Iff.intro` que transforma o objetivo da prova em duas provas, uma para cada implicação. Os parâmetros do construtor explicam as regras de eliminação, duas regras dado tratar-se de uma conjunção de implicações, {name}`Iff.mpr` e {name}`Iff.mp`.
 
 ```lean
 example : P ∧ Q ↔ Q ∧ P := by
@@ -168,8 +168,8 @@ example (h : P ↔ Q) (hP : P) : Q := h.mp hP
 
 Até este ponto, todas as regras que utilizamos pertencem à *lógica construtiva* (ou intuicionista). Nela, provar uma disjunção `P ∨ Q` exige construir explicitamente uma prova de `P` ou uma prova de `Q`. Não é permitido afirmar que "um dos dois é verdade" sem saber qual. Em particular, a lógica construtiva não assume que toda proposição é necessariamente verdadeira ou falsa. A *lógica clássica* acrescenta o princípio do terceiro excluído, {name}`Classical.em`, que afirma que para qualquer proposição `P`, vale `P ∨ ¬P`. A partir desse princípio, derivamos duas táticas fundamentais para provas clássicas:
 
-- {tactic}`by_cases`. Quando usamos `by_case (hp : P)`, o objetivo atual é dividido em dois casos independentes, um assumindo `hP : P` (`P` é verdadeiro) e outro assumindo `hP : ¬P` (`P` é falso).
-- {tactic}`by_contra`: Realiza a prova por redução ao absurdo. Para provar `P`, supõe-se que `P` e o objetivo torna-se derivar uma contradição (False).
+- {tactic}`by_cases`. Quando usamos `by_cases (hP : P)`, o objetivo atual é dividido em dois casos independentes, um assumindo `hP : P` (`P` é verdadeiro) e outro assumindo `hP : ¬P` (`P` é falso).
+- {tactic}`by_contra`: Realiza a prova por redução ao absurdo. Para provar `P`, supõe-se que `¬ P` e o objetivo torna-se derivar uma contradição (False).
 
 ```lean
 example : P ∨ ¬P := Classical.em P
@@ -392,15 +392,10 @@ variable (h4 : Ap → Cb)
 variable (h5 : Cp → ¬ Cb)
 ```
 
-Complete a prova do teorema, provando que o problema dos vestidos tem a solução onde Ana veste preto, Cláudia veste branco e Maria veste azul. A declaração `include ... in` irá incluir todas as variáveis declaradas anteriormente como parâmetros para o teorema seguinte.
+Complete a prova do teorema, provando que o problema dos vestidos tem a solução onde Ana veste preto, Cláudia veste branco e Maria veste azul. A declaração `include ... in` irá incluir as variáveis declaradas (as hipóteses) anteriormente que efetivamente são necessárias como parâmetros para o teorema seguinte. A inclusão de hipóteses desnecessárias irá emitir um alerta, mas não um erro.
 
 ```lean
-include
-  hA hM hC
-  ha hb hp
-  hA1 hM1 hC1
-  ha1 hb1 hp1
-  h1 h2 h3 h4 h5 in
+include hA ha hC1 h1 h3 h4 in
 
 theorem vestidos : Ap ∧ Cb ∧ Ma := by
 
@@ -461,7 +456,7 @@ variable (P Q : U → Prop)
 
 Seguindo a estrutura da seção anterior, explicaremos quatro novas regras: duas para o quantificador universal (`∀`) e duas para o existencial (`∃`).
 
-A introdução de `∀` estabelece que, para provar que uma propriedade vale para todo `x`, basta tomar um `x` arbitrário e demonstrar que a propriedade se aplica a ele. Em modo de tática, usamos a mesma tática {tactic}`intro`, mas agora ela adiciona um novo objetovo no contexto, também como variável do tipo apropriado, em vez de uma hipótese do tipo {lean}`Prop`. A eliminação de `∀` é feita por aplicação direta: se temos uma prova `h : ∀ x, P x` e um objeto `d`, a aplicação `h d` nos fornece uma prova de `P d`, desde que os tipos obviamente sejam compatíveis.
+A introdução de `∀` estabelece que, para provar que uma propriedade vale para todo `x`, basta tomar um `x` arbitrário e demonstrar que a propriedade se aplica a ele. Em modo de tática, usamos a mesma tática {tactic}`intro`, mas agora ela adiciona um novo objeto no contexto, também como variável do tipo apropriado, em vez de uma hipótese do tipo {lean}`Prop`. A eliminação de `∀` é feita por aplicação direta: se temos uma prova `h : ∀ x, P x` e um objeto `d`, a aplicação `h d` nos fornece uma prova de `P d`, desde que os tipos obviamente sejam compatíveis.
 
 ```lean
 example (h : ∀ x, P x) : ∀ y, P y := by
@@ -540,7 +535,7 @@ end FOL
 tag := "induction"
 %%%
 
-Uma das ferramentas fundamentais no Lean é a tática `{tactic}induction`. Em vez de provar uma propriedade para elementos individuais, ela permite demonstrar que uma afirmação é válida para todos os valores de um tipo indutivo (como os `Nat`).
+Uma das ferramentas fundamentais no Lean é a tática {tactic}`induction`. Em vez de provar uma propriedade para elementos individuais, ela permite demonstrar que uma afirmação é válida para todos os valores de um tipo indutivo (como os `Nat`).
 
 Considere o exemplo abaixo de uma prova por indução. Primeiro, demonstramos a propriedade para o caso onde `n` é o termo {name}`Nat.zero`. Em seguida, provamos o passo indutivo, quando `n` é um termo gerado pelo construtor {name}`Nat.succ` e quando assumimos que a propriedade vale para um `a` (armazenada na hipótese de indução `ih`) e demonstramos que ela se mantém para o seu sucessor `a + 1`.
 
@@ -562,7 +557,7 @@ tag := "funext"
 
 Uma função pode ser compreendida sob duas perspectivas. Na perspectiva extensional, a função é vista como uma relação ou tabela de mapeamento — o conjunto de todos os pares de entrada e saída, como a tabela `{(0, 32), (100, 212), ...}`. Na perspectiva intensional, a função é o próprio algoritmo ou instrução que calcula a saída a partir da entrada, como a expressão {lean}`λ x ↦ x * 9 / 5 + 32`, uma "receita" que gera a tabela sem precisar enumerá-la.
 
-No Lean, o comando `def` sempre define funções no sentido intensional. No entanto, duas definições intencionalmente distintas podem representar a mesma função no sentido extensional, desde que produzam a mesma saída para cada entrada. É esse o princípio da extensionalidade de funções: a tática {tactic}`funext` transforma o objetivo de provar que duas funções são iguais (f = g) no objetivo de demonstrar que elas coincidem para todo ponto do domínio para o qual são definidas.
+No Lean, o comando `def` sempre define funções no sentido intensional. No entanto, duas definições intencionalmente distintas podem representar a mesma função no sentido extensional, desde que produzam a mesma saída para cada entrada. É esse o princípio da extensionalidade de funções: a tática {tactic}`funext` transforma o objetivo de provar que duas funções são iguais (`f = g`) no objetivo de demonstrar que elas coincidem para todo ponto do domínio para o qual são definidas.
 
 ```lean
 def double₁ (x : Nat) := 2 * x

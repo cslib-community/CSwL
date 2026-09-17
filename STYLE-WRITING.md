@@ -135,7 +135,7 @@ Keep a term's translation stable across the whole book. A concept that
 acquires a second name in a later chapter reads as a second concept.
 
 Avoid **fragmented sentences** like "A P ↔ Q é a conjunção das duas
-implicações, e as regras seguem disso." this is a bad style for
+implicações, e as regras seguem disso." This is a bad style for
 writing pedagogical material.
 
 ### Punctuation and typography
