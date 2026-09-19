@@ -115,7 +115,7 @@ propositional logic that it never gave. Two exercises went with it,
 `four-turn-game` and `chess-grammar`, along with CSwFP/5.13–5.16, which had no
 `CSwL` counterpart in the first place.
 
-### `Logic/Proofs.lean` 
+### `Logic/Proof.lean` 
 
 No exercise from CSwFP, all exercises were created.
 
@@ -147,6 +147,10 @@ Exercise 5.4 evaluation of formulas
 
 Exercise 5.5 negation of a tautology is always a contradiction, and vice-verssa
 obs: in the prose 
+
+*novo*
+= ex-pl-contingent
+obs: definition of contingent
 
 Exercise 5.6 quais formulas sao sat e para elas me da v!
 = ex-pl-satisfiable
@@ -213,7 +217,6 @@ Exercise 5.17 all/exists weak/strong
 
 Exercise 5.18 translate to FOL
 = ex-fol-translate
-
 
 Exercise 5.19 check formulas model given
 

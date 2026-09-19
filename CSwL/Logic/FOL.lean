@@ -435,7 +435,7 @@ Essa interpretação é dada por uma função `Interp`, que a cada nome de predi
 abbrev Interp (D : Type) := String → List D → Bool
 ```
 
-Um conjunto de símbolos predicativos, com suas aridades, especifica uma linguagem de lógica de predicados. Uma estrutura `M = (D, I)`, formada por um domínio não vazio `D` com uma função de interpretação para os símbolos predicativos de `L`, é chamada de *modelo* para `L`. Sempre suporemos que o domínio de um modelo é não vazio.
+Um conjunto de símbolos predicativos, com suas aridades, especifica uma linguagem de primeira ordem. Uma estrutura `M = (D, I)`, formada por um domínio não vazio `D` com uma função de interpretação para os símbolos predicativos de `L`, é chamada de *modelo* para `L`. Sempre suporemos que o domínio de um modelo é não vazio.
 
 Eis um modelo concreto, tomado de {citep Bib.enderton2001}[]. O domínio tem quatro objetos, e uma única relação binária para interpretar o símbolo `E` da linguagem `L`. Um domínio com um só predicado binário pode ser visto como um grafo dirigido: os objetos são os vértices, e `E x y` vale quando há uma aresta de `x` para `y`.
 
@@ -571,18 +571,15 @@ def g0 : Assign Vertex :=
 
 A primeira é a sentença `∃x ∀y ~E[y, x]` corresponde a afirmação de que existe um vértice para o qual nenhuma aresta aponta. É verdadeira, e a testemunha é `d`. A segunda é falsa pelo mesmo motivo — de `d` não sai aresta alguma. A terceira é verdadeira por causa do laço em `c`. A quarta é falsa: há aresta de `b` para `c`, mas não de `c` para `b`. Vale notar como a primeira soa em língua natural mais complicada do que a versão simbólica.
 
-No próximo exercício, vamos usar o tipo {lean}`Fin` que corresponde os números naturais menores um certo limite superior. O tipo {lean}`Fin 2` corresponde aos naturais menores que `2`. Quando escrevemos {lean}`(1 : Fin 2)`, a instância {lean}`OfNat (Fin 2) 1` normaliza o literal armazenando o resto da divisão {lean}`1 % 2`. Mas se tentarmos construir um termo com o construtor `Fin.mk n` (ou o construtor anônimo `⟨...⟩`), ele irá exigir uma prova de `n < 2`.
-
+No próximo exercício, vamos usar o tipo {lean}`Fin` que constrói um tipo dos números naturais menores que um limite superior. O {lean}`Fin 2` corresponde aos naturais menores que `2`. Quando escrevemos {lean}`(1 : Fin 2)`, a instância {lean}`OfNat (Fin 2) 1` normaliza o literal armazenando o resto da divisão {lean}`1 % 2`.
 
 ```lean
-#eval (3 : Fin 2)
 example : (3 : Fin 2) = 1 := rfl
-
 example : ⟨0, by omega⟩ = (0 : Fin 2) := rfl
 example : Fin.mk 0 (by omega) = (0 : Fin 2) := rfl
 ```
 
-Não conseguimos abaixo construir uma prova de que `3 < 2`.
+Usando o construtor `Fin.mk n` (ou o construtor anônimo `⟨...⟩`), temos que passar uma prova de que o número informado é menor que o limite do tipo. Não conseguimos abaixo construir uma prova de que `3 < 2`.
 
 ```lean +error
 example : ⟨3, by omega⟩ = (3 : Fin 2) := rfl
@@ -594,7 +591,7 @@ Neste exercício, queremos mostrar que:
 1. `∀ x, Ax ∧ Bx` significa algo mais forte que `∀ x, Ax → Bx` (todo A é B). O que valida a primeira afirmação necessariamente valida a segunda, mas não o inverso.
 2. `∃ x, Ax → Bx` é mais fraco que `∃ x, Ax ∧ Bx` (alguns A são B). Neste caso, o que valida a segunda afirmação necessariamente valida a primeria, mas não o inverso.
 
-Para confirmar (1), complete a definição de `int₁`. Para confirmar (2), complete `int₂`. Todos os exemplos deverão ser provados apenas com a tática {tactic}`native_decide`.  Note que nosso domínio só tem dois valores, você não deve alterar o domínio.
+Para confirmar (1), complete a definição de `int₁`. Para confirmar (2), complete `int₂`. Todos os exemplos deverão ser provados apenas com a tática {tactic}`native_decide`.  Note que nosso domínio é definido sobre os únicos dois possíveis valore de {lean}`Fin 2`.
 
 ```lean
 namespace ExWeakStrong

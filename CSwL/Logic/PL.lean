@@ -300,6 +300,10 @@ A função a seguir gera a lista de todas as valorações sobre o conjunto dos n
 ```lean
 abbrev Valuation := List (String × Bool)
 
+/-- return an evaluation function from `Valuation`. -/
+def Valuation.toFun (vs : Valuation) : String → Bool :=
+  fun n => (vs.lookup n).getD false
+
 def genVals : List String → List Valuation
   | [] => [[]]
   | n :: ns =>
@@ -309,9 +313,6 @@ def genVals : List String → List Valuation
 /-- return all possible valuations for `f`. -/
 def Formula.allVals (f : Formula) : List Valuation :=
   genVals f.propNames
-
-def Valuation.toFun (vs : Valuation) : String → Bool :=
-  fun n => (vs.lookup n).getD false
 ```
 
 Com estas funções, podemos construir a tabela verdade de uma fórmula.
@@ -345,7 +346,7 @@ E como já sabemos da seção {ref "pl-lean"}[pl-lean], podemos mostrar que {nam
 #eval form3.tautology
 ```
 
-:::exercise (rating := 1) (name := "def-contingente")
+:::exercise (rating := 1) (name := "ex-pl-contingent")
 Complete a definição de fórmula contingente. Para provar o exemplo, use {tactic}`native_decide`.
 
 ```lean
