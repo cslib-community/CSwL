@@ -23,12 +23,12 @@ namespace FOL
 tag := "fol-intro"
 %%%
 
-Se usarmos lógica proposicional para formalizar a frase "Toda maçã é vermelha", teremos uma letra proposicional, um átomo indivisível que não nos permitiria capturar a idéia do quantificador e da dependencia declarada entre as _coisas_ que são maçãs e a cor destas mesmas _coisas_. A Lógica de Predicados, também chamada Lógica de Primeira Ordem (FOL, "first order logic") acrescenta os seguintes ingredientes a sintaxe de Lógica Proposicional:
+Se usarmos lógica proposicional para formalizar a frase "Toda maçã é vermelha", teremos uma letra proposicional, um átomo indivisível que não nos permitiria capturar a idéia do quantificador e da dependencia declarada entre as _coisas_ que são maçãs e a cor destas mesmas _coisas_. A lógica de predicados, também chamada lógica de primeira ordem (FOL, "first order logic") acrescenta os seguintes ingredientes a sintaxe da lógica proposicional:
 
-* termos para representar indivíduos de um domínio. Os termos poderão ser variáveis ou funções aplicadas sobre termos;
-* proposições básicas serão predicados `n`-ários sobre termos;
-* fórmulas universalmente quantificadas, `∀` seguido de variável e fórmula;
-* fórmulas existencialmente quantificadas, `∃` seguido de variável e fórmula.
+* Termos para representar indivíduos de um domínio. Os termos poderão ser variáveis ou funções aplicadas sobre termos;
+* Proposições básicas serão predicados `n`-ários sobre termos;
+* Fórmulas universalmente quantificadas, `∀` seguido de variável e fórmula;
+* Fórmulas existencialmente quantificadas, `∃` seguido de variável e fórmula.
 
 
 # Sintaxe de FOL
@@ -36,13 +36,9 @@ Se usarmos lógica proposicional para formalizar a frase "Toda maçã é vermelh
 tag := "fol-syntax"
 %%%
 
-Nossa sintaxe terá dois elementos principais, termos e fórmulas.
+Nossa sintaxe terá dois elementos principais, *termos* e *fórmulas*. Como fizemos em {ref "pl-syntax"}[pl-syntax], nossa sintaxe será formalizada como tipos indutivos.
 
-Os _termos_ podem ser variáveis ou funções aplicadas a outros termos. Uma constante será uma função que não recebe argumentos. As _fórmulas_ usarão os mesmos conectivos da lógica proposicional, mas acrescentaremos os quantificadores existencial e universal. Podemos escrever `¬P x`, `∀ x R x x` e `∀ x ∃ y R x (f y)`, onde `P` e `R` são símbolos predicativos e `f` é um símbolo funcional.
-
-O nome Lógica de Primeira Ordem vem da idéia de que estamos quantificando sobre indivíduous de um domínio, objetos de primeira ordem. Como fizemos em {ref "pl-syntax"}[pl-syntax], nossa sintaxe será formalizada como tipos indutivos.
-
-Uma variável carrega nome e um índice (lista de naturais usada para gerar "novas" variáveis a partir de uma dada variável):
+Os _termos_ podem ser variáveis ou funções aplicadas a outros termos. Uma variável carrega nome e um índice (lista de naturais usada para gerar "novas" variáveis a partir de uma dada variável):
 
 ```lean
 structure Variable where
@@ -92,7 +88,7 @@ Constantes podem ser representadas como funções com aridade zero, ou seja, com
 Nothing stopping us for using symbols with inconsistent arity, say `R[x,y]` and `R[x,y,z]` in the same formula. We could define a structure for holding the number and its arity (say `PredSymbol`) and implement a function for checking if a formula is well-formed.
 :::
 
-`Formula α` é parametrizado no tipo dos termos que preenchem os predicados. Se usarmos `Formula Variable` estamos permitindo apenas fórmulas cujos termos são apenas variáveis. Se usarmos `Formula Term` temos nossa sintaxe completa.
+As *fórmulas* usarão os mesmos conectivos da lógica proposicional, mas acrescentaremos os quantificadores existencial e universal. O nome lógica de primeira ordem vem da idéia de que estamos quantificando sobre indivíduous de um domínio, objetos de primeira ordem. O tipo `Formula α` é parametrizado no tipo dos termos que preenchem os predicados. Se usarmos `Formula Variable` nossos termos são apenas variáveis. Se usarmos `Formula Term` temos nossa sintaxe completa com termos arbitrários.
 
 ```lean
 inductive Formula (α : Type) where
@@ -111,9 +107,9 @@ inductive Formula (α : Type) where
 
 A conjunção e a disjunção são binárias, e `top` e `bot` são construtores próprios, o mesmo que fizemos para as fórmulas proposicionais.
 
-Importante observar que o tipo {lean}`Formula` daqui é diferente do tipo {lean}`PL.Formula`. Observamos ainda que nossa linguagem FOL está sendo implementada em Lean, que aqui funciona como meta-linguagem. Em tipos dependentes, não fazemos a distinção entre termos e fórmulas. Como vimos em {ref "IntroL"}[IntroL], em Lean toda expressão é um termo e todo termo tem um tipo. Então quando falarmos em termos, ora estamos falando do termo Lean que pode representar uma {lean}`Formula` ou {lean}`Term` de FOL.
+Note que o tipo {lean}`Formula` é diferente do tipo {lean}`PL.Formula` definido em {ref "pl-syntaxe"}[pl-syntax], cada um em seu próprio `namespace`. Mais uma vez, estamos usando Lean como metalinguagem para implementar FOL.. Em tipos dependentes, não fazemos a distinção entre termos e fórmulas. Como vimos em {ref "IntroL"}[IntroL], em Lean toda expressão é um termo e todo termo tem um tipo. Então quando falarmos em termos, ora estamos falando do termo Lean que pode representar uma {lean}`Formula` ou {lean}`Term` de FOL.
 
-Também como fizemos para {lean}`PL.Formula`, a notação n-ária de {name}`Formula.conj` e {name}`Formula.disj` introduzimos com as funções abaixo. Uma conjunção vazia é `top`, uma disjunção vazia é `bot`.
+Também como fizemos para {lean}`PL.Formula`, a notação n-ária de {name}`Formula.conj` e {name}`Formula.disj` introduzimos com as funções abaixo.
 
 ```lean
 def Formula.conjs {α : Type} : List (Formula α) → Formula α
@@ -154,16 +150,18 @@ instance {α} [Repr α] : Repr (Formula α) :=
   ⟨fun f _ => f.format⟩
 ```
 
-A seguir, `formula1` expressa que o predicado `R` é reflexivo enquanto `formula2` expressa que ele é simétrico. Note que para estes dois exemplos, não precisamos usar termos envolvendo funções, logo usamos apenas {lean}`Formula Variable`.
+A seguir, `R_reflexive` expressa que o predicado `R` é reflexivo enquanto `R_simetric` expressa que ele é simétrico. Note que para estes dois exemplos, não precisamos usar termos envolvendo funções, logo usamos apenas {lean}`Formula Variable`.
 
 ```lean
-def formula1 : Formula Variable :=
+def R_reflexive : Formula Variable :=
   .forall_ x (.atom "R" [x, x])
 
-def formula2 : Formula Variable :=
+def R_simetric : Formula Variable :=
   .forall_ x (.forall_ y
     (.impl (.atom "R" [x, y]) (.atom "R" [y, x])))
 ```
+
+Assim como definimos em {ref "pl.syntax"}[pl-syntax], chamamos de uma linguagem de primeira ordem o conjunto de todas as fórmulas que podem ser construídas a partir de um vocabulário de símbolos predicativos e funcionais.
 
 ::::exercise (rating := 2) (name := "ex-fol-translate")
 Considere a linguagem de primeira ordem com o vocabulário definido pelos símbolos abaixo.
@@ -177,12 +175,12 @@ Considere a linguagem de primeira ordem com o vocabulário definido pelos símbo
 
 Vamos traduzir cada uma das sentenças a seguir para fórmulas em lógica de primeira ordem.
 
-- (a) Maria respeita todos os professores.
-- (b) Alguns professores respeitam Maria.
-- (c) Maria respeita a si própria
-- (d) Nenhum aluno esta matriculado em todas as disciplina
-- (e) Não há disciplinas em que todos os alunos estejam nela matriculados
-- (f) Não há disciplinas sem alunos matriculados
+- (`Fa`) Maria respeita todos os professores.
+- (`Fb`) Alguns professores respeitam Maria.
+- (`Fc`) Maria respeita a si própria
+- (`Fd`) Nenhum aluno esta matriculado em todas as disciplina
+- (`Fe`) Não há disciplinas em que todos os alunos estejam nela matriculados
+- (`Ff`) Não há disciplinas sem alunos matriculados
 
 ```lean
 namespace ExSchool
@@ -225,9 +223,9 @@ end ExSchool
 
 
 Em uma fórmula `∀x F` (ou `∃x F`), o quantificador liga toda ocorrência de
-`x` em `F` que não esteja já ligada por um `∀x` (ou `∃x`) interno a `F`. Uma fórmula é *aberta* se tem ao menos uma ocorrência livre de variável, e *fechada* (também chamada *sentença*) caso contrário. Por exemplo, `(P x ∧ ∃x, R x x)` é aberta, o `x` de `P x` está fora do escopo do `∃x`. Mas `∃x (P x ∧ ∃x R x x)` é uma sentença.
+`x` em `F` que não esteja já ligada por um `∀x` (ou `∃x`) interno a `F`. Uma fórmula é *aberta* se tem ao menos uma ocorrência livre de variável, e *fechada* (também chamada *sentença*) caso contrário. Por exemplo, `(P[x] ∧ ∃x, R[x,x])` é aberta, o `x` de `P[x]` está fora do escopo do `∃x`. Mas `∃y (P[y] ∧ ∃x R[x,x])` é uma sentença.
 
-Coletar as variáveis livres de uma fórmula é uma operação recorrente. Abaixo, definimos a função freeVars que recebe como parâmetro uma função que extrai as variáveis de um termo. Para {lean}`formula1`, só precisamos de uma função que transforme uma variável em uma lista com ela mesma. Para fórmulas que podem conter termos complexos, {lean}`Formula Term`, nossa função terá que percorrer todo o termo coletando as variáveis. Nos quantificadores, `filter` remove todas as ocorrências da variável ligada.
+Coletar as variáveis livres de uma fórmula é uma operação recorrente. Abaixo, definimos a função freeVars que recebe como parâmetro uma função que extrai as variáveis de um termo. Para {lean}`R_reflexive`, só precisamos de uma função que transforme uma variável em uma lista com ela mesma. Para fórmulas que podem conter termos complexos, {lean}`Formula Term`, nossa função terá que percorrer todo o termo coletando as variáveis. Nos quantificadores, `filter` preserva apenas as variáveis diferentes da variável que o quantificador introduz.
 
 ```lean
 def Formula.freeVars {α} (vars : α → List Variable) :
@@ -272,31 +270,29 @@ def closedForm (f : Formula Variable) : Bool :=
 :::
 
 :::exercise (rating := 1) (name := "ex-fol-remove-impl_equiv")
-Implicações e equivalências podem ser vistas como abreviações, pois se
-definem a partir de negação, conjunção e disjunção — as mesmas
-equivalências usadas na lógica proposicional. Escreva uma função `withoutIDs` que substitui cada fórmula por uma equivalente sem ocorrências de `impl` ou `equi`. Note que a função não depende do tipo `α`.
+Implicações e equivalências podem ser vistas como abreviações, pois se definem a partir de negação, conjunção e disjunção — as mesmas equivalências usadas na lógica proposicional. Escreva uma função `minimal` que substitui cada fórmula por uma equivalente sem ocorrências de `impl` ou `equi`. Note que a função não depende do tipo `α`.
 
 ```lean
-def withoutIDs {α : Type} (frm : Formula α) : Formula α :=
+def Formula.minimal {α : Type} (frm : Formula α) : Formula α :=
   solution!(
     match frm with
     | .atom name as => .atom name as
     | .eq t1 t2 => .eq t1 t2
     | .top => .top
     | .bot => .bot
-    | .neg f => .neg (withoutIDs f)
+    | .neg f => .neg (minimal f)
     | .impl f1 f2 =>
-      .disj (.neg (withoutIDs f1)) (withoutIDs f2)
+      .disj (.neg (minimal f1)) (minimal f2)
     | .equi f1 f2 =>
-      let g1 := withoutIDs f1
-      let g2 := withoutIDs f2
+      let g1 := minimal f1
+      let g2 := minimal f2
       .conj (.disj (.neg g1) g2) (.disj (.neg g2) g1)
     | .conj f1 f2 =>
-      .conj (withoutIDs f1) (withoutIDs f2)
+      .conj (minimal f1) (minimal f2)
     | .disj f1 f2 =>
-      .disj (withoutIDs f1) (withoutIDs f2)
-    | .forall_ v f => .forall_ v (withoutIDs f)
-    | .exists_ v f => .exists_ v (withoutIDs f))
+      .disj (minimal f1) (minimal f2)
+    | .forall_ v f => .forall_ v (minimal f)
+    | .exists_ v f => .exists_ v (minimal f))
 ```
 :::
 
@@ -308,8 +304,7 @@ Dica: a receita acima diz o que fazer com a negação diante de alguma subfórmu
 - `nnfPos f` devolve a NNF de `f`;
 - `nnfNeg f` devolve a NNF de `¬f`.
 
-Trate `impl` e `equi` diretamente nas duas funções, sem passar por
-`withoutIDs`. E novamente, observe que a função não depende do tipo `α`.
+Trate `impl` e `equi` diretamente nas duas funções, sem passar por {name}`Formula.minimal`. E novamente, observe que a função não depende do tipo `α`.
 
 ```lean
 mutual
@@ -353,11 +348,9 @@ def Formula.nnf {α : Type} (f : Formula α) : Formula α :=
 ```
 :::
 
-Um termo `t` é *livre para* a variável `v` na fórmula `F` se toda ocorrência livre de `v` em `F` pode ser substituída por `t` sem que nenhuma das variáveis de `t` fique ligada. Por exemplo, `y` é livre para `x` em `Px → ∀x Px`, mas o mesmo termo não é livre para `x` em `∀y R[x,y] → ∀x R[x,x]`. Da mesma forma, `g[x,y]` não é livre para `x` em `∀y R[x,y] → ∀x R[x,x]`.
+Um termo `t` é *livre para* a variável `v` na fórmula `F` se toda ocorrência livre de `v` em `F` pode ser substituída por `t` sem que nenhuma das variáveis de `t` fique ligada. Por exemplo, `y` é livre para `x` em `P[x] → ∀x P[x]`, mas o mesmo termo não é livre para `x` em `∀y R[x,y] → ∀x R[x,x]`. Da mesma forma, `g[x,y]` não é livre para `x` em `∀y R[x,y] → ∀x R[x,x]`.
 
-Um termo livre para uma variável `v` pode ser substituído nas ocorrências livres de `v` sem uma mudança não intencional de significado. Considere a fórmula aberta `∀y R[x,y] → ∀x R[x,x]`. Se substituirmos a ocorrência livre de `x` nessa fórmula por `y`, obtemos uma fórmula fechada `∀y R[y,y] → ∀x R[x,x]`, uma variável acabou capturada.
-
-Se `t` não é livre para `v` em `F`, podemos sempre renomear as variáveis ligadas de `F` para garantir que a substituição de `t` por `v` em `F` tenha o significado correto. Embora `g[y,c]` não seja livre para `x` em `∀y R[x,y] → ∀x R[x,x]`, o termo é livre para `x` em `∀z R[x,z] → ∀x R[x,x]`, que é uma chamada *variante alfabética* (nomes diferentes para as variáveis ligadas) da fórmula original.
+Um termo livre para uma variável `v` pode ser substituído nas ocorrências livres de `v` sem uma mudança não intencional de significado. Considere a fórmula aberta `∀y R[x,y] → ∀x R[x,x]`. Se substituirmos a ocorrência livre de `x` nessa fórmula por `y`, obtemos uma fórmula fechada `∀y R[y,y] → ∀x R[x,x]`, uma variável acabou capturada. Se `t` não é livre para `v` em `F`, podemos sempre renomear as variáveis ligadas de `F` para garantir que a substituição de `t` por `v` em `F` tenha o significado correto. Embora `g[y,c]` não seja livre para `x` em `∀y R[x,y] → ∀x R[x,x]`, o termo é livre para `x` em `∀z R[x,z] → ∀x R[x,x]`, que é uma chamada *variante alfabética* (nomes diferentes para as variáveis ligadas) da fórmula original.
 
 A função `isVar` verifica se um termo é uma variável. As funções `varsInTerm` e `varsInTerms` retornam a lista das variáveis que ocorrem num termo ou em uma lista de termos, sem duplicatas.
 
@@ -376,7 +369,7 @@ def varsInTerms (ts : List Term) : List Variable :=
 end
 ```
 
-::::exercise (rating := 1) (name := "ex-fol-vars-in-formula")
+::::exercise (rating := 2) (name := "ex-fol-vars-in-formula")
 Implemente a função `varsInForm` que retorna a lista de todas as variáveis que ocorrem em uma fórmula. Retorne a lista sem duplicatas, como em `varsInTerm` e `varsInTerms`.
 
 ```lean
@@ -400,7 +393,7 @@ def Formula.varsInForm (frm : Formula Term) : List Variable :=
 ::::
 
 
-::::exercise (rating := 2) (name := "ex-fol-free-vars-in-form")
+::::exercise (rating := 1) (name := "ex-fol-free-vars-in-form")
 Complete a definição de `freeVarsInForm`, que retorna a lista de variáveis com ocorrências livres em uma fórmula que contenha termos além de variáveis.
 
 ```lean
@@ -410,7 +403,7 @@ def Formula.freeVarsInForm (f : Formula Term) : List Variable :=
 ::::
 
 
-::::exercise (rating := 2) (name := "ex-fol-open-form")
+::::exercise (rating := 1) (name := "ex-fol-open-form")
 Complete a função `openForm`, que verifica se uma fórmula é aberta. Reaproveite as funções anteriores.
 
 ```lean
@@ -425,17 +418,20 @@ def openForm (f : Formula Term) : Bool :=
 tag := "fol-semantics"
 %%%
 
-Em {ref "PL"}[PL], temos atribuições de valor de verdade para indicar o valor de verdade que deve ser atribuído a cada símbolos. Em FOL, uma _estrutura_ cumpre este papel. Uma estrutura é como um dicionário para traduzir a linguagem formal. Uma estrutura nos dirá duas coisas. Em primeiro lugar, sobre qual coleção de coisas o símbolo `∀` deve quantificar. Em segundo lugar, o que os símbolos predicativos e funcionais denotam.
+Em {ref "PL"}[PL], uma função de atribuição de valor de verdade para os símbolos proposicionais, nos permite determinar o valor de verdade de uma fórmula. Em FOL, uma _estrutura_ cumpre este papel. Uma interpretação de um vocabulário é uma estrutura que atribui significado aos símbolos do vocabulário.
 
-Vamos considerar uma linguagem FOL com um único símbolo predicado binário, `E`. Chamaremos esta linguagem de `L₁`. Uma estrutura para `L₁` deve conter um domínio de discurso `D`, formado por entidades e uma interpretação para `E`.
+Uma estrutura é como um dicionário para traduzir a linguagem formal. Uma estrutura nos dirá duas coisas. Em primeiro lugar, sobre qual coleção de coisas o símbolo `∀` deve quantificar. Em segundo lugar, o que os símbolos predicativos e funcionais denotam.
 
-Essa interpretação é dada por uma função `Interp`, que a cada nome de predicado e a cada lista de elementos do domínio associa um valor de verdade.
+Começamos definido dois tipos para interpretações. O tipo `FInterp` define o mapeamento de símbolos funcionais e seus argumentos, para elementos de um domínio `D`. O tipo `Interp` define o mapeamento de símbolos predicativos e seus argumentos para um valor boleano.
 
 ```lean
+abbrev FInterp (D : Type) := String → List D → D
 abbrev Interp (D : Type) := String → List D → Bool
 ```
 
-Um conjunto de símbolos predicativos, com suas aridades, especifica uma linguagem de primeira ordem. Uma estrutura `M = (D, I)`, formada por um domínio não vazio `D` com uma função de interpretação para os símbolos predicativos de `L`, é chamada de *modelo* para `L`. Sempre suporemos que o domínio de um modelo é não vazio.
+Um conjunto de símbolos predicativos e símbolos funcionais, com suas aridades, especifica uma linguagem `L` de primeira ordem. Uma estrutura é um par `E = (D, I)`, formado por um domínio não vazio `D` com uma função de interpretação para os símbolos predicativos de `L`, é chamada de *modelo* para `L` se . Sempre suporemos que o domínio de um modelo é não vazio.
+
+Vamos considerar uma linguagem FOL com um único símbolo predicado binário, `E`. Chamaremos esta linguagem de `L₁`. Uma estrutura para `L₁` deve conter um domínio de discurso `D`, formado por entidades e uma interpretação para `E`.
 
 Eis um modelo concreto, tomado de {citep Bib.enderton2001}[]. O domínio tem quatro objetos, e uma única relação binária para interpretar o símbolo `E` da linguagem `L`. Um domínio com um só predicado binário pode ser visto como um grafo dirigido: os objetos são os vértices, e `E x y` vale quando há uma aresta de `x` para `y`.
 
@@ -510,26 +506,27 @@ Uma fórmula `Formula α` tem termos do tipo `α`, e para avaliar um átomo é p
 
 ```lean
 def Formula.eval {D α : Type} [DecidableEq D]
+    (f : Formula α)
     (dom : List D) (I : Interp D)
-    (tval : Assign D → α → D)
-    (g : Assign D) : Formula α → Bool
+    (g : Assign D) (tval : Assign D → α → D) : Bool :=
+  match f with
   | .atom name args => I name (args.map (tval g))
   | .eq t1 t2 => tval g t1 == tval g t2
   | .top => true
   | .bot => false
-  | .neg f => !(Formula.eval dom I tval g f)
+  | .neg f => !(f.eval dom I g tval)
   | .impl f1 f2 =>
-    !(Formula.eval dom I tval g f1) || Formula.eval dom I tval g f2
+    !(f1.eval dom I g tval) || f2.eval dom I g tval
   | .equi f1 f2 =>
-    Formula.eval dom I tval g f1 == Formula.eval dom I tval g f2
+    f1.eval dom I g tval == f2.eval dom I g tval
   | .conj f1 f2 =>
-    Formula.eval dom I tval g f1 && Formula.eval dom I tval g f2
+    f1.eval dom I g tval && f2.eval dom I g tval
   | .disj f1 f2 =>
-    Formula.eval dom I tval g f1 || Formula.eval dom I tval g f2
+    f1.eval dom I g tval || f2.eval dom I g tval
   | .forall_ v f =>
-    dom.all fun d => Formula.eval dom I tval (g.update v d) f
+    dom.all fun d => f.eval dom I (g.update v d) tval
   | .exists_ v f =>
-    dom.any fun d => Formula.eval dom I tval (g.update v d) f
+    dom.any fun d => f.eval dom I (g.update v d) tval
 ```
 
 Um caso por construtor, e cada caso troca o construtor pela operação correspondente sobre `Bool`. Para `Formula Variable`, a valoração de um termo é a própria consulta a `g`:
@@ -563,15 +560,15 @@ Se avaliamos fórmulas fechadas, isto é, sem variáveis livres, a atribuição 
 def g0 : Assign Vertex :=
   fun _ => .a
 
-#eval (Formula.eval vertices intB varVal g0 someVertexUnreached,
-       Formula.eval vertices intB varVal g0 everyVertexHasSuccessor,
-       Formula.eval vertices intB varVal g0 someVertexLoops,
-       Formula.eval vertices intB varVal g0 edgeIsSymmetric)
+#eval (someVertexUnreached.eval vertices intB g0 varVal,
+       everyVertexHasSuccessor.eval vertices intB g0 varVal,
+       someVertexLoops.eval vertices intB g0 varVal,
+       edgeIsSymmetric.eval vertices intB g0 varVal)
 ```
 
 A primeira é a sentença `∃x ∀y ~E[y, x]` corresponde a afirmação de que existe um vértice para o qual nenhuma aresta aponta. É verdadeira, e a testemunha é `d`. A segunda é falsa pelo mesmo motivo — de `d` não sai aresta alguma. A terceira é verdadeira por causa do laço em `c`. A quarta é falsa: há aresta de `b` para `c`, mas não de `c` para `b`. Vale notar como a primeira soa em língua natural mais complicada do que a versão simbólica.
 
-No próximo exercício, vamos usar o tipo {lean}`Fin` que constrói um tipo dos números naturais menores que um limite superior. O {lean}`Fin 2` corresponde aos naturais menores que `2`. Quando escrevemos {lean}`(1 : Fin 2)`, a instância {lean}`OfNat (Fin 2) 1` normaliza o literal armazenando o resto da divisão {lean}`1 % 2`.
+A seguir, vamos usar o tipo {lean}`Fin` que constrói um tipo dos números naturais menores que um limite superior. O {lean}`Fin 2` corresponde aos naturais menores que `2`. Quando escrevemos {lean}`(1 : Fin 2)`, a instância {lean}`OfNat (Fin 2) 1` normaliza o literal armazenando o resto da divisão {lean}`1 % 2`.
 
 ```lean
 example : (3 : Fin 2) = 1 := rfl
@@ -585,13 +582,69 @@ Usando o construtor `Fin.mk n` (ou o construtor anônimo `⟨...⟩`), temos que
 example : ⟨3, by omega⟩ = (3 : Fin 2) := rfl
 ```
 
+:::exercise (rating := 1) (name := "ex-fol-model")
+Complete a definição das interpretações `int₁` e `int₂` que permitam os exemplos serem provados com a tática {tactic}`native_decide`. Note que nosso domínio contém apenas 3 valores, isto não deve ser alterado.
+
+```lean
+namespace ExModel
+
+abbrev Values := Fin 3
+def dom : List Values := [0, 1, 2]
+
+def int₁ (name : String) (as : List Values) : Bool :=
+ solution!(
+   match name, as with
+   | "P", [x]   => [1].contains x
+   | "R", [x,y] => [(0,0),(1,0)].contains (x,y)
+   | _  , _     => false)
+
+def int₂ (name : String) (as : List Values) : Bool :=
+ solution!(
+   match name, as with
+   | "P", [x]   => [0,1].contains x
+   | "R", [x,y] => [(0,0),(1,0)].contains (x,y)
+   | _  , _     => false)
+
+def P (x : Variable) : Formula Variable :=
+  .atom "P" [x]
+
+def R (x y : Variable) : Formula Variable :=
+  .atom "R" [x, y]
+
+def α₁ : Formula Variable :=
+  .exists_ x (.conj (P x) (R x x))
+
+def α₂ : Formula Variable :=
+  .forall_ x (.impl (P x) (.exists_ y (R x y)))
+
+def α₃ : Formula Variable :=
+  .forall_ x (.impl (.exists_ y (R y x)) (R x x))
+
+def g0 : Assign Values :=
+  fun _ => 0
+
+example : α₁.eval dom int₁ g0 varVal = false :=
+  solution!(by native_decide)
+
+example : α₂.eval dom int₂ g0 varVal :=
+  solution!(by native_decide)
+
+example : α₃.eval dom int₁ g0 varVal :=
+  solution!(by native_decide)
+
+end ExModel
+```
+:::
+
 :::exercise (rating := 2) (name := "ex-fol-weak-strong")
 Neste exercício, queremos mostrar que:
 
-1. `∀ x, Ax ∧ Bx` significa algo mais forte que `∀ x, Ax → Bx` (todo A é B). O que valida a primeira afirmação necessariamente valida a segunda, mas não o inverso.
-2. `∃ x, Ax → Bx` é mais fraco que `∃ x, Ax ∧ Bx` (alguns A são B). Neste caso, o que valida a segunda afirmação necessariamente valida a primeria, mas não o inverso.
+1. `∀ x, Ax ∧ Bx` significa algo mais forte que `∀ x, Ax → Bx` (todo A é B).
+2. `∃ x, Ax → Bx` é mais fraco que `∃ x, Ax ∧ Bx` (alguns A são B).
 
-Para confirmar (1), complete a definição de `int₁`. Para confirmar (2), complete `int₂`. Todos os exemplos deverão ser provados apenas com a tática {tactic}`native_decide`.  Note que nosso domínio é definido sobre os únicos dois possíveis valore de {lean}`Fin 2`.
+Para confirmar (1), complete a definição de `int₁` construíndo uma interpretação onde `∀ x, Ax → Bx` é verdadeira mas `∀ x, Ax ∧ Bx` é falsa. Isto é, seja `M = (dom, int₁)` é um modelo que não satisfaz a restrição mais forte `∀ x, Ax ∧ Bx`. Para confirmar (2), complete `int₂` com uma interpretação onde `∃ x, Ax → Bx` é verdadeira mas `∃ x, Ax ∧ Bx` é falsa.
+
+Todos os exemplos deverão ser provados apenas com a tática {tactic}`native_decide`.  Note que nosso domínio é definido sobre os únicos dois possíveis valore de {lean}`Fin 2` e isso não deve ser alterado.
 
 ```lean
 namespace ExWeakStrong
@@ -632,21 +685,23 @@ def F₄ : Formula Variable :=
 def g0 : Assign Values :=
   fun _ => 0
 
-example : Formula.eval dom int₁ varVal g0 F₁ = false :=
+example : F₁.eval dom int₁ g0 varVal = false :=
   solution!(by native_decide)
 
-example : Formula.eval dom int₁ varVal g0 F₂ :=
+example : F₂.eval dom int₁ g0 varVal :=
   solution!(by native_decide)
 
-example : Formula.eval dom int₂ varVal g0 F₃ :=
+example : F₃.eval dom int₂ g0 varVal :=
   solution!(by native_decide)
 
-example : Formula.eval dom int₂ varVal g0 F₄ = false :=
+example : F₄.eval dom int₂ g0 varVal = false :=
   solution!(by native_decide)
 
 end ExWeakStrong
 ```
 :::
+
+[AR aqui devemos introduzir as noção de consquencia logica e equivalencia para FOL]
 
 
 ## Termos estruturados
@@ -654,27 +709,22 @@ end ExWeakStrong
 tag := "fol-terms"
 %%%
 
-Até aqui avaliamos apenas fórmulas de {lean}`Formula Variable`, cujos termos são variáveis. Mas {name}`Term` permite termos estruturados, como {lean}`tf`, e para avaliá-los falta dizer que elemento do domínio um símbolo funcional denota. Essa é a contrapartida, para os símbolos funcionais, do que {name}`Interp` faz para os símbolos predicativos. A cada nome e a cada lista de elementos do domínio, um elemento do domínio.
+Até aqui avaliamos apenas fórmulas contendo apenas variáveis como termos, isto é, {lean}`Formula Variable`. Mas {name}`Term` permite termos estruturados, como {lean}`tf`, e para avaliá-los precisamos dizer qual elemento do domínio um símbolo funcional denota. Essa é a contrapartida, para os símbolos funcionais, do que {name}`Interp` faz para os símbolos predicativos.
 
 ```lean
 abbrev FInterp (D : Type) := String → List D → D
 ```
 
-Com {lean}`FInterp`, a valoração de um termo se define por recursão sobre a estrutura do termo. Uma variável se consulta em `g`; um termo estruturado avalia seus argumentos e entrega os resultados a `fint`.
-
-::::exercise (rating := 1) (name := "lift-assign")
-Complete `liftAssign`. Nossa recursão é parecida com {name}`varsInTerm`, avaliando cada argumento e combine os resultados e precisamos interpretar os símbolos funcionais.
+Com {lean}`FInterp`, definimos a interpretação de um termo na função `liftAssign`, recursiva sobre a estrutura do termo . Uma variável consulta em `g`; um termo estruturado avalia seus argumentos e entrega os resultados a `fint`. Nossa recursão é parecida com {name}`varsInTerm`, avaliando cada argumento e combinando os resultados para interpretar os símbolos funcionais.
 
 ```lean
 def liftAssign {D : Type} (fint : FInterp D)
     (g : Assign D) : Term → D
   | .var v => g v
-  | .struct name args =>
-    solution!(fint name (args.map (liftAssign fint g)))
+  | .struct name args => fint name (args.map (liftAssign fint g))
 ```
-::::
 
-`liftAssign fint` tem exatamente o tipo que o parâmetro `tval` de {name}`Formula.eval` pede, e é assim que fórmulas de {lean}`Formula Term` passam a ser avaliáveis. Para um exemplo, tomemos o domínio dos naturais. Precisamos de uma interpretação para os símbolos funcionais, uma para o símbolo de relação, e uma atribuição.
+`liftAssign fint` tem o tipo que do parâmetro `tval` em {name}`Formula.eval`. Assim que fórmulas de {lean}`Formula Term` podem ser avaliadas. Para um exemplo, vamos considerar o domínio dos naturais. Precisamos de uma interpretação para os símbolos funcionais, uma para o símbolo de relação, e uma atribuição.
 
 ```lean
 def finNat  : FInterp Nat
@@ -711,9 +761,10 @@ Note que os dois fecham por {tactic}`simp`, e não por {tactic}`rfl`. O casament
 
 Finalmente, a avaliação de uma fórmula com termos estruturados, num domínio finito. A fórmula diz que existe um número maior que `0` no domínio `[0, 1, 2, 3, 4]`.
 
-```lean (name := evalTerms)
-#eval Formula.eval [0, 1, 2, 3, 4] intR (liftAssign finNat) g₂
-  (.exists_ x (.atom "R" [zero, tx]))
+```lean
+#eval
+  let dom := [0, 1, 2, 3, 4]
+  (Formula.exists_ x (.atom "R" [zero, tx])).eval dom intR g₂ (liftAssign finNat)
 ```
 
 A definição de verdade faz uso essencial das atribuições e, ainda assim, para sentenças, a verdade ou a falsidade não depende da atribuição. Poder-se-ia pensar, portanto, que é possível dispensar as atribuições por completo, contanto que nos limitemos a definir os valores de verdade das sentenças da lógica de predicados.
@@ -758,26 +809,22 @@ produz a proposição que a fórmula afirma. A interpretação muda junto: onde
 ```lean
 abbrev Denot (D : Type) := String → List D → Prop
 
-def Formula.denote {D α : Type} (I : Denot D)
-    (tval : Assign D → α → D)
-    (g : Assign D) : Formula α → Prop
+def Formula.denote {D α : Type}
+    (f : Formula α)
+    (I : Denot D)
+    (g : Assign D) (tval : Assign D → α → D) : Prop :=
+  match f with
   | .atom name args => I name (args.map (tval g))
   | .eq t1 t2 => tval g t1 = tval g t2
   | .top => True
   | .bot => False
-  | .neg f => ¬ Formula.denote I tval g f
-  | .impl f1 f2 =>
-    Formula.denote I tval g f1 → Formula.denote I tval g f2
-  | .equi f1 f2 =>
-    Formula.denote I tval g f1 ↔ Formula.denote I tval g f2
-  | .conj f1 f2 =>
-    Formula.denote I tval g f1 ∧ Formula.denote I tval g f2
-  | .disj f1 f2 =>
-    Formula.denote I tval g f1 ∨ Formula.denote I tval g f2
-  | .forall_ v f =>
-    ∀ d : D, Formula.denote I tval (g.update v d) f
-  | .exists_ v f =>
-    ∃ d : D, Formula.denote I tval (g.update v d) f
+  | .neg f => ¬ f.denote I g tval
+  | .impl f1 f2 => f1.denote I g tval → f2.denote I g tval
+  | .equi f1 f2 => f1.denote I g tval ↔ f2.denote I g tval
+  | .conj f1 f2 => f1.denote I g tval ∧ f2.denote I g tval
+  | .disj f1 f2 => f1.denote I g tval ∨ f2.denote I g tval
+  | .forall_ v f => ∀ d : D, f.denote I (g.update v d) tval
+  | .exists_ v f => ∃ d : D, f.denote I (g.update v d) tval
 ```
 
 Cada caso troca um construtor de `Formula` pelo conectivo correspondente de `Prop` — o `conj` do dado vira o `∧` da proposição, e o `forall_` vira o `∀` do próprio Lean. Com isso podemos voltar às traduções do exercício anterior e verificá-las. Enunciamos a condição de verdade pretendida à direita, com os quantificadores do Lean, e exigimos que coincida com o que a fórmula proposta afirma. Como `denote` calcula, o teorema fecha por `Iff.rfl`.
@@ -793,7 +840,7 @@ def knightFightsDragon : Formula Variable :=
 
 theorem knightFightsDragon_means {D : Type}
     (I : Denot D) (g : Assign D) :
-    Formula.denote I varVal g knightFightsDragon ↔
+    knightFightsDragon.denote I g varVal ↔
       (∀ a b : D,
         I "Knight" [a] ∧ I "Dragon" [b] ∧ I "Finds" [a, b] →
         I "Fights" [a, b]) :=
@@ -807,8 +854,7 @@ theorem Formula.eval_iff_denote {D α : Type} [DecidableEq D]
     (dom : List D) (hdom : ∀ d : D, d ∈ dom)
     (I : Interp D) (tval : Assign D → α → D)
     (g : Assign D) (f : Formula α) :
-    f.eval dom I tval g = true ↔
-      f.denote (fun n as => I n as = true) tval g := by
+    f.eval dom I g tval = true ↔ f.denote (λ n as ↦ I n as = true) g tval := by
   induction f generalizing g with
   | atom name args => simp [Formula.eval, Formula.denote]
   | eq t1 t2 => simp [Formula.eval, Formula.denote]
@@ -817,7 +863,7 @@ theorem Formula.eval_iff_denote {D α : Type} [DecidableEq D]
   | neg f ih => simp [Formula.eval, Formula.denote, ← ih]
   | impl f1 f2 ih1 ih2 =>
       simp [Formula.eval, Formula.denote, ← ih1, ← ih2]
-      cases Formula.eval dom I tval g f1 <;> simp
+      cases f1.eval dom I g tval <;> simp
   | equi f1 f2 ih1 ih2 =>
       simp [Formula.eval, Formula.denote, ← ih1, ← ih2]
   | conj f1 f2 ih1 ih2 =>
@@ -838,8 +884,8 @@ No modelo de {ref "fol-semantics"}[Semântica de FOL], `mem_vertices` é exatame
 ```lean
 theorem eval_iff_denote_B (I : Interp Vertex) (g : Assign Vertex)
     (f : Formula Variable) :
-    f.eval vertices I varVal g = true ↔
-      f.denote (fun n as => I n as = true) varVal g :=
+    f.eval vertices I g varVal = true ↔
+      f.denote (fun n as => I n as = true) g varVal :=
   Formula.eval_iff_denote vertices mem_vertices I varVal g f
 ```
 
@@ -876,15 +922,16 @@ Já `denote` não depende de lista alguma. Ela traduz a fórmula numa proposiç�
 
 ```lean
 theorem forallExistsR_means (I : Denot Nat) (g : Assign Nat) :
-    Formula.denote I (liftAssign finNat) g
-      (.forall_ x (.exists_ y (.atom "R" [tx, ty]))) ↔
+    (Formula.forall_ x
+      (.exists_ y (.atom "R" [tx, ty]))).denote I g (liftAssign finNat)
+       ↔
     (∀ a : Nat, ∃ b : Nat, I "R" [a, b]) := by
   simp [Formula.denote, liftAssign, Assign.update, tx, ty, x, y]
 
 theorem forallExistsR_true (I : Denot Nat)
     (hI : ∀ i j, I "R" [i, j] ↔ i < j) (g : Assign Nat) :
-    Formula.denote I (liftAssign finNat) g
-      (.forall_ x (.exists_ y (.atom "R" [tx, ty]))) :=
+    (Formula.forall_ x
+       (.exists_ y (.atom "R" [tx, ty]))).denote I g (liftAssign finNat) :=
   (forallExistsR_means I g).mpr
     fun a => ⟨a + 1, (hI a (a + 1)).mpr (by omega)⟩
 ```

@@ -10,7 +10,7 @@ open CSwLMeta
 
 set_option verso.code.warnLineLength 100
 
-#doc (Manual) "Lógica proposicional" =>
+#doc (Manual) "Lógica Proposicional" =>
 %%%
 tag := "PL"
 file := "PL"
@@ -27,26 +27,17 @@ tag := "pl-intro"
 
 Em {ref "Proof"}["Proof"] as fórmulas proposicionais foram escritas diretamente como termos do tipo `Prop`, e usando táticas construimos provas de proposições `α` a partir de um conjunto de hipóteses `Γ`. Isto é, mostramos como derivar `α` a partir de `Γ`, isto é `Γ ⊢ α`.
 
-Mas em Lean, `Prop` é um tipo e proposições particulares também são tipos. A variável `h` abaixo pode ser entendida como um identificador para uma "prova qualquer" da proposição `p ∧ q`. E Lean adota o princípio da "irrelevância da prova", ou seja, Lean não distingue diferentes provas de uma proposição. Como consequência, o tipo `Prop` não é computável, não é um "dado" que pode ser manipulado. Por exemplo, não conseguimos extrair os componentes de uma conjunção `a ∧ b`. Lean sabe que todas as provas de `a ∧ b` são irrelevantes e iguais, então ele não permite que você use uma prova para tomar decisões no mundo dos dados programáveis (`Type`). Em outras palavras, não podemos realizar casamento de padrões em `h` abaixo.
+Em Lean, `Prop` é um tipo assim como qualquer particular proposição também é um tipo. A variável `h` abaixo pode ser entendida como um identificador para uma "prova qualquer" da proposição `p ∧ q`. E Lean adota o princípio da "irrelevância da prova", ou seja, Lean não distingue diferentes provas de uma proposição. Como consequência, o tipo `Prop` não é computável, não é um "dado" que pode ser manipulado. Por exemplo, não conseguimos extrair os componentes de uma conjunção `a ∧ b`. Lean sabe que todas as provas de `a ∧ b` são irrelevantes e iguais, então ele não permite que você use uma prova como qualquer outro dado de um `Type`. Não podemos, por exemplo, realizar casamento de padrões em `h` abaixo.
 
 ```lean +error
-section
-variable (p q : Prop)
-
-variable (h : p ∧ q)
-#check p ∧ q
-#check h
-
-def doesNotWork (h : p ∧ q) : Type :=
+def doesNotWork (p q : Prop) (h : p ∧ q) : Type :=
   match h with
   | And.intro ha hb => ha
-
-end
 ```
 
-Nesta seção, queremos manipular fórmulas e decidir quando uma fórmula `α` é consequência lógica de `β`, isto é `β ⊧ α `. A noção de consequência lógica é semântica. Para toda possível escolha de valores verdade para os símbolos proposicionais em `α` e `β`, sempre que `β` for verdade, `α` deve ser verdade. Para _computar_ o valor verdade de uma fórmula, vamos precisar manipula a formula como dado, e calcular seu valor verdade a partir do mapeamento de variáveis proposicionais em valores verdade. Em tempo, a relação dentre duas fórmulas pode ser naturalmente estendida para uma relação entre um conjunto de fórmulas `Γ` e uma fórmula, `Γ ⊧ α`.
+Nesta seção, queremos manipular fórmulas e decidir quando uma fórmula `α` é consequência lógica de `β`, isto é, `β ⊧ α `. A noção de consequência lógica é semântica. Para toda possível escolha de valores verdade para os símbolos proposicionais em `α` e `β`, sempre que `β` for verdade, `α` deve ser verdade. Para _computar_ o valor verdade de uma fórmula, vamos precisar manipula a formula como dado, e calcular seu valor verdade a partir do mapeamento de variáveis proposicionais em valores verdade.
 
-Em um problema com um número finito de proposições, e os números costumam ser pequenos o suficiente para que a análise sistemática de todas as combinações de valores verdade seja viável na prática. Para demonstrar que todo número par maior que dois pode ser escrito como uma soma de dois números primos esta estratégia não seria válida.
+Em um problema com um número finito de proposições, e os números costumam ser pequenos o suficiente para que a análise sistemática de todas as combinações de valores verdade seja viável na prática.
 
 
 # Sintaxe de Lógica Proposicional
@@ -54,9 +45,9 @@ Em um problema com um número finito de proposições, e os números costumam se
 tag := "pl-syntax"
 %%%
 
-Para construir fórmulas como dados, não poderemos mais usar a notação de Lean disponível para os termos do tipo `Prop`. Quando escrevemos `p ∧ q`, o símbolo `∧` é um operador infixado (aparece no meio dos argumentos) e representa o construtor {lean}`And.intro` do tipo {lean}`And`. Os operadores, para serem usados de forma infixada, precisam ter um mecanismo de precedência para permitir que possamos escrever termos ambiguos como `p ∧ q ∧ r` que terão sua leitura associada a `p ∧ (q ∧ r)` e não `(p ∧ q) ∧ r`. Nada disso estará ao nosso dispor.
+Para construir fórmulas, não poderemos mais usar a notação de Lean disponível para `Prop`. Quando escrevemos `p ∧ q`, o símbolo `∧` é um operador infixado (aparece no meio dos argumentos) e representa o construtor {lean}`And.intro` do tipo {lean}`And`. Os operadores, para serem usados de forma infixada, precisam ter um mecanismo de precedência para permitir que termos como `p ∧ q ∧ r` sejam interpretados como `p ∧ (q ∧ r)` e não `(p ∧ q) ∧ r`, ou seja, tenham sempre uma leitura não ambigua. Nada disso estará ao nosso dispor na sintaxe que iremos introduzir nesta seção.
 
-Nossas fórmulas serão representadas por termos do tipo indutivo `Formula`. Um átomo é identificado por um nome, e o nome é uma {lean}`String`. Isso dá o inventário ilimitado que a gramática pede sem precisar enumerar símbolo por símbolo.
+Nossas fórmulas serão representadas por termos do tipo indutivo `Formula`. Um átomo é identificado por um nome, e o nome é uma {lean}`String`.
 
 ```lean
 inductive Formula where
@@ -89,13 +80,80 @@ def j : Formula := .atom "MJ"
 def b : Formula := .atom "MB"
 def t : Formula := .atom "MT"
 
-#eval Formula.conj j (.disj b t)
-#eval Formula.disj (.conj j b) t
+def form₁ := Formula.conj j (.disj b t)
+def form₂ := Formula.disj (.conj j b) t
 
 end Maria
 ```
 
-Vale observar que a biblioteca `cslib` define o tipo `Cslib.Logic.PL.Proposition` que poderia ser usado nesta seção, mas isto introduziria uma complexidade desnecessária.
+:::dev "Alexandre (rademaker)"
+We need to think how to use `Cslib.Logic.PL.Proposition` here instead of the local definitions.
+:::
+
+Na lógica proposicional (PL, "propotional logic"), uma *linguagem proposicional* é o conjunto de todas as fórmulas que podem ser construídas a partir de um *vocabulário* de símbolos não lógicos (os átomos representados por {lean}`Formula.atom`). Acima, a partir dos átomos construídos com as strings "MJ", "MB" e "MT", infinitas fórmulas de complexidade arbitrária podem ser construídas pela combinação dos demais construtores de {lean}`Formula`. Cada um destes construtores representam um operador lógico.
+
+Podemos também pensar que uma dada fórmula (ou conjunto de fórmulas) induz um vocabulário, o conjunto de todos os símbolos que ocorreram na fórmula (ou conjunto de fórmulas). No exemplo anterior, `j`, `b` e `t` são identificadores em Lean para termos do tipo {lean}`Formula`, representam fórmulas em PL mas não estão em PL, estão na metalinguagem. As strings "MJ", "MB" e "MT" são os nomes dos átomos usados nas formulas, o vocabulário destas fórmulas.
+
+A função `names` abaixo extrai o vocabulário de uma fórmula. A lista resultante deve estar ordenada e sem repetições.
+
+```lean
+def Formula.namesRaw : Formula → List String
+  | .atom name => [name]
+  | .top => []
+  | .bot => []
+  | .neg f => f.namesRaw
+  | .conj f g => f.namesRaw ++ g.namesRaw
+  | .disj f g => f.namesRaw ++ g.namesRaw
+
+def Formula.names (f : Formula) : List String :=
+  solution!(f.namesRaw.dedup.mergeSort (· ≤ ·))
+
+#eval Maria.form₁.names
+```
+
+:::exercise (rating := 1) (name := "collect-atoms")
+Complete a definição da função `namesL` abaixo, que estende a função `names` para um conjunto de fórmulas. Se sua definição estiver correta, a prova do exemplo deve ser obtida diretamente com a tática {tactic}`native_decide`. Dica: não repita ordenações.
+
+```lean
+def Formula.namesL (fs : List Formula) : List String :=
+  solution!(
+   fs.foldl (λ acc f => f.namesRaw ++ acc) [] |>.dedup.mergeSort (· ≤ ·))
+
+example : Formula.namesL [Maria.form₁, Maria.form₂] == ["MB", "MJ", "MT"] :=
+  solution!(by native_decide)
+```
+:::
+
+:::exercise (rating := 1) (name := "collect-atoms-alternative")
+Complete a definição da função `Formula.names₁` com uma implementação alternativa para {lean}`Formula.names` que ao invés de eliminar duplicatas e ordenar no final da recursão, constrói a lista de saída sem duplicatas e ordenada. Se sua definição estiver correta, a prova do exemplo deve ser obtida diretamente com a tática {tactic}`native_decide`. Dica: não repita ordenações.
+
+```lean
+def Formula.namesRaw₁ (f : Formula) (sofar : List String) : List String :=
+  solution!(
+  match f with
+  | .atom name => sofar.insertP (· == name) name
+  | .top => []
+  | .bot => []
+  | .neg f => f.namesRaw₁ sofar
+  | .conj f g =>
+      let as := f.namesRaw₁ sofar
+      let bs := g.namesRaw₁ sofar
+      as.merge bs
+  | .disj f g =>
+      let as := f.namesRaw₁ sofar
+      let bs := g.namesRaw₁ sofar
+      as.merge bs)
+
+def Formula.names₁ (f : Formula) : List String :=
+  solution!(f.namesRaw₁ [])
+
+#eval Maria.form₁.names₁
+
+example : Maria.form₁.names₁ == ["MB", "MJ", "MT"] :=
+  solution!(by native_decide)
+```
+:::
+
 
 Nem todos os conectivos precisam ser definidos como "primitivos". Como vimos na seção {ref "pl-lean"}[pl-lean] a implicação pode ser definida como uma dijunção. E a dupla implicação como uma conjunção de implicações.
 
@@ -178,19 +236,19 @@ def form3 : Formula :=
 ```
 
 :::exercise (rating := 1) (name := "count-operators")
-Implemente uma função `opsNr` para contar o número de operadores de uma fórmula. a tática {tactic}`decide` é como pedir ao Lean para executar a decisão de uma proposição booleana e, se o resultado for true, transformar esse resultado em uma prova.
+Implemente uma função `countOps` para contar o número de operadores de uma fórmula. a tática {tactic}`decide` é como pedir ao Lean para executar a decisão de uma proposição booleana e, se o resultado for true, transformar esse resultado em uma prova.
 
 ```lean
-def Formula.opsNr : Formula → Nat :=
+def Formula.countOps : Formula → Nat :=
   solution!(fun
     | .atom _ => 0
     | .top => 0
     | .bot => 0
-    | .neg f => 1 + f.opsNr
-    | .conj f g => 1 + f.opsNr + g.opsNr
-    | .disj f g => 1 + f.opsNr + g.opsNr)
+    | .neg f => 1 + f.countOps
+    | .conj f g => 1 + f.countOps + g.countOps
+    | .disj f g => 1 + f.countOps + g.countOps)
 
-example : form2.opsNr = 3 := by decide
+example : form2.countOps = 3 := by decide
 ```
 :::
 
@@ -211,25 +269,6 @@ example : form2.depth = 3 := by decide
 ```
 :::
 
-:::exercise (rating := 2) (name := "collect-atoms")
-Implemente `propNames` para coletar a lista de nomes de átomos proposicionais que ocorrem numa fórmula. A lista resultante deve estar ordenada e sem repetições. O exemplo pode ser provado com {tactic}`native_decide`.
-
-```lean
-def Formula.propNamesRaw (f : Formula) : List String :=  solution!(
-  match f with
-  | .atom name => [name]
-  | .top => []
-  | .bot => []
-  | .neg f => f.propNamesRaw
-  | .conj f g => f.propNamesRaw ++ g.propNamesRaw
-  | .disj f g => f.propNamesRaw ++ g.propNamesRaw)
-
-def Formula.propNames (f : Formula) : List String :=
-  solution!(f.propNamesRaw.dedup.mergeSort (· ≤ ·))
-
-example : form1.propNames == ["p"] := solution!(by native_decide)
-```
-:::
 
 
 # Semântica de Lógica Proposicional
@@ -286,16 +325,16 @@ def v₂ (v : String) : Bool :=
    | o   => false
   )
 
-example : form1.eval v₁ = true := solution!(by decide)
+example : form1.eval v₁ = true  := solution!(by decide)
 example : form1.eval v₂ = false := solution!(by decide)
 example : form2.eval v₁ = false := solution!(by decide)
-example : form3.eval v₂ = true := solution!(by decide)
+example : form3.eval v₂ = true  := solution!(by decide)
 
 end TestVals
 ```
 :::
 
-A função a seguir gera a lista de todas as valorações sobre o conjunto dos nomes de átomos presentes em um termo do tipo {name}`Formula`.
+A seguir, definimos a função `allVals` que gera a lista de todas as valorações possíveis sobre o vocabulário de uma {name}`Formula`.
 
 ```lean
 abbrev Valuation := List (String × Bool)
@@ -312,7 +351,7 @@ def genVals : List String → List Valuation
 
 /-- return all possible valuations for `f`. -/
 def Formula.allVals (f : Formula) : List Valuation :=
-  genVals f.propNames
+  genVals f.names
 ```
 
 Com estas funções, podemos construir a tabela verdade de uma fórmula.
@@ -548,7 +587,7 @@ theorem contraposition_principle₂ (F₁ F₂ : Formula) :
     F₁.implies F₂ ↔ (Formula.neg F₂).implies (.neg F₁) := by
   have hv :
     (conj F₁ (neg F₂)).allVals = (conj (neg F₂) (neg (neg F₁))).allVals := by
-    simp [Formula.allVals, Formula.propNames, Formula.propNamesRaw]
+    simp [Formula.allVals, Formula.names, Formula.namesRaw]
     exact congrArg genVals
       (mergeSort_eq_of_perm List.perm_append_comm.dedup)
   simp only [Formula.implies, Formula.contradiction,

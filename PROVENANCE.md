@@ -219,6 +219,7 @@ Exercise 5.18 translate to FOL
 = ex-fol-translate
 
 Exercise 5.19 check formulas model given
+= ex-fol-model
 
 Exercise 5.20 consequence are true?
 
