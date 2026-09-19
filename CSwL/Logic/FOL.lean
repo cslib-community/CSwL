@@ -89,7 +89,7 @@ def tf : Term := .struct "f" [tx, .struct "g" [ty]]
 Constantes podem ser representadas como funções com aridade zero, ou seja, com a lista de argumentos vazia, {lean}`Term.struct "c" []`
 
 :::dev "Alexandre (arademaker)"
-Nada proible que um mesmo símbolo seja usado com aridades diferentes dentro de uma mesma fórmula. Poderiamos definir uma estrututa PredSymbol com campos nome e aridade (natural).
+Nothing stopping us for using symbols with inconsistent arity, say `R[x,y]` and `R[x,y,z]` in the same formula. We could define a structure for holding the number and its arity (say `PredSymbol`) and implement a function for checking if a formula is well-formed.
 :::
 
 `Formula α` é parametrizado no tipo dos termos que preenchem os predicados. Se usarmos `Formula Variable` estamos permitindo apenas fórmulas cujos termos são apenas variáveis. Se usarmos `Formula Term` temos nossa sintaxe completa.
@@ -357,7 +357,7 @@ Um termo `t` é *livre para* a variável `v` na fórmula `F` se toda ocorrência
 
 Um termo livre para uma variável `v` pode ser substituído nas ocorrências livres de `v` sem uma mudança não intencional de significado. Considere a fórmula aberta `∀y R[x,y] → ∀x R[x,x]`. Se substituirmos a ocorrência livre de `x` nessa fórmula por `y`, obtemos uma fórmula fechada `∀y R[y,y] → ∀x R[x,x]`, uma variável acabou capturada.
 
-Se `t` não é livre para `v` em `F`, podemos sempre renomear as variáveis ligadas de `F` para garantir que a substituição de `t` por `v` em `F` tenha o significado correto. Embora `g[y,c]` não seja livre para `x` em `∀y R[x,y] → ∀x R[x,x]`, o termo é livre para `x` em `∀z R[xz] → ∀x R[x,x]`, que é uma chamada *variante alfabética* (nomes diferentes para as variáveis ligadas) da fórmula original.
+Se `t` não é livre para `v` em `F`, podemos sempre renomear as variáveis ligadas de `F` para garantir que a substituição de `t` por `v` em `F` tenha o significado correto. Embora `g[y,c]` não seja livre para `x` em `∀y R[x,y] → ∀x R[x,x]`, o termo é livre para `x` em `∀z R[x,z] → ∀x R[x,x]`, que é uma chamada *variante alfabética* (nomes diferentes para as variáveis ligadas) da fórmula original.
 
 A função `isVar` verifica se um termo é uma variável. As funções `varsInTerm` e `varsInTerms` retornam a lista das variáveis que ocorrem num termo ou em uma lista de termos, sem duplicatas.
 
@@ -574,6 +574,22 @@ def g0 : Assign Vertex :=
 
 A primeira é a sentença `∃x ∀y ~E[y, x]` corresponde a afirmação de que existe um vértice para o qual nenhuma aresta aponta. É verdadeira, e a testemunha é `d`. A segunda é falsa pelo mesmo motivo — de `d` não sai aresta alguma. A terceira é verdadeira por causa do laço em `c`. A quarta é falsa: há aresta de `b` para `c`, mas não de `c` para `b`. Vale notar como a primeira soa em língua natural mais complicada do que a versão simbólica.
 
+No próximo exercício, vamos usar o tipo {lean}`Fin` que corresponde os números naturais menores um certo limite superior. O tipo {lean}`Fin 2` corresponde aos naturais menores que `2`. Quando escrevemos {lean}`(1 : Fin 2)`, a instância {lean}`OfNat (Fin 2) 1` normaliza o literal armazenando o resto da divisão {lean}`1 % 2`. Mas se tentarmos construir um termo com o construtor `Fin.mk n` (ou o construtor anônimo `⟨...⟩`), ele irá exigir uma prova de `n < 2`.
+
+
+```lean
+#eval (3 : Fin 2)
+example : (3 : Fin 2) = 1 := rfl
+
+example : ⟨0, by omega⟩ = (0 : Fin 2) := rfl
+example : Fin.mk 0 (by omega) = (0 : Fin 2) := rfl
+```
+
+Não conseguimos abaixo construir uma prova de que `3 < 2`.
+
+```lean +error
+example : ⟨3, by omega⟩ = (3 : Fin 2) := rfl
+```
 
 :::exercise (rating := 2) (name := "ex-fol-weak-strong")
 Neste exercício, queremos mostrar que:
@@ -644,12 +660,7 @@ end ExWeakStrong
 tag := "fol-terms"
 %%%
 
-Até aqui avaliamos apenas fórmulas de {lean}`Formula Variable`, cujos termos são
-variáveis. Mas {name}`Term` permite termos estruturados, como {lean}`tf`, e para
-avaliá-los falta dizer que elemento do domínio um símbolo funcional denota. Essa
-é a contrapartida, para os símbolos funcionais, do que {name}`Interp` faz para os
-símbolos predicativos. A cada nome e a cada lista de elementos do domínio, um
-elemento do domínio.
+Até aqui avaliamos apenas fórmulas de {lean}`Formula Variable`, cujos termos são variáveis. Mas {name}`Term` permite termos estruturados, como {lean}`tf`, e para avaliá-los falta dizer que elemento do domínio um símbolo funcional denota. Essa é a contrapartida, para os símbolos funcionais, do que {name}`Interp` faz para os símbolos predicativos. A cada nome e a cada lista de elementos do domínio, um elemento do domínio.
 
 ```lean
 abbrev FInterp (D : Type) := String → List D → D
@@ -707,7 +718,7 @@ Note que os dois fecham por {tactic}`simp`, e não por {tactic}`rfl`. O casament
 Finalmente, a avaliação de uma fórmula com termos estruturados, num domínio finito. A fórmula diz que existe um número maior que `0` no domínio `[0, 1, 2, 3, 4]`.
 
 ```lean (name := evalTerms)
-#eval Formula.eval [0, 1, 2, 3, 4, 5] intR (liftAssign finNat) g₂
+#eval Formula.eval [0, 1, 2, 3, 4] intR (liftAssign finNat) g₂
   (.exists_ x (.atom "R" [zero, tx]))
 ```
 

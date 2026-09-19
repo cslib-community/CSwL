@@ -436,7 +436,7 @@ Formalize as consequências lógicas abaixo completando o código como novos exe
 4. `¬q ⊧ p→q`
 5. `¬p, q→p ⊧ ¬q`
 
-Em todos os casos, para fechar ou não as provas, você só precisa da tática {tactic}`native_decide`. Note que quando existe consequência lógica, o tipo `Bool` pode ser promovido à `Prop` automaticamente pelo Lean, então você não precisa escrever `P.implies Q = true`, basta `P.imples Q`. Mas quando queremos mostrar que a consequência não é verdadeira, precisamos de `P.implies Q = false`.
+Em todos os casos, para fechar ou não as provas, você só precisa da tática {tactic}`native_decide`. Note que quando existe consequência lógica, o tipo {lean}`Bool` pode ser promovido à `Prop` automaticamente pelo Lean, então você não precisa escrever `P.implies Q = true`, basta `P.implies Q`. Mas quando queremos mostrar que a consequência não é verdadeira, precisamos de `P.implies Q = false`.
 
 ```lean
 namespace Cons
