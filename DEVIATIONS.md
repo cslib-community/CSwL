@@ -240,6 +240,32 @@ the definitions are already Lean from the first line, so there is no later point
 at which implementation begins. And the discussion of what an empty conjunction
 should be worth does not arise, since `top` and `bot` are constructors.
 
+**`Formula.eval` is split in two, so that Exercise 5.12 costs one argument
+instead of a second evaluator.** CSwFP's 5.12 asks the reader to reimplement
+the semantics with `[String]` for valuations, presence in the list standing for
+truth, and its own answer (`Sols`, 5.12) is `altEval` — the whole recursion
+written out a second time. Reproducing that here would put two near-identical
+six-case recursions in the chapter, which is work for the reader and confusing
+to read.
+
+Only the `atom` case of the recursion ever consults the valuation; the other
+five combine the truth values of subformulas. So the recursion is
+`Formula.evalWith`, which takes the atom lookup as a parameter
+(`String → Bool`), and `Formula.eval` is the one-line case that looks the atom
+up in the list of pairs. `eval` keeps its signature, so `allVals`, `tautology`,
+`satisfiable`, `implies`, `update`, `denote` and every existing exercise are
+untouched, and the exercise becomes: define the new lookup, pass it. The cost
+is paid in the metatheorem proofs, whose `simp` sets now need `evalWith`
+alongside `eval` to reach the constructor cases.
+
+The exercise stops at evaluation and does not ask for `tautology` or
+`satisfiable` over the new representation. `genVals` *produces* valuations, and
+the analogue for `List String` is the powerset — a genuinely different function,
+needing a second parameter threaded through `allVals`. That is where
+parameterizing stops being cheaper than duplicating, and it is past what the
+exercise is for. `Formula.denote` is left alone for a different reason: it is
+about the `Formula`→`Prop` reading, not about how a valuation is represented.
+
 **Proving in Lean is a section of its own, and it comes first.** The meta
 level used to be presented three times: `IntroL.lean` introduced `Prop`, and
 then `PL.lean` and `FOL.lean` each opened with the tactics for their own

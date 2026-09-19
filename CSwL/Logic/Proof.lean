@@ -229,19 +229,13 @@ example : (P → Q) ↔ (¬Q → ¬P) := solution!(by
 
 
 ::::exercise (rating := 1) (name := "exchange-prop")
-Complete a representação do argumento abaixo em linguagem lógica.
-
 Se o câmbio cair, temos inflação. Se as exportações crescerem, diminuímos o déficit. O câmbio cai ou diminuímos o déficit. Logo, temos inflação ou as exportações crescem.
+
+complete a definição `exchange` para formalizar o parágrafo anterior. Você deverá usar as variáveis proposicionais declaradas para `p` (câmbio cai), `q` (temos inflação), `r` (exportações crescem) e `s` (diminuimos o déficit) para construir a proposição esperada.
 
 ```lean
 section
-
-variable (
-  p -- o câmbio cai
-  q -- temos inflação
-  r -- as exportações crescem
-  s -- Diminuimos o déficit
-  : Prop)
+variable (p q r s : Prop)
 
 def exchange : Prop :=
   solution!(
@@ -253,7 +247,7 @@ end
 
 
 ::::exercise (rating := 2) (name := "implication-as-disj")
-Complete a prova abaixo. Note que esta prova precisa do fragmento clássico, tente usar {tactic}`by_cases`.
+Complete a prova abaixo. Note que esta prova precisa do fragmento clássico. Tente usar {tactic}`by_cases`.
 
 ```lean
 example (P Q : Prop) : (P → Q) → ¬ P ∨ Q := by

@@ -40,7 +40,7 @@ Nossa sintaxe terá dois elementos principais, termos e fórmulas.
 
 Os _termos_ podem ser variáveis ou funções aplicadas a outros termos. Uma constante será uma função que não recebe argumentos. As _fórmulas_ usarão os mesmos conectivos da lógica proposicional, mas acrescentaremos os quantificadores existencial e universal. Podemos escrever `¬P x`, `∀ x R x x` e `∀ x ∃ y R x (f y)`, onde `P` e `R` são símbolos predicativos e `f` é um símbolo funcional.
 
-O nome Lógica de Primeira Ordem (FOL, "first order logic") vem da idéia de que estamos quantificando sobre indivíduous de um domínio, objetos de primeira ordem. Como fizemos em {ref "pl-syntax"}[pl-syntax], nossa sintaxe será formalizada como tipos indutivos.
+O nome Lógica de Primeira Ordem vem da idéia de que estamos quantificando sobre indivíduous de um domínio, objetos de primeira ordem. Como fizemos em {ref "pl-syntax"}[pl-syntax], nossa sintaxe será formalizada como tipos indutivos.
 
 Uma variável carrega nome e um índice (lista de naturais usada para gerar "novas" variáveis a partir de uma dada variável):
 
@@ -83,17 +83,13 @@ instance : Repr Term := ⟨fun t _ => t.format⟩
 def tx : Term := .var x
 def ty : Term := .var y
 def tz : Term := .var z
-def tf : Term := .struct "f" [tx,.struct "g" [ty]]
+def tf : Term := .struct "f" [tx, .struct "g" [ty]]
 ```
 
 Constantes podem ser representadas como funções com aridade zero, ou seja, com a lista de argumentos vazia, {lean}`Term.struct "c" []`
 
 :::dev "Alexandre (arademaker)"
-Em Lean, indexar por aridade é mais natural do que empilhar primos: um
-`structure PredSymbol` com campos `name : String` e `arity : Nat` já
-representa "infinitos predicados de cada aridade finita" sem precisar
-de uma família de gramáticas, uma por aridade. Fica como observação,
-`Formula` (abaixo) não adota `PredSymbol`.
+Nada proible que um mesmo símbolo seja usado com aridades diferentes dentro de uma mesma fórmula. Poderiamos definir uma estrututa PredSymbol com campos nome e aridade (natural).
 :::
 
 `Formula α` é parametrizado no tipo dos termos que preenchem os predicados. Se usarmos `Formula Variable` estamos permitindo apenas fórmulas cujos termos são apenas variáveis. Se usarmos `Formula Term` temos nossa sintaxe completa.
@@ -145,8 +141,8 @@ def Formula.format {α} [Repr α] : Formula α → Std.Format
     f!"({f1.format} ==> {f2.format})"
   | .equi f1 f2 =>
     f!"({f1.format} <=> {f2.format})"
-  | .top => "true"
-  | .bot => "false"
+  | .top => "⊤"
+  | .bot => "⊥"
   | .conj f1 f2 =>
     f!"({f1.format} & {f2.format})"
   | .disj f1 f2 =>
@@ -169,6 +165,65 @@ def formula2 : Formula Variable :=
     (.impl (.atom "R" [x, y]) (.atom "R" [y, x])))
 ```
 
+::::exercise (rating := 2) (name := "ex-fol-translate")
+Considere a linguagem de primeira ordem com o vocabulário definido pelos símbolos abaixo.
+
+- `R(x,y)` - `x` respeita `y`
+- `M(x,y)` – `x` esta matriculado na disciplina `y`
+- `P(x)` – x é um professor
+- `A(x)` – `x` é um aluno
+- `D(x)` – `x` é uma disciplina
+- `Maria` - uma constante denotando a pessoa chamada Maria.
+
+Vamos traduzir cada uma das sentenças a seguir para fórmulas em lógica de primeira ordem.
+
+- (a) Maria respeita todos os professores.
+- (b) Alguns professores respeitam Maria.
+- (c) Maria respeita a si própria
+- (d) Nenhum aluno esta matriculado em todas as disciplina
+- (e) Não há disciplinas em que todos os alunos estejam nela matriculados
+- (f) Não há disciplinas sem alunos matriculados
+
+```lean
+namespace ExSchool
+def R (tx ty : Term) : Formula Term := .atom "R" [tx, ty]
+def M (tx ty : Term) : Formula Term := .atom "M" [tx, ty]
+
+def P (tx : Term) : Formula Term := .atom "P" [tx]
+def A (tx : Term) : Formula Term := .atom "A" [tx]
+def D (tx : Term) : Formula Term := .atom "D" [tx]
+
+def Maria : Term := .struct "Maria" []
+
+def Fa : Formula Term :=
+  solution!( .forall_ x (.impl (P tx) (R Maria tx)) )
+
+def Fb : Formula Term :=
+  solution!( .exists_ x (.conj (P tx) (R tx Maria)) )
+
+def Fc : Formula Term :=
+  solution!(R Maria Maria)
+
+def Fd : Formula Term :=
+  solution!(
+   .neg (.exists_ x (.conj (A tx)
+    (.forall_ y (.impl (D ty) (M tx ty))))) )
+
+def Fe : Formula Term :=
+  solution!(
+   .neg (.exists_ x (.conj (D tx)
+    (.forall_ y (.impl (A ty) (M ty tx))))) )
+
+def Ff : Formula Term :=
+  solution!(
+     .neg (.exists_ x (.conj (D tx)
+      (.neg (.exists_ y (.conj (A ty) (M ty tx)))))) )
+
+end ExSchool
+```
+::::
+
+
 Em uma fórmula `∀x F` (ou `∃x F`), o quantificador liga toda ocorrência de
 `x` em `F` que não esteja já ligada por um `∀x` (ou `∃x`) interno a `F`. Uma fórmula é *aberta* se tem ao menos uma ocorrência livre de variável, e *fechada* (também chamada *sentença*) caso contrário. Por exemplo, `(P x ∧ ∃x, R x x)` é aberta, o `x` de `P x` está fora do escopo do `∃x`. Mas `∃x (P x ∧ ∃x R x x)` é uma sentença.
 
@@ -190,7 +245,21 @@ def Formula.freeVars {α} (vars : α → List Variable) :
   | .exists_ v f => (f.freeVars vars).filter (· != v)
 ```
 
-::::exercise (rating := 2) (name := "closed-form")
+:::exercise (rating := 1) (name := "ex-fol-freevars")
+Complete o enunciado do exemplo com o termo que torna possível provar o exemplo apenas usando a tática {tactic}`native_decide`.
+
+```lean
+def F : Formula Variable :=
+  .exists_ x
+    (.conj (.disj (.atom "R" [x, y]) (.atom "S" [x, y, z]))
+           (.atom "P" [x]))
+
+example : F.freeVars (fun x => [x]) = solution!([y, y, z]) :=
+  solution!(by native_decide)
+```
+:::
+
+:::exercise (rating := 1) (name := "ex-fol-closedform")
 Complete o código da função `closedForm` abaixo que verifica
 se uma fórmula é fechada. Aqui cada termo é uma variável, então
 extrair as variáveis de um termo é devolvê-lo numa lista de um
@@ -200,9 +269,9 @@ elemento.  As fórmulas fechadas são as que têm a lista de livres vazia.
 def closedForm (f : Formula Variable) : Bool :=
   solution!((f.freeVars (fun x => [x])).isEmpty)
 ```
-::::
+:::
 
-::::exercise (rating := 1) (name := "implication-as-abbrev")
+:::exercise (rating := 1) (name := "ex-fol-remove-impl_equiv")
 Implicações e equivalências podem ser vistas como abreviações, pois se
 definem a partir de negação, conjunção e disjunção — as mesmas
 equivalências usadas na lógica proposicional. Escreva uma função `withoutIDs` que substitui cada fórmula por uma equivalente sem ocorrências de `impl` ou `equi`. Note que a função não depende do tipo `α`.
@@ -229,9 +298,9 @@ def withoutIDs {α : Type} (frm : Formula α) : Formula α :=
     | .forall_ v f => .forall_ v (withoutIDs f)
     | .exists_ v f => .exists_ v (withoutIDs f))
 ```
-::::
+:::
 
-::::exercise (rating := 2) (name := "negation-normal-form")
+:::exercise (rating := 2) (name := "ex-fol-nnf")
 Toda fórmula de lógica de predicados pode ser transformada em uma equivalente na *forma normal da negação* (NNF, "negation normal form"), onde negações só ocorrem diante de átomos. A receita é "empurrar" as negações através dos quantificadores por `¬ ∀x F ≡  ∃x ¬F` e `¬ ∃x F ≡ ∀x ¬F`, e através de disjunções e conjunções pelas leis de De Morgan: `¬(F1 ∧ F2) ≡ ¬F1 ∨ ¬F2` e `¬(F1 ∨ F2) ≡ ¬F1 ∧ ¬F2`. Finalmente, `¬¬F ≡ F` elimina dupla negação. Complete o código da função `nnf`.
 
 Dica: a receita acima diz o que fazer com a negação diante de alguma subfórmula. Isso sugere duas funções, uma para cada situação em que uma subfórmula pode aparecer. As duas se chamam mutuamente, e por isso vão num bloco `mutual`.
@@ -282,7 +351,7 @@ end
 def Formula.nnf {α : Type} (f : Formula α) : Formula α :=
   solution!(nnfPos f)
 ```
-::::
+:::
 
 Um termo `t` é *livre para* a variável `v` na fórmula `F` se toda ocorrência livre de `v` em `F` pode ser substituída por `t` sem que nenhuma das variáveis de `t` fique ligada. Por exemplo, `y` é livre para `x` em `Px → ∀x Px`, mas o mesmo termo não é livre para `x` em `∀y R[x,y] → ∀x R[x,x]`. Da mesma forma, `g[x,y]` não é livre para `x` em `∀y R[x,y] → ∀x R[x,x]`.
 
@@ -290,7 +359,7 @@ Um termo livre para uma variável `v` pode ser substituído nas ocorrências liv
 
 Se `t` não é livre para `v` em `F`, podemos sempre renomear as variáveis ligadas de `F` para garantir que a substituição de `t` por `v` em `F` tenha o significado correto. Embora `g[y,c]` não seja livre para `x` em `∀y R[x,y] → ∀x R[x,x]`, o termo é livre para `x` em `∀z R[xz] → ∀x R[x,x]`, que é uma chamada *variante alfabética* (nomes diferentes para as variáveis ligadas) da fórmula original.
 
-A função `isVar` verifica se um termo é uma variável. As funções `varsInTerm` e `varsInTerms` retornam as variáveis que ocorrem num termo ou numa lista de termos sem duplicatas.
+A função `isVar` verifica se um termo é uma variável. As funções `varsInTerm` e `varsInTerms` retornam a lista das variáveis que ocorrem num termo ou em uma lista de termos, sem duplicatas.
 
 ```lean
 def isVar : Term → Bool
@@ -307,12 +376,8 @@ def varsInTerms (ts : List Term) : List Variable :=
 end
 ```
 
-::::exercise (rating := 1) (name := "vars-in-formula")
-Implemente uma função `varsInForm : Formula Term → List Variable` que
-dá a lista de variáveis que ocorrem numa fórmula. Aqui não se trata de
-ocorrências *livres*: conte todas, inclusive a variável que cada
-quantificador liga. Mantenha a lista sem duplicatas, como fazem
-`varsInTerm` e `varsInTerms`.
+::::exercise (rating := 1) (name := "ex-fol-vars-in-formula")
+Implemente a função `varsInForm` que retorna a lista de todas as variáveis que ocorrem em uma fórmula. Retorne a lista sem duplicatas, como em `varsInTerm` e `varsInTerms`.
 
 ```lean
 def Formula.varsInForm (frm : Formula Term) : List Variable :=
@@ -335,9 +400,8 @@ def Formula.varsInForm (frm : Formula Term) : List Variable :=
 ::::
 
 
-::::exercise (rating := 2) (name := "free-vars-in-formula")
-Implemente `freeVarsInForm : Formula Term → List Variable`, que dá a
-lista de variáveis com ocorrências livres numa fórmula.
+::::exercise (rating := 2) (name := "ex-fol-free-vars-in-form")
+Complete a definição de `freeVarsInForm`, que retorna a lista de variáveis com ocorrências livres em uma fórmula que contenha termos além de variáveis.
 
 ```lean
 def Formula.freeVarsInForm (f : Formula Term) : List Variable :=
@@ -346,8 +410,8 @@ def Formula.freeVarsInForm (f : Formula Term) : List Variable :=
 ::::
 
 
-::::exercise (rating := 2) (name := "open-form")
-Usando a função `freeVarsInForm`, complete a função `openForm`, que verifica se uma fórmula é aberta. Reaproveite as funções anteriores.
+::::exercise (rating := 2) (name := "ex-fol-open-form")
+Complete a função `openForm`, que verifica se uma fórmula é aberta. Reaproveite as funções anteriores.
 
 ```lean
 def openForm (f : Formula Term) : Bool :=
@@ -361,7 +425,7 @@ def openForm (f : Formula Term) : Bool :=
 tag := "fol-semantics"
 %%%
 
-Em {ref "PL"}[PL], temos atribuições de valor de verdade para indicar o valor de verdade que deve ser atribuído a cada símbolos. Em FOL, uma *estrutura* cumpre este papel. Uma estrutura é como um dicionário para traduzir a linguagem formal. Uma estrutura nos dirá duas coisas. Em primeiro lugar, sobre qual coleção de coisas o símbolo `∀` deve quantificar. Em segundo lugar, o que os símbolos predicativos e funcionais denotam.
+Em {ref "PL"}[PL], temos atribuições de valor de verdade para indicar o valor de verdade que deve ser atribuído a cada símbolos. Em FOL, uma _estrutura_ cumpre este papel. Uma estrutura é como um dicionário para traduzir a linguagem formal. Uma estrutura nos dirá duas coisas. Em primeiro lugar, sobre qual coleção de coisas o símbolo `∀` deve quantificar. Em segundo lugar, o que os símbolos predicativos e funcionais denotam.
 
 Vamos considerar uma linguagem FOL com um único símbolo predicado binário, `E`. Chamaremos esta linguagem de `L₁`. Uma estrutura para `L₁` deve conter um domínio de discurso `D`, formado por entidades e uma interpretação para `E`.
 
@@ -439,7 +503,7 @@ def Assign.update {D : Type} (g : Assign D) (v : Variable) (d : D) : Assign D :=
   fun w => if w = v then d else g w
 ```
 
-Seja `M` um modelo para a linguagem `L`, seja `g` uma atribuição de variáveis para `L` em `M`, e seja `F` uma fórmula de `L`. Estamos prontos para definir a noção `M ⊨ᵍ F`, "F é verdadeira em M sob a atribuição g", ou: "g satisfaz F no modelo M".
+Seja `M` um modelo para a linguagem `L`, seja `g` uma atribuição de variáveis para `L` em `M`, e seja `F` uma fórmula de `L`. Estamos prontos para definir a noção `M ⊨ᵍ F`, `F` é verdadeira em `M` sob a atribuição `g` ou `g` satisfaz `F` no modelo `M`.
 
 O que segue é uma definição recursiva de avaliação para as fórmulas da lógica de predicados. Como em {ref "PL"}[lógica proposicional], a definição calcula o resultado `Bool`, e o valor de uma fórmula pode ser obtido com `#eval`. As cláusulas dos quantificadores são as que alteram a atribuição de valores à variáveis. `∀v F` vale quando `F` vale para toda escolha de valor de `v`, e `∃v F` quando vale para ao menos uma.
 
@@ -509,6 +573,70 @@ def g0 : Assign Vertex :=
 ```
 
 A primeira é a sentença `∃x ∀y ~E[y, x]` corresponde a afirmação de que existe um vértice para o qual nenhuma aresta aponta. É verdadeira, e a testemunha é `d`. A segunda é falsa pelo mesmo motivo — de `d` não sai aresta alguma. A terceira é verdadeira por causa do laço em `c`. A quarta é falsa: há aresta de `b` para `c`, mas não de `c` para `b`. Vale notar como a primeira soa em língua natural mais complicada do que a versão simbólica.
+
+
+:::exercise (rating := 2) (name := "ex-fol-weak-strong")
+Neste exercício, queremos mostrar que:
+
+1. `∀ x, Ax ∧ Bx` significa algo mais forte que `∀ x, Ax → Bx` (todo A é B). O que valida a primeira afirmação necessariamente valida a segunda, mas não o inverso.
+2. `∃ x, Ax → Bx` é mais fraco que `∃ x, Ax ∧ Bx` (alguns A são B). Neste caso, o que valida a segunda afirmação necessariamente valida a primeria, mas não o inverso.
+
+Para confirmar (1), complete a definição de `int₁`. Para confirmar (2), complete `int₂`. Todos os exemplos deverão ser provados apenas com a tática {tactic}`native_decide`.  Note que nosso domínio só tem dois valores, você não deve alterar o domínio.
+
+```lean
+namespace ExWeakStrong
+
+abbrev Values := Fin 2
+def dom : List Values := [0, 1]
+
+def int₁ (name : String) (as : List Values) : Bool :=
+ solution!(
+   match name, as with
+   | "A", [x] => [0].contains x
+   | "B", [x] => [0, 1].contains x
+   | _  , _   => false)
+
+def int₂ (name : String) (as : List Values) : Bool :=
+ solution!(
+   match name, as with
+   | "A", [x] => false
+   | "B", [x] => [1].contains x
+   | _  , _   => false)
+
+-- All x are A and B
+def F₁ : Formula Variable :=
+  .forall_ x (.conj (.atom "A" [x]) (.atom "B" [x]))
+
+-- All A are B
+def F₂ : Formula Variable :=
+  .forall_ x (.impl (.atom "A" [x]) (.atom "B" [x]))
+
+-- There is x such that, if x is A, then x is B
+def F₃ : Formula Variable :=
+  .exists_ x (.impl (.atom "A" [x]) (.atom "B" [x]))
+
+-- Some A are B
+def F₄ : Formula Variable :=
+  .exists_ x (.conj (.atom "A" [x]) (.atom "B" [x]))
+
+def g0 : Assign Values :=
+  fun _ => 0
+
+example : Formula.eval dom int₁ varVal g0 F₁ = false :=
+  solution!(by native_decide)
+
+example : Formula.eval dom int₁ varVal g0 F₂ :=
+  solution!(by native_decide)
+
+example : Formula.eval dom int₂ varVal g0 F₃ :=
+  solution!(by native_decide)
+
+example : Formula.eval dom int₂ varVal g0 F₄ = false :=
+  solution!(by native_decide)
+
+end ExWeakStrong
+```
+:::
 
 
 ## Termos estruturados
@@ -595,90 +723,7 @@ Uma sentença da lógica de predicados é *logicamente válida* se é verdadeira
 Uma sentença `C` *se segue logicamente* de uma sentença `P` (`P` de premissa, `C` de conclusão; dizemos também que `P` implica logicamente `C`) se todo modelo que torna `P` verdadeira também torna `C` verdadeira. A notação é `P ⊨ C`. Como julgar afirmações da forma `P ⊨ C`? É claro como podemos refutá-la: achando um contraexemplo. Um contraexemplo a `P ⊨ C` é um modelo `M` com `M ⊨ P` mas não `M ⊨ C`.
 
 
-::::exercise (rating := 2) (name := "quantifier-strength")
-
-Mostre que `∀x(Ax ∧ Bx)` significa algo mais forte que "todo A é B", e que
-`∃x(Ax → Bx)` significa algo mais fraco que "algum A é B".
-
-:::solution
-`∀x(Ax ∧ Bx)` diz que tudo no domínio é A e é B — não apenas que os A são B. Ela
-é falsa em qualquer modelo que tenha um objeto fora de A, mesmo que todos os A
-sejam B. A tradução correta de "todo A é B" é `∀x(Ax → Bx)`.
-
-`∃x(Ax → Bx)` é verdadeira assim que houver um objeto que não seja A, porque a
-implicação vale vacuamente para ele. Ela não afirma que existe um A que é B; a
-tradução correta de "algum A é B" é `∃x(Ax ∧ Bx)`.
-:::
-
-::::
-
-::::exercise (rating := 2) (name := "translate-quantified")
-
-Traduza as sentenças a seguir para lógica de predicados, garantindo que as
-condições de verdade sejam capturadas.
-
-1. _Someone walks and someone talks._
-2. _No wizard cast a spell or mixed a potion._
-3. _Every ballad that is sung by a princess is beautiful._
-4. _If a knight finds a dragon, he fights it._
-
-```lean
-def someoneWalksAndTalks : Formula Variable :=
-  solution!(.conj
-    (.exists_ x (.atom "Walk" [x]))
-    (.exists_ y (.atom "Talk" [y])))
-
-def noWizardCastOrMixed : Formula Variable :=
-  solution!(.forall_ x
-    (.impl (.atom "Wizard" [x])
-      (.neg (.disj (.atom "CastSpell" [x])
-                   (.atom "MixedPotion" [x])))))
-
-def everyBalladBeautiful : Formula Variable :=
-  solution!(.forall_ x
-    (.impl
-      (.conj (.atom "Ballad" [x])
-        (.exists_ y (.conj (.atom "Princess" [y])
-                           (.atom "Sung" [y, x]))))
-      (.atom "Beautiful" [x])))
-
-def knightFightsDragon : Formula Variable :=
-  solution!(.forall_ x (.forall_ y
-    (.impl
-      (.conj (.atom "Knight" [x])
-        (.conj (.atom "Dragon" [y])
-               (.atom "Finds" [x, y])))
-      (.atom "Fights" [x, y]))))
-```
-
-A fórmula é uma proposta; a verificação de que ela afirma o que se queria fica
-para a seção seguinte, que dá o meio de enunciar a condição de verdade
-pretendida com os quantificadores do próprio Lean e exigir que as duas
-coincidam.
-
-:::solution
-As duas primeiras são diretas, mas repare no escopo da negação em (2): _no
-wizard cast a spell or mixed a potion_ nega a disjunção inteira, não cada
-disjunto separadamente. Escrever `∀x(Wizard x → (¬CastSpell x ∨ ¬MixedPotion
-x))` afirmaria algo mais fraco — que nenhum mago fez as duas coisas.
-
-A terceira mostra por que a cláusula relativa entra como conjunto na
-antecedente: _every ballad that is sung by a princess_ restringe o domínio da
-quantificação, e a restrição é `Ballad x ∧ ∃y(Princess y ∧ Sung y x)`.
-
-A quarta é a mais instrutiva. Os artigos indefinidos de _a knight_ e _a dragon_
-parecem pedir `∃`, mas dentro do antecedente de uma condicional eles ganham
-força universal: a sentença diz que *todo* par cavaleiro-dragão que se encontra
-luta. Traduzir com `∃` daria `∃x∃y(Knight x ∧ Dragon y ∧ Finds x y → Fights x
-y)`, que é quase trivialmente verdadeira — basta haver um par que não se
-encontra. E os pronomes _he_ e _it_ retomam justamente as variáveis ligadas
-pelos quantificadores, que é o que permite a tradução funcionar.
-:::
-
-::::
-
 ::::exercise (rating := 2) (name := "valid-consequence")
-
 Quais das afirmações seguintes valem? Se uma vale, explique por quê; se não,
 dê um contraexemplo.
 
@@ -695,8 +740,8 @@ dê um contraexemplo.
 3. Vale. Se há um `d` tal que todo `x` se relaciona com `d`, então para cada `x`
    esse mesmo `d` testemunha `∃yRxy`.
 :::
-
 ::::
+
 
 # Traduzindo `Formula` para `Prop`
 
@@ -733,6 +778,14 @@ def Formula.denote {D α : Type} (I : Denot D)
 Cada caso troca um construtor de `Formula` pelo conectivo correspondente de `Prop` — o `conj` do dado vira o `∧` da proposição, e o `forall_` vira o `∀` do próprio Lean. Com isso podemos voltar às traduções do exercício anterior e verificá-las. Enunciamos a condição de verdade pretendida à direita, com os quantificadores do Lean, e exigimos que coincida com o que a fórmula proposta afirma. Como `denote` calcula, o teorema fecha por `Iff.rfl`.
 
 ```lean
+def knightFightsDragon : Formula Variable :=
+  solution!(.forall_ x (.forall_ y
+    (.impl
+      (.conj (.atom "Knight" [x])
+        (.conj (.atom "Dragon" [y])
+               (.atom "Finds" [x, y])))
+      (.atom "Fights" [x, y]))))
+
 theorem knightFightsDragon_means {D : Type}
     (I : Denot D) (g : Assign D) :
     Formula.denote I varVal g knightFightsDragon ↔

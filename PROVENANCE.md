@@ -115,17 +115,23 @@ propositional logic that it never gave. Two exercises went with it,
 `four-turn-game` and `chess-grammar`, along with CSwFP/5.13–5.16, which had no
 `CSwL` counterpart in the first place.
 
-### `Logic/PL.lean` — CSwFP/4.4
+### `Logic/Proofs.lean` 
 
-Exercise 4.9 traducao de sentencas 
+No exercise from CSwFP, all exercises were created.
+
+### `Logic/PL.lean` 
+
+Source: CSwFP/4.4 CSwFP/5.2 CSwFP/5.3
+
+Exercise 4.9 translation of NL to PL
 = bangu-form
-obs: talvez mais um?
+obs: temos também bangu-proof
 
-Exercise 4.10 implementar xor
+Exercise 4.10 xor
 = exclusive-or
 
-Exercise 4.11 
-obs: precisa da contextfreegrammar de mathlib
+Exercise 4.11 about the grammar
+obs: we need ContextFreeGrammar from Mathlib
 
 Exercise 4.12 opsNr 
 = count-operators
@@ -136,106 +142,94 @@ Exercise 4.13 depth
 Exercise 4.14 propNames 
 = collect-atoms
 
-Exercise 5.4 dada uma V qual valor de formulas, ja transformei em "me da uma V para fazer F verdade"
+Exercise 5.4 evaluation of formulas
 = valuations
-obs: talvez uma formula adicional para exercicio ficar mais interessante
 
-Exercise 5.5 Explain why the negation of a tautology is always a contradiction, and vice-versa ~> como tirar o explain ?
+Exercise 5.5 negation of a tautology is always a contradiction, and vice-verssa
+obs: in the prose 
 
 Exercise 5.6 quais formulas sao sat e para elas me da v!
+= ex-pl-satisfiable
 
 Exercise 5.7 quais equiv sao verdade!
-= pl-equivalent
-obs: completar com as outras formulas
+= ex-pl-equiv
 
 Exercise 5.8 Which of the following are true?
+= pl-consequence
+dep: implies-from-list
 
-Exercise 5.9 Show that the following principle of contraposition is true
-   F1 |=F2 iff ¬F2 |=¬F1.
+Exercise 5.9 Show principle of contraposition 
+obs: in the prose
 
 Exercise 5.10 implementar impliesL
+= implies-from-list
 
-Exercise 5.11 implementar propEquiv
+*novo*
+= bangu-proof
+dep: bangu-form
+obs: complete problem using logical consequence
 
-Exercise 5.12 Instead of the data type [(String,Bool)] for valuations, we might as
-well simply have used [String], with presence or absence in the list indicating truth or
-falsity. Reimplement the semantics of propositional formulas using this data type.
+Exercise 5.11 implement equivalence
+obs: n the prose
 
+Exercise 5.12 redefine Valuation from [(String, Bool)]
+obs: implemented in the prose
 
-
-Exercises 4.9 and 4.11 were ported and then dropped when the chapter
-was restructured around worked arguments. 4.9 asked for three
-sentences to be translated into propositional logic; `exchange-prop`,
-`dresses` and `bangu-form` ask the same thing of arguments the reader
-then has to prove or settle, which is the same skill with a use
-attached. 4.11 asked for unique readability — see `DEVIATIONS.md` on
-why the original claim dissolves — and the section that carried it,
-along with the parenthesis-counting results of Theorem 4.1 and
-Proposition 4.2, went with the restructuring.
 
 ### `Logic/FOL.lean` — CSwFP/4.5–4.7
 
-| CSwL id                 | Rating | CSwFP                   | Page | Notes   |
-|-------------------------|--------|-------------------------|------|---------|
-| -                       | 2      | Exercise 4.15           | 77   | dropped |
-| -                       | 1      | Exercise 4.16           | 77   | dropped |
-| -                       | 1      | Exercise 4.17           | 78   | dropped |
-| `closed-form`           | 2      | Exercise 4.18           | 81   |         |
-| `implication-as-abbrev` | 1      | Exercise 4.19           | 82   |         |
-| `negation-normal-form`  | 2      | Exercise 4.20           | 82   |         |
-| -                       | 1      | Exercise 4.21           | 83   | dropped |
-| `vars-in-formula`       | 1      | Exercise 4.22           | 84   |         |
-| `open-form`             | 2      | Exercises 4.23 and 4.24 | 84   | merged  |
+Exercise 4.15 uniq readable
+obs: not applicable without ContextFreeGrammar from Mathlib
 
-All ten are `:::exercise` directives. Nine of them were plain `#` headings
-carrying the source's page number until 2026-08-30; 4.23 and 4.24 became one
-exercise, since 4.23 asked for the function that 4.24 builds on.
+Exercise 4.16 alternative BNF
+obs: not formalizable without ContextFreeGrammar
 
-### `Logic/PL.lean` — CSwFP/5.2, 5.3
+Exercise 4.17 bound ocurrences of x in a formula
+= ex-fol-freevars
 
-| CSwL id             | Rating | CSwFP         | Page | Notes      |
-|---------------------|--------|---------------|------|------------|
-| `valuation-table`   | 1      | Exercise 5.4  | 92   |            |
-| `negated-tautology` | 1      | Exercise 5.5  | 93   | prose      |
-| —                   | —      | Exercise 5.6  | 93   | not ported |
-| —                   | —      | Exercise 5.7  | 93   | not ported |
-| —                   | —      | Exercise 5.8  | 93   | not ported |
-| —                   | —      | Exercise 5.9  | 93   | not ported |
-| `implies-list`      | 2      | Exercise 5.10 | 96   |            |
-| —                   | —      | Exercise 5.11 | 96   | not ported |
-| —                   | —      | Exercise 5.12 | 96   | not ported |
+Exercise 4.18 closedForm
+= ex-fol-closedform
 
-### `Logic/FOL.lean` — CSwFP/5.5
+Exercise 4.19 withoutIDs
+= ex-fol-remove-impl_equiv
 
-| CSwL id                | Rating | CSwFP         | Page | Notes      |
-|------------------------|--------|---------------|------|------------|
-| `quantifier-strength`  | 2      | Exercise 5.17 | 102  | prose      |
-| `translate-quantified` | 2      | Exercise 5.18 | 102  |            |
-| —                      | —      | Exercise 5.19 | 102  | not ported |
-| —                      | —      | Exercise 5.20 | 103  | not ported |
-| —                      | —      | Exercise 5.21 | 103  | not ported |
-| —                      | —      | Exercise 5.22 | 103  | not ported |
-| —                      | —      | Exercise 5.23 | 104  | not ported |
-| `valid-consequence`    | 2      | Exercise 5.24 | 104  | prose      |
+Exercise 4.20 nnf
+= ex-fol-nnf
 
-### `Logic/FOL.lean` — CSwFP/6.5
+Exercise 4.21 parse tree of terms
+obs: not applicable without ContextFreeGrammar
 
-| CSwL id       | Rating | CSwFP | Page | Notes                          |
-|---------------|--------|-------|------|--------------------------------|
-| `lift-assign` | 1      | —     | 144  | new; see below                 |
-| —             | —      | Exercise 6.6 | 146 | not ported              |
+Exercise 4.22 implement varsInForm
+= ex-fol-vars-in-formula
 
-`lift-assign` has no CSwFP counterpart: 6.5 gives `liftLookup` as text, not as
-an exercise. It asks for the `.struct` case of `liftAssign`, the recursion that
-values a structured term, and it is the one step of that section worth making
-the reader take — the shape is already familiar from `varsInTerm`, and what is
-new is that the recursive results go to the interpretation of the function
-symbol.
+Exercise 4.23 implement freeVarsInForm
+= ex-fol-free-vars-in-form
 
-CSwFP/6.6 asks what `formula3` expresses under `<`, whether it holds on the
-naturals, and whether it holds on the rationals. It is not ported: the answer
-is either an `#eval` or a paragraph, and this book's exercises complete a
-definition or a proof.
+Exercise 4.24 openForm
+= ex-fol-open-form
+
+Exercise 5.17 all/exists weak/strong
+= ex-fol-weak-strong
+
+Exercise 5.18 translate to FOL
+= ex-fol-translate
+
+
+Exercise 5.19 check formulas model given
+
+Exercise 5.20 consequence are true?
+
+Exercise 5.21 substitute vars in terms
+
+Exercise 5.22 language extension
+
+Exercise 5.23 Write out the truth definition for formulas with terms
+
+Exercise 5.24 logical consequences that holds?
+
+Exercise 5.25 which logical consequences holds?
+
+
 
 ### `InfEngine.lean` — CSwFP/5.7
 
