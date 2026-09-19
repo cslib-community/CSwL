@@ -451,13 +451,10 @@ O tipo indutivo diz *quais* são os objetos do domínio: apenas os quatro acima,
 def vertices : List Vertex := [.a, .b, .c, .d]
 
 theorem mem_vertices (v : Vertex) : v ∈ vertices := by
-  cases v
-  all_goals decide
+  cases v <;> decide
 ```
 
-A tática `decide` fecha uma proposição decidível calculando-a. Combinada com `cases v`, que abre um caso por construtor, ela verifica os quatro casos um a um — e não há um quinto.
-
-Definimos o domínio, agora precisamos definir a relação binária que será usada para interpretar o símbolo `E`.
+A tática `decide` é combinada com `cases v`, que abre um caso por construtor, ela verifica os quatro casos um a um. Definimos o domínio, agora precisamos definir a relação binária que será usada para interpretar o símbolo `E`.
 
 ```lean
 def edge : Vertex → Vertex → Bool

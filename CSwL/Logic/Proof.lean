@@ -541,9 +541,6 @@ example (n : Nat) : n + 0 = n := by
     linarith
 ```
 
-Outras táticas como {tactic}`decide`, {tactic}`omega` e {tactic}`simp` aparecerão em momentos específicos dos capítulos seguintes e serão explicadas à medida que se fizerem necessárias.
-
-
 # Extensionalidade de Funções
 %%%
 tag := "funext"
@@ -562,6 +559,21 @@ example : double₁ = double₂ := by
   rw [double₁, double₂]
   exact (Nat.two_mul n)
 ```
+
+# Outras Táticas
+%%%
+tag := "tactics"
+%%%
+
+No Lean, as táticas {tactic}`decide` e {tactic}`native_decide` têm a mesma ideia básica. São usadas para provar uma proposição por computação, como existe uma instância {name}`Decidable`. Mas executam essa computação de formas diferentes. A {tactic}`decide` executa dentro do próprio kernel do Lean. É simples e totalmente baseada na redução dos termos para formas normais do Lean, mas pode ser lenta para computações grandes. A {tactic}`native_decide` faz a mesma decisão, porém compila a computação para código nativo antes de executá-la.
+
+```lean
+example : (List.range 100000).length = 100000 := by
+  native_decide
+```
+
+Outras táticas como {tactic}`omega` e {tactic}`simp` aparecerão em momentos específicos dos capítulos seguintes e serão explicadas à medida que se fizerem necessárias.
+
 
 ```lean
 end Proof

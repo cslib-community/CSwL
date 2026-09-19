@@ -81,28 +81,10 @@ maintains.
 Open questions about the table, recorded so they are not lost. Each needs an
 author decision, not a mechanical fix.
 
-- **`native_decide`** is named in the prose of three `Logic/PL` exercises
-  (`:282`, `:308`, `:348`) and used in their solutions, then used eleven times
-  in `SeaBattle.lean` (from `:290`) and twice in
-  `Morphology/SwedishPlural.lean` (`:69`, `:72`). It is told to the reader but
-  never *presented*: it closes a goal by compiling and running it, trusting
-  the compiler rather than the kernel — a materially different promise from
-  `decide`, and a reader who meets it without being told will draw the wrong
-  conclusion about what a Lean proof is worth. The only explanation anywhere
-  is a Portuguese comment inside a `SwedishPlural` solution (`:63-66`), which
-  reaches neither the student nor the English code-comment rule. `Logic/PL` is
-  where it is first met and so where the explanation belongs.
 - **`trivial`** — two term-level uses in `Sets.lean:517`, not presented
   anywhere. It is listed in the table under types rather than tactics, since
   that is what it is here. Give it a line or replace it when that chapter is
   revised.
-- **`decide` in `Logic/FOL`** — used once, by `mem_vertices`
-  (`cases v <;> decide`), and presented in the sentence right after it: it
-  closes a decidable proposition by computing it. That is the whole of what the
-  chapter needs from it; `Sets` still develops `Decidable` properly. `omega`,
-  `refine` and the term-level `absurd` arrive in the same chapter's
-  infinite-domain section, in exposition rather than in an exercise, and are
-  *not* presented — see the next entry.
 - **`omega`, `refine`, `absurd` in `Logic/FOL`'s `fol-infinite` section** —
   they appear in `le_foldr_max` and `no_list_lists_Nat`, which are shown with
   their proofs as exposition. No exercise asks the reader to reproduce either,
