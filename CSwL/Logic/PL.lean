@@ -194,7 +194,8 @@ Três pessoas são suspeitas de torcer pelo Bangu F.C. Aparecido entrevistou os 
 - Joaquim: Se Auro não torce pelo BFC, Cláudia também não torce pelo BFC.
 - Cláudia: Eu torço pelo BFC, mas pelo menos um dos outros não torce pelo BFC.
 
-Termine a formalização dos depoimentos construindo uma expressão no tipo {name}`Formula`.
+Considerando que as fórmulas atômicas `A`, `J` e `C` representam, respectivamente, que Auro, Joaquim e Cláudia torcem pelo BFC, complete a formalização dos três depoimentos construindo as expressões correspondentes do tipo {name}`Formula`.
+
 
 ```lean
 namespace Bangu
@@ -236,7 +237,7 @@ def form3 : Formula :=
 ```
 
 :::exercise (rating := 1) (name := "count-operators")
-Implemente uma função `countOps` para contar o número de operadores de uma fórmula. a tática {tactic}`decide` é como pedir ao Lean para executar a decisão de uma proposição booleana e, se o resultado for true, transformar esse resultado em uma prova.
+Implemente uma função `countOps` para contar o número de operadores lógicos de uma fórmula. A tática {tactic}`decide` é como pedir ao Lean para executar a decisão de uma proposição boleana e, se o resultado for true, transformar esse resultado em uma prova.
 
 ```lean
 def Formula.countOps : Formula → Nat :=

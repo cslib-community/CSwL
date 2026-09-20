@@ -2,10 +2,11 @@
 -- (namespace SFLMeta -> CSwLMeta), with the cuts that go along with the
 -- modules CSwL did not port (see `CSwLMeta.lean`):
 --
--- * the `walkBlock` cases for Details/SlideBreak are left out -- the
---   corresponding modules don't exist here;
---   (DevComment was ported -- see the `Block.devcomment` case below; Bnf and
---   DisplayMath were also ported, but with no case of their own here --
+-- * the `walkBlock` case for SlideBreak is left out -- the corresponding
+--   module doesn't exist here;
+--   (DevComment and Details were ported -- see the `Block.devcomment` and
+--   `Block.details` cases below; Bnf and DisplayMath were also ported, but
+--   with no case of their own here --
 --   they fall through to the generic branch below, which already suffices:
 --   `Block.bnf`/`Block.display` wrap the original text as a `Block.code`
 --   child, and the generic branch recurses into the children, so the text
@@ -29,6 +30,7 @@
 import VersoManual
 
 import CSwLMeta.Comment
+import CSwLMeta.Details
 import CSwLMeta.Exercise
 import CSwLMeta.Quiz
 import CSwLMeta.Grade
@@ -55,6 +57,12 @@ namespace SaveBuffers
 def appendAll (buf : SaveBuffers) (file : String) (s : String) : SaveBuffers :=
   let vs := buf.getD file default
   buf.insert file <| vs.map (· ++ s)
+
+/-- Collapse the blank line a just-appended block left behind, so the next
+appended comment line lands directly under it rather than after a gap. -/
+def dropBlankLine (buf : SaveBuffers) (file : String) : SaveBuffers :=
+  let vs := buf.getD file default
+  buf.insert file <| vs.map fun s => if s.endsWith "\n\n" then (s.dropEnd 1).toString else s
 
 def appendOnly (buf : SaveBuffers) (file : String) (variant : Variant) (s : String) : SaveBuffers :=
   let vs := buf.getD file default |>.mapV fun v x => if v == variant then x ++ s else x
@@ -419,6 +427,24 @@ partial def walkBlock (width : Nat) (file : String) (b : Verso.Doc.Block Manual)
       match findAlt? contents with
       | .some alt => return buf.appendAll file (asModuleDoc alt.trimAscii.toString)
       | .none => return buf
+    if name == ``Block.details then
+      -- The contents are inlined verbatim, bracketed by skip markers so the
+      -- reader of the `.lean` can tell this was a collapsed, skippable aside in
+      -- the book. The summary (if any) rides along on the opening marker.
+      let summary :=
+        match which.data with
+        | .str s => s
+        | _ => ""
+      let opener := if summary.isEmpty
+        then "THE FOLLOWING DETAILS CAN BE SKIPPED"
+        else s!"THE FOLLOWING DETAILS CAN BE SKIPPED ({summary})"
+      -- Both markers hug the content they bracket: the opener drops the blank
+      -- line `asModuleDoc` would leave after it, and the closer collapses the
+      -- one the last content block left behind.
+      let mut buf := buf.appendAll file ((asModuleDoc opener).dropEnd 1).toString
+      buf := walkBlocks width file contents buf
+      buf := (buf.dropBlankLine file).appendAll file (asModuleDoc "END DETAILS")
+      return buf
     if name == ``Block.quiz then
       -- A quiz is shown in every build product; label it so the reader of the
       -- generated `.lean` can tell the question apart from surrounding prose.

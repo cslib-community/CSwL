@@ -140,7 +140,11 @@ Exercise 4.13 depth
 = formula-depth
 
 Exercise 4.14 propNames 
-= collect-atoms
+= collect-atoms 
+
+*novo*
+= collect-atoms-alternative
+obs: alternative for `names` without mergeSort and `eraseDups`
 
 Exercise 5.4 evaluation of formulas
 = valuations
@@ -222,17 +226,29 @@ Exercise 5.19 check formulas model given
 = ex-fol-model
 
 Exercise 5.20 consequence are true?
+= ex-fol-valid
 
 Exercise 5.21 substitute vars in terms
+obs: alternative definition, introduce names in the language
 
 Exercise 5.22 language extension
+obs: alternative definition, use 5.21 semantics of language + names - assigments
 
 Exercise 5.23 Write out the truth definition for formulas with terms
+obs: in the prose
 
-Exercise 5.24 logical consequences that holds?
+Exercise 5.24 logical consequences a |= b holds?
+= ex-fol-consequence
 
-Exercise 5.25 which logical consequences holds?
+*novo*
+= ex-fol-implies-from-list
+obs: FOL analogue of implies-from-list (CSwFP/5.10); drawn from the prose
+     between 5.24 and 5.25, "We can make this slightly more general by
+     allowing sets of more than one premise"
 
+Exercise 5.25 logical consequences Delta |= b holds?
+= ex-fol-entails
+dep: ex-fol-implies-from-list
 
 
 ### `InfEngine.lean` — CSwFP/5.7
@@ -340,6 +356,7 @@ as an oversight.
 | `Logic/PL.lean`                 | `bangu-form`               | 1      |
 | `Logic/PL.lean`                 | `bangu-proof`              | 1      |
 | `Logic/FOL.lean`                | `forall-exists-swap`       | 2      |
+| `Logic/FOL.lean`                | `ex-fol-implies-from-list` | 2      |
 | `InfEngine.lean`                | `inconsistent-kb`          | 2      |
 | `InfEngine.lean`                | `ferio`                    | 2      |
 

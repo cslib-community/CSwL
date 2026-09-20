@@ -1,9 +1,10 @@
 -- Adapted from sf-in-lean/SFLMeta.lean, with only the modules
--- CSwL uses (`sf-in-lean` also has Details, Epigraph, Hide, Ignore,
+-- CSwL uses (`sf-in-lean` also has Epigraph, Hide, Ignore,
 -- Instructors, SlideBreak, Theme, Version, and Volume).
 -- Adding one of those is copying the file and adding an `import` here.
 import CSwLMeta.Bnf
 import CSwLMeta.Comment
+import CSwLMeta.Details
 import CSwLMeta.Diagrams
 import CSwLMeta.DisplayMath
 import CSwLMeta.Exercise

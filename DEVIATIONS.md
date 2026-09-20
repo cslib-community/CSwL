@@ -358,6 +358,36 @@ takes the assignment and not just the term because the quantifier cases update
 a term's variables, and it leaves `eval_iff_denote` unchanged — same statement,
 same proof, now quantified over `α`.
 
+**Two families of validity, because there are two formula types.** CSwFP
+states validity and consequence once, for closed formulas of predicate logic,
+and never has to say over what the definition ranges — it has no types to
+range over. Here `Formula` is parameterized, so the definition has to pick:
+`Formula.Valid`, `Formula.Satisfiable` and `Formula.Implies` are stated for
+`Formula Variable`, and `Formula.ValidT` and `Formula.ImpliesL` for
+`Formula Term`. The pair is not redundant. A structure for a language without
+function symbols is `(D, I)`, and for one with them it is `(D, I, F)`; the two
+definitions are exactly that difference, and `ValidT` is what makes the third
+component visible. The pairing is deliberately incomplete: `Satisfiable` gains
+no `Term` counterpart, because nothing in the chapter needs one.
+
+Unifying on `Formula Term` was measured before being rejected. The three
+`Variable` definitions are used in 11 places, all inside `FOL.lean` — nothing
+in `Sets.lean`, `InfEngine.lean` or any later chapter — and porting the seven
+affected proofs is mechanical (`x` becomes `tx`, one extra binder in `intro`,
+`liftAssign` for `varVal`); all seven still close. What decided it is the
+recurring cost rather than the one-off one. Every counterexample over a
+formula without function symbols would have to invent an inert
+`FInterp` just to satisfy the signature, and `Formula Term` reintroduces the
+unchecked pairing between a quantifier's `Variable` binder and its body's
+`Term`s — in `Formula Variable` the two are the same object. Both prices are
+paid on every future exercise, not once.
+
+**Consequence from a list of premises.** CSwFP generalizes `P ⊨ C` to
+`P₁, …, Pₙ ⊨ C` in the prose between 5.24 and 5.25 without new machinery.
+`Formula.ImpliesL` does the same, via `Formula.conjs`, and mirrors
+`PL.Formula.impliesL` from the previous chapter — which is likewise an
+exercise (`implies-from-list`, CSwFP/5.10) that later exercises then call.
+
 **CSwFP/6.5's `[0..]` becomes a theorem.** The original evaluates over the
 infinite domain `[0..]`, relying on Haskell's laziness, and observes that the
 procedure "will keep on trying candidates". That cannot be ported: Lean is not

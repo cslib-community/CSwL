@@ -233,6 +233,12 @@ Prose can be routed to a variant:
   So a dev note never reaches a student, and nothing in one has to be written
   with a student in mind.
 - `:::quiz` and `:::quizSolution` — a comprehension check.
+- `:::details "summary"` — a collapsible aside, for material that supports the
+  narrative without belonging to it (an extra proof, a digression). The
+  positional summary string is the teaser shown while the block is closed, and
+  is optional. In the generated `.lean` the contents are inlined, bracketed by
+  `THE FOLLOWING DETAILS CAN BE SKIPPED` / `END DETAILS` markers — nothing is
+  hidden from the reader of the code, only from the reader of the page.
 - `:::diagramWithAlt` — a diagram with its textual alternative, for
   accessibility.
 
