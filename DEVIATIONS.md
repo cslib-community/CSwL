@@ -82,10 +82,9 @@ opens "We already talked about functions informally", so it needs 2.3; 2.5 build
 | 5 | `SeaBattle.lean`     | 4.1, 5.1                                          | 2, 3     | 4          |
 | 6 | `Morphology.lean`    | 3.11, 3.14                                        | 2        | 3          |
 | 7 | `InfEngine.lean`     | 4.3, 5.7                                          | 2, 3     | 4          |
-| 8 | `English.lean`       | 4.2, 5.6; 2.5                                     | 2, 3, 4  | —          |
-| 9 | `ModelChecking.lean` | 6.1–6.5                                           | 2, 3, 8  | 4          |
+| 8 | `English.lean`       | 6.1, 4.2, 6.2, 6.3–6.4; 5.6                       | 2, 3     | 4          |
 
-`Sets.lean` requires `Logic.lean` because its exercises are proofs, and the tactics they need — quantifiers, `cases`, `by_contra` — arrive there. `SeaBattle.lean` requires `Logic.lean` for the same reason: it proves theorems about `WellFormed` by induction on an inductive predicate, which no earlier chapter has the machinery for. `English.lean` requires `Sets.lean` because its categorial section interprets a transitive verb over `Sets.Entity` and `Sets.likesR`, the domain and relation that chapter introduces.
+`Sets.lean` requires `Logic.lean` because its exercises are proofs, and the tactics they need — quantifiers, `cases`, `by_contra` — arrive there. `SeaBattle.lean` requires `Logic.lean` for the same reason: it proves theorems about `WellFormed` by induction on an inductive predicate, which no earlier chapter has the machinery for. `English.lean` required `Sets.lean` while it carried a categorial section interpreting a transitive verb over `Sets.Entity` and `Sets.likesR`. That section is gone (see the chapter's entry below), the chapter declares its own domain, and the import with it: `Sets.lean` is now only *best after*, because the fairy-tale model is built from characteristic functions and that is the representation choice `Sets.lean` makes.
 
 `Morphology.lean` requires only `IntroL.lean` — its three sections are programs, and the proofs in them are `rfl` on concrete values. It is placed after `SeaBattle.lean` rather than at its old position right after `IntroL.lean` so that its exercises may use the tactics `Logic.lean` presents, rather than being confined to what `IntroL.lean` alone allows.
 
@@ -437,7 +436,7 @@ Decision: `PL.lean` does not state unique readability as a theorem. What it stat
 
 What is left of CSwFP/2 after 2.3, 2.4 and 2.5 moved to `IntroL.lean` and `English.lean`: sets and relations. Renamed from `Foundation.lean`, which promised a foundations chapter that no longer exists. `Sets` covers both halves honestly, because CSwFP/2.2 *defines* a relation as a subset of A × B — a relation is a set — and because what the chapter adds in Lean is precisely the representation choice for `Set α`.
 
-**What the chapter is.** Sets and relations are presupposed notation from CSwFP/1 onwards, as in any mathematical text — which is why 5.5 can speak of `I(R) ⊆ D²` before this chapter exists. This chapter is where they are *mechanised in Lean*, and its opening has to say so, or it promises the wrong thing. That is also what makes it worth having: Lean forces representation choices — `Set α` vs. the predicate `α → Bool` vs. `Finset`, `Rel` vs. a list of pairs, decidability — and those choices determine how the models of `ModelChecking.lean` are built.
+**What the chapter is.** Sets and relations are presupposed notation from CSwFP/1 onwards, as in any mathematical text — which is why 5.5 can speak of `I(R) ⊆ D²` before this chapter exists. This chapter is where they are *mechanised in Lean*, and its opening has to say so, or it promises the wrong thing. That is also what makes it worth having: Lean forces representation choices — `Set α` vs. the predicate `α → Bool` vs. `Finset`, `Rel` vs. a list of pairs, decidability — and those choices determine how the fairy-tale model of `English.lean` is built.
 
 **Why after `Logic.lean`.** Nothing downstream requires this chapter — no later chapter fails to compile without it — but the chapter itself requires `Logic.lean`, and that is what fixes its position. Both reasons are about the exercises:
 
@@ -490,42 +489,55 @@ This chapter is independent of the English fragment: `InfEngine.hs` imports noth
 
 Three divergences. The least fixed point is computed with a fuel bound rather than by iterating until the value stops changing, because the latter has no structural termination argument; the bound is the square of the domain size, which is beyond what the closure can need. Relations are `List (α × α)`, named `Relation` rather than `Rel`, so that Mathlib's `Rel` — which `Sets.lean` introduces and this chapter's closing section uses through `Set` — keeps its name. And CSwFP/5.7's natural-language *input* is not ported: the parser, the file I/O and the `chat` loop are the only place in the book that would need `IO`, and the chapter states its interface through `ToString` on `Statement`, which is the output half.
 
-### 8. `English.lean` — CSwFP/4.2, 5.6
+### 8. `English.lean` — CSwFP/6.1, 4.2, 6.2, 6.3–6.4
 
-The fragment of English (4.2) and its semantics (5.6), plus the natural-language fragments that CSwFP scatters earlier and that `CSwL` deliberately does not present in place: the `likes` example of 2.4, the `Subject`/`Predicate` example of 3.13, and all of 2.5 — the `S → NP VP` this chapter always carried, and now the type BNF `τ ::= b | (τ → τ)` and the three typing rules as well. CSwFP introduces a slightly larger grammar in 4.2 and then, in 5.6, sketches the semantics of an initial vocabulary largely disconnected from it. Gathering these fragments in one place is the point of this chapter.
+The chapter has four sections, in this order: 6.1 (linguistic form and translation into logic), 4.2 (the fragment of English), 6.2 (predicate logic as representation language), and 6.3 together with 6.4 (the model, and evaluation in it). The order is forced. CSwFP/6.2 translates the 4.2 grammar category by category — the text says so, and `MCWPL.hs` imports the syntax module and opens with `lfSent :: Sent -> LF` — so the grammar has to exist first. 6.1 is the argument that motivates the translation at all, so it opens the chapter.
 
-**What this chapter must deliver to `ModelChecking.lean`.** Gathering the fragments is the editorial goal, but the chapter also has a hard obligation: CSwFP/6 translates the 4.2 grammar category by category, so every category it destructures has to exist by the end of this chapter. `MCWPL.hs` defines one translation function per category — `lfSent`, `lfNP`, `lfDET`, `lfCN`, `lfRCN`, `lfVP`, `lfTV`, `lfDV` — so the required inventory is:
+**CSwFP/2.4, 2.5 and 3.13 are no longer here.** Earlier drafts carried the `likes` example of 2.4, the `Subject`/`Predicate` example of 3.13, and all of 2.5 — the type BNF `τ ::= b | (τ → τ)`, the three typing rules, and a categorial section that named the semantic types `e` and `t` (so as not to collide with the `inductive`s that *are* the syntactic categories) and interpreted a transitive verb over `Sets.Entity` and `Sets.likesR`. The rewrite of 2026-09-20 dropped all of it. CSwFP/6.1 makes the same point that section made — *Goldilocks* translates not as the constant `g` but as `λP ↦ P g`, "a function from properties to truth values", and *no one* has the same type — and making it twice, once as an informal argument and once over Lean types, is the fragmented presentation the writing guide rules out. `adjective-types` (CSwFP/2.17) went with that section; `PROVENANCE.md` records it. The chapter no longer imports `CSwL.Sets`.
 
-`Sent`, `NP`, `DET`, `CN`, `RCN`, `VP`, `TV`, `DV`, plus the auxiliaries `ADJ` and `That` that `RCN` uses.
+**Totality changes the inventory.** Haskell lets a translation function be partial, and `MCWPL.hs` uses that licence four times: `lfDET` has no clause for `Most`, `lfRCN` none for `RCN3` (the adjective rule), `lfTV` none for `Caught`, and `lfNP` none for `Everyone`/`Someone`. A Lean function has to be defined everywhere, so each gap is a decision:
 
-**Semantic types are named `e` and `t`, and that is not cosmetic.** The categorial section that arrived from CSwFP/2.5 originally wrote the semantic types as `NP`, `S`, `VP` and `TV` — the category names. In this chapter those names are already taken, by the `inductive`s that *are* the fragment's syntactic categories: two meanings for one name in one namespace, which does not compile and would not be worth compiling. The types now carry Montague's letters, `e` for entities and `t` for truth values, which the prose was already naming as the conventional choice; the categories keep `NP`/`VP` where they belong, in the prose. So "the VP has type `e → t`" now says two different things with two different notations, which is exactly the distinction the section is about.
+- **`most` is not in `DET`.** CSwFP's own 4.2 grammar does not have it either; it is in the Haskell data type and then goes untranslated, because — as 6.2 says — *most* has no first-order translation at all. Keeping it would mean either a false translation or making `lfDET` return `Option LF`, which turns every function in the family `Option`-valued and buries the linguistics in plumbing. The limitation is stated in the prose instead, where 6.2 states it. `a` goes the other way: CSwFP's `data DET` does not have it, but 6.2's prose lists it among the five determiners it treats, and the preposition-phrase exercise needs *a dwarf*, so `DET` carries it.
+- **`AV`, `To`, `INF` and `TINF` are not in the grammar.** CSwFP throws them in "for purposes of illustrating intensionality" in a chapter this book does not plan, and 6.2 gives them no translation. They are also the one part of the 4.2 fragment that CSwFP/6 never needed.
+- **`ADJ` stays, and is translated intersectively.** `RCN` uses it, and *happy* and *evil* — CSwFP/4.6, absorbed into the presentation — really are conjunctive: a *happy wizard* is happy and a wizard. *Fake* is not, and the prose says so: the translation exists because the function must be total, not because it is right.
+- **`caught` gets an atom like every other transitive verb.** The model does not interpret it, so every sentence using it is false; the prose points at this, since `FOL.lean` already established that an uninterpreted symbol evaluates to `false`.
 
-This is where the rest of 2.5 lands. The type BNF `τ ::= b | (τ → τ)` says that `e` and `t` are the two basic types and that everything else is built from them by `→`, and the three typing rules — a variable has the type it is declared with, `(λx ↦ E) : δ → τ` when `x : δ` and `E : τ`, `(E₁ E₂) : τ` when `E₁ : δ → τ` and `E₂ : δ` — are what licenses the composition the section then performs. They were in `IntroL.lean`, demonstrated over a `Day → Prop` predicate for want of anything better so early in the book; here they are demonstrated over the fragment's own types, which is what 2.5 was about in CSwFP. In Lean `t` is `Prop`.
+**The grammar is extended by wrapping, not by redeclaring.** CSwFP/4.7 and 4.8 ask the reader to extend the fragment, and in Haskell the answer is to rewrite the whole `data` group. An `inductive` is closed in the same way, but a mutually recursive group does not have to be redeclared to be extended: a *new* category that contains the old one — `| base (np : NP)` — plus the constructors for the new rules does the job, and the functions already written over the old types keep working. The chapter presents the technique on sentence coordination (`SentAnd`, three lines) and both exercises apply it. Two consequences, neither hidden: the extension is not recursive, so a prepositional phrase cannot contain another one and a coordinated relative clause cannot contain a coordinated relative clause; and the new constructors are shaped so that they never overlap with the old ones, or the extended grammar would derive the *unextended* sentences twice, which would wreck an exercise about counting derivations.
 
-`INF` is part of the 4.2 grammar but has no translation in CSwFP/6; it is not required by `ModelChecking.lean`.
+The distinction the chapter draws is between adding a *word* and adding a *rule*. Adding a word is adding a constructor to a leaf category, and no wrapping reaches it, so the lexicon is complete from the declaration — which is why CSwFP/4.6 is absorbed rather than set as an exercise.
 
-### 9. CSwFP/6 — in `English.lean`
+**Naming.** The constructors are `npDet`, `npDetRel`, `rcnSubj`, `rcnObj`, `rcnAdj`, `vpTrans`, `vpDitrans`, not `NP1`, `NP2`, `RCN1`, `RCN2`, `RCN3`, `VP1`, `VP2`. The numbers are positions in a Haskell `data` declaration and say nothing; `rcnSubj` and `rcnObj` say which position the relative clause's gap is in, which is the distinction the coordination exercise turns on.
 
-Sections 6.1–6.5; 6.6 (Further Reading) omitted.
+**The model.** CSwFP/6.3's fairy-tale model arrives here, next to the grammar it interprets, rather than in `FOL.lean` — the reason is in the `Logic.lean` section above. Three differences from `Model.hs`. Predicates are `Entity → Bool` and built from lists, as in the source, but `admire` and `defeat` are written as the conditions they are (`person x && y == .G`, `dwarf x && giant y || …`) rather than as list comprehensions over `entities`, which in Lean would say the same thing at more length. `Unspec` is the default of the `FInterp`, which makes the function total in the one way that is linguistically meaningful — an unnamed constant denotes an unspecified entity. And the interpretation agrees with the translation on names and argument order: `MCWPL.hs` emits `Atom "love" [subj, obj]` while `int0` keys on `"Love"` and reverses the arguments, so the two halves of the source never actually meet.
 
-**This material lands in `English.lean`, not in a chapter of its own.** The
-plan once called for a separate `ModelChecking.lean`, and the table above and
-the references below still use that name for the material; they should be read
-as naming CSwFP/6's content, wherever it sits. The reason it belongs with the
-English fragment is the one given immediately below: it is built on that
-fragment, so the two are one development, not two.
+**6.4 is absorbed rather than ported.** Everything it builds — the interpretation function, variable assignments, `change`, `eval` — is already in `FOL.lean` as `Interp`, `Assign`, `Assign.update` and `Formula.eval`. What is left for this chapter is the model itself and the two-step procedure, `checkSentence`, which is CSwFP/6.7.
+
+**CSwFP/5.6 is present only as an exercise.** Its content is a translation key from lexical items to predicate letters, which 6.2 supersedes by computing the translation. Its Exercise 5.27 — four sentences of the fragment to translate — survives as `fragment-translations`.
+
+### 9. CSwFP/6 — where it lands
+
+Sections 6.1–6.4 are in `English.lean`, as the section above describes. Section
+6.5's structured-term evaluation and its `[0..]` discussion are in `FOL.lean`:
+they are about the evaluator rather than about the fragment, and the chapter
+that defines `Term` is where they belong. Section 6.6 (Further Reading) is
+omitted.
+
+**There is no `ModelChecking.lean`.** The plan once called for one, and older
+notes in this file use that name for CSwFP/6's content; they should be read as
+naming the content, not a file. The reason it belongs with the English
+fragment is that it is built on that fragment, so the two are one development
+rather than two.
 
 What this means for `FOL.lean` is recorded in the `Logic.lean` section above:
-the fairy-tale model of 6.3 is *not* pulled forward into it any more. It
-arrives here, next to the grammar it interprets, and `FOL.lean` evaluates
-against Enderton's four-vertex graph instead. Sections 6.5's structured-term
-evaluation and its `[0..]` discussion, by contrast, *are* in `FOL.lean`: they
-are about the evaluator rather than about the fragment, and the chapter that
-defines `Term` is where they belong.
+the fairy-tale model of 6.3 is *not* pulled forward into it. It arrives with
+the grammar it interprets, and `FOL.lean` evaluates against Enderton's
+four-vertex graph instead.
 
-**This material must come after the fragment of 4.2.** CSwFP/6 does not merely allude to the fragment of 4.2 — it is built on it. The text says so ("to translate the fragment from Section 4.2 into predicate logic, all we have to do is find appropriate translations for all the categories in the grammar"), and the code confirms it: `MCWPL.hs` imports the syntax module and its first definition is `lfSent :: Sent -> LF`, destructuring `Sent np vp`. Placing the English fragment after model checking would use the grammar before presenting it.
-
-This is also why `Sets.lean` reads best just before it, though it is not required: `Model.hs` builds the model with `OnePlacePred = Entity -> Bool` and `list2OnePlacePred xs = \x -> elem x xs` — the characteristic function of 2.3 and the set-as-predicate of 2.1, applied. The choice between `Set Entity` and `Entity → Bool` is exactly the one `Sets.lean` makes.
+This is also why `Sets.lean` reads best just before `English.lean`, though it
+is not required: `Model.hs` builds the model with `OnePlacePred = Entity ->
+Bool` and `list2OnePlacePred xs = \x -> elem x xs` — the characteristic
+function of 2.3 and the set-as-predicate of 2.1, applied. The choice between
+`Set Entity` and `Entity → Bool` is exactly the one `Sets.lean` makes.
 
 ## Omitted throughout
 
@@ -535,7 +547,7 @@ All "Further Reading" sections (1.8, 2.7, 3.15, 4.8, 5.8, 6.6), 1.7 (Overview of
 
 Everything above is settled and covers CSwFP/1 to CSwFP/6. The rest of the book is deferred, and the placements below are provisional, not decisions.
 
-CSwFP/7 (The Composition of Meaning in Natural Language) goes after `ModelChecking.lean`. It continues `English.lean`'s fragment and, in CSwFP, builds on the same syntax module, so the same constraint that puts `English.lean` before `ModelChecking.lean` keeps 7 downstream of both. How much of `English.lean` it absorbs — CSwFP/7 is where a consolidated semantics of a natural-language fragment actually appears — is the question to settle when that chapter is taken up.
+CSwFP/7 (The Composition of Meaning in Natural Language) goes after `English.lean`. It continues that chapter's fragment and, in CSwFP, builds on the same syntax module, so the constraint that puts the fragment before CSwFP/6 keeps 7 downstream of both. How much of `English.lean` it absorbs — CSwFP/7 is where a consolidated semantics of a natural-language fragment actually appears — is the question to settle when that chapter is taken up.
 
 A proof system as data — CSLib's `Cslib.Logic.PL.Theory.Derivation` — is deferred rather than rejected, for the reasons in the `Logic.lean` section. It becomes attractive exactly where `CSwL` would have something to give back: CSLib has the derivations but no propositional semantics, and this book builds the valuation. Soundness — every derivable sequent is true under every valuation satisfying its context — needs both halves, and neither project has both today. `Cslib/Logics/README.md` invites exactly this ("we are interested in expanding them or creating new ones that can cover your use cases"). Its natural place is after `Sets.lean`, once relations and quantifiers are available. It stays out of the plan until CSwFP/1–6 are in place.
 
