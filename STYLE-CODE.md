@@ -47,6 +47,15 @@ with `--` comments stripped to find *uses*, then search the prose separately to
 find *presentations*; the rule is satisfied only when a presentation precedes
 the first use in book order.
 
+Two further traps, both of which have already produced wrong rows. A ```` ```lean
++error ```` block is code shown *because it fails to compile*, so what it
+contains is not a use: `IntroL` has `def omega := (fun x => x x) (fun x => x x)`,
+which is a definition named `omega` in a block that errors, not the `omega`
+tactic. And a name can be a field or a definition rather than the tactic it
+looks like — `symm` in `Sets` is the `Equivalence.symm` field, `contradiction`
+in `Logic/PL` is `Formula.contradiction` inside a `simp only [...]` list.
+Read the line before recording a row.
+
 A feature marked **(solution only)** first appears inside a `solution!(…)`
 block. Those rows are a distinct case: the feature is invisible in the
 `student` and `terse` variants and visible in `solutions` and `grading`, so a
@@ -57,41 +66,75 @@ this way is usually a mistake; see "Known gaps."
 
 | Chapter | Commands and declarations | Types and syntax | Tactics |
 | --- | --- | --- | --- |
-| `IntroCS` | `namespace`, `def` (by pattern matching), `inductive`, `deriving Repr`, `example`, `#eval` | `Nat`, function type `→`, dot-notation constructors (`.num`) | `rfl`, `induction … with`, `rw`, `rewrite`, `unfold`, `repeat` |
-| `IntroL` | `#check`, `#print`, `theorem`, `structure`, `instance`, `section`, `variable` | `Type`, `Prop`, `Bool`, `List`, `Option`, `Char`, `String`, `fun`/`λ`, `match`, `if … then … else`, `⟨…⟩`, implicit `{}`, instance-implicit `[]`, `∘`, `BEq`, `DecidableEq`, `List.all`/`List.any` | *(none — the chapter is deliberately pre-proof)* |
-| `Logic/Proof` | `open` | `¬`, `∀`, `∃`, `∧`, `∨`, `↔`, `≠` | `intro`, `exact`, `apply`, `cases … with`, `constructor`, `obtain`, `have`, `use`, `left`, `right`, `rcases`, `by_cases`, `by_contra`, `assumption` |
-| `Logic/PL` | `abbrev`, `private` | `×` | `simp`, `native_decide` |
-| `Logic/FOL` | `mutual` | `\|>` | `induction … generalizing`, `decide`, `refine`, `omega`, `absurd` (term) |
-| `Sets` | — | `Set`, `Rel`, `Finset`, `Fintype`, `Setoid`, `∈`, `⊆`, `∪`, `∩`, `trivial` (term) | `symm`, `simp_all` |
-| `SeaBattle` | — | `Fin` | — |
-| `Morphology` | *(none new)* | — | — |
-| `InfEngine` | — | `do`-notation | — |
-| `English` | *(none new)* | *(none new)* | *(none new)* |
+| `IntroCS` | `namespace`, `def` (by pattern matching), `inductive`, `deriving Repr`, `example`, `#eval` | `Nat`, `String`, function type `→`, `++`, dot-notation constructors (`.num`) | `rfl`, `induction … with`, `rw`, `rewrite`, `unfold`, `repeat` |
+| `IntroL` | `#check`, `#print`, `theorem`, `structure … where`, `instance` (named and anonymous), `opaque` | `Type`, `Bool`, `Int`, `Float`, `List`, `Option`, `Char`, `fun`/`λ`, `↦`, `match`, `if … then … else`, `⟨…⟩`, structure literal `{ x := … }` and update `{ s with … }`, implicit `{α : Type}`, instance-implicit `[Repr α]`, `∘`, `::`, `BEq`, `f!` strings, `List.all`/`List.any` | *(none — the chapter is deliberately pre-proof)* |
+| `Logic/Proof` | `open`, `section`, `variable` | `Prop`, `¬`, `∀`, `∃`, `∧`, `∨`, `↔`, `≠`, `False`, `absurd` (term), focus dots `·`, `h.1`/`h.2` | `intro`, `exact`, `apply`, `cases … with`, `constructor`, `obtain`, `have`, `use`, `left`, `right`, `by_cases`, `by_contra`, `assumption`, `funext`, `linarith`, `native_decide`, `rcases` and `Or.inl`/`Or.inr` **(solution only)** |
+| `Logic/PL` | `abbrev`, docstrings `/-- … -/`, `deriving DecidableEq`, `open … in` | `×` and tuples, `DecidableEq`, `True`, `≤`, section notation `(· ≤ ·)`, `\|>` **(solution only)** | `decide`, `simp`, `simp only [...]`, tactic locations `… at … ⊢`, `rw [← …]`, `all_goals`, `simpa … using` |
+| `Logic/FOL` | `mutual`, polymorphic `inductive … (α : Type)`, `def` whose body is a type (`def Assign (D : Type) := Variable → D`), theorem defined by equations | `Fin`, `∈`, `∉`, `Std.Format` and a hand-written `Repr`, bare implicit `{α}`, `∀ (D : Type)`, anonymous-constructor patterns (`\| ⟨name, []⟩`), `match e₁, e₂ with` **(solution only)** | `induction … generalizing`, `<;>`, `refine` with `?_`, `omega` |
+| `Sets` | — | `Set`, `Rel`, `Finset`, `Fintype`, `Setoid`, `⊆`, `∪`, `∩`, `trivial` (term), `show … by …` **(solution only)** | `simp_all` |
+| `SeaBattle` | inductive predicate (`inductive WellFormed : Game → Prop where`) | structure fields that carry proofs, bounded `∀ x ∈ xs`, `by` as a structure-field value, `Fin.val`, dependent `if h : … then … else` **(solution only)**, `▸` **(solution only)** | *(none new)* |
+| `Morphology` | `open` of constructor namespaces (`open Attr Value`) | `match e₁, e₂ with` (first use outside a solution), `mapM` over `Option` **(solution only)** | *(none new)* |
+| `InfEngine` | `let rec` | `do`-notation, `ToString` and its instance, `s!` strings | — |
+| `English` | `mutual` over `inductive` types (`Logic/FOL` only uses it over `def`) | guillemet identifiers (`«with»`) | *(none new)* |
 
-`English` introduces no new feature: it is where `abbrev` and `ToString`
-instances become the dominant idiom, but both arrive earlier.
+`English` is where `abbrev` and `ToString` instances become the dominant
+idiom, but both arrive earlier; what is genuinely new there is the mutually
+recursive *grammar*, a `mutual` block over `inductive` declarations rather
+than over `def`s, and `«with»`, which quotes a Lean keyword so it can be used
+as a constructor name.
 
 The table records features, not every piece of notation. Type ascription,
 list literals, projection dots, and the like are not tracked: they arrive with
 the constructs that use them and tracking them would produce a ledger nobody
-maintains.
+maintains. Library functions are not tracked either — `String.intercalate`,
+`List.zip`, `Std.Format.joinSep`, `List.Nodup` and their kind arrive with the
+code that needs them. (`List.all`/`List.any` under `IntroL` is an older
+inconsistency; do not take it as licence to add siblings.)
 
 ### Known gaps
 
 Open questions about the table, recorded so they are not lost. Each needs an
 author decision, not a mechanical fix.
 
-- **`trivial`** — two term-level uses in `Sets.lean:517`, not presented
+- **`trivial`** — two term-level uses on `Sets.lean:507`, not presented
   anywhere. It is listed in the table under types rather than tactics, since
   that is what it is here. Give it a line or replace it when that chapter is
   revised.
-- **`omega`, `refine`, `absurd` in `Logic/FOL`'s `fol-infinite` section** —
-  they appear in `le_foldr_max` and `no_list_lists_Nat`, which are shown with
-  their proofs as exposition. No exercise asks the reader to reproduce either,
-  so the question is whether a proof the reader only *reads* counts as handing
-  them a tactic. If it does, three short lines of presentation are owed; if it
-  does not, this row is evidence rather than a gap. Author's call, and the
-  cheaper fix is the three lines.
+- **`omega` in `Logic/FOL`** — first used at `FOL.lean:593`, in the `Fin`
+  examples (`⟨0, by omega⟩`). The prose there presents `Fin` and `Fin.mk` and
+  says nothing about `omega`, so the reader meets the tactic in passing. It
+  returns in `fol-infinite`. One line of presentation next to the `Fin`
+  examples covers both places.
+- **`refine` with `?_` and `induction … generalizing` in `Logic/FOL`** — they
+  appear in `Formula.eval_iff_denote`, `le_foldr_max` and `no_list_lists_Nat`,
+  which are shown with their proofs as exposition. No exercise asks the reader
+  to reproduce any of them, so the question is whether a proof the reader only
+  *reads* counts as handing them a tactic. If it does, a few short lines of
+  presentation are owed; if it does not, these rows are evidence rather than a
+  gap. Author's call, and the cheaper fix is the lines.
+- **`<;>` in `Logic/FOL`** — first used at `FOL.lean:525`. The prose describes
+  what happens ("a tática `decide` é combinada com `cases v`, que abre um caso
+  por construtor") without naming the combinator or saying what `<;>` means.
+  Naming it costs half a sentence.
+- **The `simp` family in `Logic/PL`** — `simp`, `simp only [...]`,
+  `all_goals`, `simpa … using`, the `at … ⊢` locations and `rw [← …]` all
+  arrive unannounced in the `pl-to-prop` metatheorems. `Logic/Proof` promises
+  that `omega` and `simp` "serão explicadas à medida que se fizerem
+  necessárias"; the promise is never kept. This is the largest gap in the
+  ledger, and it lands on proofs the reader is expected to read closely.
+- **`abbrev`** — `PL.lean:341`, no presentation; it is introduced by use.
+  Docstring syntax `/-- … -/`, first used in the same chapter, is in the same
+  state, and is cheap to leave alone.
+- **Features that only the answer shows** — `rcases` (`Proof.lean:420`),
+  `Or.inl`/`Or.inr` (`Proof.lean:196`), `|>` (`PL.lean:120`), `match e₁, e₂
+  with` (`FOL.lean:614`), `show … by …` (`Sets.lean:643`), and dependent
+  `if h : … then … else` and `▸` (`SeaBattle.lean:307` and `315`) all appear
+  first inside `solution!`, so a student working the exercise is expected to
+  produce syntax the book never showed them. Two of them surface later in
+  ordinary code — `|>` at `FOL.lean:369` and `match e₁, e₂ with` at
+  `Morphology/Phonemes.lean:227`. `mapM` is the same shape: first used inside
+  a solution (`Phonemes.lean:309`) and visible only much later, at
+  `InfEngine.lean:439`. The rest never surface at all.
 
 `IntroCS` is the constraint's one accepted exception: it uses Lean that
 `IntroL` only presents later, deliberately, and the chapter says so where its
