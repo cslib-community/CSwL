@@ -20,7 +20,7 @@ passage it comes from**. Keep it in step with any further rename.
 stated in Lean. In the source these carry a `✎` marker, which is
 otherwise undocumented.
 
-The book has 76 exercises as of 2026-09-13, and all but one of them
+The book has 79 exercises as of 2026-09-20, and all but one of them
 appear somewhere below — either in a table that names its source, or
 in the list of those with no counterpart. Two checks keep it that way:
 no `(name := …)` in `CSwL/` should be absent from this file, and no
@@ -60,11 +60,13 @@ CSwFP Exercise 1.3 (infinitely many sentences, p. 8) is not ported.
 |---------------------|--------|-----------------------------------------|-------|
 | `yawelmani-harmony` | 3      | Exercise 3.19 (Yawelmani vowel harmony) | 61–62 |
 
-`feature-value` (rating 2) and `append-suffix-text` (rating 3) have no counterpart:
-CSwFP hands `feature-value`/`fMatch` to the reader as given code, and `CSwL` turns
-them into exercises.
+`append-suffix-text` (rating 3) has no counterpart: CSwFP hands `fMatch` to the
+reader as given code, and `CSwL` turns it into an exercise. `feature-value` was
+a second such exercise, over `fValue`; it was withdrawn on 2026-09-20, when
+eliding it left the generated `student` project with a `sorry` behind an
+`#eval`, and `fValue` is now presented code again, as in CSwFP.
 
-### `Sets.lean` — CSwFP/2 (exercises `twice` and `adjective-types` moved on with CSwFP/2.4 and 2.5, to `IntroL.lean` and `English.lean`)
+### `Sets.lean` — CSwFP/2 (exercise `twice` moved on with CSwFP/2.4, to `IntroL.lean`)
 
 | CSwL id                     | Rating | CSwFP         | Page  | Notes                                |
 |-----------------------------|--------|---------------|-------|--------------------------------------|
@@ -84,12 +86,19 @@ them into exercises.
 | —                           | —      | Exercise 2.14 | 26–27 | prose; not in an `:::exercise` block |
 | —                           | —      | Exercise 2.15 | 28    | prose; not in an `:::exercise` block |
 | —                           | —      | Exercise 2.16 | 28    | prose; not in an `:::exercise` block |
-| `adjective-types`           | 1      | Exercise 2.17 | 30    |                                      |
+| —                           | —      | Exercise 2.17 | 30    | dropped 2026-09-20; see below        |
 
 
 Note that 2.14, 2.15 and 2.16 sit in the prose without an exercise
 directive, so they get no rating, no solution elision and no
 autograding.
+
+Exercise 2.17 was `adjective-types`, which travelled to `English.lean`
+with the rest of CSwFP/2.5 and was dropped from it on 2026-09-20, when
+that chapter was rewritten around CSwFP/6.1, 4.2, 6.2 and 6.3–6.4. The
+categorial material it belonged to — the types `e` and `t`, the type
+BNF and the three typing rules — has no section in the chapter any
+more. `DEVIATIONS.md` records the decision.
 
 Exercises 2.1, 2.2 and 2.3 (`empty-subset`–`double-complement` above)
 stay with this chapter when it moves after `Logic.lean`; 2.3 (`Ā̄ = A`)
@@ -251,6 +260,38 @@ Exercise 5.25 logical consequences Delta |= b holds?
 dep: ex-fol-implies-from-list
 
 
+### `English.lean` — CSwFP/4.2, 5.6, 6.1–6.4
+
+| CSwL id                    | Rating | CSwFP         | Page |
+|----------------------------|--------|---------------|------|
+| `preposition-phrase`       | 2      | Exercise 4.7  | 69   |
+| `complex-relative-clauses` | 2      | Exercise 4.8  | 69   |
+| `fragment-translations`    | 2      | Exercise 5.27 | 106  |
+| `check-sentence`           | 2      | Exercise 6.7  | 147  |
+| `help-defeat`              | 2      | Exercise 6.1  | 137  |
+| `reflexive-ditransitive`   | 2      | Exercise 6.4  | 139  |
+
+`help-defeat` is stated in terms of `checkSentence`, so `dep: check-sentence`.
+
+Exercise 4.6 (adjectives *happy* and *evil*, p. 69) is **absorbed into the
+presentation**. Adding a word to a category means adding a constructor, and an
+`inductive` is closed: the extension cannot be written without redeclaring the
+category. `ADJ` therefore carries `fake`, `happy` and `evil` from its
+declaration, and the chapter's two extension exercises add *rules* instead,
+which the wrapping technique reaches without redeclaring anything.
+
+Exercise 5.26 (check by hand, against the truth definition, that the
+translation of *Every boy loved a girl* is right) is not ported as an
+exercise: `check-sentence` is the mechanised form of the same question, and
+the chapter's point is that the machine does this checking.
+
+Exercises 6.2 and 6.3 (passivization) are not ported. `passivize` is presented
+in the prose, because `Unspec` needs a motivation and the passive is the one
+the source gives, but neither exercise is.
+
+Exercises 6.5 and 6.6 belong to CSwFP/6.4–6.5, which `Logic/FOL.lean` carries;
+see `DEVIATIONS.md`.
+
 ### `InfEngine.lean` — CSwFP/5.7
 
 | CSwL id | Rating | CSwFP         | Page | Notes      |
@@ -289,11 +330,8 @@ as an oversight.
 
 | File                            | CSwL id                    | Rating |
 |---------------------------------|----------------------------|--------|
-| `Morphology/Phonemes.lean`      | `feature-value`            | 2      |
 | `Morphology/Phonemes.lean`      | `append-suffix-text`       | 3      |
 | `Morphology/SwedishPlural.lean` | `swedish-plural`           | 2      |
-| `English.lean`                  | `preposition-phrase`       | 1      |
-| `English.lean`                  | `complex-relative-clauses` | 1      |
 | `Sets.lean`                     | `five-in-above2`           | 1      |
 | `Sets.lean`                     | `one-not-in-above2`        | 1      |
 | `Sets.lean`                     | `above5-subset-above2`     | 1      |
