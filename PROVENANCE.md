@@ -178,7 +178,7 @@ dep: bangu-form
 obs: complete problem using logical consequence
 
 Exercise 5.11 implement equivalence
-obs: n the prose
+obs: in the prose
 
 Exercise 5.12 redefine Valuation from [(String, Bool)]
 obs: implemented in the prose
@@ -211,7 +211,7 @@ Exercise 4.22 implement varsInForm
 = ex-fol-vars-in-formula
 
 Exercise 4.23 implement freeVarsInForm
-= ex-fol-free-vars-in-form
+= ex-fol-free-vars-in-form 
 
 Exercise 4.24 openForm
 = ex-fol-open-form
@@ -264,49 +264,23 @@ dep: ex-fol-implies-from-list
 An exercise absent from the tables above is a decision, not an oversight. The
 reasons fall into three kinds.
 
-**It asks for a construction the chapter does not have.** CSwFP/5.21 defines
+**It asks for alternative definitions that are irrelevante.** CSwFP/5.21 defines
 substitution of a name for a variable in a term, and 5.22 asks for a truth
 definition that replaces assignments by names plus substitution. Both need
-substitution, which `FOL.lean` never defines, and writing it is a chapter's
-worth of work, not an exercise's.
+rename of variables, never defines.
 
-CSwFP/5.23 — the truth definition extended to structured terms — was unported
-for the same reason until the `fol-terms` section was added: it needed the
-interpretation of function symbols, which the chapter now has as `FInterp` and
-`liftAssign`. The section supplies that development in the text, and
-`lift-assign` above is the exercise drawn from it; 5.23 as stated asks for the
-whole evaluator, which here is one instantiation of `Formula.eval` rather than
-a second function.
+CSwFP/5.23 — the truth definition extended to structured terms, we
+decided to add it in the prose, many other parts of the prose would
+need it, having it undefined would make the presentation harder.
 
-**It is answered by something the chapter already states.** CSwFP/5.6 asks which
-of three formulas are satisfiable, 5.7 which equivalences hold, 5.8 which
-consequences hold, 5.19 and 5.20 the same for predicate logic. In this book
-`satisfiable`, `equivalent` and `implies` are computable, so each of these is
-`#eval` rather than a question — the answer is a keystroke, and the exercise
-loses its point. They are worth keeping only if reformulated as proofs about
-the definitions rather than queries against them.
-
-For 5.19 and 5.20 this became true only with the chapter reorganization of
-2026-09-13, which gave `FOL.lean` a computable `Formula.eval`; before that the
-chapter had no way to evaluate a formula at all, and the two were unported for
-want of a semantics rather than for having too easy an answer. They are now the
-strongest candidates for reformulation as proofs, since the model to state them
-against is in the chapter.
-
-**It asks for a variant implementation.** CSwFP/5.11 asks for a check of logical
-equivalence, which `Form.equivalent` already is; 5.12 asks to reimplement the
-semantics with `[String]` instead of `[(String, Bool)]` for valuations.
-
-CSwFP/5.18 is ported as `translate-quantified`. Its propositional counterpart,
-4.9, was dropped; the two chapters no longer mirror each other here.
+**It asks for a variant implementation.**  5.12 asks to reimplement
+the semantics with `[String]` instead of `[(String, Bool)]` for
+valuations. The semantics in PL now uses `Variable -> Bool`.
 
 CSwFP/5.28 and 5.29 ask for soundness and completeness of the Aristotelian
 inference system. Soundness is within reach — `InfEngine.lean` already proves
 BARBARA, CELARENT and DARII valid over `Set` — but completeness needs a model
 construction the chapter does not have.
-
-Nine of the `Logic/FOL.lean` entries above were plain headings carrying the
-book's page number rather than exercise directives; that is fixed.
 
 ## Exercises original to CSwL
 
