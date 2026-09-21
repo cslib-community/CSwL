@@ -41,27 +41,17 @@ deriving Repr, BEq
 abbrev Phoneme := List Feature
 ```
 
-::::exercise (rating := 2) (name := "feature-value")
-
-Consulta o valor de um traço.
+Para consultar e atualizar o valor de um traço, definimos as funções abaixo.
 
 ```lean
-def fValue (attr : Attr) : Phoneme → Option Value :=
-  solution!(fun
-    | []      => none
-    | f :: fs =>
-      if f.attr == attr then
-        some f.value
-      else fValue attr fs)
-```
+def fValue (attr : Attr) : Phoneme → Option Value
+  | []      => none
+  | f :: fs =>
+    if f.attr == attr then some f.value
+    else fValue attr fs
 
-::::
-
-Troca o valor de um traço.
-
-```lean
-def fMatch (attr : Attr) (value : Value) (fs : Phoneme) :
-    Phoneme :=
+def fMatch (attr : Attr) (value : Value) (fs : Phoneme)
+  : Phoneme :=
   fs.map fun f =>
     if f.attr == attr then { f with value := value } else f
 ```

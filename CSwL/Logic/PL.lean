@@ -32,7 +32,7 @@ Em Lean, `Prop` é um tipo assim como qualquer particular proposição também �
 ```lean +error
 def doesNotWork (p q : Prop) (h : p ∧ q) : Type :=
   match h with
-  | And.intro ha hb => ha
+  | And.intro ha _hb => ha
 ```
 
 Nesta seção, queremos manipular fórmulas e decidir quando uma fórmula `α` é consequência lógica de `β`, isto é, `β ⊧ α `. A noção de consequência lógica é semântica. Para toda possível escolha de valores verdade para os símbolos proposicionais em `α` e `β`, sempre que `β` for verdade, `α` deve ser verdade. Para _computar_ o valor verdade de uma fórmula, vamos precisar manipula a formula como dado, e calcular seu valor verdade a partir do mapeamento de variáveis proposicionais em valores verdade.
@@ -106,9 +106,10 @@ def Formula.namesRaw : Formula → List String
   | .disj f g => f.namesRaw ++ g.namesRaw
 
 def Formula.names (f : Formula) : List String :=
-  solution!(f.namesRaw.dedup.mergeSort (· ≤ ·))
+  f.namesRaw.dedup.mergeSort (· ≤ ·)
 
-#eval Maria.form₁.names
+example : Maria.form₁.names == ["MB", "MJ", "MT"] :=
+  by native_decide
 ```
 
 :::exercise (rating := 1) (name := "collect-atoms")
@@ -146,8 +147,6 @@ def Formula.namesRaw₁ (f : Formula) (sofar : List String) : List String :=
 
 def Formula.names₁ (f : Formula) : List String :=
   solution!(f.namesRaw₁ [])
-
-#eval Maria.form₁.names₁
 
 example : Maria.form₁.names₁ == ["MB", "MJ", "MT"] :=
   solution!(by native_decide)
@@ -249,7 +248,7 @@ def Formula.countOps : Formula → Nat :=
     | .conj f g => 1 + f.countOps + g.countOps
     | .disj f g => 1 + f.countOps + g.countOps)
 
-example : form2.countOps = 3 := by decide
+example : form2.countOps = 3 := solution!(by decide)
 ```
 :::
 
@@ -266,7 +265,7 @@ def Formula.depth : Formula → Nat :=
     | .conj f g => 1 + max f.depth g.depth
     | .disj f g => 1 + max f.depth g.depth)
 
-example : form2.depth = 3 := by decide
+example : form2.depth = 3 := solution!(by decide)
 ```
 :::
 
@@ -488,10 +487,10 @@ def q : Formula := .atom "q"
 example : p.implies (.disj p q) :=
   by native_decide
 
+-- SOLUTION
 example : Formula.impliesL [p,q] (.neg p) = false :=
   by native_decide
 
--- SOLUTION
 example : (Formula.impl p q).implies (.impl (.neg p) (.neg q)) = false :=
   by native_decide
 
