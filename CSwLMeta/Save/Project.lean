@@ -2,9 +2,9 @@
 --
 -- For each variant, writes a standalone Lake project to
 -- `_out/<variant>/lean/`: the `.lean` files extracted from the book, plus a
--- `lakefile.toml`, a `lean-toolchain`, and a `README.md`. This generated
--- project — and only it — depends on `lean4-autograder-main`, in the
--- `grading` variant; the autograder does not enter `CSwL`'s own
+-- `lakefile.toml`, a `lean-toolchain`, a `README.md`, and a `.gitignore`.
+-- This generated project — and only it — depends on `lean4-autograder-main`,
+-- in the `grading` variant; the autograder does not enter `CSwL`'s own
 -- `lakefile.toml` (it collides with the Mathlib that `cslib` brings; see the
 -- comment on `[[lean_exe]] cswl-book`).
 --
@@ -121,6 +121,16 @@ private def lakefileTemplate (vol : String) (v : Variant)
   "name = \"" ++ vol ++ "\"\n" ++
   libs
 
+/-- Content of the generated project's `.gitignore`. The `student` variant is
+handed to the students as a GitHub Classroom repository, so it has to keep
+the build directory out of their commits: `lake build` fills `.lake/` with
+several gigabytes. Mirrors `CSwL`'s own `.gitignore`. -/
+private def gitignoreTemplate : String :=
+  "# Lake's build directory -- `lake build` fills it with several gigabytes.\n" ++
+  "/.lake\n\n" ++
+  "# macOS Finder metadata.\n" ++
+  "**/.DS_Store\n"
+
 /-- The `student` variant is the one the students receive, so its README is the
   whole set-up guide: how to build, how to work an exercise, how to report a
   problem. The `solutions` and `terse` variants are read by the instructor, who
@@ -167,7 +177,7 @@ private def readmeTemplate (vol : String) (v : Variant) : String :=
    else "")
 
 /-- Writes the generated project to `dest`: the extracted files, plus
-`lakefile.toml`, `lean-toolchain`, and `README.md`. `extraLibs` are
+`lakefile.toml`, `lean-toolchain`, `README.md`, and `.gitignore`. `extraLibs` are
 libraries besides `vol` (today, at most, `"CSwLCompat"`) whose source root
 also needs to be cleared before rewriting, for the same reason as `vol`
 below. -/
@@ -199,6 +209,7 @@ private def writeProject (dest : System.FilePath) (toolchain : String)
   IO.FS.writeFile (dest / "lakefile.toml") (lakefileTemplate vol v pkgRequires extraLibs)
   IO.FS.writeFile (dest / "lean-toolchain") toolchain
   IO.FS.writeFile (dest / "README.md") (readmeTemplate vol v)
+  IO.FS.writeFile (dest / ".gitignore") gitignoreTemplate
   for (relPath, body) in files do
     let target := dest / relPath
     target.parent.forM IO.FS.createDirAll

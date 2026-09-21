@@ -58,8 +58,10 @@ publish_branch() {
   fi
 
   # Substitui a árvore inteira pelo conteúdo gerado, preservando só .git/.
+  # `.lake/` é o diretório de build do projeto Lake gerado (vários GB) e
+  # `.DS_Store` é metadado do Finder: nada disso faz parte do que se publica.
   find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
-  cp -R "$src"/. .
+  rsync -a --exclude=.lake --exclude=.DS_Store "$src"/ .
 
   git add -A
   if git diff --cached --quiet; then
