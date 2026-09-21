@@ -17,8 +17,7 @@ htmlSplit := .never
 file := "SeaBattle"
 %%%
 
-Como definir uma língua — no sentido amplo: um conjunto de strings bem
-formadas — por meio de uma gramática. O exemplo é a linguagem de um jogo.
+Como definir uma língua — no sentido amplo: um conjunto de strings bem formadas — por meio de uma gramática. O exemplo é a linguagem de um jogo.
 
 # Sintaxe
 
@@ -82,19 +81,7 @@ structure Turn where
   deriving DecidableEq, Repr
 ```
 
-Um `Attack` basicamente corresponde a uma coordenada, as colunas poderiam ter sido modeladas como as linhas, o que tornaria o design mais simples. Mas preferimos seguir o estilo de coordenadas usual, que facilita a leitura e associação de letras a colunas e números para linhas.
-
-O tipo `Fin 10` corresponde os números naturais menores que 10. O termo `(10 : Fin 10)` corresponde ao `0` (`10 % 10`, via `OfNat`), mas isso só vale para o literal `10` interpretado nesse tipo. A instância `OfNat (Fin 10) 10` (usada ao escrever `10 : Fin 10`) normaliza o literal por `% 10` antes de guardá-lo. O construtor `⟨n, prova⟩` (`Fin.mk`) exige uma prova de `n < 10` como dado — para `n = 10` essa prova não existe (`10 < 10` é falso), então `⟨10, by omega⟩` sequer elabora. Ou seja, `(10 : Fin 10)` sempre existe via módulo, e `(⟨10, _⟩ : Fin 10)` só existe para `n` de fato menor que `10`.
-
-```lean
-#eval (10 : Fin 10)
-#eval (11 : Fin 10)
-
-example : (11 : Fin 10) = 1 := rfl
-example : ⟨0, by omega⟩ = (0 : Fin 10) := rfl
-```
-
-Se `Column` também fosse um `Fin 10` então poderíamos modelar com um par `Attack : Fin 10 × Fin 10`.
+Um `Attack` basicamente corresponde a uma coordenada, as colunas poderiam ter sido modeladas como as linhas, o que tornaria o design mais simples. Mas preferimos seguir o estilo de coordenadas usual, que facilita a leitura e associação de letras a colunas e números para linhas. Se `Column` também fosse um `Fin 10` então poderíamos modelar com um par `Attack : Fin 10 × Fin 10`.
 
 Uma possível extensão de nossa gramática seria representar como sentença um jogo completo entre dois jogadores.
 

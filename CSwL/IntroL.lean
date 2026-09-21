@@ -490,14 +490,7 @@ def kelvinToFahrenheit : Int → Int := celsiusToFahrenheit ∘ kelvinToCelsius
 tag := "classes"
 %%%
 
-Vamos definir uma função para contar as ocorrências de um valor de um tipo `α`, em qualquer lista de valores do tipo `α`. Para esta função, nossa única exigência é garantir que poderemos comparar valores do tipo `α`. Essa exigência entra na assinatura entre colchetes, `[BEq α]`,  uma instância de igualdade para `α`, que Lean encontra sozinho no ponto de uso.
-
-Duas noções de igualdade convivem, e vale separá-las desde já:
-
-* `BEq α` devolve `Bool` e se escreve `==`.
-* `DecidableEq α` devolve uma _prova_ de igualdade ou de desigualdade. Permite usar `=` num `if` e usar o resultado numa demonstração.
-
-Tente remover `[BEq α]` na definição abaixo.
+Vamos definir uma função para contar as ocorrências de um valor de um tipo `α`, em qualquer lista de valores do tipo `α`. Para esta função, nossa única exigência é garantir que poderemos comparar valores do tipo `α`. Essa exigência entra na assinatura entre colchetes, `[BEq α]`. Isto significa que uma instância de igualdade para `α` deve estar disponível para o Lean encontrar no ponto de uso. Tente remover `[BEq α]` na definição abaixo, o erro irá aparecer no uso do operador `==`.
 
 ```lean
 def count {α : Type} [BEq α] (x : α) : List α → Nat
@@ -514,6 +507,31 @@ deriving instance BEq for Day
 
 #eval count Day.friday [.friday, .sunday, .friday, .monday]
 ```
+
+Note que para outros tipos, a noção de igualdade pode não ser tão trivial, e exigir uma implementação específica. Por exemplo:
+
+```lean
+structure Angle where
+  deg : Int
+deriving Repr
+
+def Angle.norm (a : Angle) : Int :=
+  a.deg % 360
+
+instance : BEq Angle where
+  beq a b := a.norm == b.norm
+
+#eval (⟨-90⟩ : Angle) == ⟨270⟩
+```
+
+Em tempo, em Lean, duas noções de igualdade convivem:
+
+* `BEq α` devolve `Bool` e se escreve `==`.
+* `DecidableEq α` devolve uma _prova_ de igualdade ou de desigualdade. Permite usar `=` num `if` e usar o resultado numa demonstração.
+
+Outra classe relevante em Lean é a classe {name}`Repr` para especificar como valores de um tipo devem ser representados textualmente. Uma instância de {name}`Repr` não produz diretamente uma {name}`String`; ela produz um valor de tipo {name}`Std.Format`, uma representação intermediária que descreve o texto a ser exibido e permite incluir informações sobre indentação e possíveis quebras de linha. Assim, ao definir uma instância de {name}`Repr` para um tipo, estamos essencialmente dizendo ao Lean como representar valores desse tipo, deixando para uma etapa posterior a decisão de como essa representação será efetivamente apresentada.
+
+Essa separação entre a estrutura a ser impressa e sua apresentação concreta é a ideia central de _pretty printing_. Em vez de decidir antecipadamente onde cada linha deve terminar, construímos um documento que pode ser renderizado de diferentes maneiras conforme o espaço disponível: uma expressão pode aparecer em uma única linha quando couber ou ser distribuída em várias linhas, com indentação apropriada, quando necessário. A abordagem foi sistematizada por Wadler {citep Bib.wadler2003}[] e é usada pelo {name}`Std.Format` do Lean. Para nós, isso é particularmente interessante porque mostra mais um exemplo de como classes e instâncias permitem associar uma operação a um tipo sem modificar sua definição: a estrutura sintática ou semântica permanece a mesma, enquanto sua forma de apresentação é fornecida por uma instância de Repr.
 
 A seguir, vamos customizar a instância de {name}`Day` para a classe {name}`Repr`. Usamos a palavra-chave `instance`. Não precisamos dar nome a instâncias, mas neste caso usamos `insReprDay`.
 
