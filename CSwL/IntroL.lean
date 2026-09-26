@@ -306,7 +306,7 @@ Quando nenhuma forma carrega argumento, o tipo é uma enumeração. O tipo {lean
 #print Bool
 ```
 
-Outro exemplo muito comum é dado abaixo, o final `deriving Repr` pede que Lean gere automaticamente uma instância de `Day` para a classe {lean}`Repr`, vide {ref "classes"}[classes], para exibição dos valores do tipo.
+Outro exemplo muito comum é dado abaixo, o final `deriving Repr` pede que Lean gere automaticamente uma instância da classe {lean}`Repr` para {name}`Day`, vide {ref "classes"}[classes], para exibição dos valores do tipo.
 
 ```lean
 inductive Day where
