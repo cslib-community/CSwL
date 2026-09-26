@@ -20,15 +20,10 @@ passage it comes from**. Keep it in step with any further rename.
 stated in Lean. In the source these carry a `✎` marker, which is
 otherwise undocumented.
 
-The book has 76 exercises as of 2026-09-13, and all but one of them
-appear somewhere below — either in a table that names its source, or
-in the list of those with no counterpart. Two checks keep it that way:
-no `(name := …)` in `CSwL/` should be absent from this file, and no
-name cited here should have stopped existing.
-
-The exception is `free-vars-in-formula`, in `Logic/FOL.lean`, which has
-no entry here; it predates the chapter reorganization of 2026-09-13 and
-still needs one.
+Every exercise of the book appears somewhere below, either in a table
+that names its source or in the list of those with no counterpart; and
+every id cited in a `CSwL id` column is the name of an exercise.
+`scripts/check-provenance.sh` checks both and lists what disagrees.
 
 ## A correction to the numbers
 
