@@ -334,7 +334,7 @@ example : 2 = Nat.succ (Nat.succ Nat.zero) := rfl
 
 Além dos construtores poderem ter parâmetros, um tipo indutivo também pode ser parametrizado por outro tipo, exemplos serão vistos nos capítulos seguintes.
 
-# Casamento de Padrões, Recursão e Indução
+# Casamento de Padrões, Recursão e Tipos Indutivos
 
 A forma mais natural em Lean de escrevermos funções para manipular tipos indutivos é via casamento de padrões (_pattern matching_). Na função abaixo, o operador `match` faz o casamento do parâmetro `d` do tipo {name}`Day`. As equações `| ... => ...` devem cobrir todos os possíveis construtores do tipo  {lean}`Day`, devem ser exaustivas. Abaixo, a última equação usa o _underscore_ como um coringa, para indicar qualquer outro construtor diferente dos usados nas equações acima, cobrindo assim todos os 7 construtores de {name}`Day` {citep Bib.LLR}[Pattern Matching].
 
