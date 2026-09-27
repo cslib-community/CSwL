@@ -34,7 +34,7 @@ jobs:
 
       # The same key as `pages.yml`, which saves it on `main`.
       - name: Restore Lake cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: .lake
           key: lake-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('lean-toolchain') }}-${{ hashFiles('lake-manifest.json') }}-${{ github.sha }}

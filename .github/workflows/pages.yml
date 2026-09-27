@@ -64,7 +64,7 @@ jobs:
       # action saves the cache BEFORE the site is generated: Verso's
       # artifacts would never be cached.
       - name: Restore Lake cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: .lake
           key: lake-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('lean-toolchain') }}-${{ hashFiles('lake-manifest.json') }}-${{ github.sha }}
@@ -99,13 +99,13 @@ jobs:
 
       - name: Save Lake cache
         if: success()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         with:
           path: .lake
           key: lake-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('lean-toolchain') }}-${{ hashFiles('lake-manifest.json') }}-${{ github.sha }}
 
       - name: Upload the Pages artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: _site
 
@@ -113,7 +113,7 @@ jobs:
       # `include-hidden-files`, because each generated project's `.gitignore`
       # is what keeps `.lake/` out of the students' commits.
       - name: Upload the variants (lean + html)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: variants
           path: |
@@ -134,7 +134,7 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
 
   # Publishes the variants as the `latest` release of this repo, one
   # `<variant>-lean.tar.gz` and one `<variant>-html.tar.gz` each, plus
@@ -149,7 +149,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           name: variants
           path: _out
