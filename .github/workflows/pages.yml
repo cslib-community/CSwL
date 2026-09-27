@@ -110,6 +110,8 @@ jobs:
           path: _site
 
       # Also handed to the `release` job below — see that job's comment.
+      # `include-hidden-files`, because each generated project's `.gitignore`
+      # is what keeps `.lake/` out of the students' commits.
       - name: Upload the variants (lean + html)
         uses: actions/upload-artifact@v4
         with:
@@ -117,6 +119,7 @@ jobs:
           path: |
             _out/student
             _out/terse
+          include-hidden-files: true
           retention-days: 1
 
   deploy:
