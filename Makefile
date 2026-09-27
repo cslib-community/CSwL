@@ -26,7 +26,7 @@
 # chapters are already in the `Manual` genre, and the book is only built
 # from here.
 
-.PHONY: all student solutions terse grading build serve clean
+.PHONY: all student solutions terse grading build serve clean aula
 
 default: all
 
@@ -58,3 +58,21 @@ serve: all
 
 clean:
 	rm -rf _out/
+
+# Copies the `terse` Lake project to a working directory outside the
+# repository, `../aula` by default (`make aula AULA=<dir>` for another), for
+# the instructor to open in VS Code in class, and builds it. The directory is
+# a local git repository and is never published: commit in it after each
+# class to keep what was written there. The target refuses to overwrite
+# changes that are not committed.
+AULA ?= ../aula
+
+aula: terse
+	@if [ -d "$(AULA)/.git" ] && [ -n "$$(git -C "$(AULA)" status --porcelain)" ]; then \
+	  echo "error: $(AULA) has uncommitted changes; commit or discard them first" >&2; \
+	  exit 1; \
+	fi
+	mkdir -p "$(AULA)"
+	rsync -a --delete --exclude=.git --exclude=.lake _out/terse/lean/ "$(AULA)/"
+	[ -d "$(AULA)/.git" ] || git -C "$(AULA)" init --quiet
+	cd "$(AULA)" && lake exe cache get && lake build
