@@ -3,9 +3,9 @@
 #
 #   <pages>/            the `terse` variant (Verso, `Manual` genre)
 #
-# Students read the `student` variant, which `github.com/emap-nlp/book`
-# serves; this site carries `terse`, the lecture cut used in class. Neither
-# shows answer keys: `solutions` and `grading` are never published. API docs (doc-gen4)
+# `student` is the variant meant for readers, and a course can serve it from
+# the release; this site carries `terse`, the lecture cut. Neither shows
+# answer keys: `solutions` and `grading` are never published. API docs (doc-gen4)
 # are intentionally left out for now — see the scope issue tracked at
 # https://github.com/cslib-community/CSwL/issues/1.
 #
@@ -138,11 +138,10 @@ jobs:
 
   # Publishes the variants as the `latest` release of this repo, one
   # `<variant>-lean.tar.gz` and one `<variant>-html.tar.gz` each, plus
-  # `commit.txt`, the CSwL commit they were built from.
-  # `github.com/emap-nlp/book` fetches `student-*` from it (a public
-  # download, no credentials needed) and republishes it — see that repo's
-  # `.github/workflows/sync.yml`. `latest` is a moving tag: each run deletes
-  # and recreates it, so there is always one place to look.
+  # `commit.txt`, the CSwL commit they were built from. Anyone can fetch it
+  # (a public download, no credentials needed) and republish a variant
+  # without building it. `latest` is a moving tag: each run deletes and
+  # recreates it, so there is always one place to look.
   release:
     needs: build
     runs-on: ubuntu-latest
