@@ -259,10 +259,7 @@ example : F.freeVars (fun x => [x]) = solution!([y, y, z]) :=
 :::
 
 :::exercise (rating := 1) (name := "ex-fol-closedform")
-Complete o código da função `closedForm` abaixo que verifica
-se uma fórmula é fechada. Aqui cada termo é uma variável, então
-extrair as variáveis de um termo é devolvê-lo numa lista de um
-elemento.  As fórmulas fechadas são as que têm a lista de livres vazia.
+Complete o código da função `closedForm` abaixo que verifica se uma fórmula é fechada. Aqui cada termo é uma variável, então extrair as variáveis de um termo é devolvê-lo numa lista de um elemento.  As fórmulas fechadas são as que têm a lista de livres vazia.
 
 ```lean
 def closedForm (f : Formula Variable) : Bool :=
@@ -349,9 +346,9 @@ def Formula.nnf {α : Type} (f : Formula α) : Formula α :=
 ```
 :::
 
-Um termo `t` é *livre para* a variável `v` na fórmula `F` se toda ocorrência livre de `v` em `F` pode ser substituída por `t` sem que nenhuma das variáveis de `t` fique ligada. Por exemplo, `y` é livre para `x` em `P[x] → ∀x P[x]`, mas o mesmo termo não é livre para `x` em `∀y R[x,y] → ∀x R[x,x]`. Da mesma forma, `g[x,y]` não é livre para `x` em `∀y R[x,y] → ∀x R[x,x]`.
+Um termo `t` é *livre para* a variável `v` na fórmula `F` se toda ocorrência livre de `v` em `F` pode ser substituída por `t` sem que nenhuma das variáveis de `t` fique ligada. Isto é, nenhuma ocorrência livre de `v` em `F` está no escopo de um quantificador cuja variável `u` ocorra em `t`. Por exemplo, `y` é livre para `x` em `P[x] → ∀x P[x]`: a única ocorrência livre de `x`, a de `P[x]`, não está no escopo de quantificador algum. Mas o mesmo termo não é livre para `x` em `∀y R[x,y] → ∀x R[x,x]`, porque a ocorrência livre de `x` em `R[x,y]` está no escopo de `∀y`. O `∀x` à direita não interfere: as ocorrências de `x` que ele liga não são livres e não seriam substituídas. Da mesma forma, `g[x,y]` não é livre para `x` em `∀y R[x,y] → ∀x R[x,x]`, pois contém `y`.
 
-Um termo livre para uma variável `v` pode ser substituído nas ocorrências livres de `v` sem uma mudança não intencional de significado. Considere a fórmula aberta `∀y R[x,y] → ∀x R[x,x]`. Se substituirmos a ocorrência livre de `x` nessa fórmula por `y`, obtemos uma fórmula fechada `∀y R[y,y] → ∀x R[x,x]`, uma variável acabou capturada. Se `t` não é livre para `v` em `F`, podemos sempre renomear as variáveis ligadas de `F` para garantir que a substituição de `t` por `v` em `F` tenha o significado correto. Embora `g[y,c]` não seja livre para `x` em `∀y R[x,y] → ∀x R[x,x]`, o termo é livre para `x` em `∀z R[x,z] → ∀x R[x,x]`, que é uma chamada *variante alfabética* (nomes diferentes para as variáveis ligadas) da fórmula original.
+Um termo livre para uma variável `v` pode ser substituído nas ocorrências livres de `v` sem uma mudança de significado. A substituição age apenas sobre as ocorrências livres; as ocorrências ligadas, como as de `x` em `∀x R[x,x]`, não mudam. Considere a fórmula aberta `∀y R[x,y] → ∀x R[x,x]`. Se substituirmos a ocorrência livre de `x` nessa fórmula por `y`, obtemos uma fórmula fechada `∀y R[y,y] → ∀x R[x,x]`, uma variável acabou capturada. Se `t` não é livre para `v` em `F`, podemos sempre renomear as variáveis ligadas de `F` para garantir que a substituição de `v` por `t` em `F` tenha o significado correto. Embora `g[x,y]` não seja livre para `x` em `∀y R[x,y] → ∀x R[x,x]`, o termo é livre para `x` em `∀z R[x,z] → ∀x R[x,x]`, que é uma chamada *variante alfabética* (nomes diferentes para as variáveis ligadas) da fórmula original.
 
 A função `isVar` verifica se um termo é uma variável. As funções `varsInTerm` e `varsInTerms` retornam a lista das variáveis que ocorrem num termo ou em uma lista de termos, sem duplicatas.
 
@@ -905,7 +902,7 @@ def Formula.Implies (f g : Formula Variable) : Prop :=
   (Formula.impl f g).Valid
 ```
 
-::::exercise (rating := 2) (name := "ex-fol-valid")
+::::exercise (rating := 5) (name := "ex-fol-valid")
 Complete as provas dos exemplos abaixo. Note que uma das afirmações não é válida: para ela, vamos precisar da interpretação `intR` como testemunha onde a relação `R` é interpretada como o conjunto unitário `{(0,0)}`.
 
 ```lean
@@ -965,7 +962,7 @@ end ExValid
 ```
 ::::
 
-::::exercise (rating := 2) (name := "ex-fol-consequence")
+::::exercise (rating := 5) (name := "ex-fol-consequence")
 Complete as provas dos exemplos abaixo. Note que uma das consequências lógicas não é válida. Apeans para este exemplo vamos precisar da interpretação `intR`.
 
 ```lean
@@ -1031,7 +1028,7 @@ def Formula.ImpliesL (hs : List (Formula Term)) (c : Formula Term) : Prop :=
 ```
 ::::
 
-::::exercise (rating := 2) (name := "ex-fol-entails")
+::::exercise (rating := 5) (name := "ex-fol-entails")
 Complete os exemplos a seguir que envolvem provar a consequência lógica a partir de uma lista de premissas que envolvem fórmulas com termos. A segunda não vale, e para mostrar isso basta exibir um modelo das duas premissas que não satisfaça a conclusão.
 
 ```lean

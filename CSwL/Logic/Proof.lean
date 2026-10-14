@@ -2,6 +2,7 @@ import CSwLMeta
 import Bib
 import Mathlib.Tactic
 import CSwL.IntroL
+import CSwLCompat
 
 open Verso.Genre Manual
 open CSwLMeta
@@ -85,6 +86,27 @@ namespace PL
 
 Os conectivos lógicos  `∧`, `∨`, `→`, `↔` e `¬` estão disponíveis diretamente no Lean, de modo que uma fórmula proposicional pode ser representada como uma proposição em Lean. Isso nos fornece uma ponte conveniente entre a semântica da linguagem natural e o raciocínio formal. Podemos traduzir o conteúdo semântico de uma sentença para uma proposição em Lean e, em seguida, usar Lean para verificar se uma conclusão decorre de um conjunto de hipóteses.
 
+::::exercise (rating := 1) (name := "prop-exchange")
+Se o câmbio cair, temos inflação. Se as exportações crescerem, diminuímos o déficit. O câmbio cai ou diminuímos o déficit. Logo, temos inflação ou as exportações crescem.
+
+complete a definição `exchange` para formalizar o parágrafo anterior. Você deverá usar as variáveis proposicionais declaradas para `p` (câmbio cai), `q` (temos inflação), `r` (exportações crescem) e `s` (diminuimos o déficit) para construir a proposição esperada.
+
+```lean
+namespace Exchange
+
+variable (p q r s : Prop)
+
+def exchange : Prop :=
+  solution!(
+   ((p → q) ∧ (r → s) ∧ (p ∨ s)) → (q ∨ r)
+  )
+
+end Exchange
+```
+
+O leitor mais observador irá notas que o argumento do parágrafo é inválido. Mas a sua negação também não vale em geral. Isto é, a fórmula que obtivemos acima é verdadeira em alguns casos e falsa em outros.
+::::
+
 Chamamos "sistema dedutivo" um conjunto das regras de dedução. Existem vários sistemas dedutivos. A formalização de Prop em Lean corresponde a implementação do sistema chamado *dedução natural* definido por Gerhard Gentzen em 1930. Usando as regras de dedução natural, podemos provar que uma fórmula `α` pode ser derivada a partir de um conjunto de fórmulas `Γ`, dizemos que `Γ ⊢ α`. Dizemos que `⊢ α` quando a fórmula `α` é válida, uma tautologia.
 
 Neste sistema dedutivo, cada conectivo vem com dois tipos de regra. As de *introdução*, que dizem como construir uma prova cuja conclusão usa o conectivo, e as de *eliminação*, que dizem como usar uma prova cuja hipótese o usa.
@@ -130,7 +152,7 @@ example (h : P ∧ Q) : Q ∧ P := by
 example (h : P ∧ Q) : Q ∧ P := ⟨h.2, h.1⟩
 ```
 
-Para provar `P ∨ Q` basta provar um dos dois lados. São duas regras, e os construtores {name}`Or.inl` (aplicado pela tática {tactic}`left`) e {name}`Or.inr` (aplicado pela tática {tactic}`right`) formalizam elas. A regra de eliminação da disjunção é o teorema {name}`Or.elim`, a chamada "prova por casos". Dada a hipótese `P ∨ Q`, não sabemos qual das duas proposições é verdadeira. Portanto, para concluir `R`, precisamos provar `R` em ambos os casos (assumindo `P` no primeiro e `Q` no segundo). A tática {tactic}`cases` gera exatamente esses dois cenários.
+A disjunção `∨` é *inclusiva*: `P ∨ Q` é verdadeira também quando `P` e `Q` são ambas verdadeiras. Para provar `P ∨ Q` basta provar um dos dois lados. São duas regras, e os construtores {name}`Or.inl` (aplicado pela tática {tactic}`left`) e {name}`Or.inr` (aplicado pela tática {tactic}`right`) formalizam elas. A regra de eliminação da disjunção é o teorema {name}`Or.elim`, a chamada "prova por casos". Dada a hipótese `P ∨ Q`, não sabemos qual das duas proposições é verdadeira. Portanto, para concluir `R`, precisamos provar `R` em ambos os casos (assumindo `P` no primeiro e `Q` no segundo). A tática {tactic}`cases` gera exatamente esses dois cenários.
 
 ```lean
 example (hP : P) : P ∨ Q := by
@@ -228,24 +250,6 @@ example : (P → Q) ↔ (¬Q → ¬P) := solution!(by
 ::::
 
 
-::::exercise (rating := 1) (name := "exchange-prop")
-Se o câmbio cair, temos inflação. Se as exportações crescerem, diminuímos o déficit. O câmbio cai ou diminuímos o déficit. Logo, temos inflação ou as exportações crescem.
-
-complete a definição `exchange` para formalizar o parágrafo anterior. Você deverá usar as variáveis proposicionais declaradas para `p` (câmbio cai), `q` (temos inflação), `r` (exportações crescem) e `s` (diminuimos o déficit) para construir a proposição esperada.
-
-```lean
-section
-variable (p q r s : Prop)
-
-def exchange : Prop :=
-  solution!(
-   ((p → q) ∧ (r → s) ∧ (p ∨ s)) → (q ∨ r)
-  )
-end
-```
-::::
-
-
 ::::exercise (rating := 2) (name := "implication-as-disj")
 Complete a prova abaixo. Note que esta prova precisa do fragmento clássico. Tente usar {tactic}`by_cases`.
 
@@ -336,7 +340,7 @@ O anfitrião foi capaz de identificar cada irmã considerando que:
 - Maria às vezes diz a verdade;
 - Cláudia nunca diz a verdade.
 
-Para começar, vamos introduzir variáveis do tipo `Prop`, cada uma delas representado uma proposição. São 3 pessoas e 3 cores. Vamos representar "Ana veste azul" por `Aa` e assim por diante.
+Para começar, vamos introduzir variáveis do tipo `Prop`, cada uma delas representando uma proposição. São 3 pessoas e 3 cores. Vamos representar "Ana veste azul" por `Aa` e assim por diante.
 
 ```lean
 namespace Dresses
@@ -427,6 +431,7 @@ theorem vestidos : Ap ∧ Cb ∧ Ma := by
 end Dresses
 ```
 ::::
+
 
 ```lean
 end PL
@@ -524,6 +529,52 @@ example : ∃ n : Nat, n + n = 10 := by
 end FOL
 ```
 
+
+# Argumentos Inválidos e Contraexemplos
+%%%
+tag := "counterexamples"
+%%%
+
+Considere o argumento: "se chover, a rua fica molhada. A rua está molhada. Logo, choveu."
+
+Com `p` para "chove" e `q` para "a rua fica molhada", podemos formalizá-lo como fizemos no exercício `prop-exchange`.
+
+```lean
+namespace WetStreet
+
+variable (p q : Prop)
+
+def wetStreet : Prop := ((p → q) ∧ q) → p
+
+#check wetStreet
+```
+
+Como `p` e `q` foram declaradas com `variable`, a definição `wetStreet` não se refere a uma proposição fixa. Lean acrescenta essas variáveis como argumentos da definição, como mostra o `#check`. Por isso precisamos escrever `wetStreet p q` para obter uma proposição, só depois de receber as duas proposições ela se torna uma proposição. Nos `example` a seguir, dentro do mesmo `namespace`, `p` e `q` são também argumentos, de modo que provar `¬ wetStreet p q` significa provar `∀ p q, ¬ wetStreet p q`. Isso é impossível: se `p` for verdadeira, a conclusão vale e a implicação inteira é verdadeira. Depois de {tactic}`unfold` e {tactic}`intro`, ficamos com a hipótese `h` e o objetivo `False`, e nada no contexto nos permite prosseguir.
+
+```lean +error
+example : ¬ wetStreet p q := by
+  unfold wetStreet
+  intro h
+  -- we can't finish it
+```
+
+Já `¬ ∀ p q, wetStreet p q` afirma que `wetStreet` *não* é verdadeira para todas as escolhas de `p` e `q`. Para prová-la basta exibir uma única escolha que torne as premissas verdadeiras e a conclusão falsa, um contraexemplo: não chove (`p` é `False`) e, ainda assim, a rua está molhada (`q` é `True`). A proposição `True` é a que sempre vale, e sua prova é `True.intro`. Na prova abaixo, `apply h False True` reduz o objetivo `False` à tarefa de provar as premissas para essa escolha.
+
+```lean
+example : ¬ ∀ p q, wetStreet p q := by
+ intro h
+ unfold wetStreet at h
+ apply h False True
+ constructor
+ · intro hp ; exact True.intro
+ · trivial
+
+end WetStreet
+```
+
+A tática {tactic}`trivial` tenta fechar o goal com algumas outras táticas e teoremas simples. `True.intro` está no conjunto dos teoremas usados. Uma fórmula como `wetStreet`, verdadeira para algumas escolhas das variáveis e falsa para outras, é chamada _contingente_. O mesmo acontece com a fórmula `exchange` do exercício `prop-exchange`.
+
+
 # Provas por Indução
 %%%
 tag := "induction"
@@ -572,7 +623,23 @@ example : (List.range 100000).length = 100000 := by
   native_decide
 ```
 
-Outras táticas como {tactic}`omega` e {tactic}`simp` aparecerão em momentos específicos dos capítulos seguintes e serão explicadas à medida que se fizerem necessárias.
+A tática {tactic}`simp` (de _simplificar_) reescreve o _goal_ repetidamente usando uma coleção de igualdades e equivalências já provadas na biblioteca, chamadas _lemas de simplificação_, como `n + 0 = n`, `xs ++ [] = xs` ou `(p ∧ p) ↔ p`. Ela continua reescrevendo enquanto algum lema se aplica e, se o _goal_ se reduzir a algo trivialmente verdadeiro, a prova é fechada. Entre colchetes, podemos acrescentar outros fatos à coleção: hipóteses do contexto ou nomes de definições, que passam a ser expandidas como faria {tactic}`unfold`. A variante `simp only [...]` usa *apenas* os fatos listados, o que torna o passo mais previsível. Assim como `unfold E at h`, a forma `simp at h` simplifica a hipótese `h` em vez do _goal_; se `h` se reduzir a `False`, a prova termina.
+
+```lean
+example (xs : List Nat) : (xs ++ []).length + 0 = xs.length := by
+  simp
+
+example (n : Nat) : double₁ n = 2 * n := by
+  simp only [double₁]
+
+example (p q : Prop) (hp : p) : p ∧ (q → q) := by
+  simp [hp]
+
+example (n : Nat) (h : n + 0 ≠ n) : False := by
+  simp at h
+```
+
+Como {tactic}`simp` esconde quais lemas usou, é melhor reservá-la para passos rotineiros e escrever à mão as etapas que importam para o argumento. Outras táticas, como {tactic}`omega`, aparecerão em momentos específicos dos capítulos seguintes e serão explicadas à medida que se fizerem necessárias.
 
 
 ```lean

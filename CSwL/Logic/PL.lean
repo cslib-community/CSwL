@@ -60,7 +60,7 @@ inductive Formula where
   deriving DecidableEq, Repr
 ```
 
-Os contrutores {name}`Formula.top` e {name}`Formula.bot` representam as proposições "sempre verdadeira" e "sempre falsa". São objetos sintáticos que serão sempre interpretados como os valores verdade {lean}`true` e {lean}`false` na semântica. Com este tipo, podemos representar fórmulas arbitrariamente complexas.
+Os construtores {name}`Formula.top` e {name}`Formula.bot` representam as proposições "sempre verdadeira" e "sempre falsa". São objetos sintáticos que serão sempre interpretados como os valores verdade {lean}`true` e {lean}`false` na semântica. Com este tipo, podemos representar fórmulas arbitrariamente complexas.
 
 ```lean
 #eval
@@ -154,7 +154,7 @@ example : Maria.form₁.names₁ == ["MB", "MJ", "MT"] :=
 :::
 
 
-Nem todos os conectivos precisam ser definidos como "primitivos". Como vimos na seção {ref "pl-lean"}[pl-lean] a implicação pode ser definida como uma dijunção. E a dupla implicação como uma conjunção de implicações.
+Nem todos os conectivos precisam ser definidos como "primitivos". Como vimos na seção {ref "pl-lean"}[pl-lean] a implicação pode ser definida como uma disjunção. E a dupla implicação como uma conjunção de implicações.
 
 ```lean
 def Formula.impl (f g : Formula) : Formula := .disj (.neg f) g
@@ -176,7 +176,7 @@ def Formula.disjs : List Formula → Formula
   | f :: fs => .disj f (Formula.disjs fs)
 ```
 
-Note que {name}`Formula.bot` é o elemento neutro da dijunção, `bot ∨ a`. E {name}`Formula.top` é o elemento neutro da conjunção, `top ∧ a`. Uma conjunção vazia é sempre verdadeira, uma disjunção vazia é sempre falsa. O que sugere as implementações alternativas a seguir.
+Note que {name}`Formula.bot` é o elemento neutro da disjunção, `bot ∨ a`. E {name}`Formula.top` é o elemento neutro da conjunção, `top ∧ a`. Uma conjunção vazia é sempre verdadeira, uma disjunção vazia é sempre falsa. O que sugere as implementações alternativas a seguir.
 
 ```lean
 def Formula.conjs₁ (fs : List Formula) : Formula :=
