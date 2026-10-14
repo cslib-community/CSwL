@@ -768,7 +768,7 @@ A definição de verdade faz uso essencial das atribuições e, ainda assim, par
 1. Todo mestre tem um aprendiz.
 2. Ele tem um aprendiz.
 
-Assim como definimos em {ref "PL"}[PL], uma sentença $`α` em FOL é *válida*, $`⊨ α`, se é verdadeira em toda estrutura para a linguagem de $`α`. Uma estrutura $`\mathcal A` com $`\mathcal A ⊨ α` é um *modelo* de $`α`. Uma sentença $`C` é consequência lógica de uma sentença $`P` ($`P` de premissa, $`C` de conclusão) se todo modelo de $`P` é também modelo de $`C`. A notação é $`P ⊨ C`.
+Assim como definimos em {ref "PL"}[PL]. Uma sentença $`α` em FOL é *válida*, $`⊨ α`, se é verdadeira em toda estrutura para a linguagem de $`α`. Uma estrutura $`\mathcal A` com $`\mathcal A ⊨ α` é um *modelo* de $`α`. Escrevemos $`P ⊨ C` para indicar que a sentença $`C` é consequência lógica da sentença $`P` ($`P` de premissa, $`C` de conclusão). Isto ocorre se todo modelo de $`P` é também modelo de $`C`.
 
 Mas como julgar afirmações da forma $`P ⊨ C`? Em FOL não temos a função {name}`PL.Formula.allVals`, que enumera todas as possíveis valorações. Logo não podemos decidir $`P ⊨ C`. Podemos refutar a afirmação achando um contraexemplo. Um contraexemplo para $`P ⊨ C` é uma estrutura $`\mathcal A` com $`\mathcal A ⊨ P` mas $`\mathcal A ⊭ C`.
 
