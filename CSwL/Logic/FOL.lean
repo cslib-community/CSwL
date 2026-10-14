@@ -1007,7 +1007,7 @@ end ExEntailsOnlyVars
 ```
 ::::
 
-Definimos {name}`Formula.Valid` para {lean}`Formula Variable`, onde os argumentos dos predicados são apenas variáveis. Em {lean}`Formula Variable`, uma estrutura é o par $`\mathcal A = (D, I)`, o domínio e a interpretação dos símbolos predicativos. Quando há símbolos funcionais, a estrutura passa a ser a tripla $`\mathcal A = (D, I, F)`, em que $`F` diz qual elemento do domínio cada símbolo funcional nomeia. A definição abaixo torna isso explícito: ela quantifica também sobre {name}`FInterp`, e usa {name}`liftAssign` no lugar de {name}`varVal` para avaliar os termos.
+Definimos {name}`Formula.Valid` para {lean}`Formula Variable`, onde os argumentos dos predicados são apenas variáveis. Em {lean}`Formula Variable`, uma estrutura é o par $`\mathcal A = (D, I)`, o domínio e a interpretação dos símbolos predicativos. Quando há símbolos funcionais, a estrutura passa a ser a tripla $`\mathcal A = (D, I, F)`, em que $`F` interpreta cada símbolo funcional como uma função, da aridade correspondente, sobre o domínio. A definição abaixo torna isso explícito: ela quantifica também sobre {name}`FInterp`, e usa {name}`liftAssign` no lugar de {name}`varVal` para avaliar os termos.
 
 ```lean
 /-- A formula with terms is valid when it is true in every
