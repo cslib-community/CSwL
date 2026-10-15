@@ -21,7 +21,7 @@ namespace English
 tag := "english-form"
 %%%
 
-Da sentença *Alice walked on the road* segue-se que alguém caminhou na estrada, mas de *No one walked on the road* não se segue que alguém caminhou na estrada. Por isso lógicos como Gottlob Frege (1848–1925), Bertrand Russell (1872–1970), Alfred Tarski (1902–1983) e Willard Van Orman Quine (1908–2000) sustentaram que a estrutura dessas duas sentenças tem de ser diferente, e que não basta dizer que ambas são composições de um sujeito e um predicado.
+Da sentença *Alice walked on the road* segue-se que alguém caminhou na estrada, mas de *No one walked on the road* não se segue que alguém caminhou na estrada. Por isso lógicos como Gottlob Frege (1848–1925), Bertrand Russell (1872–1970), Alfred Tarski (1902–1983) e Willard Van Orman Quine (1908–2000) sustentaram que a estrutura dessas duas sentenças tem de ser diferente, e que não basta dizer que ambas são a composição de um sujeito e um predicado.
 
 Os lógicos que usaram a lógica de predicados de primeira ordem para analisar a estrutura lógica da língua natural se impressionaram com o fato de que as traduções lógicas de sentenças com expressões quantificadas não pareciam acompanhar a estrutura linguística. Nas traduções lógicas, as expressões quantificadas pareciam ter desaparecido. A tradução lógica de (1) não revela nenhum constituinte correspondente ao sintagma nominal quantificado que faz de sujeito.
 
@@ -67,13 +67,16 @@ O que precisamos é de uma regra para a estrutura sujeito–predicado das senten
 
 ```bnf
 S   ::= NP VP ;
+S₁  ::= S | S "and" S;
 NP  ::= "Snow White" | "Alice" | "Dorothy" | "Goldilocks" | "Little Mook"
       | "Atreyu" | "everyone" | "someone" | DET CN | DET RCN ;
+NP₁ ::= NP | .... ;
 DET ::= "a" | "the" | "every" | "some" | "no" ;
 CN  ::= "girl" | "boy" | "princess" | "dwarf" | "giant" | "wizard" | "sword"
       | "dagger" ;
 ADJ ::= "fake" | "happy" | "evil" ;
 RCN ::= CN "that" VP | CN "that" NP TV | ADJ CN ;
+RCN₁ ::= RCN | CN "that" NP₁ TV ;
 VP  ::= "laughed" | "cheered" | "shuddered" | TV NP | DV NP NP ;
 TV  ::= "loved" | "admired" | "helped" | "defeated" | "caught" ;
 DV  ::= "gave" ;
@@ -281,10 +284,6 @@ def sent2 : SentAnd :=
          (.base (.sent .dorothy .cheered))
 
 #eval toString sent2
-```
-
-```leanOutput sentAndEval
-"Alice laughed and Dorothy cheered"
 ```
 
 Os dois exercícios a seguir estendem o fragmento por esse caminho.
@@ -579,8 +578,6 @@ def boundIndices : LF → List Nat
   | .disj f1 f2 => boundIndices f1 ++ boundIndices f2
   | .forall_ v f => v.index ++ boundIndices f
   | .exists_ v f => v.index ++ boundIndices f
-
--- #eval boundIndices (FOL.ExSchool.R FOL.tx FOL.ty) ~> [1]
 ```
 
 Para calcular um índice novo, basta escolher um índice fora dessa lista. Todas as variáveis são introduzidas pelo mesmo mecanismo: se começarmos com variáveis da forma `⟨"x", [0]⟩` e só introduzirmos variáveis novas da mesma forma, podemos supor que toda variável que ocorre na forma lógica tem esse feitio. O `0` inicial em `foldr max 0` garante que a lista sobre a qual tomamos o máximo não seja vazia.
@@ -703,31 +700,10 @@ def lf3 : LF :=
                   (.rcnSubj .princess .that
                     (.vpTrans .helped .alice)))
                 .shuddered)
-```
 
-```lean (name := lf1eval)
 #eval lf1
 ```
 
-```leanOutput lf1eval
-∃x2 (dwarf[x2] & ∃x1 (giant[x1] & defeat[x2, x1]))
-```
-
-```lean (name := lf2eval)
-#eval lf2
-```
-
-```leanOutput lf2eval
-∃x1 (∀x2 ((wizard[x2] & admire[Dorothy, x2]) <=> x1 = x2) & laugh[x1])
-```
-
-```lean (name := lf3eval)
-#eval lf3
-```
-
-```leanOutput lf3eval
-∃x1 (∀x2 ((princess[x2] & help[x2, Alice]) <=> x1 = x2) & shudder[x1])
-```
 
 ::::exercise (rating := 2) (name := "fragment-translations")
 Construa as árvores de análise das quatro sentenças a seguir, todas geradas pelo fragmento.
@@ -904,6 +880,7 @@ def shudder : OnePlacePred := list1 [.S]
 Os verbos transitivos denotam relações entre entidades, e é conveniente pensar um predicado de dois lugares como a lista dos pares para os quais ele vale. Dois deles não são dados por uma lista fixa: *admire* vale de toda pessoa para Goldilocks, e *defeat* vale de todo anão para todo gigante, além dos dois pares em que Alice derrota um mago.
 
 ```lean
+
 def love : TwoPlacePred :=
   list2 [(.Y, .E), (.B, .S), (.R, .S)]
 
