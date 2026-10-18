@@ -1,7 +1,7 @@
 # CSwL — Computational Semantics with Lean
 
 [![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
-[![Lean 4](https://img.shields.io/badge/Lean-v4.33.0-purple.svg)](https://lean-lang.org)
+[![Lean 4](https://img.shields.io/badge/Lean-v4.35.0-purple.svg)](https://lean-lang.org)
 [![Try it live](https://img.shields.io/badge/live.lean--lang.org-try%20it-orange)](https://live.lean-lang.org/)
 
 A [Lean 4](https://lean-lang.org) adaptation of *Computational Semantics with
