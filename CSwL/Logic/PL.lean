@@ -35,7 +35,7 @@ def doesNotWork (p q : Prop) (h : p ∧ q) : Type :=
   | And.intro ha _hb => ha
 ```
 
-Nesta seção, queremos manipular fórmulas e decidir quando uma fórmula `α` é consequência lógica de `β`, isto é, `β ⊧ α `. A noção de consequência lógica é semântica. Para toda possível escolha de valores verdade para os símbolos proposicionais em `α` e `β`, sempre que `β` for verdade, `α` deve ser verdade. Para _computar_ o valor verdade de uma fórmula, vamos precisar manipula a formula como dado, e calcular seu valor verdade a partir do mapeamento de variáveis proposicionais em valores verdade.
+Nesta seção, queremos manipular fórmulas e decidir quando uma fórmula `α` é consequência lógica de `β`, isto é, `β ⊨ α `. A noção de consequência lógica é semântica. Para toda possível escolha de valores verdade para os símbolos proposicionais em `α` e `β`, sempre que `β` for verdade, `α` deve ser verdade. Para _computar_ o valor verdade de uma fórmula, vamos precisar manipula a formula como dado, e calcular seu valor verdade a partir do mapeamento de variáveis proposicionais em valores verdade.
 
 Em um problema com um número finito de proposições, e os números costumam ser pequenos o suficiente para que a análise sistemática de todas as combinações de valores verdade seja viável na prática.
 
@@ -60,7 +60,7 @@ inductive Formula where
   deriving DecidableEq, Repr
 ```
 
-Os contrutores {name}`Formula.top` e {name}`Formula.bot` representam as proposições "sempre verdadeira" e "sempre falsa". São objetos sintáticos que serão sempre interpretados como os valores verdade {lean}`true` e {lean}`false` na semântica. Com este tipo, podemos representar fórmulas arbitrariamente complexas.
+Os construtores {name}`Formula.top` e {name}`Formula.bot` representam as proposições "sempre verdadeira" e "sempre falsa". São objetos sintáticos que serão sempre interpretados como os valores verdade {lean}`true` e {lean}`false` na semântica. Com este tipo, podemos representar fórmulas arbitrariamente complexas.
 
 ```lean
 #eval
@@ -154,7 +154,7 @@ example : Maria.form₁.names₁ == ["MB", "MJ", "MT"] :=
 :::
 
 
-Nem todos os conectivos precisam ser definidos como "primitivos". Como vimos na seção {ref "pl-lean"}[pl-lean] a implicação pode ser definida como uma dijunção. E a dupla implicação como uma conjunção de implicações.
+Nem todos os conectivos precisam ser definidos como "primitivos". Como vimos na seção {ref "pl-lean"}[pl-lean] a implicação pode ser definida como uma disjunção. E a dupla implicação como uma conjunção de implicações.
 
 ```lean
 def Formula.impl (f g : Formula) : Formula := .disj (.neg f) g
@@ -176,7 +176,7 @@ def Formula.disjs : List Formula → Formula
   | f :: fs => .disj f (Formula.disjs fs)
 ```
 
-Note que {name}`Formula.bot` é o elemento neutro da dijunção, `bot ∨ a`. E {name}`Formula.top` é o elemento neutro da conjunção, `top ∧ a`. Uma conjunção vazia é sempre verdadeira, uma disjunção vazia é sempre falsa. O que sugere as implementações alternativas a seguir.
+Note que {name}`Formula.bot` é o elemento neutro da disjunção, `bot ∨ a`. E {name}`Formula.top` é o elemento neutro da conjunção, `top ∧ a`. Uma conjunção vazia é sempre verdadeira, uma disjunção vazia é sempre falsa. O que sugere as implementações alternativas a seguir.
 
 ```lean
 def Formula.conjs₁ (fs : List Formula) : Formula :=
@@ -276,7 +276,7 @@ example : form2.depth = 3 := solution!(by decide)
 tag := "pl-semantics"
 %%%
 
-Todas as regras de derivação que usamos em {ref "Proof"}["Proof"] são justificadas por uma noção semântica de *consequência lógica*. Entendemos que `P` deve ser verdade sempre que `P ∧ Q` for verdade, para qualquer possível tradução de `P` e `Q` de volta para expressões em uma linguagem natural, por isso aceitamos `P ∧ Q ⊧ P`.  Para formalizar esta noção de "todas as possíveis traduções", vamos precisar de um processo para avaliar fórmulas lógicas em valores verdade.
+Todas as regras de derivação que usamos em {ref "Proof"}["Proof"] são justificadas por uma noção semântica de *consequência lógica*. Entendemos que `P` deve ser verdade sempre que `P ∧ Q` for verdade, para qualquer possível tradução de `P` e `Q` de volta para expressões em uma linguagem natural, por isso aceitamos `P ∧ Q ⊨ P`.  Para formalizar esta noção de "todas as possíveis traduções", vamos precisar de um processo para avaliar fórmulas lógicas em valores verdade.
 
 A partir de um mapeamento inicial de símbolos proposicionais em valores boleanos, o tipo {name}`Bool` em Lean, obtemos de forma recursiva o valor verdade de qualquer termo do tipo {name}`Formula`. Os construtores {name}`Formula.top` e {name}`Formula.bot` são constantes, nenhuma valoração os afeta. Podemos perceber que, de todos os casos da recursão, só o caso do átomo (construtor {name}`Formula.atom`) consulta a valoração passada; os outros casos apenas combinam os valores verdade das subfórmulas.
 
@@ -419,9 +419,9 @@ end ExSat
 ```
 :::
 
-A seguir, escrevemos implies para a relação de consequência lógica, chamando atenção para a relação entre `P ⊨ Q` e `⊨ P → Q`. Uma proposição `Q` é consequência lógica de `P` se, e somente se, a implicação `P → Q` é uma tautologia. Se `P → Q ≡ ¬ P ∨ Q ≡ ¬ (P ∧ ¬ Q)` então podemos também dizer que `P ⊧ Q` se e somente se `⊨ ¬ (P ∧ ¬ Q)`.
+A seguir, escrevemos implies para a relação de consequência lógica, chamando atenção para a relação entre `P ⊨ Q` e `⊨ P → Q`. Uma proposição `Q` é consequência lógica de `P` se, e somente se, a implicação `P → Q` é uma tautologia. Se `P → Q ≡ ¬ P ∨ Q ≡ ¬ (P ∧ ¬ Q)` então podemos também dizer que `P ⊨ Q` se e somente se `⊨ ¬ (P ∧ ¬ Q)`.
 
-Podemos estender para uma consequência lógica de fórmulas `{P₁, …, Pₙ} ⊧ α`, indicando que toda valoração que torna as fórmulas `P₁, …, Pₙ` verdadeiras também torna `α` verdadeira. O que equivale afirmar que a implicação da conjunção das premissas na conclusão é válida `⊧ (P₁ ∧ … ∧ Pₙ) → α`.
+Podemos estender para uma consequência lógica de fórmulas `{P₁, …, Pₙ} ⊨ α`, indicando que toda valoração que torna as fórmulas `P₁, …, Pₙ` verdadeiras também torna `α` verdadeira. O que equivale afirmar que a implicação da conjunção das premissas na conclusão é válida `⊨ (P₁ ∧ … ∧ Pₙ) → α`.
 
 Duas fórmulas `α` e `β` são *logicamente equivalentes*, escrevemos `α ≡ β`, se têm o mesmo valor de verdade para toda valoração possível. Segue da definição que todas as tautologias são logicamente equivalentes entre si, e o mesmo vale para as contradições.
 
@@ -459,7 +459,7 @@ end ExEquiv
 :::
 
 ::::exercise (rating := 2) (name := "implies-from-list")
-Nossa definição {name}`Formula.implies` relaciona duas fórmulas. Complete a definição abaixo para que possamos falar de `Γ ⊧ α`, a consequência lógica de um conjunto de fórmulas.
+Nossa definição {name}`Formula.implies` relaciona duas fórmulas. Complete a definição abaixo para que possamos falar de `Γ ⊨ α`, a consequência lógica de um conjunto de fórmulas.
 
 ```lean
 def Formula.impliesL (hs : List Formula) (c : Formula) : Bool :=
@@ -470,11 +470,11 @@ def Formula.impliesL (hs : List Formula) (c : Formula) : Bool :=
 ::::exercise (rating := 2) (name := "pl-consequence")
 Formalize as consequências lógicas abaixo completando o código como novos exemplos usnado termos do tipo {name}`Formula`. As duas primeiras já foram formalizada.
 
-1. `p ⊧ p ∨ q`
-2. `p, q ⊧ ¬ p`
-3. `p → q ⊧ ¬p → ¬q`
-4. `¬q ⊧ p→q`
-5. `¬p, q→p ⊧ ¬q`
+1. `p ⊨ p ∨ q`
+2. `p, q ⊨ ¬ p`
+3. `p → q ⊨ ¬p → ¬q`
+4. `¬q ⊨ p→q`
+5. `¬p, q→p ⊨ ¬q`
 
 Em todos os casos, para fechar ou não as provas, você só precisa da tática {tactic}`native_decide`. Note que quando existe consequência lógica, o tipo {lean}`Bool` pode ser promovido à `Prop` automaticamente pelo Lean, então você não precisa escrever `P.implies Q = true`, basta `P.implies Q`. Mas quando queremos mostrar que a consequência não é verdadeira, precisamos de `P.implies Q = false`.
 
@@ -563,7 +563,7 @@ theorem neg_taut_is_contradiction (f : Formula) :
   simp [List.all_eq_true]
 ```
 
-E também podemos provar o princípio da contraposição. Temos que `F₁ ⊧ F₂` se e somente se `¬ F₂ ⊧ ¬F₁`. Expandindo a definição de {name}`Formula.implies` e {name}`Formula.satisfiable`, temos o enunciado do teorema `contraposition_principle₁`. A prova dele é direta, corresponde a avaliação da definição de {name}`Formula.eval` seguida da aplicação da comutativade da conjunção boleana. Mas ele não é o princípio diretamente.
+E também podemos provar o princípio da contraposição. Temos que `F₁ ⊨ F₂` se e somente se `¬ F₂ ⊨ ¬F₁`. Expandindo a definição de {name}`Formula.implies` e {name}`Formula.satisfiable`, temos o enunciado do teorema `contraposition_principle₁`. A prova dele é direta, corresponde a avaliação da definição de {name}`Formula.eval` seguida da aplicação da comutativade da conjunção boleana. Mas ele não é o princípio diretamente.
 
 ```lean
 theorem contraposition_principle₁ (F₁ F₂ : Formula) (v : Valuation) :

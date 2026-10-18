@@ -90,8 +90,8 @@ root = "Main"
 
 # Builds the book: `lake exe cswl-book <variant>` writes
 # `_out/<variant>/{html,lean}`. Use the `Makefile` (`make student`, ...).
-# `lean4-autograder-main` does NOT go here on purpose: it requires the
-# `v4.33.0` toolchain and collides with the Mathlib that `cslib` brings
+# `lean4-autograder-main` does NOT go here on purpose: it is pinned to
+# the `v4.33.0` toolchain and collides with the Mathlib that `cslib` brings
 # (measured: breaks `lake exe cache get`). It is a dependency only of the
 # standalone Lake project that `CSwLMeta/Save/Project.lean` generates under
 # `_out/grading/lean/`.
@@ -103,13 +103,12 @@ leanOptions = {doc.verso = false}   # infrastructure, like the `CSwLMeta` lib
 # Revision pinned for the same reason as `verso` and `doc-gen4` below:
 # without `rev`, the `[[require]]` followed `main`, and any `lake update`
 # drags the project's toolchain to whatever `cslib`'s `main` requires at
-# that moment (happened on 08/14: it moved to `v4.34.0-rc1`). This is the
-# revision `lake-manifest.json` already resolved to -- pinning it changes
-# nothing about what compiles today.
+# that moment (happened on 08/14: it moved to `v4.34.0-rc1`). Pinned to
+# the release tag that matches our `lean-toolchain`, like the other three.
 [[require]]
 name = "cslib"
 scope = "leanprover"
-rev = "3951377e5a3f5772737f11cd62bc5bb6a72f95d1"
+rev = "v4.35.0"
 
 # Verso: generates the book's web (HTML) version, `Manual` genre
 # (`Book.lean`, target `lake exe cswl-book <variant>` -- see `Makefile`)
@@ -117,11 +116,11 @@ rev = "3951377e5a3f5772737f11cd62bc5bb6a72f95d1"
 # (`verso-serve.toml`). The `Literate` genre (`:literateHtml`,
 # `build-web.sh`) was retired on 08/16.
 # Revision pinned because verso's `lean-toolchain` has to match ours
-# (v4.33.0-rc2); `main` may move ahead to a newer toolchain.
+# (v4.35.0); `main` may move ahead to a newer toolchain.
 [[require]]
 name = "verso"
 git = "https://github.com/leanprover/verso"
-rev = "4ac03644305a17f32139766b9ceb625ad046b85e"
+rev = "v4.35.0"
 
 # doc-gen4: generates the API documentation (the reference: one HTML page
 # per declaration, with type, docstring, and links). Target: `lake build
@@ -129,7 +128,7 @@ rev = "4ac03644305a17f32139766b9ceb625ad046b85e"
 # its own since `build-web.sh` was retired (08/16); it stayed out of active
 # use until the scope question (`CSwL:docs` only documents the empty lib;
 # `Book:docs` brings in all of Mathlib) is resolved -- see
-# https://github.com/emap-nlp/CSwL/issues/1.
+# https://github.com/cslib-community/CSwL/issues/1.
 #
 # Tao declares this dependency only in the "dev" environment
 # (`meta if get_config? env = some "dev" then require ...` in
@@ -146,12 +145,12 @@ rev = "4ac03644305a17f32139766b9ceb625ad046b85e"
 #     requested.
 #
 # Revision pinned to the tag that matches our `lean-toolchain`
-# (v4.33.0-rc2). Being unconditional, a broken `main` would break
+# (v4.35.0). Being unconditional, a broken `main` would break
 # everyone's build.
 [[require]]
 name = "doc-gen4"
 git = "https://github.com/leanprover/doc-gen4"
-rev = "v4.33.0"
+rev = "v4.35.0"
 
 # Mathlib already comes in transitively via `cslib`, but without a direct
 # `[[require]]` here Lake does not prioritize Mathlib's version choices for
@@ -162,4 +161,4 @@ rev = "v4.33.0"
 [[require]]
 name = "mathlib"
 scope = "leanprover-community"
-rev = "db584cd6d46c92f209a44c0f1c829460d327499d"
+rev = "v4.35.0"

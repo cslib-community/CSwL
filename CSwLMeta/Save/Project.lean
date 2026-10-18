@@ -88,7 +88,7 @@ structure ExtractConfig where
   build` is about three seconds. It is not rebuilt on every `make`, but
   `make clean` removes `_out/` and the next build pays for it again. The
   toolchain objection that once kept this off is gone -- the generated
-  project and `CSwL` are both on `v4.33.0`. -/
+  project and `CSwL` are both on `v4.35.0`. -/
   verify : Bool := false
 
 /-! ## Generated Lake project template -/
@@ -382,7 +382,7 @@ private def emitSavedImpl (config : ExtractConfig) :
     let buf : SaveBuffers := walkOuter width config.modPrefix text {}
     let toolchain ← (IO.FS.readFile "lean-toolchain").toBaseIO >>= fun
       | .ok s => pure s
-      | .error _ => pure "leanprover/lean4:v4.33.0-rc2\n"
+      | .error _ => pure "leanprover/lean4:v4.35.0\n"
     let rootFile := config.modPrefix ++ ".lean"
     -- Snapshot the buffer as a list, to be able to read the sources (IO)
     -- entry by entry.

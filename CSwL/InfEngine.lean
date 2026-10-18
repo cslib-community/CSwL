@@ -336,7 +336,7 @@ pontuação, e quebrando em palavras.
 def preprocess (line : String) : List String :=
   let kept := line.toList.takeWhile
     (fun c => c.isAlpha || c.isWhitespace)
-  (String.mk kept).toLower.splitOn " "
+  (String.ofList kept).toLower.splitOn " "
     |>.filter (fun w => w ≠ "")
 ```
 
