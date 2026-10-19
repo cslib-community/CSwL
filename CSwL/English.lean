@@ -67,16 +67,13 @@ O que precisamos é de uma regra para a estrutura sujeito–predicado das senten
 
 ```bnf
 S   ::= NP VP ;
-S₁  ::= S | S "and" S;
 NP  ::= "Snow White" | "Alice" | "Dorothy" | "Goldilocks" | "Little Mook"
       | "Atreyu" | "everyone" | "someone" | DET CN | DET RCN ;
-NP₁ ::= NP | .... ;
 DET ::= "a" | "the" | "every" | "some" | "no" ;
 CN  ::= "girl" | "boy" | "princess" | "dwarf" | "giant" | "wizard" | "sword"
       | "dagger" ;
 ADJ ::= "fake" | "happy" | "evil" ;
 RCN ::= CN "that" VP | CN "that" NP TV | ADJ CN ;
-RCN₁ ::= RCN | CN "that" NP₁ TV ;
 VP  ::= "laughed" | "cheered" | "shuddered" | TV NP | DV NP NP ;
 TV  ::= "loved" | "admired" | "helped" | "defeated" | "caught" ;
 DV  ::= "gave" ;
@@ -212,25 +209,7 @@ instance : ToString RCN := ⟨RCN.toText⟩
 instance : ToString VP := ⟨VP.toText⟩
 ```
 
-A árvore de análise de *The dwarf that Snow White helped admired every princess* é a seguinte.
-
-```display
-S
-├── NP
-│   ├── DET — the
-│   └── RCN
-│       ├── CN — dwarf
-│       ├── That — that
-│       ├── NP — Snow White
-│       └── TV — helped
-└── VP
-    ├── TV — admired
-    └── NP
-        ├── DET — every
-        └── CN — princess
-```
-
-O termo Lean correspondente é este.
+A árvore de análise de *The dwarf that Snow White helped admired every princess* corresponde diretamente ao termo Lean.
 
 ```lean
 def sent1 : Sent :=
@@ -306,7 +285,7 @@ S'  ::= NP VPP ;
 A regra `NPP ::= DET CN PP` exige um determinante e um substantivo comum. Como *Little Mook* é um nome próprio, sem determinante, não há como formar *Little Mook with a sword* como um único sintagma nominal, e resta apenas a leitura em que o sintagma preposicional se liga ao sintagma verbal.
 :::
 
-A preposição *with* tem o nome de uma palavra reservada de Lean. Para usá-la assim mesmo como nome de construtor, basta cercá-la de guilhemets: `«with»`. Fora da declaração, `.with` já é lido como o construtor e dispensa os guilhemets.
+A preposição *with* tem o nome de uma palavra reservada de Lean. Para usá-la assim mesmo como nome de construtor, basta cercá-la de guillemets: `«with»`. Fora da declaração, `.with` já é lido como o construtor e dispensa os guilhemets.
 
 ```lean
 inductive Prep where
@@ -369,41 +348,35 @@ Agora construa as três árvores: as duas leituras de *A dwarf defeated a giant 
 ```lean
 def withSword : PP := .pp .with (.npDet .a .sword)
 
--- O sintagma preposicional modifica o objeto.
 def giantSword1 : SentPP :=
   solution!(
     .sent (.npDet .a .dwarf)
       (.objPP .defeated (.withPP .a .giant withSword)))
 
--- O sintagma preposicional modifica o sintagma verbal.
 def giantSword2 : SentPP :=
   solution!(
     .sent (.npDet .a .dwarf)
       (.vpPP .defeated (.npDet .a .giant) withSword))
 
--- Única leitura possível.
 def mookSword : SentPP :=
   solution!(
     .sent (.npDet .a .dwarf)
       (.vpPP .defeated .littleMook withSword))
 
-theorem giantSword_ambiguous :
-    toString giantSword1 = toString giantSword2 :=
+example
+  : toString giantSword1 = toString giantSword2 :=
   solution!(by rfl)
 
-theorem giantSword_surface :
-    toString giantSword1 =
-      "a dwarf defeated a giant with a sword" :=
+example
+  : toString giantSword1 =
+    "a dwarf defeated a giant with a sword" :=
   solution!(by rfl)
 
-theorem mookSword_surface :
-    toString mookSword =
-      "a dwarf defeated Little Mook with a sword" :=
+example
+  : toString mookSword =
+     "a dwarf defeated Little Mook with a sword" :=
   solution!(by rfl)
 ```
-
-:::gradeTheorem "1" giantSword_ambiguous giantSword_surface mookSword_surface
-:::
 
 As duas primeiras árvores são diferentes e imprimem a mesma sentença: é a ambiguidade pedida.
 ::::
@@ -481,16 +454,14 @@ def dwarfHelpedAdmired : SentC :=
               .and .goldilocks .admired))
           .cheered)
 
-theorem dwarfHelpedAdmired_surface :
+example :
     toString dwarfHelpedAdmired =
       "the dwarf that Snow White helped and " ++
         "Goldilocks admired cheered" :=
   solution!(by rfl)
 ```
-
-:::gradeTheorem "1" dwarfHelpedAdmired_surface
-:::
 ::::
+
 
 # FOL como Linguagem de representação
 %%%
@@ -700,8 +671,6 @@ def lf3 : LF :=
                   (.rcnSubj .princess .that
                     (.vpTrans .helped .alice)))
                 .shuddered)
-
-#eval lf1
 ```
 
 
@@ -772,6 +741,7 @@ theorem tr4_surface :
 ::::
 
 Temos agora representações de sentenças declarativas da língua natural como fórmulas da lógica de predicados. Falta dizer quando essas fórmulas são verdadeiras.
+
 
 # Uma Estrutura de Primeira Ordem
 %%%
@@ -963,6 +933,7 @@ theorem self3IO_introduced :
 :::
 ::::
 
+
 ## Interpretando os símbolos
 
 Já temos em {ref "fol-semantics"}[a semântica de FOL] tudo o que é preciso para avaliar fórmulas: {name}`FOL.Interp` interpreta os símbolos de predicado, {name}`FOL.FInterp` os símbolos funcionais, {name}`FOL.Assign` as variáveis, e {name}`FOL.Formula.eval` percorre a fórmula. Falta apenas ligar os nomes que a tradução produz às relações que acabamos de definir.
@@ -1115,8 +1086,6 @@ theorem values_correct :
 :::dev "Claude Opus 5" PotentialImprovement (year := 2026)
 Comentário gerado por IA. Os trinta e dois valores em `values` foram calculados pela avaliação, não conferidos à mão; o `native_decide` garante que eles concordam com `checkSentence`, mas não que `checkSentence` seja a semântica pretendida. Vale conferir alguns casos no modelo antes de publicar.
 :::
-
-
 
 
 ```lean
