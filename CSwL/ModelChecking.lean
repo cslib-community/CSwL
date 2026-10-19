@@ -540,11 +540,7 @@ def lfDV : DV → Term → Term → Term → LF
 
 ## Variáveis novas
 
-A tradução de um determinante toma dois argumentos de tipo `Term → LF` — formas lógicas com um buraco de termo dentro — e produz uma forma lógica. No caso dos quantificadores, o primeiro argumento é a *restrição* e o segundo o *escopo*.
-
-```display
-lfDET : DET → (Term → LF) → (Term → LF) → LF
-```
+A tradução de um determinante toma dois argumentos de tipo `Term → LF`, formas lógicas obtidas a partir de um termo, e produz uma forma lógica. No caso dos quantificadores, o primeiro argumento é a *restrição* e o segundo o *escopo*. Falaremos disso em {ref "comp-relational"}[A visão relacional dos quantificadores].
 
 A tradução dos determinantes precisa ser feita com algum cuidado, porque envolve construir uma forma lógica em que uma variável fica ligada. Para garantir a ligação correta, temos de nos assegurar de que a variável recém-introduzida não seja capturada por um quantificador já presente na forma lógica. Mas, se refletirmos sobre como as variáveis são introduzidas, veremos que elas sempre aparecem junto de quem as liga, e que nenhuma ligação é vazia. Basta então colher os índices das ocorrências ligadas.
 
@@ -666,13 +662,39 @@ end
 
 A tradução do adjetivo em `rcnAdj` é a conjunção: um *happy wizard* é alguém que é feliz e é mago. Isso está certo para *happy* e para *evil*, e está errado para *fake*: um *fake wizard* justamente não é um mago. Adjetivos desse tipo pedem uma semântica que a lógica de predicados não alcança, e o fragmento os traduz assim porque em Lean uma função tem de estar definida em todos os casos — a tradução existe, mas não é uma boa tradução.
 
-Vejamos três exemplos.
+Vejamos um primeiro exemplo passo-a-passo.
 
 ```lean
-def lf1 : LF :=
-  lfSent (.sent (.npDet .some .dwarf)
-                (.vpTrans .defeated (.npDet .some .giant)))
+def s1 :=
+  Sent.sent (.npDet .every .dwarf)
+            (.vpTrans .defeated (.npDet .some .giant))
 
+#eval toString s1
+
+open FOL in
+def l0 :=
+ let x : Variable := ⟨"x", [2]⟩
+ let y : Variable := ⟨"x", [1]⟩
+ let dwarf := λ x ↦ Formula.atom "dwarf" [Term.var x]
+ let giant := λ x ↦ Formula.atom "giant" [Term.var x]
+ let defeat := λ x y ↦ Formula.atom "defeat"
+  [(Term.var x),(Term.var y)]
+ Formula.forall_ x (Formula.impl
+  (dwarf x)
+  (Formula.exists_ y (Formula.conj (giant y) (defeat x y))))
+
+#eval toString l0
+
+open FOL in
+example : lfSent s1 = l0 := by
+ unfold s1 l0
+ simp [lfSent, lfNP, lfDET, lfCN, lfVP, lfCN, freshVar,
+   freshIndex, lfTV, boundIndices]
+```
+
+Outros dois exemplos de fórmulas.
+
+```
 def lf2 : LF :=
   lfSent (.sent (.npDetRel .the
                   (.rcnObj .wizard .that .dorothy .admired))
@@ -683,6 +705,7 @@ def lf3 : LF :=
                   (.rcnSubj .princess .that
                     (.vpTrans .helped .alice)))
                 .shuddered)
+
 ```
 
 
