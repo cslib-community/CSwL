@@ -850,7 +850,6 @@ def shudder : OnePlacePred := list1 [.S]
 Os verbos transitivos denotam relações entre entidades, e é conveniente pensar um predicado de dois lugares como a lista dos pares para os quais ele vale. Dois deles não são dados por uma lista fixa: *admire* vale de toda pessoa para Goldilocks, e *defeat* vale de todo anão para todo gigante, além dos dois pares em que Alice derrota um mago.
 
 ```lean
-
 def love : TwoPlacePred :=
   list2 [(.Y, .E), (.B, .S), (.R, .S)]
 
