@@ -45,20 +45,29 @@ Os _termos_ podem ser variáveis ou funções aplicadas a outros termos. Uma var
 structure Variable where
   name : String
   index : List Nat
-  deriving DecidableEq
+  deriving DecidableEq, Repr
 
-def Variable.format : Variable → Std.Format
+def Variable.toText : Variable → String
   | ⟨name, []⟩ => name
-  | ⟨name, [i]⟩ => name ++ toString i
+  | ⟨name, [i]⟩ => s!"{name}{i}"
   | ⟨name, is⟩ =>
     name ++ String.intercalate "_" (is.map toString)
 
-instance : Repr Variable := ⟨fun v _ => v.format⟩
+instance : ToString Variable := ⟨Variable.toText⟩
 
 def x : Variable := ⟨"x", []⟩
 def y : Variable := ⟨"y", []⟩
 def z : Variable := ⟨"z", []⟩
 ```
+
+A instrução `deriving Repr` gera, como em {ref "IntroL"}[IntroL], uma instância de {lean}`Repr`, que o `#eval` usa para exibir o valor como um termo Lean, mostrando sua estrutura. Para exibir uma variável na notação usual da lógica, implementamos também uma instância da classe {lean}`ToString`, que converte um valor em `String`. Quando um tipo tem as duas instâncias, `#eval` usa a de `Repr`; para ver a notação, escrevemos `#eval toString`. As cadeias `s!"…"` funcionam como as `f!"…"` de {ref "IntroL"}[IntroL], mas produzem uma `String`.
+
+```lean
+#eval Variable.mk "x" [1]
+#eval toString <| Variable.mk "x" [1]
+```
+
+No segundo `#eval`, o operador `<|`, que já usamos em {ref "IntroL"}[IntroL], aplica a função à sua esquerda a tudo o que está à sua direita e dispensa os parênteses.
 
 Termos denotam objetos do domínio, e diferentes termos podem denotar um mesmo objeto como os termos `(5 + 3) × 4`, `8 × 4` e `32`. Para representar termos mais complexos que apenas variáveis, a solução é introduzir símbolos funcionais para as operações entre termos.
 
@@ -66,16 +75,16 @@ Termos denotam objetos do domínio, e diferentes termos podem denotar um mesmo o
 inductive Term where
   | var (v : Variable)
   | struct (name : String) (args : List Term)
+  deriving Repr
 
-def Term.format : Term → Std.Format
-  | .var v => repr v
+def Term.toText : Term → String
+  | .var v => toString v
   | .struct name [] => name
   | .struct name args =>
     name ++ "[" ++
-      Std.Format.joinSep
-        (args.map Term.format) "," ++ "]"
+      String.intercalate "," (args.map Term.toText) ++ "]"
 
-instance : Repr Term := ⟨fun t _ => t.format⟩
+instance : ToString Term := ⟨Term.toText⟩
 
 def tx : Term := .var x
 def ty : Term := .var y
@@ -104,6 +113,7 @@ inductive Formula (α : Type) where
   | disj (f1 f2 : Formula α)
   | forall_ (v : Variable) (f : Formula α)
   | exists_ (v : Variable) (f : Formula α)
+  deriving Repr
 ```
 
 A conjunção e a disjunção são binárias, e `top` e `bot` são construtores próprios, o mesmo que fizemos para as fórmulas proposicionais.
@@ -124,31 +134,31 @@ def Formula.disjs {α : Type} : List (Formula α) → Formula α
   | f :: fs => .disj f (Formula.disjs fs)
 ```
 
-Um termo (Lean) do tipo `Formula` não é muito legível, vamos implementar a instância de `Repr` para controlar a exibição destes termos. Note que ela demanda que o tipo `α` tenha também uma instância de `Repr`, que já implementamos para {name}`Variable` e {name}`Term`.
+Como para {name}`Variable` e {name}`Term`, o `#eval` de uma fórmula exibe sua árvore de construtores, e uma instância de {lean}`ToString` dá a notação mais legível. Note que a instância demanda que o tipo `α` tenha também uma instância de `ToString`, que já implementamos para {name}`Variable` e {name}`Term`.
 
 ```lean
-def Formula.format {α} [Repr α] : Formula α → Std.Format
+def Formula.toText {α} [ToString α] : Formula α → String
   | .atom name [] => name
   | .atom name args =>
     name ++ "[" ++
-      Std.Format.joinSep (args.map (repr ·)) ", " ++ "]"
-  | .eq t1 t2 => f!"{repr t1} = {repr t2}"
-  | .neg f => f!"~{f.format}"
+      String.intercalate ", " (args.map toString) ++ "]"
+  | .eq t1 t2 => s!"{t1} = {t2}"
+  | .neg f => s!"~{f.toText}"
   | .impl f1 f2 =>
-    f!"({f1.format} ==> {f2.format})"
+    s!"({f1.toText} ==> {f2.toText})"
   | .equi f1 f2 =>
-    f!"({f1.format} <=> {f2.format})"
+    s!"({f1.toText} <=> {f2.toText})"
   | .top => "⊤"
   | .bot => "⊥"
   | .conj f1 f2 =>
-    f!"({f1.format} & {f2.format})"
+    s!"({f1.toText} & {f2.toText})"
   | .disj f1 f2 =>
-    f!"({f1.format} | {f2.format})"
-  | .forall_ v f => f!"∀{repr v} {f.format}"
-  | .exists_ v f => f!"∃{repr v} {f.format}"
+    s!"({f1.toText} | {f2.toText})"
+  | .forall_ v f => s!"∀{v} {f.toText}"
+  | .exists_ v f => s!"∃{v} {f.toText}"
 
-instance {α} [Repr α] : Repr (Formula α) :=
-  ⟨fun f _ => f.format⟩
+instance {α} [ToString α] : ToString (Formula α) :=
+  ⟨Formula.toText⟩
 ```
 
 A seguir, `R_reflexive` expressa que o predicado `R` é reflexivo enquanto `R_simetric` expressa que ele é simétrico. Note que para estes dois exemplos, usamos apenas variáveis, logo basta {lean}`Formula Variable`.

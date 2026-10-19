@@ -542,10 +542,6 @@ def lfDV : DV → Term → Term → Term → LF
 
 A tradução de um determinante toma dois argumentos de tipo `Term → LF` — formas lógicas com um buraco de termo dentro — e produz uma forma lógica. No caso dos quantificadores, o primeiro argumento é a *restrição* e o segundo o *escopo*.
 
-```display
-lfDET : DET → (Term → LF) → (Term → LF) → LF
-```
-
 A tradução dos determinantes precisa ser feita com algum cuidado, porque envolve construir uma forma lógica em que uma variável fica ligada. Para garantir a ligação correta, temos de nos assegurar de que a variável recém-introduzida não seja capturada por um quantificador já presente na forma lógica. Mas, se refletirmos sobre como as variáveis são introduzidas, veremos que elas sempre aparecem junto de quem as liga, e que nenhuma ligação é vazia. Basta então colher os índices das ocorrências ligadas.
 
 ```lean
@@ -694,7 +690,7 @@ Construa as árvores de análise das quatro sentenças a seguir, todas geradas p
 3. Every princess loved every dwarf that defeated a giant.
 4. Every boy admired a girl that no wizard helped.
 
-Os teoremas conferem que cada árvore devolve a sentença certa. Depois disso, `#eval lfSent tr1` exibe a forma lógica da primeira.
+Os teoremas conferem que cada árvore devolve a sentença certa. Depois disso, `#eval toString (lfSent tr1)` exibe a forma lógica da primeira.
 
 ```lean
 def tr1 : Sent :=
