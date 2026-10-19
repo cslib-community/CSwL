@@ -67,7 +67,7 @@ A instrução `deriving Repr` gera, como em {ref "IntroL"}[IntroL], uma instânc
 #eval toString <| Variable.mk "x" [1]
 ```
 
-No segundo `#eval`, `toString <| Variable.mk "x" [1]` é o mesmo que `toString (Variable.mk "x" [1])`: o operador `<|`, que já usamos em {ref "IntroL"}[IntroL], aplica a função à sua esquerda a tudo o que está à sua direita e dispensa os parênteses. O Lean também aceita `$` com o mesmo sentido, mas `<|` é a forma idiomática.
+No segundo `#eval`, o operador `<|`, que já usamos em {ref "IntroL"}[IntroL], aplica a função à sua esquerda a tudo o que está à sua direita e dispensa os parênteses.
 
 Termos denotam objetos do domínio, e diferentes termos podem denotar um mesmo objeto como os termos `(5 + 3) × 4`, `8 × 4` e `32`. Para representar termos mais complexos que apenas variáveis, a solução é introduzir símbolos funcionais para as operações entre termos.
 
