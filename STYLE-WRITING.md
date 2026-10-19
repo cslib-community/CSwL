@@ -146,6 +146,8 @@ entry until something contradicts them. What the sweep found instead:
   verb means *to take on*, and the false friend is the commonest
   translation error in this material)
 - "avaliar" / "rodar" (for `#eval`)
+- "escopo" / "corpo" (for the second argument of a determiner; CSwFP says
+  *scope* in its chapter 6 and *body* in chapter 7, for the same thing)
 
 ### Code and prose
 

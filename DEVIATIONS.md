@@ -132,8 +132,20 @@ decisions inside the chapters.
 ### `Composition`
 
 CSwFP/7 continues the fragment of `ModelChecking` and builds on the same
-syntax and model, so it comes after `ModelChecking`. Being written; no
-departures recorded yet.
+syntax and model, so it comes after `ModelChecking`. Being written.
+
+- The chapter summary is translated as the chapter's opening, with Lean in
+  place of Haskell as the lambda-calculus engine of `ModelChecking`.
+- In the opening of 7.2, the paragraph observing that the translation of
+  *Every prince sang a ballad* has no sub-expression for its noun phrases, and
+  the one on quantified noun phrases as "systematically misleading
+  expressions", are cut to a one-sentence reminder: `ModelChecking`'s
+  `english-form` already makes both points, at more length.
+- The relational view of 7.2 gains a paragraph tying it back to `lfDET` in
+  `ModelChecking`, whose two arguments are the restriction and the scope of
+  the same relation.
+- 7.2 calls the second argument of a determiner its *body*, where CSwFP/6
+  called it its *scope*. Both translate as "escopo".
 
 ## Beyond CSwFP/7
 
