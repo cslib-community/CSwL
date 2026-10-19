@@ -74,14 +74,14 @@ this way is usually a mistake; see "Known gaps."
 | Chapter | Commands and declarations | Types and syntax | Tactics |
 | --- | --- | --- | --- |
 | `IntroCS` | `namespace`, `def` (by pattern matching), `inductive`, `deriving Repr`, `example`, `#eval` | `Nat`, `String`, function type `→`, `++`, dot-notation constructors (`.num`) | `rfl`, `induction … with`, `rw`, `rewrite`, `unfold`, `repeat` |
-| `IntroL` | `#check`, `#print`, `theorem`, `structure … where`, `instance` (named and anonymous), `opaque` | `Type`, `Bool`, `Int`, `Float`, `List`, `Option`, `Char`, `fun`/`λ`, `↦`, `match`, `if … then … else`, `⟨…⟩`, structure literal `{ x := … }` and update `{ s with … }`, implicit `{α : Type}`, instance-implicit `[Repr α]`, `∘`, `::`, `BEq`, `f!` strings, `List.all`/`List.any` | *(none — the chapter is deliberately pre-proof)* |
+| `IntroL` | `#check`, `#print`, `theorem`, `structure … where`, `instance` (named and anonymous), `opaque` | `Type`, `Bool`, `Int`, `Float`, `List`, `Option`, `Char`, `fun`/`λ`, `↦`, `match`, `if … then … else`, `⟨…⟩`, structure literal `{ x := … }` and update `{ s with … }`, implicit `{α : Type}`, instance-implicit `[Repr α]`, `∘`, `::`, `BEq`, `f!` strings, `<|`, `List.all`/`List.any` | *(none — the chapter is deliberately pre-proof)* |
 | `Logic/Proof` | `open`, `section`, `variable` | `Prop`, `¬`, `∀`, `∃`, `∧`, `∨`, `↔`, `≠`, `False`, `absurd` (term), focus dots `·`, `h.1`/`h.2` | `intro`, `exact`, `apply`, `cases … with`, `constructor`, `obtain`, `have`, `use`, `left`, `right`, `by_cases`, `by_contra`, `assumption`, `funext`, `linarith`, `native_decide`, `simp`, `simp only [...]`, `simp … at h`, `rcases` and `Or.inl`/`Or.inr` **(solution only)** |
 | `Logic/PL` | `abbrev`, docstrings `/-- … -/`, `deriving DecidableEq`, `open … in` | `×` and tuples, `DecidableEq`, `True`, `≤`, section notation `(· ≤ ·)`, `\|>` **(solution only)** | `decide`, tactic locations `… at … ⊢`, `rw [← …]`, `all_goals`, `simpa … using` |
-| `Logic/FOL` | `mutual`, polymorphic `inductive … (α : Type)`, `def` whose body is a type (`def Assign (D : Type) := Variable → D`), theorem defined by equations | `Fin`, `∈`, `∉`, `Std.Format` and a hand-written `Repr`, bare implicit `{α}`, `∀ (D : Type)`, anonymous-constructor patterns (`\| ⟨name, []⟩`), `match e₁, e₂ with` **(solution only)** | `induction … generalizing`, `<;>`, `refine` with `?_`, `omega` |
+| `Logic/FOL` | `mutual`, polymorphic `inductive … (α : Type)`, `def` whose body is a type (`def Assign (D : Type) := Variable → D`), theorem defined by equations | `Fin`, `∈`, `∉`, `ToString` and its instance, `s!` strings, bare implicit `{α}`, `∀ (D : Type)`, anonymous-constructor patterns (`\| ⟨name, []⟩`), `match e₁, e₂ with` **(solution only)** | `induction … generalizing`, `<;>`, `refine` with `?_`, `omega` |
 | `Sets` | — | `Set`, `Rel`, `Finset`, `Fintype`, `Setoid`, `⊆`, `∪`, `∩`, `trivial` (term), `show … by …` **(solution only)** | `simp_all` |
 | `SeaBattle` | inductive predicate (`inductive WellFormed : Game → Prop where`) | structure fields that carry proofs, bounded `∀ x ∈ xs`, `by` as a structure-field value, `Fin.val`, dependent `if h : … then … else` **(solution only)**, `▸` **(solution only)** | *(none new)* |
 | `Morphology` | `open` of constructor namespaces (`open Attr Value`) | `match e₁, e₂ with` (first use outside a solution), `mapM` over `Option` **(solution only)** | *(none new)* |
-| `InfEngine` | `let rec` | `do`-notation, `ToString` and its instance, `s!` strings | — |
+| `InfEngine` | `let rec` | `do`-notation | — |
 | `ModelChecking` | `mutual` over `inductive` types (`Logic/FOL` only uses it over `def`) | guillemet identifiers (`«with»`), pattern-matching `fun \| … => …` (first use outside a solution) | *(none new)* |
 
 `ModelChecking` is where `abbrev` and `ToString` instances become the
@@ -97,7 +97,7 @@ The table records features, not every piece of notation. Type ascription,
 list literals, projection dots, and the like are not tracked: they arrive with
 the constructs that use them and tracking them would produce a ledger nobody
 maintains. Library functions are not tracked either — `String.intercalate`,
-`List.zip`, `Std.Format.joinSep`, `List.Nodup` and their kind arrive with the
+`List.zip`, `List.Nodup` and their kind arrive with the
 code that needs them. (`List.all`/`List.any` under `IntroL` is an older
 inconsistency; do not take it as licence to add siblings.)
 

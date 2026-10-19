@@ -717,7 +717,7 @@ Construa as árvores de análise das quatro sentenças a seguir, todas geradas p
 3. Every princess loved every dwarf that defeated a giant.
 4. Every boy admired a girl that no wizard helped.
 
-Os teoremas conferem que cada árvore devolve a sentença certa. Depois disso, `#eval lfSent tr1` exibe a forma lógica da primeira.
+Os teoremas conferem que cada árvore devolve a sentença certa. Depois disso, `#eval toString (lfSent tr1)` exibe a forma lógica da primeira.
 
 ```lean
 def tr1 : Sent :=
