@@ -14,6 +14,17 @@ defaultTargets = ["cswl", "CSwLCompat"]
 # explicitly).
 leanOptions = {doc.verso = true}
 
+# Mathlib (and so `cslib`) sets `requiresModuleSystem`: Lake then warns, for
+# every `import Mathlib...` in a file without a `module` header, "consider
+# adding `module` to the start of this file". The chapters deliberately stay
+# out of the module system -- its visibility rules (private by default,
+# `public`/`@[expose]`, definitions that `rfl` cannot unfold across files)
+# would be one more thing to present before any Lean code. This option
+# declares that mixing on purpose and silences the warning, for every
+# library of the package. Whether to adopt the module system instead is
+# https://github.com/cslib-community/CSwL/issues/38.
+allowNonModules = true
+
 [[lean_lib]]
 name = "CSwL"
 # `doc.verso.suggestions` turns off the linter that, for every inline

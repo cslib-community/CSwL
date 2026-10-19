@@ -101,7 +101,11 @@ revision the book is compiled with -- read from `CSwL`'s own
 besides `vol` -- today, at most, `"CSwLCompat"` when some extracted chapter
 imports the support module (see `bundleCompatSeed`). It does not go into
 `defaultTargets`: as in `sf-in-lean`, it is pulled in transitively by the
-`import` of the chapter that uses it. -/
+`import` of the chapter that uses it.
+
+`allowNonModules` silences the warning Lake emits for every `import
+Mathlib...` in a file without a `module` header; see the comment on the same
+option in `CSwL`'s own `lakefile.toml`. -/
 private def lakefileTemplate (vol : String) (v : Variant)
     (pkgRequires : Array (String × String × String))
     (extraLibs : Array String) : String :=
@@ -116,6 +120,7 @@ private def lakefileTemplate (vol : String) (v : Variant)
   "name = \"" ++ vol.toLower ++ "-extracted\"\n" ++
   "version = \"0.1.0\"\n" ++
   "defaultTargets = [\"" ++ vol ++ "\"]\n" ++
+  "allowNonModules = true\n" ++
   reqs ++
   "\n[[lean_lib]]\n" ++
   "name = \"" ++ vol ++ "\"\n" ++
