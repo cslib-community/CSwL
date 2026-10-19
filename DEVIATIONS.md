@@ -22,9 +22,9 @@ language has to come first, and chapter 2 is split: 2.3 and 2.4 into
 | `SeaBattle`  | `Logic`   | its exercises prove theorems by induction on `WellFormed`                   |
 | `Morphology` | `IntroL`  | placed here so that its exercises may use tactics                           |
 | `InfEngine`  | `Sets`    | the language of 4.3 is about sets, and the syllogisms are proved over `Set` |
-| `English`    | `Logic`   | it translates into `FOL`'s `Formula` and evaluates with its `eval`; best after `Sets`, whose characteristic functions build the model |
+| `ModelChecking` | `Logic` | it translates into `FOL`'s `Formula` and evaluates with its `eval`; best after `Sets`, whose characteristic functions build the model |
 
-CSwFP/6 is in `English`: it is built on the fragment of 4.2, whose
+CSwFP/6 is in `ModelChecking`: it is built on the fragment of 4.2, whose
 categories it translates one by one. 
 
 ## Reusing Mathlib and CSLib
@@ -102,7 +102,7 @@ decisions inside the chapters.
   its name.
 - The closing section, which proves syllogisms valid over `Set`, has no source.
 
-### `English`
+### `ModelChecking`
 
 - The sections are 6.1, 4.2, 6.2, and 6.3 with 6.4. 6.2 translates the 4.2
   grammar category by category, so the grammar comes first; 6.1 motivates the
@@ -131,5 +131,5 @@ decisions inside the chapters.
 
 ## Beyond CSwFP/6
 
-Not planned yet. CSwFP/7 continues the fragment of `English` and builds on the
-same syntax, so it comes after `English`.
+Not planned yet. CSwFP/7 continues the fragment of `ModelChecking` and builds on the
+same syntax, so it comes after `ModelChecking`.

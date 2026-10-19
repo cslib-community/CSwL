@@ -5,15 +5,15 @@ import CSwL.Logic.FOL
 open Verso.Genre Manual
 open CSwLMeta
 
-#doc (Manual) "Um fragmento de inglês" =>
+#doc (Manual) "Verificação de modelos com lógica de primeira ordem" =>
 %%%
-tag := "English"
+tag := "ModelChecking"
 htmlSplit := .never
-file := "English"
+file := "ModelChecking"
 %%%
 
 ```lean
-namespace English
+namespace ModelChecking
 ```
 
 # Formas Linguísticas e Traduções para Lógica
@@ -1089,5 +1089,5 @@ Comentário gerado por IA. Os trinta e dois valores em `values` foram calculados
 
 
 ```lean
-end English
+end ModelChecking
 ```

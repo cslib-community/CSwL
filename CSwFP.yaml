@@ -187,8 +187,8 @@ sections:
         the reader has just written. Its linguistic example is dropped, with 2.5.
     2.5 Types in Grammar and Computation:
       to: dropped
-      why: 6.1 makes the same point in English, that a proper name translates
-        as λP ↦ P g. Making it twice would fragment the presentation.
+      why: 6.1 makes the same point in ModelChecking, that a proper name
+        translates as λP ↦ P g. Making it twice would fragment the presentation.
     2.6 Functional Programming:
       to: absorbed
       why: It bridges to a programming language the reader has already seen.
@@ -212,7 +212,7 @@ sections:
     3.13 User-defined Data Types and Pattern Matching:
       to: IntroL
       why: Its Subject/Predicate example is dropped, so that no fragment of
-        natural language appears before the one English builds.
+        natural language appears before the one ModelChecking builds.
     3.14 Application, Representing Phonemes: Morphology
     3.15 Further Reading: omitted
 
@@ -221,7 +221,7 @@ sections:
       to: SeaBattle
       why: Together with 5.1, syntax and semantics in one chapter. The
         Mastermind grammar is dropped with 5.4.
-    4.2 A Fragment of English: English
+    4.2 A Fragment of English: ModelChecking
     4.3 A Language for Talking about Classes:
       to: InfEngine
       why: Together with 5.7, and after Sets, since the language is about sets.
@@ -244,7 +244,7 @@ sections:
       why: The model is the four-vertex graph of Enderton, since the model of
         6.3 belongs with the fragment it interprets.
     5.6 Semantics of Natural Language Fragments:
-      to: English
+      to: ModelChecking
       why: Only its exercise 5.27 is kept. Its translation key is superseded by
         6.2, which computes the translation.
     5.7 An Inference Engine with a Natural Language Interface:
@@ -254,13 +254,13 @@ sections:
     5.8 Further Reading: omitted
 
   CSwFP/6:
-    6.1 Linguistic Form and Translation Into Logic: English, before 4.2
-    6.2 Predicate Logic as Representation Language: English
-    6.3 Representing a Model for Predicate Logic: English
+    6.1 Linguistic Form and Translation Into Logic: ModelChecking, before 4.2
+    6.2 Predicate Logic as Representation Language: ModelChecking
+    6.3 Representing a Model for Predicate Logic: ModelChecking
     6.4 Evaluating Formulas in Models:
-      to: English
+      to: ModelChecking
       why: Absorbed. Its interpretation, assignments and eval are already in
-        Logic/FOL, so English adds only the model and checkSentence.
+        Logic/FOL, so ModelChecking adds only the model and checkSentence.
     6.5 Evaluating Formulas with Structured Terms:
       to: Logic/FOL
       why: It is about the evaluator, not the fragment. The evaluation over

@@ -8,7 +8,7 @@ import CSwL.Sets
 import CSwL.SeaBattle
 import CSwL.Morphology
 import CSwL.InfEngine
-import CSwL.English
+import CSwL.ModelChecking
 
 import VersoManual
 
@@ -34,4 +34,4 @@ set_option verso.code.warnLineLength 80
 {include CSwL.SeaBattle}
 {include CSwL.Morphology}
 {include CSwL.InfEngine}
-{include CSwL.English}
+{include CSwL.ModelChecking}
