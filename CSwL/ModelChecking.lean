@@ -16,40 +16,52 @@ file := "ModelChecking"
 namespace ModelChecking
 ```
 
+Nas linguagens formais construídas artificialmente, como a lógica proposicional e a lógica de predicados, as regras de formação de fórmulas são perfeitamente estritas, unívocas e livres de ambiguidade. A língua natural humana, por outro lado, apresenta um desafio de outra ordem: ela é rica e expressiva, mas repleta de nuances estruturais. Para que um computador possa manipular e verificar a veracidade de sentenças em inglês, precisamos construir uma ponte rigorosa entre a gramática das línguas humanas e a precisão da lógica formal.
+
+Este capítulo constrói o pipeline clássico da semântica computacional para um fragmento do inglês. Primeiro, em {ref "english-fragment"}[Um fragmento do inglês], especificamos a sintaxe do fragmento por meio de uma gramática livre de contexto, implementada em Lean como tipos indutivos que representam diretamente árvores de análise sintática. Em seguida, em {ref "english-lf"}[FOL como linguagem de representação], traduzimos essas árvores sintáticas para fórmulas da lógica de primeira ordem, guiados pelo princípio da composicionalidade e por ferramentas do cálculo lambda. Por fim, em {ref "english-model"}[Uma estrutura de primeira ordem], avaliamos as fórmulas obtidas em um modelo concreto, conectando sentenças sobre um micromundo ficcional aos seus valores de verdade.
+
+
 # Formas Linguísticas e Traduções para Lógica
 %%%
 tag := "english-form"
 %%%
 
-Da sentença *Alice walked on the road* segue-se que alguém caminhou na estrada, mas de *No one walked on the road* não se segue que alguém caminhou na estrada. Por isso lógicos como Gottlob Frege (1848–1925), Bertrand Russell (1872–1970), Alfred Tarski (1902–1983) e Willard Van Orman Quine (1908–2000) sustentaram que a estrutura dessas duas sentenças tem de ser diferente, e que não basta dizer que ambas são a composição de um sujeito e um predicado.
+Da sentença *Alice walked on the road* segue-se que alguém caminhou na estrada, mas de *No one walked on the road* não se segue que alguém caminhou na estrada. Por isso lógicos como Gottlob Frege (1848–1925), Bertrand Russell (1872–1970), Alfred Tarski (1902–1983) e Willard Van Orman Quine (1908–2000) sustentaram que a estrutura dessas duas sentenças deveria ser diferente, e que não basta dizer que ambas são a composição de um sujeito e um predicado.
 
-Os lógicos que usaram a lógica de predicados de primeira ordem para analisar a estrutura lógica da língua natural se impressionaram com o fato de que as traduções lógicas de sentenças com expressões quantificadas não pareciam acompanhar a estrutura linguística. Nas traduções lógicas, as expressões quantificadas pareciam ter desaparecido. A tradução lógica de (1) não revela nenhum constituinte correspondente ao sintagma nominal quantificado que faz de sujeito.
+Em linguística, chamamos de _sintagma nominal_ (_Noun Phrase_, ou `NP`) qualquer bloco de palavras centrado em um substantivo que funcione como uma unidade sintática (como um sujeito ou objeto). Quando esse bloco é encabeçado por palavras lógicas como _every_ ("todo"), _some_ ("algum") ou _no_ ("nenhum"), temos um *sintagma nominal quantificado*.
 
-1. Every dwarf loved Goldilocks.
+Ao tentar traduzir a língua natural para a lógica de predicados de primeira ordem, os lógicos notaram uma discrepância marcante: a fórmula lógica final não acompanhava a estrutura gramatical visível da oração. Considere o exemplo:
+
+1. _Every dwarf loved Goldilocks._ ("Todo anão amava Cachinhos Dourados.")
 2. `∀x (Dwarf x → Love x g)`
 
-Na tradução (2) o constituinte *every dwarf* desapareceu; ele foi contextualmente eliminado. Frege observa que uma expressão quantificada como *every dwarf* não dá origem a um conceito por si só, e só pode ser interpretada no contexto da tradução da sentença inteira. Considerando este exemplo em particular, a tradução literal de (2) seria:
+Na oração original em inglês, _Every dwarf_ é o sujeito da frase, formando um bloco sintático coeso. A discrepância decorre da perda de individualidade que o quantificador introduz. Se a sentença fosse _Alice loved Goldilocks_, o sujeito apontaria para uma pessoa específica no mundo, representada diretamente na lógica por uma constante individual `a` (resultando em `Love a g`).
 
-> All objects in the domain of discourse have the property of either not being dwarves or
-being objects who loved Goldilocks.
+Contudo, ao dizermos _Every dwarf_, não estamos nos referindo a um anão em particular: não existe no mundo um indivíduo chamado "Todo anão". Em vez de apontar para uma entidade isolada, o quantificador estabelece uma condição geral sobre todos os objetos do universo: _para qualquer objeto x, se x for um anão, então x amou Cachinhos Dourados_ (o que equivale logicamente a dizer que ou esse objeto não é um anão, ou ele amou Cachinhos Dourados).
 
-Nessa reformulação da sentença (1), o sintagma *every dwarf* não ocorre mais.
+É a isso que lógicos como Gottlob Frege chamavam de *eliminação contextual*: expressões quantificadas não denotam indivíduos e, por isso, deixam de existir como termos isolados na lógica de predicados. Seu significado só se manifesta na forma como condicionam a oração inteira.
 
-As propriedades lógicas das sentenças que envolvem expressões quantificadas (e descrições, analisadas em termos de quantificadores) sugeriam, de fato, que o modo como um sintagma nominal simples, como um nome próprio, se combina com um predicado é logicamente diferente do modo como um sintagma nominal quantificado ou uma descrição definida se combina com um predicado. Isso levou à crença de que a forma linguística das expressões da língua natural era enganosa.
+Essa discrepância levou muitos lógicos do início do século XX a supor que a língua natural era inerentemente imperfeita ou enganosa. Contudo, o desenvolvimento da semântica formal por Richard Montague revelou que essa conclusão era precipitada.
 
-A aplicação das ferramentas lógicas de abstração e redução do cálculo lambda nos permite ver que essa conclusão era injustificada. Traduzindo a língua natural em expressões de uma lógica tipada, veremos que os constituintes da língua natural correspondem a expressões tipadas que se combinam umas com as outras como funções e argumentos. Depois da redução completa dos resultados, as expressões quantificadas e outros constituintes podem ter sido contextualmente eliminados, mas essa eliminação é resultado do processo de redução, e não da suposta forma enganosa da sentença original. Assim, embora as traduções lógicas completamente reduzidas de sentenças da língua natural possam ser enganosas em algum sentido, as expressões originais, não reduzidas, não são.
+A chave para resolver esse impasse está em retomar o princípio da composicionalidade (visto em {ref "IntroCS"}[IntroCS]) sob a ótica do cálculo lambda (apresentado em {ref "lambda"}[IntroL]). Quando traduzimos a língua natural para uma lógica tipada, cada constituinte da oração corresponde a uma expressão funcional bem tipada. A combinação gramatical das palavras passa a refletir diretamente a aplicação de _funções aos seus argumentos_. O desaparecimento contextual dos quantificadores é simplesmente o resultado da computação dessas funções (a β-redução), e não uma falha estrutural da sentença original.
 
-Como exemplo do modo como as ferramentas do cálculo lambda aplainam as aparências lógicas, considere a lógica da combinação de sujeitos e predicados. Nos casos mais simples — como *Goldilocks laughed* — poderíamos dizer que o predicado toma o sujeito como argumento. Mas isso não funciona para sujeitos quantificados, como em *no one laughed*. Tudo se resolve, porém, se dissermos que o sujeito sempre toma o predicado como seu argumento, e fizermos isso valer também para os sujeitos simples, elevando logicamente seu estatuto de argumento a função. Com expressões lambda isso é bastante fácil: traduzimos *Goldilocks* não como a constante `g`, e sim como a expressão `λP ↦ P g`. Essa expressão denota uma função de propriedades em valores de verdade, e pode portanto tomar a tradução de um predicado como argumento. A tradução de *no one* é do mesmo tipo `λP ↦ ¬∃x (Person x ∧ P x)`.
+Para ilustrar como o cálculo lambda harmoniza a análise lógica, considere a combinação de sujeitos e predicados:
 
-Antes da redução, as traduções de *Goldilocks laughed* e de *no one laughed* se parecem muito. As semelhanças só desaparecem depois que as duas traduções são reduzidas às suas formas mais simples.
+* Na sentença simples _Goldilocks laughed_, a intuição imediata da lógica de primeira ordem é tratar o predicado como a função que consome o sujeito: `Laughed(g)`.
+* No entanto, essa estratégia falha para sujeitos quantificados como _No one laughed_: não existe um indivíduo "ninguém" que possamos passar como argumento para `Laughed`.
 
-Em {ref "english-lf"}[FOL como linguagem de representação] demonstramos isso construindo fórmulas da lógica de predicados como traduções das sentenças da língua natural geradas pelo fragmento de {ref "english-fragment"}[Um fragmento do inglês]. Essa tradução é o primeiro passo para interpretar indiretamente as expressões da língua natural. O passo seguinte, em {ref "english-model"}[Uma estrutura de primeira ordem], é atribuir às fórmulas da lógica de predicados um objeto modelo-teórico como denotação. Desse modo, a expressão da língua natural representada recebe uma interpretação modelo-teórica. No caminho, veremos as limitações desse procedimento.
+A solução elegante de Montague consiste em _inverter a relação funcional_ para todos os sujeitos (processo conhecido como *elevação de tipo*, ou _type raising_): em vez de o predicado consumir o sujeito, é o sujeito que consome o predicado como argumento!
 
-:::dev "Claude Opus 5" (year := 2026)
-Comentário gerado por IA. Duas observações sobre a tradução desta seção.
+Com expressões lambda, isso se torna direto:
 
-Os exemplos em inglês foram mantidos em inglês, como em todo o capítulo: eles são o objeto de estudo, e traduzi-los destruiria o argumento (*No one walked on the road* e *ninguém caminhou na estrada* não têm a mesma sintaxe). As paráfrases *sobre* os exemplos estão em português.
-:::
+1. O nome próprio _Goldilocks_ deixa de ser tratado como a constante individual `g` e passa a ser a função de ordem superior `λP ↦ P g`. Essa função recebe uma propriedade `P` e afirma que `g` tem essa propriedade.
+2. O sintagma quantificado _no one_ recebe exatamente a mesma assinatura de tipo: `λP ↦ ¬∃x (Person x ∧ P x)`, consumindo igualmente uma propriedade `P`.
+Assim, tanto _Goldilocks laughed_ quanto _no one laughed_ combinam-se sintática e semanticamente da mesma maneira: o sujeito aplica-se ao predicado. A aparente assimetria só ressurge quando efetuamos a β-redução para simplificar a fórmula lógica final.
+
+Esse método nos permite realizar a _interpretação indireta_ da língua natural: em vez de tentar avaliar sentenças em inglês diretamente em um modelo, nós as traduzimos primeiro para fórmulas da lógica de primeira ordem, cuja semântica formal já dominamos.
+
+Para que essa tradução composicional seja viável, porém, precisamos de um ponto de partida indispensável: delimitar a estrutura sintática das sentenças que queremos analisar. É a essa tarefa de modelagem gramatical que nos dedicamos a seguir em {ref "english-fragment"}[Um fragmento do inglês].
+
 
 # Um fragmento do Inglês
 %%%
