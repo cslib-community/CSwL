@@ -46,8 +46,7 @@ adapts — see [DEVIATIONS.md](DEVIATIONS.md) for why.
   [source](CSwL/Morphology.lean) (sections in
   [`CSwL/Morphology/`](CSwL/Morphology))
 - [~] An inference engine — [source](CSwL/InfEngine.lean)
-- [~] A fragment of English — [source](CSwL/English.lean)
-- [ ] Model checking with predicate logic — in `CSwL/English.lean`
+- [~] Model checking with first-order logic — [source](CSwL/ModelChecking.lean)
 - [ ] The composition of meaning
 - [ ] Extension and intension
 - [ ] Parsing
