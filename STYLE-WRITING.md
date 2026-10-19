@@ -122,6 +122,11 @@ The book is in Brazilian Portuguese.
 Where AI is used to translate, the translation is as literal as the target
 language allows, produced as a draft for a human to revise. Prose is never
 invented, expanded, or restructured on the AI's initiative — see `CLAUDE.md`.
+
+A `:::terse` cue (see `STYLE-CODE.md`) is the one exception: it is new text by
+nature, not a translation, since CSwFP has no lecture cut. AI may draft a cue,
+one block at a time, and a human approves or rewrites each one. The `:::full`
+prose next to it keeps the rule above.
 The failure mode this section guards against is the systematic one: a
 translation that is fluent, plausible, and consistently wrong about a term.
 

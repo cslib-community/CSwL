@@ -129,6 +129,36 @@ exercises:
     6.6 (p. 146): TODO, goes with 6.5 to Logic/FOL
     6.7 (p. 147): check-sentence
 
+  CSwFP/7:
+    7.1 (p. 158): TODO
+    7.2 (p. 158): TODO
+    7.3 (p. 158): TODO
+    7.4 (p. 161): TODO
+    7.5 (p. 161): TODO
+    7.6 (p. 161): TODO
+    7.7 (p. 162): TODO
+    7.8 (p. 162): TODO
+    7.9 (p. 162): TODO
+    7.10 (p. 162): TODO
+    7.11 (p. 163): TODO
+    7.12 (p. 164): TODO
+    7.13 (p. 165): TODO
+    7.14 (p. 165): TODO
+    7.15 (p. 166): TODO
+    7.16 (p. 166): TODO
+    7.17 (p. 166): TODO
+    7.18 (p. 166): TODO
+    7.19 (p. 168): TODO
+    7.20 (p. 170): TODO
+    7.21 (p. 170): TODO
+    7.22 (p. 172): TODO
+    7.23 (p. 173): TODO
+    7.24 (p. 175): TODO
+    7.25 (p. 179): TODO
+    7.26 (p. 180): TODO
+    7.27 (p. 181): TODO
+    7.28 (p. 182): TODO
+
 original:
   IntroL.lean: [sum-of-squares, sum-to, sum-list, count-zeros]
   Logic/Proof.lean:
@@ -267,7 +297,25 @@ sections:
         `[0..]` becomes a theorem, since Lean is not lazy.
     6.6 Further Reading: omitted
 
-  CSwFP/7 The Composition of Meaning in Natural Language: not yet taken up
+  CSwFP/7:
+    7.1 Rules of the Game: Composition
+    7.2 Quantification:
+      to: Composition
+      why: TODO, its Aristotle-to-Frege opening retells what InfEngine
+        already presents with the syllogisms.
+    7.3 The Language of Typed Logic and Its Semantics:
+      to: Composition
+      why: TODO, it overlaps the lambda calculus that IntroL takes from 2.4.
+    7.4 Reducing Expressions of Typed Logic:
+      to: Composition
+      why: TODO, it overlaps the lambda calculus that IntroL takes from 2.4.
+    7.5 Typed Meanings for Natural Language: Composition
+    7.6 Implementing Semantic Interpretation: Composition
+    7.7 Handling Ambiguity:
+      to: Composition
+      why: TODO, its exercises build on the prepositional phrases that
+        ModelChecking adds to the fragment.
+    7.8 Further Reading: omitted
   CSwFP/8 Extension and Intension: not yet taken up
   CSwFP/9 Parsing: not yet taken up
   CSwFP/10 Handling Relations and Scoping: not yet taken up

@@ -129,7 +129,12 @@ decisions inside the chapters.
   `FInterp`; and names and argument order agree with the translation, which
   in the Haskell source they do not.
 
-## Beyond CSwFP/6
+### `Composition`
 
-Not planned yet. CSwFP/7 continues the fragment of `ModelChecking` and builds on the
-same syntax, so it comes after `ModelChecking`.
+CSwFP/7 continues the fragment of `ModelChecking` and builds on the same
+syntax and model, so it comes after `ModelChecking`. Being written; no
+departures recorded yet.
+
+## Beyond CSwFP/7
+
+Not planned yet.

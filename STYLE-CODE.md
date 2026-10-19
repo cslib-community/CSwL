@@ -266,6 +266,18 @@ Prose can be routed to a variant:
 - `:::suppressPreviousHeaderWhenTerse` — drops the preceding heading in the
   `terse` build, where the prose under it is gone and the heading would dangle.
 
+The standard pattern, as in sf-in-lean, is a `:::terse` cue followed by the
+`:::full` prose it stands in for, followed by the shared ```` ```lean ```` block.
+The cue is one or two sentences for the instructor at the keyboard, about what
+the Lean code does and how; the `:::full` block holds the narrative a reader
+needs on their own, including any prose translated from CSwFP. Code, exercises,
+quizzes and `:::dev` notes stay outside both, so every variant has them. Prose
+that serves both audiences equally can stay outside both too.
+
+`Composition` is the first chapter written this way. The chapters before it
+have no `:::terse` cues yet, so their `terse` variant carries the full prose;
+each gets its cues when it is next revised.
+
 ### Notes and commentary
 
 - `:::dev` — an internal note to the authors, rendered under the heading

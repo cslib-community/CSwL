@@ -30,7 +30,8 @@ DATA = yaml.safe_load((ROOT / "CSwFP.yaml").read_text())
 
 # How many exercises each CSwFP chapter has.
 COUNTS = {"CSwFP/1": 3, "CSwFP/2": 17, "CSwFP/3": 19,
-          "CSwFP/4": 24, "CSwFP/5": 32, "CSwFP/6": 7}
+          "CSwFP/4": 24, "CSwFP/5": 32, "CSwFP/6": 7,
+          "CSwFP/7": 28}
 
 EXERCISE = re.compile(r'^:+exercise\b.*\(name := "([^"]+)"\)')
 CITATION = re.compile(r"CSwFP|página \d+|\(p\. \d+|§\s*\d|exemplo \(\d+\.\d+\)"
