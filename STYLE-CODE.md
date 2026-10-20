@@ -268,11 +268,26 @@ Prose can be routed to a variant:
 
 The standard pattern, as in sf-in-lean, is a `:::terse` cue followed by the
 `:::full` prose it stands in for, followed by the shared ```` ```lean ```` block.
-The cue is one or two sentences for the instructor at the keyboard, about what
-the Lean code does and how; the `:::full` block holds the narrative a reader
-needs on their own, including any prose translated from CSwFP. Code, exercises,
+The cue is for the instructor at the keyboard: a few short points on what the
+section is about, what matters most in it, and what to explain about the Lean
+code that follows. The `:::full` block holds the narrative a reader needs on
+their own, including any prose translated from CSwFP. Code, exercises,
 quizzes and `:::dev` notes stay outside both, so every variant has them. Prose
 that serves both audiences equally can stay outside both too.
+
+A section is written **`terse` first**. The cues and the code come first; the
+`:::full` prose follows later, step by step, under human review. Until then the
+`:::full` block holds only a pending note, so that the gap shows in every
+variant but `student`:
+
+```
+::::full
+:::dev BeforeNextRelease
+TODO: translate CSwFP/7.2, from "Abstracting from the domain…" to "…the
+logical representation of quantifiers."
+:::
+::::
+```
 
 `Composition` is the first chapter written this way. The chapters before it
 have no `:::terse` cues yet, so their `terse` variant carries the full prose;

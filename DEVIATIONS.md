@@ -141,9 +141,9 @@ syntax and model, so it comes after `ModelChecking`. Being written.
   the one on quantified noun phrases as "systematically misleading
   expressions", are cut to a one-sentence reminder: `ModelChecking`'s
   `english-form` already makes both points, at more length.
-- The relational view of 7.2 gains a paragraph tying it back to `lfDET` in
-  `ModelChecking`, whose two arguments are the restriction and the scope of
-  the same relation.
+- Example (7.4), *Every mermaid hummed a song*, becomes *Every dwarf defeated
+  a giant*: mermaids, songs and humming are not in `ModelChecking`'s fragment
+  or model, and the new sentence can be evaluated there with `#eval`.
 - 7.2 calls the second argument of a determiner its *body*, where CSwFP/6
   called it its *scope*. Both translate as "escopo".
 
