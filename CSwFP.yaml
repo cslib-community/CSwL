@@ -130,9 +130,9 @@ exercises:
     6.7 (p. 147): check-sentence
 
   CSwFP/7:
-    7.1 (p. 158): TODO
-    7.2 (p. 158): TODO
-    7.3 (p. 158): TODO
+    7.1 (p. 158): tree-of-numbers
+    7.2 (p. 158): tree-patterns
+    7.3 (p. 158): gen-tree
     7.4 (p. 161): TODO
     7.5 (p. 161): TODO
     7.6 (p. 161): TODO
@@ -190,12 +190,22 @@ original:
   Morphology/Phonemes.lean: [append-suffix-text]
   Morphology/SwedishPlural.lean: [swedish-plural]
   InfEngine.lean: [inconsistent-kb, ferio]
+  Composition.lean:
+    - at-most-two     # from the prose on "At least two A are B" in 7.2
+    - at-least-n      # from the prose on "at least n" and "at most m" in 7.2
+    - subalternation  # from the prose on existential presuppositions in 7.2
+    - no-cons         # from the prose on CONS in 7.2
+    - only-not-cons   # from the prose on (7.8), "Only dwarfs sing during work"
+    - many-not-ext    # from the prose on EXT in 7.2, "many in the sense of relatively many"
+    - the-quant       # from the prose on ISOM in 7.2 and the Russellian `the` of 7.5
+    - poss-not-isom   # from the prose on ISOM in 7.2: EXT and CONS do not imply ISOM
 
 depends:
   bangu-proof: bangu-form
   pl-consequence: implies-from-list
   ex-fol-entails: ex-fol-implies-from-list
   help-defeat: check-sentence
+  gen-tree: tree-of-numbers
 
 sections:
 

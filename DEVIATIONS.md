@@ -144,6 +144,13 @@ syntax and model, so it comes after `ModelChecking`. Being written.
 - Example (7.4), *Every mermaid hummed a song*, becomes *Every dwarf defeated
   a giant*: mermaids, songs and humming are not in `ModelChecking`'s fragment
   or model, and the new sentence can be evaluated there with `#eval`.
+- The tree of numbers is not an infinite list, since Lean is not lazy:
+  `treeOfNumbers k` (exercise 7.1) gives the rows `0` to `k`, and `genTree`
+  (exercise 7.3) takes the same bound.
+- `Quant` takes the universe before the property, `List Nat → (Nat → Bool) →
+  Bool`, so that `List.all` and `List.any` have the type as they are.
+- Figure 7.6 is computed: `showTree` draws a pattern from a quantifier given as
+  a function of `m` and `n`.
 - 7.2 calls the second argument of a determiner its *body*, where CSwFP/6
   called it its *scope*. Both translate as "escopo".
 

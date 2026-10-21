@@ -1,6 +1,8 @@
 import CSwLMeta
 import Bib
 import CSwL.ModelChecking
+import Mathlib.Data.Set.Function
+import Mathlib.Data.Set.Card
 
 open Verso.Genre Manual
 open CSwLMeta
@@ -74,6 +76,8 @@ tag := "comp-rules"
 - O procedimento de {ref "english-lf"}[FOL como linguagem de representação]
   explica: o significado do todo é construído a partir dos significados das
   partes. Os significados das palavras vêm do modelo.
+- A semântica computacional tem pouco ou nada a dizer sobre a interpretação dos
+  átomos semânticos (a interpretação dos átomos no modelo de primeira ordem); tem muito a dizer sobre o processo de compor sistematicamente significados complexos a partir dos significados dos componentes.
 - Princípio da Composicionalidade, já visto em {ref "IntroCS"}[O estudo formal
   da língua natural]: o significado de uma expressão é uma função dos
   significados de seus componentes imediatos e do modo de composição.
@@ -93,26 +97,173 @@ tag := "comp-quantification"
 %%%
 
 :::terse
-- Aristóteles ({ref "InfEngine"}[Um motor de inferência]): um quantificador
-  por sentença, nada de *most* ou *at least five*, e a pressuposição
-  existencial.
-- Frege: ∀ e ∃ com variáveis, em combinações arbitrárias. Os dois são
-  interdefiníveis com a negação.
-- O quadrado das oposições em primeira ordem; *pelo menos dois A são B* com a
+- O objetivo da seção é comparar a visão aristotélica e a visão fregeana dos
+  quantificadores. A de Frege é muito superior, mas deixa três problemas em
+  aberto, e o resto do capítulo trata deles.
+- A teoria da quantificação de Aristóteles, que vimos em
+  {ref "InfEngine"}[Um motor de inferência], tem dois defeitos lógicos e uma
+  falha menor:
+  1. ela não trata combinações de quantificadores, pois só admite um
+     quantificador por sentença;
+  2. ela não cobre quantificadores "não padrão", como *most*, *half of* e
+     *at least five*;
+  3. ela supõe a pressuposição existencial.
+- Frege remove o primeiro defeito. Os quantificadores ∀ e ∃ ligam variáveis
+  e se combinam com fórmulas arbitrárias, de modo que uma fórmula pode ter
+  quantos quantificadores quiser. O segundo defeito continua.
+- ∀ e ∃ se definem um pelo outro com a negação: $`\exists x P x` vale se e
+  somente se $`\neg \forall x \neg P x` vale.
+- Os quatro quantificadores do quadrado das oposições se escrevem com ∀ e ∃:
+  "todo A é B" é $`\forall x (Ax \to Bx)`, "algum A é B" é
+  $`\exists x (Ax \land Bx)`, e assim por diante.
+- Por que "esquecer" a pressuposição existencial: a questão não é o domínio
+  (em FOL ele é não vazio), mas a extensão de `A`. Se nenhum elemento satisfaz
+  `A`, então $`\forall x (Ax \to Bx)` é vacuamente verdadeira e
+  $`\exists x (Ax \land Bx)` é falsa.
+- Com `A` vazio, só as diagonais (contraditórias) sobrevivem. Caem as
+  contrárias ("todo A é B" e "nenhum A é B" ambas verdadeiras), as
+  subcontrárias e a subalternação. Ex.: *Darapti* não vale em FOL.
+:::
+
+::::full
+:::dev BeforeNextRelease
+TODO: translate CSwFP/7.2, from the start to "…in terms of standard
+quantifiers and equality."
+:::
+::::
+
+:::terse
+- Com a igualdade, a lógica de primeira ordem exprime também quantificadores
+  numéricos. "Pelo menos dois A são B" é
+  $`\exists x \exists y (x \neq y \land Ax \land Ay \land Bx \land By)`.
+- A fórmula de "pelo menos dois A são B" em Lean é um valor do tipo `LF`, o
+  mesmo de {ref "ModelChecking"}[Model checking]. Os predicados `a` e `b` são
+  parâmetros, e a função devolve uma fórmula para cada par de predicados.
+- `.neg (.eq tx ty)` é $`x \neq y`. A igualdade já é um construtor de
+  `Formula` desde {ref "FOL"}[FOL].
+- No modelo do capítulo há três pessoas que riem e só duas meninas que riem.
+:::
+
+```lean
+open FOL in
+def atLeastTwo (a b : String) : LF :=
+  .exists_ x (.exists_ y (.conjs
+    [.neg (.eq tx ty), .atom a [tx], .atom a [ty],
+     .atom b [tx], .atom b [ty]]))
+
+def check (f : LF) : Bool :=
+  f.eval entities intFairy ass0 (FOL.liftAssign fintFairy)
+
+#eval check (atLeastTwo "person" "laugh")
+```
+
+::::exercise (rating := 1) (name := "at-most-two")
+
+Seguindo o modelo de {name}`atLeastTwo`, defina a fórmula de "no máximo dois
+A são B". Dica: se três elementos são A e B, dois deles são iguais.
+
+```lean
+open FOL in
+def atMostTwo (a b : String) : LF :=
+  solution!(
+    .forall_ x (.forall_ y (.forall_ z (.impl
+      (.conjs [.atom a [tx], .atom a [ty], .atom a [tz],
+               .atom b [tx], .atom b [ty], .atom b [tz]])
+      (.disjs [.eq tx ty, .eq tx tz, .eq ty tz])))))
+
+theorem atMostTwo_girl :
+    check (atMostTwo "girl" "laugh") = true :=
+  solution!(by native_decide)
+
+theorem atMostTwo_person :
+    check (atMostTwo "person" "laugh") = false :=
+  solution!(by native_decide)
+```
+
+::::
+
+:::terse
+- {name}`atLeastTwo` e `atMostTwo` são funções que *geram* fórmulas. A
+  função é escrita em Lean, a metalinguagem; o que ela devolve é uma fórmula
+  de FOL, a linguagem objeto.
+- Todas as disjunções e conjunções de quantificadores das formas *pelo menos
+  n* e *no máximo m* podem ser expressas com os quantificadores padrão e a
   igualdade.
+- O que a lógica de primeira ordem consegue contar: só números fixos e
+  finitos, com uma fórmula diferente para cada `n`.
+- Não existe uma única fórmula que expresse "pelo menos n" para `n`
+  arbitrário. Cada fórmula tem um número fixo de quantificadores, e isso
+  limita até onde ela consegue contar.
+- Em Lean, porém, podemos escrever uma única *função* `atLeast n` que, para
+  cada `n`, gera a fórmula correspondente. As `n` variáveis distintas saem do
+  índice de `Variable`: `⟨"x", [i]⟩` é a variável `xi`.
+:::
+
+::::exercise (rating := 3) (name := "at-least-n")
+
+Defina `atLeast n a b`, a fórmula de "pelo menos n A são B", e
+`atMost n a b`, a de "no máximo n A são B". Dica: "no máximo n" é a negação
+de "pelo menos n + 1". Para `atLeast`, uma função auxiliar recursiva pode
+carregar a lista dos termos já quantificados, para exigir que cada nova
+variável seja diferente de todos eles.
+
+```lean
+open FOL in
+def atLeastFrom (a b : String) (n : Nat) (ts : List Term) :
+    LF :=
+  solution!(
+    match n with
+    | 0 => .top
+    | n + 1 =>
+      let v : Variable := ⟨"x", [n]⟩
+      let t : Term := .var v
+      .exists_ v (.conjs ([.atom a [t], .atom b [t]] ++
+        ts.map (fun s => .neg (.eq s t)) ++
+        [atLeastFrom a b n (t :: ts)])))
+
+def atLeast (n : Nat) (a b : String) : LF :=
+  solution!(atLeastFrom a b n [])
+
+def atMost (n : Nat) (a b : String) : LF :=
+  solution!(.neg (atLeast (n + 1) a b))
+
+theorem atLeast_person :
+    check (atLeast 3 "person" "laugh") = true ∧
+      check (atLeast 4 "person" "laugh") = false :=
+  solution!(by native_decide)
+
+theorem atMost_girl :
+    check (atMost 2 "girl" "laugh") = true ∧
+      check (atMost 1 "girl" "laugh") = false :=
+  solution!(by native_decide)
+```
+
+::::
+
+:::terse
 - *Every prince sang a ballad* ("Todo príncipe cantou uma balada"): na
   fórmula, os sintagmas nominais desaparecem.
 - *A ballad was sung by every prince* ("Uma balada foi cantada por todo
   príncipe"): duas fórmulas, duas leituras. A lógica de primeira ordem
   desambigua.
-- O que falta: manter os sintagmas nominais como constituintes, uma tradução
-  que não seja ad hoc, e quantificadores não padrão como *most*.
+- A visão fregeana deixa três problemas em aberto:
+  1. encontrar uma linguagem de representação que preserve os sintagmas
+     nominais como constituintes;
+  2. encontrar um procedimento de tradução da língua natural que não seja
+     ad hoc;
+  3. tratar quantificadores não padrão como *most*, de preferência junto com
+     os quantificadores padrão.
+- O resto desta seção, a partir da visão relacional, responde aos problemas
+  1 e 3: *every dwarf* vira uma função, e *most* é uma relação entre
+  conjuntos como *every*. A lógica tipada e o cálculo lambda, nas próximas
+  seções, respondem ao problema 2.
 :::
 
 ::::full
 :::dev BeforeNextRelease
-TODO: translate CSwFP/7.2, from the start to "…in a uniform framework with
-standard quantifiers." The two paragraphs on the noun phrases of (7.1) and on
+TODO: translate CSwFP/7.2, from "To illustrate the claim that first-order
+logic has no difficulty…" to "…in a uniform framework with standard
+quantifiers." The two paragraphs on the noun phrases of (7.1) and on
 "systematically misleading expressions" are cut to a reminder of
 `english-form` (see `DEVIATIONS.md`).
 :::
@@ -124,6 +275,10 @@ tag := "comp-relational"
 %%%
 
 :::terse
+- O objetivo da subseção é apresentar a visão relacional dos quantificadores
+  e mostrar, em dois exemplos, que com ela os sintagmas nominais continuam
+  sendo constituintes, inclusive quando há dois quantificadores na mesma
+  sentença.
 - Um quantificador é uma relação binária entre subconjuntos de um domínio
   $`E` (Mostowski {citep Bib.mostowski1957}[]; Barwise e Cooper
   {citep Bib.barwise1981}[]).
@@ -149,14 +304,28 @@ e and t or shows the Lean types; e and t are presented in `comp-typed-logic`.
 ```lean
 def every (p q : OnePlacePred) : Bool :=
   entities.all (fun x => !p x || q x)
+
+#eval (every princess) laugh
 ```
 
-```lean (name := everyPrincessLaughed)
-#eval every princess laugh
-```
+:::terse
+- Lembre de {ref "Sets"}[Conjuntos e Relações]: a função característica de
+  um conjunto responde, para cada elemento, se ele pertence ao conjunto.
+  `princess : Entity → Bool` é a função característica do conjunto das
+  princesas.
+- `every princess` aplica a mesma ideia um nível acima. Ele tem tipo
+  `OnePlacePred → Bool`, logo é a função característica de um conjunto de
+  *propriedades*: as que toda princesa tem, isto é, as `q` com
+  $`\textit{princess} \subseteq q`.
+- O `#eval` a seguir mostra esse conjunto, restrito a três propriedades. O
+  resultado é `["laugh"]`: das três propriedades, só "rir" é de toda
+  princesa.
+:::
 
-```leanOutput everyPrincessLaughed
-true
+```lean (name := everyPrincessEval)
+#eval [("laugh", laugh), ("cheer", cheer),
+       ("shudder", shudder)]
+  |>.filter (fun (_, q) => every princess q) |>.map (·.1)
 ```
 
 :::terse
@@ -164,13 +333,6 @@ true
   sentença com dois quantificadores.
 - `a p q` verifica que alguma entidade tem `p` e `q`: a interseção dos dois
   conjuntos não é vazia.
-- Um sintagma nominal como `a giant` tem tipo `OnePlacePred → Bool`: espera a
-  propriedade do escopo. O verbo transitivo `defeated` toma esse sintagma como
-  argumento e devolve uma propriedade do sujeito.
-- A sentença inteira é só aplicação de funções. Nenhuma fórmula é construída:
-  o `#eval` consulta o modelo diretamente.
-- Nessa composição o objeto fica sempre no escopo do sujeito. A outra leitura
-  fica para {ref "comp-ambiguity"}[Tratando a ambiguidade].
 :::
 
 ::::full
@@ -184,18 +346,714 @@ summary tree, with *Every dwarf defeated a giant* in place of (7.4) (see
 ```lean
 def a (p q : OnePlacePred) : Bool :=
   entities.any (fun x => p x && q x)
-
-def defeated (X : OnePlacePred → Bool) : OnePlacePred :=
-  fun y => X (fun z => defeat y z)
 ```
 
-```lean (name := everyDwarfDefeatedAGiant)
+:::terse
+- Há três nomes para `defeated`, em três níveis:
+  - `TV.defeated` é a palavra, um construtor da gramática;
+  - `defeat : Entity → Entity → Bool` é a relação no modelo;
+  - `defeated`, que definimos agora, é a tradução do verbo.
+- Lembre que `OnePlacePred` é uma abreviação (`abbrev`) de `Entity → Bool`,
+  o tipo das propriedades. O objeto `a giant` tem tipo
+  `OnePlacePred → Bool`: ele espera uma propriedade. Mas `defeat` tem dois
+  argumentos e não é uma propriedade.
+- O truque é fixar o sujeito `y`. `fun z => defeat y z` é a propriedade "ser
+  derrotado por `y`", e `X (fun z => defeat y z)` diz que `y` derrotou `X`.
+  Abstraindo `y`, obtemos uma propriedade do sujeito.
+- Por isso `defeated` toma o significado de um sintagma nominal,
+  `X : OnePlacePred → Bool`, e devolve o de um VP, um `OnePlacePred`. A avaliação da lista as entidades com essa propriedade, as que derrotaram um
+  gigante: `[B, R]`, que são justamente os dois anões do modelo.
+:::
+
+```lean (name := defeatedEval)
+def defeated (X : OnePlacePred → Bool) : OnePlacePred :=
+  fun y => X (fun z => defeat y z)
+
+#eval entities.filter (defeated (a giant))
+```
+
+:::terse
+- A sentença inteira é só aplicação de funções. Nenhuma fórmula é construída:
+  a avaliação consulta o modelo diretamente.
+- Nessa composição o objeto fica sempre no escopo do sujeito. A outra leitura
+  fica para {ref "comp-ambiguity"}[Tratando a ambiguidade].
+:::
+
+```lean
+#eval (every dwarf) (defeated (a giant))
 #eval every dwarf (defeated (a giant))
 ```
 
-```leanOutput everyDwarfDefeatedAGiant
-true
+
+## Condições sobre as relações quantificadoras
+%%%
+tag := "comp-conditions"
+%%%
+
+::::terse
+O objetivo da subseção é dizer quais relações entre conjuntos são
+quantificadores. É uma definição, *quantificador* é o nome de uma relação que satisfaz EXT, CONS e ISOM. Uma relação qualquer entre conjuntos pode depender de coisas que um quantificador ignora, e cada uma das três condições exclui um desses casos:
+
+:::table +header
+*
+  * Condição
+  * O que garante
+  * O que exclui
+*
+  * EXT
+  * O resultado não depende do tamanho do universo $`E`, só de
+    $`A \cup B`.
+  * *Many* no sentido de "relativamente muitos", que depende de quantas
+    coisas existem no total.
+*
+  * CONS
+  * Nada fora da restrição $`A` importa.
+  * *Only*: em *Only dwarfs sing during work*, acrescentar não anões que
+    cantam torna a sentença falsa.
+*
+  * ISOM
+  * Importa quantos elementos há, e não quais.
+  * Determinantes que falam de um indivíduo, como o possessivo *Alice's*:
+    em *Alice's daggers are sharp*, o que importa é quem é o dono, e não
+    quantas adagas há.
+:::
+
+- EXT e CONS valem para quase todos os determinantes da língua natural.
+  ISOM separa, entre eles, os que exprimem quantidade.
+- Juntas, as três condições reduzem o valor de `D E A B` a dois números,
+  $`|A - B|` e $`|A \cap B|`. É isso que permite a árvore de números de
+  {ref "comp-trees"}[Árvores numéricas].
+- Para enunciar as condições, saímos de `Bool` e passamos a `Prop` sobre
+  `Set`, como em {ref "Sets"}[Conjuntos]: `D E A B` diz que o determinante
+  `D` relaciona a *restrição* `A` e o *escopo* `B` no universo `E`.
+- O tipo `GQ.Det α` é só uma abreviação para `Set α → Set α → Set α → Prop`.
+  Nada no tipo diz que `A` e `B` estão dentro de `E`, como na Figura 7.2.
+  Essa exigência aparece como as hipóteses `A ⊆ E` e `B ⊆ E` em cada uma das
+  três condições.
+- Não confundir `DET` com `GQ.Det`. `DET` é a categoria sintática de
+  {ref "ModelChecking"}[Model checking], com as palavras *a*, *the*,
+  *every*, …. `GQ.Det` é o tipo dos significados dessas palavras. O tipo é
+  amplo de propósito: todo quantificador é um `GQ.Det`, mas nem todo
+  `GQ.Det` é um quantificador.
+::::
+
+::::full
+:::dev BeforeNextRelease
+TODO: translate CSwFP/7.2, "Conditions on Quantifier Relations", from the
+start to Figure 7.2.
+:::
+::::
+
+```lean
+namespace GQ
+
+abbrev Det (α : Type) := Set α → Set α → Set α → Prop
+
+def all  {α} : Det α := fun _ A B => A ⊆ B
+def some {α} : Det α := fun _ A B => ∃ x, x ∈ A ∧ x ∈ B
+def no   {α} : Det α := fun _ A B => ∀ x, x ∈ A → x ∉ B
+def only {α} : Det α := fun _ A B => B ⊆ A
 ```
+
+:::terse
+- {lean}`GQ.all` é a contraparte de {lean}`every` em conjuntos: `every p q` é `true`
+  exatamente quando o conjunto das entidades com `p` está contido no das
+  entidades com `q`.
+- A prova usa {lean}`mem_entities`: toda entidade está na lista `entities`.
+:::
+
+```lean
+theorem every_iff_all (p q : OnePlacePred) :
+    every p q = true ↔
+      all Set.univ {x | p x = true} {x | q x = true} := by
+  unfold every all
+  constructor
+  · intro h x hx
+    have hx' := List.all_eq_true.mp h x (mem_entities x)
+    simp_all
+  · intro h
+    apply List.all_eq_true.mpr
+    intro x _
+    by_cases hp : p x = true
+    · have hq : q x = true := h hp
+      simp [hq]
+    · simp [hp]
+```
+
+::::exercise (rating := 2) (name := "subalternation")
+
+Em {ref "comp-quantification"}[Quantificação] vimos que, sem a pressuposição
+existencial, "todo A é B" não implica "algum A é B". Prove as duas coisas: a
+subalternação vale quando `A` tem um elemento, e falha em geral.
+
+```lean
+theorem all_imp_some {α : Type} (E A B : Set α)
+    (hA : ∃ x, x ∈ A) (h : all E A B) : some E A B := by
+  solution!
+   obtain ⟨x, hx⟩ := hA
+   exact ⟨x, hx, h hx⟩
+
+theorem all_not_imp_some :
+    ¬ ∀ (A B : Set Entity),
+        all Set.univ A B → some Set.univ A B := by
+  solution!
+   intro h
+   obtain ⟨x, hx, _⟩ := h ∅ ∅ (fun _ hx => hx)
+   exact hx
+```
+::::
+
+:::terse
+- *EXT*: o resultado não muda quando o universo cresce; só importa $`A \cup B`.
+- *CONS*: tudo o que está fora da restrição é irrelevante, `D E A B` equivale a
+  `D E A (A ∩ B)`.
+:::
+
+::::full
+:::dev BeforeNextRelease
+TODO: translate CSwFP/7.2, from "Not all two-place relations on sets of
+individuals…" to "…A − B and A ∩ B."
+:::
+::::
+
+```lean
+def Ext {α : Type} (D : Det α) : Prop :=
+  ∀ E E' A B, A ⊆ E → B ⊆ E → E ⊆ E' → (D E A B ↔ D E' A B)
+
+def Cons {α : Type} (D : Det α) : Prop :=
+  ∀ E A B, A ⊆ E → B ⊆ E → (D E A B ↔ D E A (A ∩ B))
+```
+
+:::terse
+- Para *all* e *some*, as duas condições valem e as provas são curtas.
+- As provas de EXT são só `rfl`: as definições começam com `fun _ A B`, isto
+  é, ignoram o universo `E`, e os dois lados do `↔` são a mesma proposição.
+:::
+
+```lean
+theorem all_ext {α : Type} : Ext (all : Det α) := by
+  intro E E' A B _ _ _
+  rfl
+
+theorem all_cons {α : Type} : Cons (all : Det α) := by
+  intro E A B _ _
+  constructor
+  · intro h x hx
+    exact ⟨hx, h hx⟩
+  · intro h x hx
+    exact (h hx).2
+
+theorem some_ext {α : Type} : Ext (some : Det α) := by
+  intro E E' A B _ _ _
+  rfl
+
+theorem some_cons {α : Type} : Cons (some : Det α) := by
+  intro E A B _ _
+  constructor
+  · intro h
+    obtain ⟨x, hA, hB⟩ := h
+    exact ⟨x, hA, hA, hB⟩
+  · intro h
+    obtain ⟨x, hA, _, hB⟩ := h
+    exact ⟨x, hA, hB⟩
+```
+
+::::exercise (rating := 2) (name := "no-cons")
+Prove que *no* é conservativo.
+
+```lean
+theorem no_cons {α : Type} : Cons (no : Det α) := by
+  solution!
+   intro E A B _ _
+   constructor
+   · intro h x hA hAB
+     exact h x hA hAB.2
+   · intro h x hA hB
+     exact h x hA ⟨hA, hB⟩
+```
+::::
+
+:::terse
+- *Many*, no sentido de "relativamente muitos", não satisfaz EXT. Uma versão
+  simples: "muitos A são B" quando os A que são B são mais da metade do
+  universo `E`. Com um universo maior, a mesma sentença pode ficar falsa.
+- `Set.ncard` é o número de elementos de um conjunto finito, a $`|A|` da
+  notação matemática. Ela vem de `Mathlib.Data.Set.Card`.
+:::
+
+```lean
+def many {α : Type} : Det α :=
+  fun E A B => E.ncard < 2 * (A ∩ B).ncard
+```
+
+::::exercise (rating := 2) (name := "many-not-ext")
+Prove que `many` não satisfaz EXT. Basta um universo `E` em que a relação
+vale e um universo maior `E'` em que ela deixa de valer.
+
+```lean
+theorem many_not_ext : ¬ Ext (many : Det Nat) := by
+  solution!
+   intro h
+   have h1 : (many : Det Nat) {0} {0} {0} := by
+     simp [many]
+   have h2 := (h {0} {0, 1} {0} {0} le_rfl le_rfl
+     (by simp)).1 h1
+   simp [many] at h1
+   simp [many] at h2
+```
+::::
+
+:::terse
+*Only*, como em *Only dwarfs sing during work*, não é conservativo.
+:::
+
+::::exercise (rating := 2) (name := "only-not-cons")
+Prove que *only* não é conservativo. Basta escolher uma restrição e um escopo
+para os quais as duas leituras da definição de `Cons` dão resultados
+diferentes.
+
+```lean
+theorem only_not_cons : ¬ Cons (only : Det Entity) := by
+  solution!
+   intro h
+   have hcons :
+       (only : Det Entity) Set.univ ∅ (∅ ∩ Set.univ) := by
+     intro x hx
+     exact hx.1
+   have hS : Entity.S ∈ (∅ : Set Entity) :=
+     (h Set.univ ∅ Set.univ (Set.empty_subset _)
+        (Set.subset_univ _)).2 hcons (Set.mem_univ Entity.S)
+   exact hS
+```
+::::
+
+:::terse
+- *ISOM*: só importam as quantidades. Se `f` leva `E` bijetivamente em `E'`,
+  então `D E A B` implica `D E' (f '' A) (f '' B)`.
+- `f '' A` é a imagem de `A` por `f`, o conjunto dos `f x` com `x ∈ A`.
+  `Set.BijOn f E E'` diz que `f` é uma bijeção de `E` em `E'`.
+- Um quantificador é uma relação que satisfaz EXT, CONS e ISOM. O valor de
+  `D E A B` depende então só de $`|A - B|` e $`|A \cap B|`.
+- Os artigos também são quantificadores no sentido técnico desta seção. *a*
+  tem o mesmo significado que *some*: vale quando $`|A \cap B| \geq 1`. *the*,
+  na leitura russelliana de {ref "ModelChecking"}[Model checking], vale
+  quando $`|A \cap B| = 1` e $`|A - B| = 0`. A gramática tradicional, porém,
+  não vê *the* como expressão de quantidade, e sim como um modo de identificar
+  um referente. Quantificador, aqui, é uma propriedade semântica; determinante
+  é uma categoria sintática.
+:::
+
+::::full
+:::dev BeforeNextRelease
+TODO: translate CSwFP/7.2, from "Next, the relational perspective
+suggests…" to "…the logical representation of quantifiers."
+:::
+::::
+
+```lean
+def Isom {α : Type} (D : Det α) : Prop :=
+  ∀ (f : α → α) E E' A B, A ⊆ E → B ⊆ E →
+    Set.BijOn f E E' → D E A B → D E' (f '' A) (f '' B)
+
+theorem all_isom {α : Type} : Isom (all : Det α) := by
+  intro f E E' A B _ _ _ h
+  exact Set.image_mono h
+
+theorem some_isom {α : Type} : Isom (some : Det α) := by
+  intro f E E' A B _ _ _ h
+  obtain ⟨x, hA, hB⟩ := h
+  exact ⟨f x, ⟨x, hA, rfl⟩, ⟨x, hB, rfl⟩⟩
+```
+
+::::exercise (rating := 2) (name := "the-quant")
+
+Na leitura de {ref "ModelChecking"}[Model checking], *The dwarf laughed*
+diz que há exatamente um anão e que ele riu. Como relação entre conjuntos,
+`the E A B` diz que `A` tem um único elemento e que ele está em `B`. Mostre
+que `the` satisfaz EXT, CONS e ISOM. Assim, o artigo *the* é, no sentido
+técnico desta seção, um quantificador.
+
+```lean
+def the {α : Type} : Det α :=
+  fun _ A B => ∃ x, A = {x} ∧ x ∈ B
+
+theorem the_ext {α : Type} : Ext (the : Det α) := by
+  solution!
+   intro E E' A B _ _ _
+   rfl
+
+theorem the_cons {α : Type} : Cons (the : Det α) := by
+  solution!
+   intro E A B _ _
+   constructor
+   · intro h
+     obtain ⟨x, hA, hB⟩ := h
+     exact ⟨x, hA, by rw [hA]; rfl, hB⟩
+   · intro h
+     obtain ⟨x, hA, _, hB⟩ := h
+     exact ⟨x, hA, hB⟩
+
+theorem the_isom {α : Type} : Isom (the : Det α) := by
+  solution!
+   intro f E E' A B _ _ _ h
+   obtain ⟨x, hA, hB⟩ := h
+   refine ⟨f x, ?_, ⟨x, hB, rfl⟩⟩
+   rw [hA, Set.image_singleton]
+```
+
+::::
+
+::::exercise (rating := 3) (name := "poss-not-isom")
+
+O possessivo *Alice's*, como em *Alice's daggers are sharp*, ocupa a posição
+de um determinante: `poss owns a A B` diz que todo `A` que `a` possui é `B`.
+A relação de posse `owns` é um parâmetro. Mostre que `poss` satisfaz EXT e
+CONS, mas não ISOM. Assim, as três condições são independentes: EXT e CONS
+não bastam para fazer de um determinante um quantificador.
+
+Dica: para ISOM, basta um exemplo pequeno em `Bool`, em que `false` possui
+só `true`, e a bijeção `not`.
+
+```lean
+def poss {α : Type} (owns : α → α → Prop) (a : α) : Det α :=
+  fun _ A B => ∀ x, x ∈ A → owns a x → x ∈ B
+
+theorem poss_ext {α : Type} (owns : α → α → Prop) (a : α) :
+    Ext (poss owns a) := by
+  solution!
+   intro E E' A B _ _ _
+   rfl
+
+theorem poss_cons {α : Type} (owns : α → α → Prop) (a : α) :
+    Cons (poss owns a) := by
+  solution!
+   intro E A B _ _
+   constructor
+   · intro h x hA ho
+     exact ⟨hA, h x hA ho⟩
+   · intro h x hA ho
+     exact (h x hA ho).2
+
+theorem poss_not_isom :
+    ¬ Isom (poss (fun _ x => x = true) false) := by
+  solution!
+   intro h
+   have hb : Set.BijOn not Set.univ Set.univ := by
+     refine ⟨fun _ _ => trivial, ?_, ?_⟩
+     · intro x _ y _ hxy
+       cases x <;> cases y <;> simp_all
+     · intro y _
+       exact ⟨!y, trivial, by simp⟩
+   have h1 : poss (fun _ x => x = true) false
+       Set.univ {false} ∅ := by
+     intro x hx ho
+     simp_all
+   have h2 := h not Set.univ Set.univ {false} ∅
+     (Set.subset_univ _) (Set.subset_univ _) hb h1
+   obtain ⟨_, hx, _⟩ := h2 true ⟨false, rfl, rfl⟩ rfl
+   exact hx
+```
+
+::::
+
+```lean
+end GQ
+```
+
+## Árvores numéricas
+%%%
+tag := "comp-trees"
+%%%
+
+:::terse
+- Um quantificador `Q` com restrição `A` e escopo `B` é um subconjunto da
+  *árvore de números*. A linha `k` da árvore tem os pares `(m, n)` com
+  `m + n = k`, isto é, $`|A| = k`, onde `m` é $`|A - B|` e `n` é
+  $`|A \cap B|`.
+- `row k` gera a linha `k`, da esquerda para a direita: `m` diminui e `n`
+  aumenta.
+:::
+
+::::full
+:::dev BeforeNextRelease
+TODO: translate CSwFP/7.2, "Numerical Trees", from "Suppose a quantifier Q has
+A as a first…" to "…both of these objects have property B.", with Figure 7.5.
+:::
+::::
+
+```lean (name := rowEval)
+def row (k : Nat) : List (Nat × Nat) :=
+  (List.range (k + 1)).map fun x => (k - x, x)
+
+#eval (List.range 4).map row
+```
+
+```leanOutput rowEval
+[[(0, 0)], [(1, 0), (0, 1)], [(2, 0), (1, 1), (0, 2)], [(3, 0), (2, 1), (1, 2), (0, 3)]]
+```
+
+:::terse
+- Em Haskell, a árvore é uma lista infinita, e `take 10` pega o começo dela.
+  Lean não é preguiçoso: uma `List` é sempre finita. Por isso
+  `treeOfNumbers k` devolve só as linhas de `0` a `k`.
+:::
+
+::::exercise (rating := 1) (name := "tree-of-numbers")
+
+Defina `treeOfNumbers k`, a lista dos pares da árvore de números da linha `0`
+até a linha `k`, percorrida de cima para baixo e da esquerda para a direita.
+
+```lean
+def treeOfNumbers (k : Nat) : List (Nat × Nat) :=
+  solution!((List.range (k + 1)).flatMap row)
+
+theorem treeOfNumbers_three :
+    treeOfNumbers 3 =
+      [(0, 0), (1, 0), (0, 1), (2, 0), (1, 1), (0, 2),
+       (3, 0), (2, 1), (1, 2), (0, 3)] :=
+  solution!(by rfl)
+```
+
+::::
+
+:::terse
+- O padrão de um quantificador na árvore marca com `+` as posições `(m, n)`
+  em que ele é verdadeiro, e com `-` as outras.
+- Aqui o quantificador é dado direto como uma função de `m` e `n`.
+  `showTree q` desenha as seis primeiras linhas do padrão de `q`.
+- Os três padrões da Figura 7.6: *pelo menos três* ($`n \geq 3`), *menos da
+  metade* ($`2n < m + n`) e *um número par* ($`n` par).
+:::
+
+```lean
+def showRow (q : Nat → Nat → Bool) (k : Nat) : String :=
+  let cells := (row k).map fun (m, n) =>
+    if q m n then "+" else "-"
+  String.ofList (List.replicate (5 - k) ' ') ++
+    String.intercalate " " cells
+
+def showTree (q : Nat → Nat → Bool) : String :=
+  String.intercalate "\n" ((List.range 6).map (showRow q))
+```
+
+```lean (name := atLeastThreeTree)
+#eval IO.println <| showTree fun _ n => n ≥ 3
+```
+
+```leanOutput atLeastThreeTree
+     -
+    - -
+   - - -
+  - - - +
+ - - - + +
+- - - + + +
+```
+
+```lean (name := lessThanHalfTree)
+#eval IO.println <| showTree fun m n => 2 * n < m + n
+```
+
+```leanOutput lessThanHalfTree
+     -
+    + -
+   + - -
+  + + - -
+ + + - - -
++ + + - - -
+```
+
+```lean (name := evenTree)
+#eval IO.println <| showTree fun _ n => n % 2 == 0
+```
+
+```leanOutput evenTree
+     +
+    + -
+   + - +
+  + - + -
+ + - + - +
++ - + - + -
+```
+
+:::terse
+- No exercício seguinte, o quantificador é dado como em Haskell: uma função
+  que recebe um universo (uma lista) e uma propriedade. `List.all` e
+  `List.any` já têm esse tipo, e são *all* e *some*.
+- Para a posição `(m, n)`, o universo é `[1, …, m + n]`, e a propriedade vale
+  para exatamente `n` de seus elementos.
+:::
+
+::::full
+:::dev BeforeNextRelease
+TODO: translate CSwFP/7.2, from "To get used to these representations…" to
+the end of Exercise 7.3, without the exercises themselves.
+:::
+::::
+
+::::exercise (rating := 2) (name := "gen-tree")
+
+Defina `genTree q k`, a lista dos pares `(m, n)` de `treeOfNumbers k` para os
+quais `q` é verdadeiro num universo de `m + n` objetos dos quais exatamente
+`n` têm a propriedade. Por exemplo, `(0, 4)` está na lista de `List.all`,
+porque se todos os A são B, os 4 objetos de um domínio A de 4 objetos têm a
+propriedade B.
+
+```lean
+abbrev Quant := List Nat → (Nat → Bool) → Bool
+
+def genTree (q : Quant) (k : Nat) : List (Nat × Nat) :=
+  solution!(
+    (treeOfNumbers k).filter fun (m, n) =>
+      q (List.range' 1 (m + n)) (fun x => 0 < x && x ≤ n))
+
+theorem genTree_all :
+    genTree List.all 3 = [(0, 0), (0, 1), (0, 2), (0, 3)] :=
+  solution!(by rfl)
+
+theorem genTree_any :
+    genTree List.any 3 =
+      [(0, 1), (1, 1), (0, 2), (2, 1), (1, 2), (0, 3)] :=
+  solution!(by rfl)
+
+theorem genTree_no :
+    genTree (fun dom p => !dom.any p) 3 =
+      [(0, 0), (1, 0), (2, 0), (3, 0)] :=
+  solution!(by rfl)
+```
+
+::::
+
+## Representações lógicas para quantificadores
+%%%
+tag := "comp-num-repr"
+%%%
+
+:::terse
+- O objetivo desta subseção é representar cada quantificador por uma
+  expressão aritmética em `m` e `n`. Isso é possível porque, com EXT, CONS e
+  ISOM, o valor de `Q A B` depende só de $`m = |A - B|` e $`n = |A \cap B|`.
+- Alguns exemplos: *at least two* é `n ≥ 2`, *all* é `m = 0` e *no* é
+  `n = 0`.
+- `NumQuant` é o tipo `Nat → Nat → Bool`, o mesmo do argumento de `showTree`.
+  Por isso todo `NumQuant` pode ser desenhado como árvore.
+:::
+
+::::full
+:::dev BeforeNextRelease
+TODO: translate CSwFP/7.2, "Logical Representations for Quantifiers", from
+"The pairs of cardinals that characterize…" to the definitions of `allNum`,
+`noNum`, `atleastNum` and `atmostNum`.
+:::
+::::
+
+```lean
+abbrev NumQuant := Nat → Nat → Bool
+
+def allNum : NumQuant := fun m _ => m = 0
+def noNum : NumQuant := fun _ n => n = 0
+
+def atLeastNum (k : Nat) : NumQuant := fun _ n => n ≥ k
+def atMostNum (k : Nat) : NumQuant := fun _ n => n ≤ k
+```
+
+:::terse
+- As operações lógicas sobre quantificadores viram operações sobre essas
+  expressões. *Not Q* nega a expressão de `Q`. *Q₁ and Q₂* e *Q₁ or Q₂*
+  combinam as duas expressões com `&&` e `||`.
+- Na árvore, a negação troca `+` por `-` em todas as posições. A conjunção
+  marca com `+` só as posições marcadas nas duas árvores, e a disjunção, as
+  marcadas em pelo menos uma.
+- O exemplo do livro é *at least two but not all*, que fica `n ≥ 2` e não
+  `m = 0`.
+:::
+
+::::full
+:::dev BeforeNextRelease
+TODO: translate CSwFP/7.2, from "Logical operations on quantifiers can now be
+handled compositionally…" to the definition of `atleast2butnotall`.
+:::
+::::
+
+```lean (name := atLeast2ButNotAllTree)
+def notNum (q : NumQuant) : NumQuant :=
+  fun m n => !q m n
+
+def andNum (q₁ q₂ : NumQuant) : NumQuant :=
+  fun m n => q₁ m n && q₂ m n
+
+def orNum (q₁ q₂ : NumQuant) : NumQuant :=
+  fun m n => q₁ m n || q₂ m n
+
+def atLeast2ButNotAll : NumQuant :=
+  andNum (atLeastNum 2) (notNum allNum)
+
+#eval IO.println <| showTree atLeast2ButNotAll
+```
+
+```leanOutput atLeast2ButNotAllTree
+     -
+    - -
+   - - -
+  - - + -
+ - - + + -
+- - + + + -
+```
+
+::::exercise (rating := 3) (name := "tree-patterns")
+
+Defina `someNum`, `notAllNum` e `exactlyNum k`, as expressões de *some*,
+*not all* e *exactly k*. Use `showTree` para ver os padrões de *all*, *some*,
+*no* e *not all*, e os de *at least three*, *at most three* e *exactly
+three*. Depois, prove as relações entre eles: *some* é a negação de *no*,
+*not all* é a negação de *all*, *exactly k* é a conjunção de *at least k* e
+*at most k*, e *at most k* é a negação de *at least k + 1*.
+
+Dica: depois de `funext m n`, `rw [Bool.eq_iff_iff]` transforma a igualdade
+entre dois `Bool` numa equivalência entre proposições. Em seguida, `simp`
+com as definições simplifica a meta, e `omega` resolve o que sobrar de
+aritmética.
+
+```lean
+def someNum : NumQuant :=
+  solution!(fun _ n => n > 0)
+
+def notAllNum : NumQuant :=
+  solution!(fun m _ => m > 0)
+
+def exactlyNum (k : Nat) : NumQuant :=
+  solution!(fun _ n => n = k)
+
+theorem someNum_eq : someNum = notNum noNum := by
+  solution!
+   funext m n
+   rw [Bool.eq_iff_iff]
+   simp [someNum, notNum, noNum]
+   omega
+
+theorem notAllNum_eq : notAllNum = notNum allNum := by
+  solution!
+   funext m n
+   rw [Bool.eq_iff_iff]
+   simp [notAllNum, notNum, allNum]
+   omega
+
+theorem exactlyNum_eq (k : Nat) :
+    exactlyNum k = andNum (atLeastNum k) (atMostNum k) := by
+  solution!
+   funext m n
+   rw [Bool.eq_iff_iff]
+   simp [exactlyNum, andNum, atLeastNum, atMostNum]
+   omega
+
+theorem atMostNum_eq (k : Nat) :
+    atMostNum k = notNum (atLeastNum (k + 1)) := by
+  solution!
+   funext m n
+   rw [Bool.eq_iff_iff]
+   simp [atMostNum, notNum, atLeastNum]
+```
+
+::::
 
 # A linguagem da lógica tipada e sua semântica
 %%%

@@ -83,6 +83,7 @@ this way is usually a mistake; see "Known gaps."
 | `Morphology` | `open` of constructor namespaces (`open Attr Value`) | `match e₁, e₂ with` (first use outside a solution), `mapM` over `Option` **(solution only)** | *(none new)* |
 | `InfEngine` | `let rec` | `do`-notation | — |
 | `ModelChecking` | `mutual` over `inductive` types (`Logic/FOL` only uses it over `def`) | guillemet identifiers (`«with»`), pattern-matching `fun \| … => …` (first use outside a solution) | *(none new)* |
+| `Composition` | — | image `f '' A`, `Set.BijOn`, `Set.ncard` | *(none new)* |
 
 `ModelChecking` is where `abbrev` and `ToString` instances become the
 dominant idiom, but both arrive earlier; what is genuinely new there is the mutually
