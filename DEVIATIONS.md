@@ -154,6 +154,18 @@ syntax and model, so it comes after `ModelChecking`. Being written.
   Quantifiers" keep one cast of examples, the quantifiers of exercise 7.2 and
   Figure 7.6, announced at the start. So CSwFP's `atleast2butnotall` becomes
   `atLeast3ButNotAll`, *at least three but not all*.
+- In "Relational Properties", CSwFP calls *some* reflexive. With its own
+  definition, `∀X Q XX`, it is not: `Q ∅ ∅` is false, the top of the tree
+  pattern. The book keeps the definition and makes the empty set the point,
+  in exercise `some-not-refl` and in the quiz on irreflexivity.
+- Each relational property is defined twice, over sets (`GQ.Refl`,
+  `GQ.MonUp`, …) and over the tree (`ReflNum`, `MonUpNum`, …). That the two
+  versions agree is stated, not proved: the proof goes from sets to
+  cardinalities through EXT, CONS and ISOM.
+- Exercises 7.5 and 7.6 become quizzes, because their answers, the tree
+  forms of MON↑ and MON↓, are the definitions `MonUpNum` and `MonDownNum`
+  that exercises 7.7–7.10 use. Exercises 7.8 and 7.9 are split by
+  operation, `mon-and` and `mon-or`, each with both directions.
 - CSwFP's `Quant` is `ListQuant`, in parallel with `NumQuant`, and takes the
   universe before the property, `List Nat → (Nat → Bool) → Bool`, so that
   `List.all` and `List.any` have the type as they are. `toNum` turns a

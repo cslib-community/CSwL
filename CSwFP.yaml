@@ -133,13 +133,13 @@ exercises:
     7.1 (p. 158): tree-of-numbers
     7.2 (p. 158): tree-patterns
     7.3 (p. 158): gen-tree
-    7.4 (p. 161): TODO
-    7.5 (p. 161): TODO
-    7.6 (p. 161): TODO
-    7.7 (p. 162): TODO
-    7.8 (p. 162): TODO
-    7.9 (p. 162): TODO
-    7.10 (p. 162): TODO
+    7.4 (p. 161): symm-pattern
+    7.5 (p. 161): turned into a quiz
+    7.6 (p. 161): turned into a quiz
+    7.7 (p. 162): mon-not
+    7.8 (p. 162): mon-and
+    7.9 (p. 162): mon-or
+    7.10 (p. 162): mon-up-down
     7.11 (p. 163): TODO
     7.12 (p. 164): TODO
     7.13 (p. 165): TODO
@@ -199,6 +199,10 @@ original:
     - many-not-ext    # from the prose on EXT in 7.2, "many in the sense of relatively many"
     - the-quant       # from the prose on ISOM in 7.2 and the Russellian `the` of 7.5
     - poss-not-isom   # from the prose on ISOM in 7.2: EXT and CONS do not imply ISOM
+    - some-not-refl   # from the prose on reflexive quantifiers in 7.2
+    - no-mon-down     # from the prose on MON↓ in 7.2
+    - even-not-mon    # from the prose on "an even number of" in 7.2, neither MON↑ nor MON↓
+    - left-mon-pattern # from the prose on ↑MON and ↓MON in 7.2, "left to the reader"
 
 depends:
   bangu-proof: bangu-form

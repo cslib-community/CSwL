@@ -1131,6 +1131,451 @@ theorem atMostNum_eq (k : Nat) :
 ```
 ::::
 
+## Propriedades relacionais
+%%%
+tag := "comp-rel-props"
+%%%
+
+:::terse
+- Quantificadores são relações entre conjuntos, então podemos estudar as
+  propriedades dessas relações: reflexividade, simetria e monotonicidade.
+- Cada propriedade tem dois lados. Nos conjuntos, é uma `Prop` sobre
+  `GQ.Det`, como EXT, CONS e ISOM. Na árvore, é uma forma do padrão, uma
+  `Prop` sobre `NumQuant`.
+- A pergunta que se repete: se `Q` tem a propriedade, como é o seu padrão?
+- `Q` é *reflexivo* se `Q A A` vale para todo `A`.
+:::
+
+::::full
+:::dev BeforeNextRelease
+TODO: translate CSwFP/7.2, "Relational Properties", from "As quantifiers are
+relations…" to "…the quantifiers no and not all are not." CSwFP calls *some*
+reflexive; with its own definition it is not, because of the empty set (see
+`DEVIATIONS.md`).
+:::
+::::
+
+```lean
+namespace GQ
+
+def Refl {α : Type} (D : Det α) : Prop :=
+  ∀ E A, A ⊆ E → D E A A
+
+theorem all_refl {α : Type} : Refl (all : Det α) := by
+  intro E A _ x hx
+  exact hx
+```
+
+::::exercise (rating := 1) (name := "some-not-refl")
+Prove que *some* não é reflexivo.
+
+```lean
+theorem some_not_refl : ¬ Refl (some : Det Entity) := by
+  solution!
+   intro h
+   obtain ⟨x, hx, _⟩ := h Set.univ ∅ (Set.empty_subset _)
+   exact hx
+```
+::::
+
+:::terse
+- Na árvore, `Q A A` é a posição `(0, n)`, com $`n = |A|`: nenhum A fica fora
+  de A. Então `Q` é reflexivo quando a borda direita do padrão é toda `+`.
+- A borda inclui o topo, `(0, 0)`, o caso em que `A` é vazio. É ali que
+  *some* falha.
+:::
+
+```lean
+def ReflNum (q : NumQuant) : Prop :=
+  ∀ n, q 0 n
+
+theorem allNum_refl : ReflNum allNum := by
+  intro n
+  rfl
+
+#eval IO.println <| patternTree 5 allNum
+#eval IO.println <| patternTree 5 (notNum noNum)
+```
+
+::::quiz
+Se a borda direita do padrão de `Q` é toda `-`, que propriedade `Q` tem?
+Qual quantificador do nosso elenco tem esse padrão? E *no*, tem?
+
+:::quizSolution
+`Q A A` é falso para todo `A`: `Q` é *irreflexivo*. *Not all* é irreflexivo,
+porque na borda direita `m = 0`. *No* não é: no topo, com `A` vazio,
+"nenhum A é A" é verdadeiro. *No* não é reflexivo nem irreflexivo.
+:::
+::::
+
+::::full
+:::dev BeforeNextRelease
+TODO: translate CSwFP/7.2, from "One can now study questions about tree
+patterns…" to "…which relational property of Q does this reflect?"
+:::
+::::
+
+:::terse
+- `Q` é *simétrico* se `Q A B` e `Q B A` sempre têm o mesmo valor. *Some*
+  é simétrico: "algum A é B" e "algum B é A" dizem a mesma coisa.
+- Os quantificadores simétricos são exatamente os que cabem na posição `Q`
+  de *There are Q*: *There are some dwarfs*, mas não *There are all dwarfs*.
+:::
+
+::::full
+:::dev BeforeNextRelease
+TODO: translate CSwFP/7.2, from "A relational property with linguistic
+interest is symmetry…" to the end of the paragraph after Exercise 7.4,
+"…(sentences of the form There are Q)", without the exercise itself.
+:::
+::::
+
+```lean
+def Symm {α : Type} (D : Det α) : Prop :=
+  ∀ E A B, A ⊆ E → B ⊆ E → (D E A B ↔ D E B A)
+
+theorem some_symm {α : Type} : Symm (some : Det α) := by
+  intro E A B _ _
+  constructor
+  · intro h
+    obtain ⟨x, hA, hB⟩ := h
+    exact ⟨x, hB, hA⟩
+  · intro h
+    obtain ⟨x, hB, hA⟩ := h
+    exact ⟨x, hA, hB⟩
+```
+
+::::exercise (rating := 2) (name := "symm-pattern")
+Defina `SymmNum q`, a forma do padrão de um quantificador simétrico. Depois,
+prove que *no* e *at least three* têm essa forma, e que *all* não tem.
+
+Dica: em `Q A B`, `m` conta os A que não são B; em `Q B A`, conta os B que
+não são A. O que muda entre os dois é só `m`.
+
+```lean
+def SymmNum (q : NumQuant) : Prop :=
+  solution!(∀ m m' n, q m n = q m' n)
+
+theorem noNum_symm : SymmNum noNum := by
+  solution!
+   intro m m' n
+   rfl
+
+theorem atLeastNum_symm : SymmNum (atLeastNum 3) := by
+  solution!
+   intro m m' n
+   rfl
+
+theorem allNum_not_symm : ¬ SymmNum allNum := by
+  solution!
+   intro h
+   have h' := h 0 1 0
+   simp [allNum] at h'
+```
+::::
+
+:::terse
+- `Q` é *MON↑* (monótono para cima no escopo) se `Q A B` continua
+  verdadeiro quando `B` cresce. *All*, *some* e *at least three* são MON↑.
+- `Q` é *MON↓* se `Q A B` continua verdadeiro quando `B` diminui. *No* e
+  *not all* são MON↓.
+:::
+
+::::full
+:::dev BeforeNextRelease
+TODO: translate CSwFP/7.2, from "Another example of a relational property…"
+to "…Examples are not all and no.", without Exercises 7.5 and 7.6, which
+became the quizzes below. CSwFP's example *at least five* is *at least
+three* here, as in the rest of the cast.
+:::
+::::
+
+```lean
+def MonUp {α : Type} (D : Det α) : Prop :=
+  ∀ E A B B', A ⊆ E → B ⊆ B' → B' ⊆ E →
+    D E A B → D E A B'
+
+def MonDown {α : Type} (D : Det α) : Prop :=
+  ∀ E A B B', A ⊆ E → B' ⊆ B → B ⊆ E →
+    D E A B → D E A B'
+
+theorem all_monUp {α : Type} : MonUp (all : Det α) := by
+  intro E A B B' _ hB _ h x hx
+  exact hB (h hx)
+```
+
+::::exercise (rating := 1) (name := "no-mon-down")
+Prove que *no* é MON↓.
+
+```lean
+theorem no_monDown {α : Type} : MonDown (no : Det α) := by
+  solution!
+   intro E A B B' _ hB _ h x hA hB'
+   exact h x hA (hB hB')
+```
+::::
+
+```lean
+end GQ
+```
+
+::::quiz
+Compare os padrões de *all* e de *at least three*, que são MON↑. Que forma
+tem o padrão de um quantificador MON↑? E o de um MON↓?
+
+:::quizSolution
+Acrescentar a `B` um elemento de `A` tira esse elemento de $`A - B` e o põe
+em $`A \cap B`: a posição passa de `(m + 1, n)` para `(m, n + 1)`, uma casa à
+direita na mesma linha. Então, num padrão MON↑, à direita de um `+` na mesma
+linha só há `+`. Num padrão MON↓, o mesmo vale à esquerda.
+:::
+::::
+
+:::terse
+- As duas formas, escritas sobre `NumQuant`: `MonUpNum` e `MonDownNum`.
+- *An even number of* não é nem MON↑ nem MON↓: no padrão, `+` e `-`
+  alternam em cada linha.
+:::
+
+```lean
+def MonUpNum (q : NumQuant) : Prop :=
+  ∀ m n, q (m + 1) n → q m (n + 1)
+
+def MonDownNum (q : NumQuant) : Prop :=
+  ∀ m n, q m (n + 1) → q (m + 1) n
+
+def evenNum : NumQuant := fun _ n => n % 2 == 0
+
+theorem atLeastNum_monUp (k : Nat) :
+    MonUpNum (atLeastNum k) := by
+  intro m n h
+  simp [atLeastNum] at *
+  omega
+
+theorem noNum_monDown : MonDownNum noNum := by
+  intro m n h
+  simp [noNum] at h
+```
+
+::::exercise (rating := 2) (name := "even-not-mon")
+Prove que *an even number of* não é MON↑ nem MON↓. Basta uma posição do
+padrão em que a forma falha.
+
+```lean
+theorem evenNum_not_monUp : ¬ MonUpNum evenNum := by
+  solution!
+   intro h
+   have h' := h 0 0 (by decide)
+   simp [evenNum] at h'
+
+theorem evenNum_not_monDown : ¬ MonDownNum evenNum := by
+  solution!
+   intro h
+   have h' := h 0 1 (by decide)
+   simp [evenNum] at h'
+```
+::::
+
+:::terse
+- A monotonicidade tem uso linguístico. Sintagmas nominais com a mesma
+  monotonicidade se coordenam com *and*, e com monotonicidades opostas, com
+  *but*: *all men and some women*, *many English but no Dutch*.
+- *Itens de polaridade negativa*, como *any* e *lift a finger*, aparecem no
+  escopo de sintagmas MON↓: *No dwarf liked any of the elves*, mas não
+  *Every dwarf liked any of the elves*. Os de polaridade positiva, como
+  *hardly*, fazem o contrário.
+- Pelos padrões, dá para responder como negação, conjunção e disjunção
+  afetam a monotonicidade.
+:::
+
+::::full
+:::dev BeforeNextRelease
+TODO: translate CSwFP/7.2, from "An example for a quantifier that satisfies
+neither MON↑ nor MON↓…" to "…are in the next exercises.", with examples
+(7.10)–(7.15), and the sentence after Exercise 7.10, "The answers to these
+questions can be tested…".
+:::
+::::
+
+::::exercise (rating := 2) (name := "mon-not")
+Prove que a negação troca MON↑ por MON↓, e MON↓ por MON↑.
+
+```lean
+theorem notNum_monUp (q : NumQuant) (h : MonUpNum q) :
+    MonDownNum (notNum q) := by
+  solution!
+   intro m n hq
+   simp [notNum] at *
+   by_cases hq' : q (m + 1) n
+   · have h' := h m n hq'
+     simp_all
+   · simpa using hq'
+
+theorem notNum_monDown (q : NumQuant) (h : MonDownNum q) :
+    MonUpNum (notNum q) := by
+  solution!
+   intro m n hq
+   simp [notNum] at *
+   by_cases hq' : q m (n + 1)
+   · have h' := h m n hq'
+     simp_all
+   · simpa using hq'
+```
+::::
+
+::::exercise (rating := 2) (name := "mon-and")
+Prove que a conjunção de dois quantificadores MON↑ é MON↑, e que a de dois
+MON↓ é MON↓.
+
+```lean
+theorem andNum_monUp (q₁ q₂ : NumQuant)
+    (h₁ : MonUpNum q₁) (h₂ : MonUpNum q₂) :
+    MonUpNum (andNum q₁ q₂) := by
+  solution!
+   intro m n h
+   simp [andNum] at *
+   exact ⟨h₁ m n h.1, h₂ m n h.2⟩
+
+theorem andNum_monDown (q₁ q₂ : NumQuant)
+    (h₁ : MonDownNum q₁) (h₂ : MonDownNum q₂) :
+    MonDownNum (andNum q₁ q₂) := by
+  solution!
+   intro m n h
+   simp [andNum] at *
+   exact ⟨h₁ m n h.1, h₂ m n h.2⟩
+```
+::::
+
+::::exercise (rating := 2) (name := "mon-or")
+Prove que a disjunção de dois quantificadores MON↑ é MON↑, e que a de dois
+MON↓ é MON↓.
+
+```lean
+theorem orNum_monUp (q₁ q₂ : NumQuant)
+    (h₁ : MonUpNum q₁) (h₂ : MonUpNum q₂) :
+    MonUpNum (orNum q₁ q₂) := by
+  solution!
+   intro m n h
+   simp [orNum] at *
+   cases h with
+   | inl h => exact Or.inl (h₁ m n h)
+   | inr h => exact Or.inr (h₂ m n h)
+
+theorem orNum_monDown (q₁ q₂ : NumQuant)
+    (h₁ : MonDownNum q₁) (h₂ : MonDownNum q₂) :
+    MonDownNum (orNum q₁ q₂) := by
+  solution!
+   intro m n h
+   simp [orNum] at *
+   cases h with
+   | inl h => exact Or.inl (h₁ m n h)
+   | inr h => exact Or.inr (h₂ m n h)
+```
+::::
+
+::::exercise (rating := 3) (name := "mon-up-down")
+Mostre que, combinando um quantificador MON↑ com um MON↓, nada se pode
+garantir: nem a conjunção nem a disjunção são sempre MON↑ ou MON↓.
+
+Dica: use *at least one* e *at most three*. Antes de provar, desenhe os
+padrões da conjunção e da disjunção com `patternTree`.
+
+```lean
+theorem andNum_up_down :
+    ¬ ∀ q₁ q₂, MonUpNum q₁ → MonDownNum q₂ →
+      MonUpNum (andNum q₁ q₂) ∨
+        MonDownNum (andNum q₁ q₂) := by
+  solution!
+   intro h
+   have hup := atLeastNum_monUp 1
+   have hdown : MonDownNum (atMostNum 3) := by
+     intro m n h
+     simp [atMostNum] at *
+     omega
+   cases h _ _ hup hdown with
+   | inl h =>
+     have h' := h 0 3 (by decide)
+     simp [andNum, atLeastNum, atMostNum] at h'
+   | inr h =>
+     have h' := h 0 0 (by decide)
+     simp [andNum, atLeastNum, atMostNum] at h'
+
+theorem orNum_up_down :
+    ¬ ∀ q₁ q₂, MonUpNum q₁ → MonDownNum q₂ →
+      MonUpNum (orNum q₁ q₂) ∨
+        MonDownNum (orNum q₁ q₂) := by
+  solution!
+   intro h
+   have hup := atLeastNum_monUp 3
+   have hdown : MonDownNum (atMostNum 1) := by
+     intro m n h
+     simp [atMostNum] at *
+     omega
+   cases h _ _ hup hdown with
+   | inl h =>
+     have h' := h 0 1 (by decide)
+     simp [orNum, atLeastNum, atMostNum] at h'
+   | inr h =>
+     have h' := h 0 2 (by decide)
+     simp [orNum, atLeastNum, atMostNum] at h'
+```
+::::
+
+:::terse
+- A monotonicidade também pode ser na restrição. `Q` é *↑MON* se `Q A B`
+  continua verdadeiro quando `A` cresce, e *↓MON* se continua verdadeiro
+  quando `A` diminui. *Some* e *not all* são ↑MON; *all* e *no* são ↓MON.
+- Ela explica a polaridade dentro da restrição: *All dwarfs who liked any
+  of the elves were mistrusted*, mas não *Some dwarfs who liked any of the
+  elves were mistrusted*.
+:::
+
+::::full
+:::dev BeforeNextRelease
+TODO: translate CSwFP/7.2, from "One can also study monotonicity in the
+first argument…" to example (7.17).
+:::
+::::
+
+::::exercise (rating := 2) (name := "left-mon-pattern")
+Defina `UpMonNum q` e `DownMonNum q`, as formas do padrão de um quantificador
+↑MON e de um ↓MON. Depois, prove que *some* e *not all* são ↑MON, e que
+*all* e *no* são ↓MON.
+
+Dica: acrescentar um elemento a `A` aumenta `m` ou `n` em um, conforme o
+elemento esteja ou não em `B`.
+
+```lean
+def UpMonNum (q : NumQuant) : Prop :=
+  solution!(∀ m n, q m n → q (m + 1) n ∧ q m (n + 1))
+
+def DownMonNum (q : NumQuant) : Prop :=
+  solution!(
+    ∀ m n, (q (m + 1) n → q m n) ∧ (q m (n + 1) → q m n))
+
+theorem some_upMon : UpMonNum (notNum noNum) := by
+  solution!
+   intro m n h
+   simp_all [notNum, noNum]
+
+theorem notAll_upMon : UpMonNum (notNum allNum) := by
+  solution!
+   intro m n h
+   simp [notNum, allNum] at *
+   omega
+
+theorem all_downMon : DownMonNum allNum := by
+  solution!
+   intro m n
+   simp [allNum]
+
+theorem no_downMon : DownMonNum noNum := by
+  solution!
+   intro m n
+   simp [noNum]
+```
+::::
+
 # A linguagem da lógica tipada e sua semântica
 %%%
 tag := "comp-typed-logic"
