@@ -144,13 +144,22 @@ syntax and model, so it comes after `ModelChecking`. Being written.
 - Example (7.4), *Every mermaid hummed a song*, becomes *Every dwarf defeated
   a giant*: mermaids, songs and humming are not in `ModelChecking`'s fragment
   or model, and the new sentence can be evaluated there with `#eval`.
-- The tree of numbers is not an infinite list, since Lean is not lazy:
-  `treeOfNumbers k` (exercise 7.1) gives the rows `0` to `k`, and `genTree`
-  (exercise 7.3) takes the same bound.
-- `Quant` takes the universe before the property, `List Nat → (Nat → Bool) →
-  Bool`, so that `List.all` and `List.any` have the type as they are.
-- Figure 7.6 is computed: `showTree` draws a pattern from a quantifier given as
-  a function of `m` and `n`.
+- The tree of numbers is not an infinite list, since Lean is not lazy: `tree
+  k` is the list of rows `0` to `k`, and `treeOfNumbers k` (exercise 7.1) and
+  `genTree q k` (exercise 7.3) take the same bound. Both are written over
+  `tree`, so exercise 7.3 does not depend on the solution of 7.1.
+- Figures 7.5 and 7.6 are computed: `numberTree` and `patternTree` label the
+  same `tree k`, one with the pairs and one with `+` and `-`.
+- Subsections "Numerical Trees" and "Logical Representations for
+  Quantifiers" keep one cast of examples, the quantifiers of exercise 7.2 and
+  Figure 7.6, announced at the start. So CSwFP's `atleast2butnotall` becomes
+  `atLeast3ButNotAll`, *at least three but not all*.
+- CSwFP's `Quant` is `ListQuant`, in parallel with `NumQuant`, and takes the
+  universe before the property, `List Nat → (Nat → Bool) → Bool`, so that
+  `List.all` and `List.any` have the type as they are. `toNum` turns a
+  `ListQuant` into a `NumQuant` at the start of "Logical Representations for
+  Quantifiers", which CSwFP leaves implicit, so that the patterns of
+  `List.all` and `allNum` can be compared.
 - 7.2 calls the second argument of a determiner its *body*, where CSwFP/6
   called it its *scope*. Both translate as "escopo".
 

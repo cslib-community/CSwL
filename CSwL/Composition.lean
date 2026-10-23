@@ -151,9 +151,11 @@ def atLeastTwo (a b : String) : LF :=
     [.neg (.eq tx ty), .atom a [tx], .atom a [ty],
      .atom b [tx], .atom b [ty]]))
 
+
 def check (f : LF) : Bool :=
   f.eval entities intFairy ass0 (FOL.liftAssign fintFairy)
 
+#eval toString <| atLeastTwo "person" "laugh"
 #eval check (atLeastTwo "person" "laugh")
 ```
 
@@ -237,7 +239,6 @@ theorem atMost_girl :
       check (atMost 1 "girl" "laugh") = false :=
   solution!(by native_decide)
 ```
-
 ::::
 
 :::terse
@@ -303,7 +304,7 @@ e and t or shows the Lean types; e and t are presented in `comp-typed-logic`.
 
 ```lean
 def every (p q : OnePlacePred) : Bool :=
-  entities.all (fun x => !p x || q x)
+  entities.all (fun x => p x → q x)
 
 #eval (every princess) laugh
 ```
@@ -345,7 +346,7 @@ summary tree, with *Every dwarf defeated a giant* in place of (7.4) (see
 
 ```lean
 def a (p q : OnePlacePred) : Bool :=
-  entities.any (fun x => p x && q x)
+  entities.any (fun x => p x ∧ q x)
 ```
 
 :::terse
@@ -427,7 +428,7 @@ quantificadores. É uma definição, *quantificador* é o nome de uma relação 
   `Set`, como em {ref "Sets"}[Conjuntos]: `D E A B` diz que o determinante
   `D` relaciona a *restrição* `A` e o *escopo* `B` no universo `E`.
 - O tipo `GQ.Det α` é só uma abreviação para `Set α → Set α → Set α → Prop`.
-  Nada no tipo diz que `A` e `B` estão dentro de `E`, como na Figura 7.2.
+  Nada no tipo diz que `A` e `B` estão dentro de `E`.
   Essa exigência aparece como as hipóteses `A ⊆ E` e `B ⊆ E` em cada uma das
   três condições.
 - Não confundir `DET` com `GQ.Det`. `DET` é a categoria sintática de
@@ -766,46 +767,98 @@ tag := "comp-trees"
 %%%
 
 :::terse
-- Um quantificador `Q` com restrição `A` e escopo `B` é um subconjunto da
-  *árvore de números*. A linha `k` da árvore tem os pares `(m, n)` com
-  `m + n = k`, isto é, $`|A| = k`, onde `m` é $`|A - B|` e `n` é
-  $`|A \cap B|`.
-- `row k` gera a linha `k`, da esquerda para a direita: `m` diminui e `n`
-  aumenta.
+- Com EXT, CONS e ISOM, o valor de `Q A B` depende só de dois números:
+  quantos A não são B ($`m = |A - B|`) e quantos A são B ($`n = |A \cap B|`).
+  Cada caso possível é um par `(m, n)`.
+- Por EXT e CONS, nem o universo nem $`B - A` importam.
+- Nesta seção e na seguinte, os exemplos são sempre os mesmos
+  quantificadores: *all*, *some*, *no* e *not all*; *at least three*, *at
+  most three* e *exactly three*; *less than half*; e *an even number of*.
+  Combinando-os, aparece também *at least three but not all*.
+
+Organizar os pares numa árvore ajuda. Cada linha `row k` reúne os casos em que `A` tem `k` elementos, isto é, os pares com `m + n = k`. Da esquerda para a direita: `m` diminui e `n` aumenta. Na ponta esquerda, nenhum A é B; na direita, todo A é B.
 :::
 
 ::::full
+Em uma frase como *Todo aluno passou*, o determinante relaciona a restrição `A`
+(os alunos) e o escopo `B` (quem passou). EXT, CONS e ISOM juntas garantem que
+o valor de `Q A B` depende só de dois números: `m`, quantos A não são B, e
+`n`, quantos A são B. Cada condição elimina uma informação. Por CONS, o que
+está fora de `A` não importa (quem passou sem ser aluno é irrelevante). Por
+EXT, o tamanho do universo não importa. Por ISOM, não importa quem são os
+objetos, só quantos são.
+
+Se só o par `(m, n)` importa, basta listar todos os pares e marcar em quais o
+quantificador é verdadeiro. A árvore de números organiza os pares por linha.
+A linha `k` reúne os casos com $`|A| = m + n = k`. Da esquerda para a
+direita, `n` cresce. Assim, a borda esquerda é "nenhum A é B" e a borda
+direita é "todo A é B". Para ler uma posição, tome `(1, 2)` na linha 3: há
+três alunos, um não passou e dois passaram. Se o quantificador tem `+` ali, a
+frase é verdadeira nessa situação.
+
 :::dev BeforeNextRelease
 TODO: translate CSwFP/7.2, "Numerical Trees", from "Suppose a quantifier Q has
 A as a first…" to "…both of these objects have property B.", with Figure 7.5.
 :::
+
+:::dev "Claude Opus 5.5" (year := 2026)
+Texto gerado por IA. É um rascunho de explicação, não uma tradução do
+CSwFP.
+:::
 ::::
 
-```lean (name := rowEval)
+```lean
 def row (k : Nat) : List (Nat × Nat) :=
   (List.range (k + 1)).map fun x => (k - x, x)
-
-#eval (List.range 4).map row
-```
-
-```leanOutput rowEval
-[[(0, 0)], [(1, 0), (0, 1)], [(2, 0), (1, 1), (0, 2)], [(3, 0), (2, 1), (1, 2), (0, 3)]]
 ```
 
 :::terse
-- Em Haskell, a árvore é uma lista infinita, e `take 10` pega o começo dela.
-  Lean não é preguiçoso: uma `List` é sempre finita. Por isso
-  `treeOfNumbers k` devolve só as linhas de `0` a `k`.
+- A árvore é a lista das suas linhas: `tree k` tem as linhas `0` a `k`. A
+  árvore não tem fim, mas uma `List` é sempre finita; por isso o limite `k`.
 :::
 
-::::exercise (rating := 1) (name := "tree-of-numbers")
+```lean
+def tree (k : Nat) : List (List (Nat × Nat)) :=
+  (List.range (k + 1)).map row
 
-Defina `treeOfNumbers k`, a lista dos pares da árvore de números da linha `0`
-até a linha `k`, percorrida de cima para baixo e da esquerda para a direita.
+#eval tree 3
+```
+
+:::terse
+- Para desenhar a árvore, `labelTree k cell` troca cada par `(m, n)` de
+  `tree k` pelo texto `cell m n`, e `drawTree w` desenha as linhas de textos,
+  cada um com largura `w`.
+- `numberTree k` é a *árvore de números*: em cada posição, o próprio par. Até
+  a linha `9`, todo par cabe em três caracteres.
+:::
+
+```lean
+def labelTree (k : Nat) (cell : Nat → Nat → String) :
+    List (List String) :=
+  (tree k).map fun r => r.map fun (m, n) => cell m n
+
+def drawTree (w : Nat) (rows : List (List String)) :
+    String :=
+  let last := rows.length - 1
+  let lines := rows.mapIdx fun k cells =>
+    let indent := (last - k) * (w + 1) / 2
+    String.ofList (List.replicate indent ' ') ++
+      String.intercalate " " cells
+  String.intercalate "\n" lines
+
+def numberTree (k : Nat) : String :=
+  drawTree 3 (labelTree k fun m n => s!"{m},{n}")
+
+#eval IO.println <| numberTree 3
+```
+
+::::exercise (rating := 1) (name := "tree-of-numbers")
+Defina `treeOfNumbers k`, a lista dos pares de `tree k`, percorrida de cima
+para baixo e da esquerda para a direita.
 
 ```lean
 def treeOfNumbers (k : Nat) : List (Nat × Nat) :=
-  solution!((List.range (k + 1)).flatMap row)
+  solution!((tree k).flatten)
 
 theorem treeOfNumbers_three :
     treeOfNumbers 3 =
@@ -813,98 +866,80 @@ theorem treeOfNumbers_three :
        (3, 0), (2, 1), (1, 2), (0, 3)] :=
   solution!(by rfl)
 ```
-
 ::::
 
 :::terse
-- O padrão de um quantificador na árvore marca com `+` as posições `(m, n)`
-  em que ele é verdadeiro, e com `-` as outras.
-- Aqui o quantificador é dado direto como uma função de `m` e `n`.
-  `showTree q` desenha as seis primeiras linhas do padrão de `q`.
-- Os três padrões da Figura 7.6: *pelo menos três* ($`n \geq 3`), *menos da
-  metade* ($`2n < m + n`) e *um número par* ($`n` par).
+- Um quantificador escolhe alguns pares da árvore: aqueles em que ele é
+  verdadeiro. Aqui o quantificador é dado direto como uma função de `m` e
+  `n`.
+- Para saber se `q` vale num caso, basta saber se o par foi escolhido. Então
+  a árvore de pares vira uma árvore de `+` e `-`. A função `patternTree k q`
+  é o par de `numberTree k`: o mesmo `labelTree`, trocando cada par por `+`,
+  se `q` vale nele, ou por `-`. Essa árvore é o *padrão* de `q`.
+- Três exemplos de padrão: *at least three* ($`n \geq 3`), *less than
+  half* ($`2n < m + n`) e *an even number of* ($`n` par).
 :::
 
 ```lean
-def showRow (q : Nat → Nat → Bool) (k : Nat) : String :=
-  let cells := (row k).map fun (m, n) =>
-    if q m n then "+" else "-"
-  String.ofList (List.replicate (5 - k) ' ') ++
-    String.intercalate " " cells
-
-def showTree (q : Nat → Nat → Bool) : String :=
-  String.intercalate "\n" ((List.range 6).map (showRow q))
+def patternTree (k : Nat) (q : Nat → Nat → Bool) :
+    String :=
+  drawTree 1 (labelTree k fun m n =>
+    if q m n then "+" else "-")
 ```
 
-```lean (name := atLeastThreeTree)
-#eval IO.println <| showTree fun _ n => n ≥ 3
-```
-
-```leanOutput atLeastThreeTree
-     -
-    - -
-   - - -
-  - - - +
- - - - + +
-- - - + + +
-```
-
-```lean (name := lessThanHalfTree)
-#eval IO.println <| showTree fun m n => 2 * n < m + n
-```
-
-```leanOutput lessThanHalfTree
-     -
-    + -
-   + - -
-  + + - -
- + + - - -
-+ + + - - -
-```
-
-```lean (name := evenTree)
-#eval IO.println <| showTree fun _ n => n % 2 == 0
-```
-
-```leanOutput evenTree
-     +
-    + -
-   + - +
-  + - + -
- + - + - +
-+ - + - + -
+```lean
+#eval IO.println <| patternTree 5 fun _ n => n ≥ 3
+#eval IO.println <| patternTree 5 fun m n => 2 * n < m + n
+#eval IO.println <| patternTree 5 fun _ n => n % 2 == 0
 ```
 
 :::terse
-- No exercício seguinte, o quantificador é dado como em Haskell: uma função
-  que recebe um universo (uma lista) e uma propriedade. `List.all` e
-  `List.any` já têm esse tipo, e são *all* e *some*.
-- Para a posição `(m, n)`, o universo é `[1, …, m + n]`, e a propriedade vale
-  para exatamente `n` de seus elementos.
+- Um quantificador também pode ser dado como uma função que recebe um
+  universo (uma lista) e uma propriedade: o tipo `ListQuant`. {lean}`List.all`
+  e {lean}`List.any` já têm esse tipo, e são *all* e *some*. *No* é
+  `fun dom p => !dom.any p`: nenhum elemento de `dom` tem `p`.
+- Um `ListQuant` é um determinante depois de CONS: o universo é o próprio `A`
+  e a propriedade é `B`. Pode ser assim porque, por CONS, nada fora de `A`
+  importa.
 :::
 
 ::::full
+Alguns padrões. *All* ($`m = 0`) tem `+` só na borda direita, porque nenhum A
+fica fora de B. *No* ($`n = 0`) tem `+` só na borda esquerda. *Less than half*
+($`n < m`) tem, na linha 2, `+` em `(2, 0)`, `-` em `(1, 1)` e `(0, 2)`.
+
+O exercício `genTree` liga a árvore ao quantificador dado como uma função de
+um universo e uma propriedade. Para cada `(m, n)`, ele monta um
+universo concreto `[1, …, m + n]` em que exatamente `n` elementos têm a
+propriedade, e pergunta ao quantificador. Qualquer universo
+com essas contagens serve (ISOM).
+
 :::dev BeforeNextRelease
 TODO: translate CSwFP/7.2, from "To get used to these representations…" to
 the end of Exercise 7.3, without the exercises themselves.
 :::
+
+:::dev "Claude Opus 5.5" (year := 2026)
+Comentário gerado por IA. É um rascunho de explicação, não uma tradução do
+CSwFP.
+:::
 ::::
 
-::::exercise (rating := 2) (name := "gen-tree")
+```lean
+abbrev ListQuant := List Nat → (Nat → Bool) → Bool
+```
 
-Defina `genTree q k`, a lista dos pares `(m, n)` de `treeOfNumbers k` para os
-quais `q` é verdadeiro num universo de `m + n` objetos dos quais exatamente
-`n` têm a propriedade. Por exemplo, `(0, 4)` está na lista de `List.all`,
-porque se todos os A são B, os 4 objetos de um domínio A de 4 objetos têm a
-propriedade B.
+::::exercise (rating := 2) (name := "gen-tree")
+Defina `genTree q k`, a lista dos pares `(m, n)` de `tree k` para os quais `q`
+é verdadeiro num universo de `m + n` objetos dos quais exatamente `n` têm a
+propriedade. Por exemplo, `(0, 3)` está na lista de `List.all`, porque se
+todos os A são B, os 3 objetos de um A de 3 objetos têm a propriedade B.
 
 ```lean
-abbrev Quant := List Nat → (Nat → Bool) → Bool
-
-def genTree (q : Quant) (k : Nat) : List (Nat × Nat) :=
+def genTree (q : ListQuant) (k : Nat) : List (Nat × Nat) :=
   solution!(
-    (treeOfNumbers k).filter fun (m, n) =>
-      q (List.range' 1 (m + n)) (fun x => 0 < x && x ≤ n))
+    (tree k).flatten.filter fun (m, n) =>
+      q (List.range' 1 (m + n)) (fun x => x ≤ n))
 
 theorem genTree_all :
     genTree List.all 3 = [(0, 0), (0, 1), (0, 2), (0, 3)] :=
@@ -920,7 +955,6 @@ theorem genTree_no :
       [(0, 0), (1, 0), (2, 0), (3, 0)] :=
   solution!(by rfl)
 ```
-
 ::::
 
 ## Representações lógicas para quantificadores
@@ -932,17 +966,30 @@ tag := "comp-num-repr"
 - O objetivo desta subseção é representar cada quantificador por uma
   expressão aritmética em `m` e `n`. Isso é possível porque, com EXT, CONS e
   ISOM, o valor de `Q A B` depende só de $`m = |A - B|` e $`n = |A \cap B|`.
-- Alguns exemplos: *at least two* é `n ≥ 2`, *all* é `m = 0` e *no* é
-  `n = 0`.
-- `NumQuant` é o tipo `Nat → Nat → Bool`, o mesmo do argumento de `showTree`.
-  Por isso todo `NumQuant` pode ser desenhado como árvore.
+- Os padrões de {ref "comp-trees"}[Árvores numéricas] já eram desenhados a
+  partir de funções de `m` e `n`, como `fun _ n => n ≥ 3`: é o tipo do
+  argumento de `patternTree`. `NumQuant` dá um nome a esse tipo. Por isso
+  todo `NumQuant` pode ser desenhado como árvore.
 :::
 
 ::::full
+Esta subseção tira a conclusão da anterior. Um padrão na árvore é um
+subconjunto dos pares de naturais. Por isso, o próprio quantificador pode ser
+escrito como uma expressão aritmética em `m` e `n`, sem conjuntos e sem
+listas: *all* é $`m = 0`, *no* é $`n = 0`, *at least k* é $`n \geq k` e *at
+most k* é $`n \leq k`. Em Lean, essa expressão tem o tipo `NumQuant`, que é
+justamente o tipo do argumento de `patternTree`. Por isso todo `NumQuant` pode
+ser desenhado.
+
 :::dev BeforeNextRelease
 TODO: translate CSwFP/7.2, "Logical Representations for Quantifiers", from
 "The pairs of cardinals that characterize…" to the definitions of `allNum`,
 `noNum`, `atleastNum` and `atmostNum`.
+:::
+
+:::dev "Claude Opus 5.5" (year := 2026)
+Comentário gerado por IA. É um rascunho de explicação, não uma tradução do
+CSwFP.
 :::
 ::::
 
@@ -950,21 +997,43 @@ TODO: translate CSwFP/7.2, "Logical Representations for Quantifiers", from
 abbrev NumQuant := Nat → Nat → Bool
 
 def allNum : NumQuant := fun m _ => m = 0
-def noNum : NumQuant := fun _ n => n = 0
-
+def noNum  : NumQuant := fun _ n => n = 0
 def atLeastNum (k : Nat) : NumQuant := fun _ n => n ≥ k
-def atMostNum (k : Nat) : NumQuant := fun _ n => n ≤ k
+def atMostNum  (k : Nat) : NumQuant := fun _ n => n ≤ k
+```
+
+:::terse
+- Um `ListQuant` também vira um `NumQuant`: na posição `(m, n)`, `toNum q`
+  aplica `q` a um universo de `m + n` objetos, `[1, …, m + n]`, com uma
+  propriedade que vale para exatamente `n` deles, "ser no máximo `n`".
+- Qualquer universo com essas contagens daria a mesma resposta: é ISOM.
+- Assim podemos comparar as duas formas: o padrão de `List.all` é o de
+  `allNum`, e o de *no* é o de `noNum`.
+:::
+
+```lean
+def toNum (q : ListQuant) : NumQuant :=
+  fun m n => q (List.range' 1 (m + n)) (fun x => x ≤ n)
+
+theorem toNum_all :
+    patternTree 5 (toNum List.all) =
+      patternTree 5 allNum := by
+  rfl
+
+theorem toNum_no :
+    patternTree 5 (toNum fun dom p => !dom.any p) =
+      patternTree 5 noNum := by
+  rfl
 ```
 
 :::terse
 - As operações lógicas sobre quantificadores viram operações sobre essas
-  expressões. *Not Q* nega a expressão de `Q`. *Q₁ and Q₂* e *Q₁ or Q₂*
-  combinam as duas expressões com `&&` e `||`.
+  expressões. `Not Q` nega a expressão de `Q`. `Q₁ && Q₂` e `Q₁ || Q₂`
+  combinam as duas expressões.
 - Na árvore, a negação troca `+` por `-` em todas as posições. A conjunção
   marca com `+` só as posições marcadas nas duas árvores, e a disjunção, as
   marcadas em pelo menos uma.
-- O exemplo do livro é *at least two but not all*, que fica `n ≥ 2` e não
-  `m = 0`.
+- Um exemplo é *at least three but not all*, que fica `n ≥ 3` e não `m = 0`.
 :::
 
 ::::full
@@ -972,9 +1041,26 @@ def atMostNum (k : Nat) : NumQuant := fun _ n => n ≤ k
 TODO: translate CSwFP/7.2, from "Logical operations on quantifiers can now be
 handled compositionally…" to the definition of `atleast2butnotall`.
 :::
+
+:::dev "Claude Opus 5.5" (year := 2026)
+Comentário gerado por IA. É um rascunho de explicação, não uma tradução do
+CSwFP.
+
+O ganho é a composicionalidade. As operações lógicas entre quantificadores
+viram operações ponto a ponto nas expressões, e cada uma tem uma leitura na
+árvore. *Not Q* troca `+` por `-` em todas as posições. *Q₁ and Q₂* marca
+`+` só onde as duas árvores têm `+`. *Q₁ or Q₂* marca `+` onde pelo menos
+uma tem. O padrão de *at least three but not all* é o de *at least three* sem a
+borda direita. Ninguém precisou pensar em conjuntos: o significado da
+expressão composta saiu do significado das partes.
+
+A subseção seguinte usa essas árvores para perguntas como "se `Q` é
+reflexivo, como é o seu padrão?". As árvores transformam propriedades
+lógicas dos quantificadores em propriedades geométricas fáceis de ver.
+:::
 ::::
 
-```lean (name := atLeast2ButNotAllTree)
+```lean
 def notNum (q : NumQuant) : NumQuant :=
   fun m n => !q m n
 
@@ -984,25 +1070,16 @@ def andNum (q₁ q₂ : NumQuant) : NumQuant :=
 def orNum (q₁ q₂ : NumQuant) : NumQuant :=
   fun m n => q₁ m n || q₂ m n
 
-def atLeast2ButNotAll : NumQuant :=
-  andNum (atLeastNum 2) (notNum allNum)
+def atLeast3ButNotAll : NumQuant :=
+  andNum (atLeastNum 3) (notNum allNum)
 
-#eval IO.println <| showTree atLeast2ButNotAll
-```
-
-```leanOutput atLeast2ButNotAllTree
-     -
-    - -
-   - - -
-  - - + -
- - - + + -
-- - + + + -
+#eval IO.println <| patternTree 5 atLeast3ButNotAll
 ```
 
 ::::exercise (rating := 3) (name := "tree-patterns")
 
 Defina `someNum`, `notAllNum` e `exactlyNum k`, as expressões de *some*,
-*not all* e *exactly k*. Use `showTree` para ver os padrões de *all*, *some*,
+*not all* e *exactly k*. Use `patternTree` para ver os padrões de *all*, *some*,
 *no* e *not all*, e os de *at least three*, *at most three* e *exactly
 three*. Depois, prove as relações entre eles: *some* é a negação de *no*,
 *not all* é a negação de *all*, *exactly k* é a conjunção de *at least k* e
@@ -1052,7 +1129,6 @@ theorem atMostNum_eq (k : Nat) :
    rw [Bool.eq_iff_iff]
    simp [atMostNum, notNum, atLeastNum]
 ```
-
 ::::
 
 # A linguagem da lógica tipada e sua semântica

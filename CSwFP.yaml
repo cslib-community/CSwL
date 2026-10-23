@@ -205,7 +205,6 @@ depends:
   pl-consequence: implies-from-list
   ex-fol-entails: ex-fol-implies-from-list
   help-defeat: check-sentence
-  gen-tree: tree-of-numbers
 
 sections:
 
