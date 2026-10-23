@@ -1179,6 +1179,21 @@ theorem some_not_refl : ¬ Refl (some : Det Entity) := by
 ::::
 
 :::terse
+- O mesmo se vê no modelo de {ref "ModelChecking"}[Model checking], com
+  `every` e `a`. Com um verbo intransitivo nas duas posições, *Todos os que
+  riram riram* e *Alguém que riu riu* são verdadeiras.
+- Com uma restrição vazia, `nobody`, *every* continua verdadeiro e *a* fica
+  falso: é o caso em que *some* não é reflexivo.
+:::
+
+```lean
+def nobody : OnePlacePred := fun _ => false
+
+#eval (every laugh laugh, a laugh laugh)
+#eval (every nobody nobody, a nobody nobody)
+```
+
+:::terse
 - Na árvore, `Q A A` é a posição `(0, n)`, com $`n = |A|`: nenhum A fica fora
   de A. Então `Q` é reflexivo quando a borda direita do padrão é toda `+`.
 - A borda inclui o topo, `(0, 0)`, o caso em que `A` é vazio. É ali que
@@ -1218,15 +1233,45 @@ patterns…" to "…which relational property of Q does this reflect?"
 :::terse
 - `Q` é *simétrico* se `Q A B` e `Q B A` sempre têm o mesmo valor. *Some*
   é simétrico: "algum A é B" e "algum B é A" dizem a mesma coisa.
+- Com um verbo intransitivo no escopo, inverter `A` e `B` leva o verbo para
+  a restrição: *Alguma menina riu* tem o mesmo valor que *Alguém que riu era
+  menina*. Já *Toda princesa riu* é verdadeira no modelo, e *Todos os que
+  riram eram princesas* é falsa: *all* não é simétrico.
 - Os quantificadores simétricos são exatamente os que cabem na posição `Q`
-  de *There are Q*: *There are some dwarfs*, mas não *There are all dwarfs*.
+  de *There are Q*: *There are some dwarfs*, *There are no dragons*, *There
+  are three wizards*, mas não \**There are all dwarfs* nem \**There are most
+  dragons*.
 :::
+
+```lean
+#eval (a girl laugh, a laugh girl)
+#eval (every princess laugh, every laugh princess)
+```
 
 ::::full
 :::dev BeforeNextRelease
 TODO: translate CSwFP/7.2, from "A relational property with linguistic
 interest is symmetry…" to the end of the paragraph after Exercise 7.4,
 "…(sentences of the form There are Q)", without the exercise itself.
+:::
+
+:::dev "Claude Opus 5.5" (year := 2026)
+Comentário gerado por IA. Material para quem escrever o `full` desta parte,
+não uma tradução do CSwFP.
+
+A simetria fica mais visível com um verbo intransitivo no escopo, porque a
+inversão leva o verbo para a restrição, numa oração relativa. *Alguns anões
+comemoraram* equivale a *Alguns dos que comemoraram eram anões*, e *Nenhum
+anão comemorou* a *Ninguém que comemorou era anão*: os dois lados dependem
+só de $`|A \cap B|`, e a interseção não muda quando os conjuntos trocam de
+lugar. Com *all*, a inversão muda o sentido: *Todos os anões comemoraram*
+deixa que gigantes também tenham comemorado, *Todos os que comemoraram eram
+anões* não deixa.
+
+Além do elenco, *at most k*, *exactly k* e *an even number of* também são
+simétricos, porque só dependem de `n`; *the* e *most* não são. Os exemplos
+de *There are Q* marcados com `*` são inaceitáveis, e a razão é semântica, a
+falta de simetria, não sintática.
 :::
 ::::
 
