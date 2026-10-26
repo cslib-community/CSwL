@@ -6,8 +6,6 @@ import Mathlib.Data.Set.Card
 import Mathlib.Computability.Language
 import CSwL.Composition.Rules
 import CSwL.Composition.Quantification
-import CSwL.Composition.TypedLogic
-import CSwL.Composition.Reduction
 import CSwL.Composition.TypedMeanings
 import CSwL.Composition.Interpretation
 import CSwL.Composition.Ambiguity
@@ -23,7 +21,8 @@ file := "Composition"
 %%%
 
 :::dev NOW
-Plan. The headings follow CSwFP/7.1–7.7 (7.8, further reading, is omitted).
+Plan. The headings follow CSwFP/7.1–7.7, without 7.3 and 7.4 (7.8, further
+reading, is omitted).
 Sections are written `terse` first (see `STYLE-CODE.md`). Code comes in the
 section that presents each idea, not only in 7.6:
 
@@ -31,11 +30,11 @@ section that presents each idea, not only in 7.6:
   predicates; EXT, CONS and ISOM as `Prop`s over `Set`; the tree of numbers
   and the numeric quantifiers; ex. 7.7–7.10 as monotonicity theorems; ex.
   7.11 with Mathlib's `DFA` (optional).
-- 7.3: Lean's types are the typed logic (`Entity` for e, `Bool` for t); no
+- 7.3 and 7.4 are dropped (see `CSwFP.yaml`): Lean's types are the typed
+  logic (`Entity` for e, `Bool` for t), and Lean does the reductions. No
   deep embedding, since CSwFP/8 needs intensional types.
-- 7.4: `#reduce` shows the β-reductions; free variables and substitution
-  from CSLib's `Named.Untyped`; confluence and normal forms only cited.
-- 7.5: the semantic rules as Lean functions.
+- 7.5: the semantic rules as Lean functions. Its opening says in a few
+  lines that e is `Entity` and t is `Bool`.
 - 7.6: `intSent` and friends over `ModelChecking`'s `Sent`, with `intDET`
   built from the 7.2 definitions; a theorem that the direct interpretation
   agrees with `checkSentence`, if it turns out feasible.
@@ -70,10 +69,6 @@ lambda-calculus engine of `ModelChecking`.
 {include 1 CSwL.Composition.Rules}
 
 {include 1 CSwL.Composition.Quantification}
-
-{include 1 CSwL.Composition.TypedLogic}
-
-{include 1 CSwL.Composition.Reduction}
 
 {include 1 CSwL.Composition.TypedMeanings}
 

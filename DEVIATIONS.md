@@ -180,6 +180,13 @@ syntax and model, so it comes after `ModelChecking`. Being written.
   not dropped (issue 41): until then, they, van Benthem's
   characterization and the definability of *most* are in the cues only,
   and exercises 7.11 and 7.12 wait for them.
+- 7.3 and 7.4, the language of typed logic and the reduction of its
+  expressions, are dropped, with their exercises 7.13–7.22. Lean is the
+  typed logic: its types, lambda terms and evaluation are what `IntroL`
+  presents with the lambda calculus of 2.4, and Lean reduces and substitutes
+  for the reader. No later section handles terms as data. CSLib's lambda
+  calculi were considered for 7.4 and do not fit: the named one is untyped,
+  and the typed one is locally nameless, without constants.
 - 7.2 calls the second argument of a determiner its *body*, where CSwFP/6
   called it its *scope*. Both translate as "escopo".
 

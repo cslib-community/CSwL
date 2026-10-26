@@ -221,7 +221,8 @@ tag := "comp-relational"
 :::dev BeforeNextRelease
 TODO: translate CSwFP/7.2, "The relational view of quantifiers", from the
 start to the table after (7.3). Decide whether the table keeps the types
-e and t or shows the Lean types; e and t are presented in `comp-typed-logic`.
+e and t or shows the Lean types; CSwFP/7.3, which presents e and t, is
+dropped, so they need a word here or in `comp-typed-meanings`.
 :::
 ::::
 

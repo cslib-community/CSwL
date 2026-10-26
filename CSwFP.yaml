@@ -142,16 +142,16 @@ exercises:
     7.10 (p. 162): mon-up-down
     7.11 (p. 163): deferred with the automata (issue 41)
     7.12 (p. 164): deferred with the automata (issue 41)
-    7.13 (p. 165): TODO
-    7.14 (p. 165): TODO
-    7.15 (p. 166): TODO
-    7.16 (p. 166): TODO
-    7.17 (p. 166): TODO
-    7.18 (p. 166): TODO
-    7.19 (p. 168): TODO
-    7.20 (p. 170): TODO
-    7.21 (p. 170): TODO
-    7.22 (p. 172): TODO
+    7.13 (p. 165): dropped with 7.3
+    7.14 (p. 165): dropped with 7.3
+    7.15 (p. 166): dropped with 7.3
+    7.16 (p. 166): dropped with 7.3
+    7.17 (p. 166): dropped with 7.3
+    7.18 (p. 166): dropped with 7.3
+    7.19 (p. 168): dropped with 7.3
+    7.20 (p. 170): dropped with 7.4
+    7.21 (p. 170): dropped with 7.4
+    7.22 (p. 172): dropped with 7.4
     7.23 (p. 173): TODO
     7.24 (p. 175): TODO
     7.25 (p. 179): TODO
@@ -319,11 +319,15 @@ sections:
       why: TODO, its Aristotle-to-Frege opening retells what InfEngine
         already presents with the syllogisms.
     7.3 The Language of Typed Logic and Its Semantics:
-      to: Composition
-      why: TODO, it overlaps the lambda calculus that IntroL takes from 2.4.
+      to: dropped
+      why: Lean is the typed logic. Its types, lambda terms, application and
+        evaluation are what IntroL presents with the lambda calculus of 2.4,
+        and the semantics of 7.3 is Lean's own evaluation.
     7.4 Reducing Expressions of Typed Logic:
-      to: Composition
-      why: TODO, it overlaps the lambda calculus that IntroL takes from 2.4.
+      to: dropped
+      why: Lean reduces and substitutes for the reader, and no later section
+        handles terms as data. CSLib's lambda calculi do not fit, since the named
+        one is untyped, and the typed one is locally nameless.
     7.5 Typed Meanings for Natural Language: Composition
     7.6 Implementing Semantic Interpretation: Composition
     7.7 Handling Ambiguity:
