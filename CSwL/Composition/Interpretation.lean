@@ -114,6 +114,24 @@ end
 ```
 
 :::terse
+- *Alice admired Dorothy* de novo, agora como árvore: um valor de `Sent`,
+  com as palavras `.alice`, `.admired` e `.dorothy`.
+- O `rfl` mostra que `intSent` monta a mesma composição que fizemos à mão
+  em {ref "comp-typed-meanings"}[Significados tipados para a língua
+  natural].
+:::
+
+```lean
+#eval intSent (.sent .alice (.vpTrans .admired .dorothy))
+
+example :
+    intSent (.sent .alice (.vpTrans .admired .dorothy)) =
+      Rule.sent (Rule.npName alice)
+        (Rule.vpTrans admire (Rule.npName dorothy)) :=
+  rfl
+```
+
+:::terse
 - `sent1` é a árvore de *The dwarf that Snow White helped admired every
   princess*, de {ref "ModelChecking"}[Model checking].
 - Lá, a sentença era traduzida para uma fórmula, e a fórmula avaliada no
