@@ -599,8 +599,7 @@ theorem many_not_ext : ¬ Ext (many : Det Nat) := by
      simp [many]
    have h2 := (h {0} {0, 1} {0} {0} le_rfl le_rfl
      (by simp)).1 h1
-   simp [many] at h1
-   simp [many] at h2
+   simp [many] at h1 h2
 ```
 ::::
 
@@ -1143,7 +1142,8 @@ tag := "comp-rel-props"
   `GQ.Det`, como EXT, CONS e ISOM. Na árvore, é uma forma do padrão, uma
   `Prop` sobre `NumQuant`.
 - A pergunta que se repete: se `Q` tem a propriedade, como é o seu padrão?
-- `Q` é *reflexivo* se `Q A A` vale para todo `A`.
+
+Começamos avaliando se {lean}`GQ.all` é reflexiva. O quantificador {lean}`GQ.some` não é reflexivo se aceitarmos a restrição vazia.
 :::
 
 ::::full
@@ -1162,7 +1162,7 @@ def Refl {α : Type} (D : Det α) : Prop :=
   ∀ E A, A ⊆ E → D E A A
 
 theorem all_refl {α : Type} : Refl (all : Det α) := by
-  intro E A _ x hx
+  intro E A ha x hx
   exact hx
 ```
 
@@ -1173,29 +1173,18 @@ Prove que *some* não é reflexivo.
 theorem some_not_refl : ¬ Refl (some : Det Entity) := by
   solution!
    intro h
-   obtain ⟨x, hx, _⟩ := h Set.univ ∅ (Set.empty_subset _)
+   obtain ⟨x, hx, h2⟩ := h Set.univ ∅ (Set.empty_subset _)
    exact hx
 ```
 ::::
 
 :::terse
-- O mesmo se vê no modelo de {ref "ModelChecking"}[Model checking], com
-  `every` e `a`. Com um verbo intransitivo nas duas posições, *Todos os que
-  riram riram* e *Alguém que riu riu* são verdadeiras.
-- Com uma restrição vazia, `nobody`, *every* continua verdadeiro e *a* fica
-  falso: é o caso em que *some* não é reflexivo.
-:::
-
-```lean
-def nobody : OnePlacePred := fun _ => false
-
-#eval (every laugh laugh, a laugh laugh)
-#eval (every nobody nobody, a nobody nobody)
-```
-
-:::terse
-- Na árvore, `Q A A` é a posição `(0, n)`, com $`n = |A|`: nenhum A fica fora
-  de A. Então `Q` é reflexivo quando a borda direita do padrão é toda `+`.
+- Em `Q A A`, o escopo é a própria restrição. Nenhum elemento de `A` fica fora
+  de `A`, então $`m = 0`; todos ficam dentro, então $`n = |A|`. `Q A A` é a
+  posição `(0, |A|)`.
+- Variando o tamanho de `A`, essas posições são `(0, 0)`, `(0, 1)`,
+  `(0, 2)`, …: a borda direita da árvore. `Q` é reflexivo quando essa borda
+  é toda `+`.
 - A borda inclui o topo, `(0, 0)`, o caso em que `A` é vazio. É ali que
   *some* falha.
 :::
@@ -1217,9 +1206,17 @@ Se a borda direita do padrão de `Q` é toda `-`, que propriedade `Q` tem?
 Qual quantificador do nosso elenco tem esse padrão? E *no*, tem?
 
 :::quizSolution
-`Q A A` é falso para todo `A`: `Q` é *irreflexivo*. *Not all* é irreflexivo,
-porque na borda direita `m = 0`. *No* não é: no topo, com `A` vazio,
-"nenhum A é A" é verdadeiro. *No* não é reflexivo nem irreflexivo.
+`Q A A` é falso para todo `A`: `Q` é *irreflexivo*. Os padrões de *not all*
+e de *no* mostram a borda direita de cada um:
+
+```lean
+#eval IO.println <| patternTree 5 (notNum allNum)
+#eval IO.println <| patternTree 5 noNum
+```
+
+*Not all* é irreflexivo: sua borda direita é toda `-`. *No* não é: o topo,
+com `A` vazio, é `+`, porque "nenhum A é A" é verdadeiro. E o resto da borda
+é `-`, então *no* não é reflexivo nem irreflexivo.
 :::
 ::::
 
