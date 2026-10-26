@@ -140,8 +140,8 @@ exercises:
     7.8 (p. 162): mon-and
     7.9 (p. 162): mon-or
     7.10 (p. 162): mon-up-down
-    7.11 (p. 163): omitted, automata are not implemented
-    7.12 (p. 164): omitted, automata are not implemented
+    7.11 (p. 163): deferred with the automata (issue 41)
+    7.12 (p. 164): deferred with the automata (issue 41)
     7.13 (p. 165): TODO
     7.14 (p. 165): TODO
     7.15 (p. 166): TODO
