@@ -187,6 +187,16 @@ syntax and model, so it comes after `ModelChecking`. Being written.
   for the reader. No later section handles terms as data. CSLib's lambda
   calculi were considered for 7.4 and do not fit: the named one is untyped,
   and the typed one is locally nameless, without constants.
+- CSwFP changes the argument order of transitive verbs between 7.5 and
+  7.6: the rule for VP → TV NP in 7.5 applies the verb to the object first,
+  `λx ↦ ⟦NP⟧ (λy ↦ ((⟦TV⟧ y) x))`, and the code of 7.6 to the subject
+  first, `intTV tv subj obj`, without comment. Both sections here follow
+  7.6 and the model, whose relations take the subject first.
+- The semantic rules of 7.5 are Lean functions in namespace `Rule`, named
+  after the grammar constructors they interpret (`Rule.vpTrans` for
+  `VP.vpTrans`). The chain of β-reductions for *Alice admired Dorothy* is
+  the theorem `alice_admired_dorothy`, proved by `rfl` for any relation in
+  place of *admire*, and exercise 7.24 asks for the same.
 - 7.2 calls the second argument of a determiner its *body*, where CSwFP/6
   called it its *scope*. Both translate as "escopo".
 
