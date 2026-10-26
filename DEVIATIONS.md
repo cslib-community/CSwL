@@ -172,6 +172,13 @@ syntax and model, so it comes after `ModelChecking`. Being written.
   `ListQuant` into a `NumQuant` at the start of "Logical Representations for
   Quantifiers", which CSwFP leaves implicit, so that the patterns of
   `List.all` and `allNum` can be compared.
+- Of "Quantifiers, Automata, and Definability" only the words are
+  implemented: `wordOf`, `langOf q` as a Mathlib `Language Bool`, the
+  theorem that it is closed under permutation, and the operations
+  `notNum`, `andNum` and `orNum` as complement, intersection and union
+  (with *all* as `{[true]}∗`, CSwFP's `1∗`). Automata, van Benthem's characterization and the
+  definability of *most* are in the cues only, and exercises 7.11 and 7.12
+  are left out. The chapter moves on to typed logic.
 - 7.2 calls the second argument of a determiner its *body*, where CSwFP/6
   called it its *scope*. Both translate as "escopo".
 

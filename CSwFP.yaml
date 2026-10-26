@@ -140,8 +140,8 @@ exercises:
     7.8 (p. 162): mon-and
     7.9 (p. 162): mon-or
     7.10 (p. 162): mon-up-down
-    7.11 (p. 163): TODO
-    7.12 (p. 164): TODO
+    7.11 (p. 163): omitted, automata are not implemented
+    7.12 (p. 164): omitted, automata are not implemented
     7.13 (p. 165): TODO
     7.14 (p. 165): TODO
     7.15 (p. 166): TODO
@@ -203,6 +203,8 @@ original:
     - no-mon-down     # from the prose on MON↓ in 7.2
     - even-not-mon    # from the prose on "an even number of" in 7.2, neither MON↑ nor MON↓
     - left-mon-pattern # from the prose on ↑MON and ↓MON in 7.2, "left to the reader"
+    - lang-and-or     # from the prose on quantifier automata in 7.2
+    - all-kstar       # from the prose in 7.2, "all corresponds to the regular language 1∗"
 
 depends:
   bangu-proof: bangu-form

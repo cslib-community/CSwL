@@ -3,6 +3,7 @@ import Bib
 import CSwL.ModelChecking
 import Mathlib.Data.Set.Function
 import Mathlib.Data.Set.Card
+import Mathlib.Computability.Language
 
 open Verso.Genre Manual
 open CSwLMeta
@@ -1538,6 +1539,165 @@ theorem no_downMon : DownMonNum noNum := by
    intro m n
    simp [noNum]
 ```
+::::
+
+# Quantificadores, autômatos e definibilidade
+%%%
+tag := "comp-automata"
+%%%
+
+:::terse
+- Percorrendo os elementos de `A` e anotando `1` para cada um que está em
+  `B` e `0` para cada um que não está, obtemos uma *palavra* sobre o
+  alfabeto $`\{0, 1\}`. Aqui, `true` faz o papel de `1` e `false` o de `0`.
+- O número de zeros é $`|A - B|` e o de uns é $`|A \cap B|`: a palavra
+  leva à posição `(m, n)` da árvore.
+- Um quantificador `q` determina a linguagem `langOf q`: as palavras cujas
+  contagens caem num `+` do padrão de `q`.
+- `Language Bool`, do Mathlib, é o tipo das linguagens sobre `Bool`: um
+  conjunto de palavras, com as operações das linguagens formais.
+:::
+
+```lean
+abbrev Word := List Bool
+
+def wordOf (A : List Entity) (B : OnePlacePred) : Word :=
+  A.map B
+
+def accepts (q : NumQuant) (w : Word) : Bool :=
+  q (w.count false) (w.count true)
+
+def langOf (q : NumQuant) : Language Bool :=
+  {w | accepts q w}
+
+theorem mem_langOf (q : NumQuant) (w : Word) :
+    w ∈ langOf q ↔ accepts q w :=
+  Iff.rfl
+
+#eval wordOf (entities.filter girl) laugh
+#eval (accepts allNum (wordOf (entities.filter girl) laugh),
+  accepts (notNum noNum)
+    (wordOf (entities.filter girl) laugh))
+```
+
+:::terse
+- *All girls laughed* é falsa e *Some girl laughed* é verdadeira: a palavra
+  tem dois zeros e dois uns.
+- A ordem dos elementos de `A` não importa: só contam os zeros e os uns.
+  Duas palavras que são permutações uma da outra (`List.Perm`) têm as
+  mesmas contagens, e `List.Perm.count_eq` diz exatamente isso.
+- Então `langOf q` é fechada por permutação. É ISOM, visto nas palavras.
+:::
+
+```lean
+theorem langOf_perm (q : NumQuant) {v w : Word}
+    (h : v.Perm w) (hv : v ∈ langOf q) :
+    w ∈ langOf q := by
+  rw [mem_langOf, accepts] at *
+  rw [← h.count_eq, ← h.count_eq]
+  exact hv
+```
+
+:::terse
+- As operações sobre `NumQuant` são operações sobre linguagens. A negação
+  `notNum` dá o complemento, `ᶜ`: as palavras que `q` não aceita.
+:::
+
+```lean
+theorem langOf_notNum (q : NumQuant) :
+    langOf (notNum q) = (langOf q)ᶜ := by
+  ext w
+  show accepts (notNum q) w ↔ ¬ accepts q w
+  simp [accepts, notNum]
+```
+
+::::exercise (rating := 2) (name := "lang-and-or")
+Prove que a conjunção `andNum` dá a interseção das linguagens, `⊓`, e que
+a disjunção `orNum` dá a união, `+`.
+
+```lean
+theorem langOf_andNum (q₁ q₂ : NumQuant) :
+    langOf (andNum q₁ q₂) = langOf q₁ ⊓ langOf q₂ := by
+  solution!
+   ext w
+   rw [Language.mem_inf, mem_langOf, mem_langOf,
+     mem_langOf]
+   simp [accepts, andNum]
+
+theorem langOf_orNum (q₁ q₂ : NumQuant) :
+    langOf (orNum q₁ q₂) = langOf q₁ + langOf q₂ := by
+  solution!
+   ext w
+   rw [Language.mem_add, mem_langOf, mem_langOf,
+     mem_langOf]
+   simp [accepts, orNum]
+```
+::::
+
+:::terse
+- *All* aceita as palavras sem nenhum `0`: as feitas só de `1`. É a
+  linguagem `1∗`, o fecho de Kleene `∗` da linguagem que tem só a palavra
+  `[true]`.
+:::
+
+::::exercise (rating := 3) (name := "all-kstar")
+Prove que a linguagem de *all* é `{[true]}∗`.
+
+```lean
+open Computability in
+theorem langOf_allNum :
+    langOf allNum = ({[true]} : Language Bool)∗ := by
+  solution!
+   ext w
+   rw [mem_langOf, Language.mem_kstar]
+   simp only [accepts, allNum, List.count_eq_zero,
+     decide_eq_true_eq]
+   constructor
+   · intro h
+     refine ⟨w.map fun _ => [true], ?_, ?_⟩
+     · induction w with
+       | nil => rfl
+       | cons b w ih =>
+         simp only [List.mem_cons, not_or] at h
+         obtain ⟨hb, hw⟩ := h
+         cases b
+         · exact absurd rfl hb
+         · rw [List.map_cons, List.flatten_cons, ← ih hw]
+           rfl
+     · intro y hy
+       simp only [List.mem_map] at hy
+       obtain ⟨_, _, rfl⟩ := hy
+       rfl
+   · intro h
+     obtain ⟨L, rfl, hL⟩ := h
+     simp only [List.mem_flatten, not_exists, not_and]
+     intro y hy
+     rw [hL y hy]
+     simp
+```
+::::
+
+:::terse
+- Um autômato finito que aceita exatamente as palavras de `langOf q`
+  computa `q`.
+- Os quantificadores definíveis em primeira ordem (com $`\forall`,
+  $`\exists`, igualdade e os predicados da restrição e do escopo) são
+  exatamente os computados por um autômato finito acíclico e invariante
+  por permutação (van Benthem).
+- *An even number of* pede um autômato com ciclo. *Most* não tem autômato
+  finito nenhum: é preciso memória para comparar $`|A - B|` e
+  $`|A \cap B|`. Nenhum dos dois é definível em primeira ordem.
+- Por isso *most* ficou fora da tradução para a lógica de primeira ordem
+  em {ref "ModelChecking"}[Model checking]. Na interpretação direta, ele é
+  uma função como as outras.
+:::
+
+::::full
+:::dev BeforeNextRelease
+TODO: translate CSwFP/7.2, from "Quantifiers correspond to automata that
+accept strings over a binary alphabet…" to "…the numbers of elements in
+A − B and A ∩ B)."
+:::
 ::::
 
 ```lean
