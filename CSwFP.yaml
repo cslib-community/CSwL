@@ -190,7 +190,7 @@ original:
   Morphology/Phonemes.lean: [append-suffix-text]
   Morphology/SwedishPlural.lean: [swedish-plural]
   InfEngine.lean: [inconsistent-kb, ferio]
-  Composition.lean:
+  Composition/Quantification.lean:
     - at-most-two     # from the prose on "At least two A are B" in 7.2
     - at-least-n      # from the prose on "at least n" and "at most m" in 7.2
     - subalternation  # from the prose on existential presuppositions in 7.2
