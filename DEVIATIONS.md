@@ -197,6 +197,14 @@ syntax and model, so it comes after `ModelChecking`. Being written.
   `VP.vpTrans`). The chain of β-reductions for *Alice admired Dorothy* is
   the theorem `alice_admired_dorothy`, proved by `rfl` for any relation in
   place of *admire*, and exercise 7.24 asks for the same.
+- In 7.6, `intSent`, `intNP`, `intVP` and `intRCN` apply the semantic
+  rules of 7.5, one line per constructor. *Most* and the *at least* /
+  *at most* of exercise 7.25 are meanings only, used through `Rule`:
+  CSwFP adds them to `DET`, which here would mean wrapping `NP`, `VP`,
+  `RCN` and `Sent` too (issue 42). The adjectives and *caught* are false
+  of everything, as in `ModelChecking`'s model. An `#eval` checks that
+  the direct interpretation agrees with the translation into a formula
+  on the sentences of exercise `help-defeat`.
 - 7.2 calls the second argument of a determiner its *body*, where CSwFP/6
   called it its *scope*. Both translate as "escopo".
 
