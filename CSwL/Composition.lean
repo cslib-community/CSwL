@@ -8,7 +8,6 @@ import CSwL.Composition.Rules
 import CSwL.Composition.Quantification
 import CSwL.Composition.TypedMeanings
 import CSwL.Composition.Interpretation
-import CSwL.Composition.Ambiguity
 
 open Verso.Genre Manual
 open CSwLMeta
@@ -21,8 +20,8 @@ file := "Composition"
 %%%
 
 :::dev NOW
-Plan. The headings follow CSwFP/7.1–7.7, without 7.3 and 7.4 (7.8, further
-reading, is omitted).
+Plan. The headings follow CSwFP/7.1–7.6, without 7.3 and 7.4 (7.7 is
+deferred, issue 43; 7.8, further reading, is omitted).
 Sections are written `terse` first (see `STYLE-CODE.md`). Code comes in the
 section that presents each idea, not only in 7.6:
 
@@ -38,7 +37,7 @@ section that presents each idea, not only in 7.6:
 - 7.6: `intSent` and friends over `ModelChecking`'s `Sent`, with `intDET`
   built from the 7.2 definitions; a theorem that the direct interpretation
   agrees with `checkSentence`, if it turns out feasible.
-- 7.7: ex. 7.26–7.27 over `ModelChecking`'s `SentPP`; ex. 7.28.
+- 7.7: deferred (issue 43).
 
 The chapter's key point for the cues: direct interpretation admits
 quantifiers, such as *most*, that first-order logic cannot express.
@@ -73,5 +72,3 @@ lambda-calculus engine of `ModelChecking`.
 {include 1 CSwL.Composition.TypedMeanings}
 
 {include 1 CSwL.Composition.Interpretation}
-
-{include 1 CSwL.Composition.Ambiguity}

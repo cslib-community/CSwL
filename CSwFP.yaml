@@ -155,9 +155,9 @@ exercises:
     7.23 (p. 173): dropped with 7.4
     7.24 (p. 175): snow-white-helped
     7.25 (p. 179): at-least-at-most
-    7.26 (p. 180): TODO
-    7.27 (p. 181): TODO
-    7.28 (p. 182): TODO
+    7.26 (p. 180): deferred with 7.7 (issue 43)
+    7.27 (p. 181): deferred with 7.7 (issue 43)
+    7.28 (p. 182): deferred with 7.7 (issue 43)
 
 original:
   IntroL.lean: [sum-of-squares, sum-to, sum-list, count-zeros]
@@ -331,9 +331,9 @@ sections:
     7.5 Typed Meanings for Natural Language: Composition
     7.6 Implementing Semantic Interpretation: Composition
     7.7 Handling Ambiguity:
-      to: Composition
-      why: TODO, its exercises build on the prepositional phrases that
-        ModelChecking adds to the fragment.
+      to: deferred
+      why: its benefit is unclear for now, and the implementation within
+        reach looked of little use (issue 43).
     7.8 Further Reading: omitted
   CSwFP/8 Extension and Intension: not yet taken up
   CSwFP/9 Parsing: not yet taken up

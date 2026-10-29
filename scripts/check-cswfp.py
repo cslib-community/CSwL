@@ -93,7 +93,7 @@ for sections in DATA["sections"].values():
     for section, value in sections.items():
         target = value["to"] if isinstance(value, dict) else value
         chapter = re.match(r"[^,\s]+", target)[0]
-        if chapter not in {"omitted", "absorbed", "dropped"} | chapters:
+        if chapter not in {"omitted", "absorbed", "dropped", "deferred"} | chapters:
             problems.append(f"no such chapter:        {chapter} ({section})")
 
 # Prose that cites the source.

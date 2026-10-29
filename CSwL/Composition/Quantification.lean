@@ -300,8 +300,8 @@ def defeated (X : OnePlacePred → Bool) : OnePlacePred :=
 :::terse
 - A sentença inteira é só aplicação de funções. Nenhuma fórmula é construída:
   a avaliação consulta o modelo diretamente.
-- Nessa composição o objeto fica sempre no escopo do sujeito. A outra leitura
-  fica para {ref "comp-ambiguity"}[Tratando a ambiguidade].
+- Nessa composição o objeto fica sempre no escopo do sujeito. A outra
+  leitura, com o objeto de escopo amplo, não é tratada aqui.
 :::
 
 ```lean

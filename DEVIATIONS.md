@@ -205,6 +205,10 @@ syntax and model, so it comes after `ModelChecking`. Being written.
   of everything, as in `ModelChecking`'s model. An `#eval` checks that
   the direct interpretation agrees with the translation into a formula
   on the sentences of exercise `help-defeat`.
+- 7.7, handling ambiguity, is deferred with its exercises 7.26–7.28
+  (issue 43): its benefit is unclear for now, and the implementation
+  within reach looked of little use. The scope reading of *Every dwarf
+  defeated a giant* with the object in wide scope is not presented.
 - 7.2 calls the second argument of a determiner its *body*, where CSwFP/6
   called it its *scope*. Both translate as "escopo".
 
