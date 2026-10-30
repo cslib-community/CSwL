@@ -129,6 +129,32 @@ decisions inside the chapters.
   `FInterp`; and names and argument order agree with the translation, which
   in the Haskell source they do not.
 
+### `Parsing`
+
+CSwFP/8 is skipped for now, and the chapter follows `ModelChecking`.
+
+- 9.1: the tree relations are lists of pairs, as in CSwFP, because the
+  section shows them with `#eval`; Mathlib's `Rel` of `Sets` is a `Prop`
+  and cannot be printed. Dominance uses Lean's `<+:` (`List.IsPrefix`) in
+  place of a helper `prefix`. `pos` is written with a helper `posFrom` in a
+  `mutual` block, so that Lean sees the recursion over the list of
+  subtrees as structural. `subtree` returns `ep` at a position the tree
+  does not have, where CSwFP's is undefined.
+- Exercise 9.2 becomes two theorems about positions, parts (1) and (2):
+  the relation of c-command is a sister followed by dominance, and neither
+  part depends on the tree. Part (3), on the lowest branching position, is
+  not ported. Exercises 9.1, 9.3, 9.4 and 9.5 ask for a definition checked
+  on the example tree; 9.6 asks for the splitting functions without empty
+  parts.
+- 9.2: `recognize` and `parse` are `partial def`, since Lean cannot see
+  that the middle piece of a split is shorter than the input. The cue on
+  `partial def` says why left recursion is no trouble here, which is
+  exercise 9.7. Generation stops at a given length, since Lean lists are
+  finite. A theorem checks, with `native_decide`, that `recognize` agrees
+  with Mathlib's `List.Palindrome` on all words up to length 6; a proof
+  for all words would need `recognize` to be total. `parse` gives the
+  empty word the empty tree `ep`, where CSwFP uses a leaf `"[]"`.
+
 ## Beyond CSwFP/6
 
 Not planned yet. CSwFP/7 continues the fragment of `ModelChecking` and builds on the

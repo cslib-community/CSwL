@@ -49,7 +49,8 @@ adapts — see [DEVIATIONS.md](DEVIATIONS.md) for why.
 - [~] Model checking with first-order logic — [source](CSwL/ModelChecking.lean)
 - [ ] The composition of meaning
 - [ ] Extension and intension
-- [ ] Parsing
+- [~] Parsing — [source](CSwL/Parsing.lean) (sections in
+  [`CSwL/Parsing/`](CSwL/Parsing))
 - [ ] Relations and scope
 - [ ] Semantics in continuation passing style
 - [ ] Discourse representation and context
