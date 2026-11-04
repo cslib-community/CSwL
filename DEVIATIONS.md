@@ -129,9 +129,92 @@ decisions inside the chapters.
   `FInterp`; and names and argument order agree with the translation, which
   in the Haskell source they do not.
 
+### `Composition`
+
+CSwFP/7 continues the fragment of `ModelChecking` and builds on the same
+syntax and model, so it comes after `ModelChecking`. Being written.
+
+- The chapter summary is translated as the chapter's opening, with Lean in
+  place of Haskell as the lambda-calculus engine of `ModelChecking`.
+- In the opening of 7.2, the paragraph observing that the translation of
+  *Every prince sang a ballad* has no sub-expression for its noun phrases, and
+  the one on quantified noun phrases as "systematically misleading
+  expressions", are cut to a one-sentence reminder: `ModelChecking`'s
+  `english-form` already makes both points, at more length.
+- Example (7.4), *Every mermaid hummed a song*, becomes *Every dwarf defeated
+  a giant*: mermaids, songs and humming are not in `ModelChecking`'s fragment
+  or model, and the new sentence can be evaluated there with `#eval`.
+- The tree of numbers is not an infinite list, since Lean is not lazy: `tree
+  k` is the list of rows `0` to `k`, and `treeOfNumbers k` (exercise 7.1) and
+  `genTree q k` (exercise 7.3) take the same bound. Both are written over
+  `tree`, so exercise 7.3 does not depend on the solution of 7.1.
+- Figures 7.5 and 7.6 are computed: `numberTree` and `patternTree` label the
+  same `tree k`, one with the pairs and one with `+` and `-`.
+- Subsections "Numerical Trees" and "Logical Representations for
+  Quantifiers" keep one cast of examples, the quantifiers of exercise 7.2 and
+  Figure 7.6, announced at the start. So CSwFP's `atleast2butnotall` becomes
+  `atLeast3ButNotAll`, *at least three but not all*.
+- In "Relational Properties", CSwFP calls *some* reflexive. With its own
+  definition, `∀X Q XX`, it is not: `Q ∅ ∅` is false, the top of the tree
+  pattern. The book keeps the definition and makes the empty set the point,
+  in exercise `some-not-refl` and in the quiz on irreflexivity.
+- Each relational property is defined twice, over sets (`GQ.Refl`,
+  `GQ.MonUp`, …) and over the tree (`ReflNum`, `MonUpNum`, …). That the two
+  versions agree is stated, not proved: the proof goes from sets to
+  cardinalities through EXT, CONS and ISOM.
+- Exercises 7.5 and 7.6 become quizzes, because their answers, the tree
+  forms of MON↑ and MON↓, are the definitions `MonUpNum` and `MonDownNum`
+  that exercises 7.7–7.10 use. Exercises 7.8 and 7.9 are split by
+  operation, `mon-and` and `mon-or`, each with both directions.
+- CSwFP's `Quant` is `ListQuant`, in parallel with `NumQuant`, and takes the
+  universe before the property, `List Nat → (Nat → Bool) → Bool`, so that
+  `List.all` and `List.any` have the type as they are. `toNum` turns a
+  `ListQuant` into a `NumQuant` at the start of "Logical Representations for
+  Quantifiers", which CSwFP leaves implicit, so that the patterns of
+  `List.all` and `allNum` can be compared.
+- Of "Quantifiers, Automata, and Definability" only the words are
+  implemented: `wordOf`, `langOf q` as a Mathlib `Language Bool`, the
+  theorem that it is closed under permutation, and the operations
+  `notNum`, `andNum` and `orNum` as complement, intersection and union
+  (with *all* as `{[true]}∗`, CSwFP's `1∗`). The automata are deferred,
+  not dropped (issue 41): until then, they, van Benthem's
+  characterization and the definability of *most* are in the cues only,
+  and exercises 7.11 and 7.12 wait for them.
+- 7.3 and 7.4, the language of typed logic and the reduction of its
+  expressions, are dropped, with their exercises 7.13–7.22. Lean is the
+  typed logic: its types, lambda terms and evaluation are what `IntroL`
+  presents with the lambda calculus of 2.4, and Lean reduces and substitutes
+  for the reader. No later section handles terms as data. CSLib's lambda
+  calculi were considered for 7.4 and do not fit: the named one is untyped,
+  and the typed one is locally nameless, without constants.
+- CSwFP changes the argument order of transitive verbs between 7.5 and
+  7.6: the rule for VP → TV NP in 7.5 applies the verb to the object first,
+  `λx ↦ ⟦NP⟧ (λy ↦ ((⟦TV⟧ y) x))`, and the code of 7.6 to the subject
+  first, `intTV tv subj obj`, without comment. Both sections here follow
+  7.6 and the model, whose relations take the subject first.
+- The semantic rules of 7.5 are Lean functions in namespace `Rule`, named
+  after the grammar constructors they interpret (`Rule.vpTrans` for
+  `VP.vpTrans`). The chain of β-reductions for *Alice admired Dorothy* is
+  the theorem `alice_admired_dorothy`, proved by `rfl` for any relation in
+  place of *admire*, and exercise 7.24 asks for the same.
+- In 7.6, `intSent`, `intNP`, `intVP` and `intRCN` apply the semantic
+  rules of 7.5, one line per constructor. *Most* and the *at least* /
+  *at most* of exercise 7.25 are meanings only, used through `Rule`:
+  CSwFP adds them to `DET`, which here would mean wrapping `NP`, `VP`,
+  `RCN` and `Sent` too (issue 42). The adjectives and *caught* are false
+  of everything, as in `ModelChecking`'s model. An `#eval` checks that
+  the direct interpretation agrees with the translation into a formula
+  on the sentences of exercise `help-defeat`.
+- 7.7, handling ambiguity, is deferred with its exercises 7.26–7.28
+  (issue 43): its benefit is unclear for now, and the implementation
+  within reach looked of little use. The scope reading of *Every dwarf
+  defeated a giant* with the object in wide scope is not presented.
+- 7.2 calls the second argument of a determiner its *body*, where CSwFP/6
+  called it its *scope*. Both translate as "escopo".
+
 ### `Parsing`
 
-CSwFP/8 is skipped for now, and the chapter follows `ModelChecking`.
+CSwFP/8 is skipped for now, and the chapter follows `Composition`.
 
 - 9.1: the tree relations are lists of pairs, as in CSwFP, because the
   section shows them with `#eval`; Mathlib's `Rel` of `Sets` is a `Prop`
@@ -190,7 +273,6 @@ CSwFP/8 is skipped for now, and the chapter follows `ModelChecking`.
   parser used, becomes the new exercise `parse-many-as`, checked on a
   sequence of adjectives.
 
-## Beyond CSwFP/6
+## Beyond CSwFP/9
 
-Not planned yet. CSwFP/7 continues the fragment of `ModelChecking` and builds on the
-same syntax, so it comes after `ModelChecking`.
+Not planned yet. CSwFP/8 is skipped for now.

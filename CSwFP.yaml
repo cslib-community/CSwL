@@ -129,6 +129,35 @@ exercises:
     6.6 (p. 146): TODO, goes with 6.5 to Logic/FOL
     6.7 (p. 147): check-sentence
 
+  CSwFP/7:
+    7.1 (p. 158): tree-of-numbers
+    7.2 (p. 158): tree-patterns
+    7.3 (p. 158): gen-tree
+    7.4 (p. 161): symm-pattern
+    7.5 (p. 161): turned into a quiz
+    7.6 (p. 161): turned into a quiz
+    7.7 (p. 162): mon-not
+    7.8 (p. 162): mon-and
+    7.9 (p. 162): mon-or
+    7.10 (p. 162): mon-up-down
+    7.11 (p. 163): deferred with the automata (issue 41)
+    7.12 (p. 164): deferred with the automata (issue 41)
+    7.13 (p. 165): dropped with 7.3
+    7.14 (p. 165): dropped with 7.3
+    7.15 (p. 166): dropped with 7.3
+    7.16 (p. 166): dropped with 7.3
+    7.17 (p. 166): dropped with 7.3
+    7.18 (p. 166): dropped with 7.3
+    7.19 (p. 168): dropped with 7.3
+    7.20 (p. 170): dropped with 7.4
+    7.21 (p. 170): dropped with 7.4
+    7.22 (p. 172): dropped with 7.4
+    7.23 (p. 173): dropped with 7.4
+    7.24 (p. 175): snow-white-helped
+    7.25 (p. 179): at-least-at-most
+    7.26 (p. 180): deferred with 7.7 (issue 43)
+    7.27 (p. 181): deferred with 7.7 (issue 43)
+    7.28 (p. 182): deferred with 7.7 (issue 43)
   CSwFP/9:
     9.1 (p. 208): imm-dominance
     9.2 (p. 210): c-command-dominance
@@ -180,6 +209,21 @@ original:
   Morphology/Phonemes.lean: [append-suffix-text]
   Morphology/SwedishPlural.lean: [swedish-plural]
   InfEngine.lean: [inconsistent-kb, ferio]
+  Composition/Quantification.lean:
+    - at-most-two     # from the prose on "At least two A are B" in 7.2
+    - at-least-n      # from the prose on "at least n" and "at most m" in 7.2
+    - subalternation  # from the prose on existential presuppositions in 7.2
+    - no-cons         # from the prose on CONS in 7.2
+    - only-not-cons   # from the prose on (7.8), "Only dwarfs sing during work"
+    - many-not-ext    # from the prose on EXT in 7.2, "many in the sense of relatively many"
+    - the-quant       # from the prose on ISOM in 7.2 and the Russellian `the` of 7.5
+    - poss-not-isom   # from the prose on ISOM in 7.2: EXT and CONS do not imply ISOM
+    - some-not-refl   # from the prose on reflexive quantifiers in 7.2
+    - no-mon-down     # from the prose on MON↓ in 7.2
+    - even-not-mon    # from the prose on "an even number of" in 7.2, neither MON↑ nor MON↓
+    - left-mon-pattern # from the prose on ↑MON and ↓MON in 7.2, "left to the reader"
+    - lang-and-or     # from the prose on quantifier automata in 7.2
+    - all-kstar       # from the prose in 7.2, "all corresponds to the regular language 1∗"
   Parsing/Combinators.lean: [parse-many-as]
 
 depends:
@@ -288,7 +332,29 @@ sections:
         `[0..]` becomes a theorem, since Lean is not lazy.
     6.6 Further Reading: omitted
 
-  CSwFP/7 The Composition of Meaning in Natural Language: not yet taken up
+  CSwFP/7:
+    7.1 Rules of the Game: Composition
+    7.2 Quantification:
+      to: Composition
+      why: TODO, its Aristotle-to-Frege opening retells what InfEngine
+        already presents with the syllogisms.
+    7.3 The Language of Typed Logic and Its Semantics:
+      to: dropped
+      why: Lean is the typed logic. Its types, lambda terms, application and
+        evaluation are what IntroL presents with the lambda calculus of 2.4,
+        and the semantics of 7.3 is Lean's own evaluation.
+    7.4 Reducing Expressions of Typed Logic:
+      to: dropped
+      why: Lean reduces and substitutes for the reader, and no later section
+        handles terms as data. CSLib's lambda calculi do not fit, since the named
+        one is untyped, and the typed one is locally nameless.
+    7.5 Typed Meanings for Natural Language: Composition
+    7.6 Implementing Semantic Interpretation: Composition
+    7.7 Handling Ambiguity:
+      to: deferred
+      why: its benefit is unclear for now, and the implementation within
+        reach looked of little use (issue 43).
+    7.8 Further Reading: omitted
   CSwFP/8 Extension and Intension: not yet taken up
   CSwFP/9:
     9.1 Talking About Parse Trees: Parsing

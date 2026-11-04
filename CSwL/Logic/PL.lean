@@ -158,6 +158,7 @@ Nem todos os conectivos precisam ser definidos como "primitivos". Como vimos na 
 
 ```lean
 def Formula.impl (f g : Formula) : Formula := .disj (.neg f) g
+
 def Formula.iff (f g : Formula) : Formula :=
   .conj (Formula.impl f g) (Formula.impl g f)
 ```
