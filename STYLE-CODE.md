@@ -149,7 +149,7 @@ author decision, not a mechanical fix.
   `InfEngine.lean:439`. The pattern-matching `fun` is the same shape again —
   `IntroL.lean:364` and `PL.lean:245`, both in solutions, then ordinary code
   throughout `ModelChecking`. `rcases` and `Or.inr` surface in the
-  `:::details` proofs of `Parsing/Recognition.lean` (lines 92 and 181).
+  `:::details` proofs of `Parsing/Recognition.lean` (lines 100 and 189).
   The rest never surface at all.
 
 `IntroCS` is the constraint's one accepted exception: it uses Lean that
