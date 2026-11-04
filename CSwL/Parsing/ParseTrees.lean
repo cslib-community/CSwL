@@ -69,7 +69,8 @@ def snowWhite : ParseTree String String :=
   `posFrom i ts` dá as posições das árvores de `ts`, a primeira com
   índice `i`.
 - `subtree t p` é a subárvore de `t` na posição `p`. Numa posição que
-  não existe em `t`, devolve `ep`.
+  não existe em `t`, devolve `ep`; isso nunca acontece com as posições
+  de `pos t`.
 :::
 
 ::::full
@@ -82,23 +83,21 @@ to the definition of `subtrees`.
 ```lean
 abbrev Pos := List Nat
 
-mutual
-  def pos {α β : Type} : ParseTree α β → List Pos
-    | .ep => [[]]
-    | .leaf _ => [[]]
-    | .branch _ ts => [] :: posFrom 0 ts
-
-  def posFrom {α β : Type} :
-      Nat → List (ParseTree α β) → List Pos
-    | _, [] => []
-    | i, t :: ts =>
-      (pos t).map (i :: ·) ++ posFrom (i + 1) ts
-end
+def pos {α β : Type} (p : ParseTree α β) : List Pos :=
+  let rec posFrom {α β : Type} :
+    Nat → List (ParseTree α β) → List Pos
+   | _, [] => []
+   | i, t :: ts =>
+     (pos t).map (i :: ·) ++ posFrom (i + 1) ts
+  match p with
+  | .ep => [[]]
+  | .leaf _ => [[]]
+  | .branch _ ts => [] :: posFrom 0 ts
 
 #eval pos snowWhite
 
 def subtree {α β : Type} :
-    ParseTree α β → Pos → ParseTree α β
+  ParseTree α β → Pos → ParseTree α β
   | t, [] => t
   | .branch _ ts, i :: is =>
     match ts[i]? with
@@ -106,11 +105,11 @@ def subtree {α β : Type} :
     | none => .ep
   | _, _ :: _ => .ep
 
-def subtrees {α β : Type} (t : ParseTree α β) :
-    List (ParseTree α β) :=
+def subtrees {α β : Type} (t : ParseTree α β)
+  : List (ParseTree α β) :=
   (pos t).map (subtree t)
 
-#eval IO.println (subtree snowWhite [1, 1])
+#eval IO.println (subtree snowWhite [1])
 ```
 
 :::terse
@@ -138,7 +137,7 @@ def posPairs {α β : Type} (t : ParseTree α β) :
 
 def properDominance {α β : Type} (t : ParseTree α β) :
     List (Pos × Pos) :=
-  (posPairs t).filter fun (p, q) => p != q && p <+: q
+  (posPairs t).filter fun (p, q) => p ≠ q && p <+: q
 
 def dominance {α β : Type} (t : ParseTree α β) :
     List (Pos × Pos) :=
@@ -211,6 +210,7 @@ def cCommand {α β : Type} (t : ParseTree α β) :
     List (Pos × Pos) :=
   relComp (sisterhood t) (dominance t)
 
+#eval dominance snowWhite
 #eval cCommand snowWhite
 ```
 

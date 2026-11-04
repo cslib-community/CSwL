@@ -136,7 +136,7 @@ exercises:
     9.4 (p. 211): imm-precedence
     9.5 (p. 211): command
     9.6 (p. 214): split-nonempty
-    9.7 (p. 214): absorbed into the cue on `partial def`, which says why left
+    9.7 (p. 214): absorbed into the cue on termination, which says why left
       recursion is no trouble for recognition by splitting
     9.8 (p. 217): TODO
     9.9 (p. 222): TODO

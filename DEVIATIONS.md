@@ -146,13 +146,15 @@ CSwFP/8 is skipped for now, and the chapter follows `ModelChecking`.
   not ported. Exercises 9.1, 9.3, 9.4 and 9.5 ask for a definition checked
   on the example tree; 9.6 asks for the splitting functions without empty
   parts.
-- 9.2: `recognize` and `parse` are `partial def`, since Lean cannot see
-  that the middle piece of a split is shorter than the input. The cue on
-  `partial def` says why left recursion is no trouble here, which is
-  exercise 9.7. Generation stops at a given length, since Lean lists are
-  finite. A theorem checks, with `native_decide`, that `recognize` agrees
-  with Mathlib's `List.Palindrome` on all words up to length 6; a proof
-  for all words would need `recognize` to be total. `parse` gives the
+- 9.2: `recognize` and `parse` are total. They recurse over
+  `(splitN 3 xs).attach`, which pairs each split with a proof of
+  membership, and `decreasing_by` uses the lemma `flatten_of_mem_splitN`
+  (the pieces of a split concatenate to the input) to show that the
+  middle piece is shorter. The cue on termination says why left
+  recursion is no trouble here, which is exercise 9.7. Generation stops
+  at a given length, since Lean lists are finite. A theorem, in a
+  `:::details` block, proves that `recognize` agrees with Mathlib's
+  `List.Palindrome` on every word over `{a, b, c}`. `parse` gives the
   empty word the empty tree `ep`, where CSwFP uses a leaf `"[]"`.
 
 ## Beyond CSwFP/6
