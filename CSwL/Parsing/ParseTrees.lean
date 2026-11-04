@@ -7,6 +7,7 @@ open CSwLMeta
 #doc (Manual) "Falando de árvores sintáticas" =>
 %%%
 tag := "parse-trees"
+file := "ParseTrees"
 %%%
 
 ```lean
@@ -21,7 +22,7 @@ namespace Parsing
 - Um `branch` guarda a *lista* das suas subárvores, por isso cada nó pode
   ter quantas filhas quiser.
 - A função `toText` escreve a árvore entre colchetes, com o rótulo depois
-  de `[.`.
+  de `[.` e as filhas separadas por espaços.
 :::
 
 ::::full
@@ -43,7 +44,7 @@ def ParseTree.toText {α β : Type}
   | .leaf a => toString a
   | .branch b ts =>
     "[." ++ toString b ++ " " ++
-      toString (ts.map toText) ++ "]"
+      " ".intercalate (ts.map toText) ++ "]"
 
 instance {α β : Type} [ToString α] [ToString β] :
     ToString (ParseTree α β) :=

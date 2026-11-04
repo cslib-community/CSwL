@@ -9,7 +9,6 @@ open CSwLMeta
 #doc (Manual) "Análise sintática" =>
 %%%
 tag := "Parsing"
-htmlSplit := .never
 file := "Parsing"
 %%%
 

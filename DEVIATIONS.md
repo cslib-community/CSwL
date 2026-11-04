@@ -136,16 +136,26 @@ CSwFP/8 is skipped for now, and the chapter follows `ModelChecking`.
 - 9.1: the tree relations are lists of pairs, as in CSwFP, because the
   section shows them with `#eval`; Mathlib's `Rel` of `Sets` is a `Prop`
   and cannot be printed. Dominance uses Lean's `<+:` (`List.IsPrefix`) in
-  place of a helper `prefix`. `pos` is written with a helper `posFrom` in a
-  `mutual` block, so that Lean sees the recursion over the list of
-  subtrees as structural. `subtree` returns `ep` at a position the tree
-  does not have, where CSwFP's is undefined.
+  place of a helper `prefix`. `pos` is written with a local helper
+  `posFrom` (`let rec`), so that Lean sees the recursion over the list
+  of subtrees as structural. `subtree` returns `ep` at a position the
+  tree does not have, where CSwFP's is undefined. `toText` separates the
+  daughters of a node by spaces, as in the bracket notation of LaTeX's
+  `qtree` (`[.NP Snow White]`); CSwFP's `show` prints them as a list,
+  with a further pair of brackets and commas. Nothing reads the text
+  back: later chapters walk the trees, not their text.
 - Exercise 9.2 becomes two theorems about positions, parts (1) and (2):
   the relation of c-command is a sister followed by dominance, and neither
   part depends on the tree. Part (3), on the lowest branching position, is
   not ported. Exercises 9.1, 9.3, 9.4 and 9.5 ask for a definition checked
   on the example tree; 9.6 asks for the splitting functions without empty
   parts.
+- 9.2: `splitN` is defined for every number of pieces, where CSwFP's
+  stops with an error below two: one piece is the input itself, and the
+  empty input has the split into zero pieces. This makes `splitN` serve
+  unary rules too, and lets `mem_splitN_flatten`, the converse of
+  `flatten_of_mem_splitN`, hold for every list of pieces. `splitN'` in
+  exercise 9.6 follows suit.
 - 9.2: `recognize` and `parse` are total. They recurse over
   `(splitN 3 xs).attach`, which pairs each split with a proof of
   membership, and `decreasing_by` uses the lemma `flatten_of_mem_splitN`

@@ -9,6 +9,7 @@ open CSwLMeta
 #doc (Manual) "Reconhecendo e analisando linguagens livres de contexto" =>
 %%%
 tag := "cf-recognition"
+file := "Recognition"
 %%%
 
 ```lean
@@ -46,11 +47,12 @@ def split2 {α : Type} : List α → List (List α × List α)
   λ (a, b) ↦ (String.ofList a, String.ofList b)
 
 def splitN {α : Type} : Nat → List α → List (List (List α))
-  | 0, _ | 1, _ => []
-  | 2, xs => (split2 xs).map fun (ys, zs) => [ys, zs]
-  | n + 3, xs =>
+  | 0, [] => [[]]
+  | 0, _ :: _ => []
+  | 1, xs => [[xs]]
+  | n + 2, xs =>
     (split2 xs).flatMap fun (ys, zs) =>
-      (splitN (n + 2) zs).map fun rs => ys :: rs
+      (splitN (n + 1) zs).map fun rs => ys :: rs
 
 #eval splitN 3 "Jan".toList |>.map
    (·.map String.ofList)
@@ -70,6 +72,10 @@ def splitN {α : Type} : Nat → List α → List (List (List α))
 - Uma regra recursiva à esquerda, V → V T, também não seria problema,
   porque V recebe um pedaço menor da entrada, desde que o pedaço de T
   não seja vazio.
+- Se o pedaço de T puder ser vazio, V recebe a entrada inteira e chama
+  a si mesma sem fim. As divisões com pedaço vazio têm de ser
+  descartadas antes da chamada; sem isso, `decreasing_by` não prova
+  nada e o Lean recusa a definição.
 :::
 
 ::::full
@@ -96,12 +102,11 @@ theorem append_of_mem_split2 {α : Type} :
 theorem flatten_of_mem_splitN {α : Type} :
     ∀ {n : Nat} {xs : List α} {l : List (List α)},
       l ∈ splitN n xs → l.flatten = xs
-  | 0, _, _, h | 1, _, _, h => by simp [splitN] at h
-  | 2, xs, l, h => by
-    simp only [splitN, List.mem_map] at h
-    obtain ⟨⟨ys, zs⟩, h, rfl⟩ := h
-    simpa using append_of_mem_split2 h
-  | n + 3, xs, l, h => by
+  | 0, [], l, h | 1, _, l, h => by
+    simp [splitN] at h
+    simp [h]
+  | 0, _ :: _, _, h => by simp [splitN] at h
+  | n + 2, xs, l, h => by
     simp only [splitN, List.mem_flatMap, List.mem_map] at h
     obtain ⟨⟨ys, zs⟩, h1, rs, h2, rfl⟩ := h
     simp [flatten_of_mem_splitN h2, append_of_mem_split2 h1]
@@ -181,21 +186,16 @@ theorem mem_split2_append {α : Type} :
     exact Or.inr ⟨(ys, zs), mem_split2_append ys zs, rfl⟩
 
 theorem mem_splitN_flatten {α : Type} :
-    ∀ l : List (List α), 2 ≤ l.length →
-      l ∈ splitN l.length l.flatten
-  | [ys, zs], _ => by
-    simp only [List.length, splitN, List.mem_map]
-    exact ⟨(ys, zs), by simpa using mem_split2_append ys zs,
-      rfl⟩
-  | ys :: zs :: ws :: rs, _ => by
+    ∀ l : List (List α), l ∈ splitN l.length l.flatten
+  | [] => by simp [splitN]
+  | [ys] => by simp [splitN]
+  | ys :: zs :: rs => by
     simp only [List.length_cons, List.flatten_cons]
     simp only [splitN, List.mem_flatMap, List.mem_map]
-    refine ⟨(ys, (zs :: ws :: rs).flatten),
+    refine ⟨(ys, (zs :: rs).flatten),
       by simpa using mem_split2_append ys _,
-      zs :: ws :: rs, ?_, rfl⟩
-    simpa using
-      mem_splitN_flatten (zs :: ws :: rs) (by simp)
-  | [], h | [_], h => by simp at h
+      zs :: rs, ?_, rfl⟩
+    simpa using mem_splitN_flatten (zs :: rs)
 
 theorem recognize_sound (n : Nat) :
     ∀ w : List Char, w.length ≤ n →
@@ -258,8 +258,7 @@ theorem recognize_complete (n : Nat) :
       right
       have hmem :
           [[x], l, [x]] ∈ splitN 3 (x :: (l ++ [x])) := by
-        simpa using
-          mem_splitN_flatten [[x], l, [x]] (by simp)
+        simpa using mem_splitN_flatten [[x], l, [x]]
       refine ⟨⟨_, hmem⟩, List.mem_attach _ _, ?_⟩
       simp at hx
       rcases hx with rfl | rfl | rfl <;> simpa using ih'
@@ -358,13 +357,14 @@ def split2' {α : Type} : List α → List (List α × List α)
           (x :: us, vs))
 
 def splitN' {α : Type} : Nat → List α → List (List (List α))
-  | 0, _ | 1, _ => []
-  | 2, xs =>
-    solution!((split2' xs).map fun (ys, zs) => [ys, zs])
-  | n + 3, xs =>
+  | 0, [] => [[]]
+  | 0, _ :: _ => []
+  | 1, [] => []
+  | 1, xs => [[xs]]
+  | n + 2, xs =>
     solution!(
       (split2' xs).flatMap fun (ys, zs) =>
-        (splitN' (n + 2) zs).map fun rs => ys :: rs)
+        (splitN' (n + 1) zs).map fun rs => ys :: rs)
 
 theorem split2'_jan :
     split2' "Jan".toList =
