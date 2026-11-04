@@ -8,6 +8,7 @@ open CSwLMeta
 #doc (Manual) "Implementando a interpretação semântica" =>
 %%%
 tag := "comp-interpretation"
+file := "Interpretation"
 %%%
 
 ```lean

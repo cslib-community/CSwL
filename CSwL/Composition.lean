@@ -15,7 +15,6 @@ open CSwLMeta
 #doc (Manual) "A composição do significado na língua natural" =>
 %%%
 tag := "Composition"
-htmlSplit := .never
 file := "Composition"
 %%%
 

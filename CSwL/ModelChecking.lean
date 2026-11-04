@@ -694,7 +694,7 @@ example : lfSent s1 = l0 := by
 
 Outros dois exemplos de fórmulas.
 
-```
+```lean
 def lf2 : LF :=
   lfSent (.sent (.npDetRel .the
                   (.rcnObj .wizard .that .dorothy .admired))
@@ -705,7 +705,6 @@ def lf3 : LF :=
                   (.rcnSubj .princess .that
                     (.vpTrans .helped .alice)))
                 .shuddered)
-
 ```
 
 

@@ -11,6 +11,7 @@ open CSwLMeta
 #doc (Manual) "Quantificação" =>
 %%%
 tag := "comp-quantification"
+file := "Quantification"
 %%%
 
 ```lean
@@ -703,6 +704,15 @@ Organizar os pares numa árvore ajuda. Cada linha `row k` reúne os casos em que
 :::
 
 ::::full
+:::dev BeforeNextRelease
+TODO: translate CSwFP/7.2, "Numerical Trees", from "Suppose a quantifier Q has
+A as a first…" to "…both of these objects have property B.", with Figure 7.5.
+:::
+
+:::dev "Claude Opus 5.5" (year := 2026)
+Texto gerado por IA. É um rascunho de explicação, não uma tradução do
+CSwFP.
+
 Em uma frase como *Todo aluno passou*, o determinante relaciona a restrição `A`
 (os alunos) e o escopo `B` (quem passou). EXT, CONS e ISOM juntas garantem que
 o valor de `Q A B` depende só de dois números: `m`, quantos A não são B, e
@@ -718,15 +728,6 @@ direita, `n` cresce. Assim, a borda esquerda é "nenhum A é B" e a borda
 direita é "todo A é B". Para ler uma posição, tome `(1, 2)` na linha 3: há
 três alunos, um não passou e dois passaram. Se o quantificador tem `+` ali, a
 frase é verdadeira nessa situação.
-
-:::dev BeforeNextRelease
-TODO: translate CSwFP/7.2, "Numerical Trees", from "Suppose a quantifier Q has
-A as a first…" to "…both of these objects have property B.", with Figure 7.5.
-:::
-
-:::dev "Claude Opus 5.5" (year := 2026)
-Texto gerado por IA. É um rascunho de explicação, não uma tradução do
-CSwFP.
 :::
 ::::
 
@@ -827,6 +828,15 @@ def patternTree (k : Nat) (q : Nat → Nat → Bool) :
 :::
 
 ::::full
+:::dev BeforeNextRelease
+TODO: translate CSwFP/7.2, from "To get used to these representations…" to
+the end of Exercise 7.3, without the exercises themselves.
+:::
+
+:::dev "Claude Opus 5.5" (year := 2026)
+Comentário gerado por IA. É um rascunho de explicação, não uma tradução do
+CSwFP.
+
 Alguns padrões. *All* ($`m = 0`) tem `+` só na borda direita, porque nenhum A
 fica fora de B. *No* ($`n = 0`) tem `+` só na borda esquerda. *Less than half*
 ($`n < m`) tem, na linha 2, `+` em `(2, 0)`, `-` em `(1, 1)` e `(0, 2)`.
@@ -836,15 +846,6 @@ um universo e uma propriedade. Para cada `(m, n)`, ele monta um
 universo concreto `[1, …, m + n]` em que exatamente `n` elementos têm a
 propriedade, e pergunta ao quantificador. Qualquer universo
 com essas contagens serve (ISOM).
-
-:::dev BeforeNextRelease
-TODO: translate CSwFP/7.2, from "To get used to these representations…" to
-the end of Exercise 7.3, without the exercises themselves.
-:::
-
-:::dev "Claude Opus 5.5" (year := 2026)
-Comentário gerado por IA. É um rascunho de explicação, não uma tradução do
-CSwFP.
 :::
 ::::
 
@@ -896,14 +897,6 @@ tag := "comp-num-repr"
 :::
 
 ::::full
-Esta subseção tira a conclusão da anterior. Um padrão na árvore é um
-subconjunto dos pares de naturais. Por isso, o próprio quantificador pode ser
-escrito como uma expressão aritmética em `m` e `n`, sem conjuntos e sem
-listas: *all* é $`m = 0`, *no* é $`n = 0`, *at least k* é $`n \geq k` e *at
-most k* é $`n \leq k`. Em Lean, essa expressão tem o tipo `NumQuant`, que é
-justamente o tipo do argumento de `patternTree`. Por isso todo `NumQuant` pode
-ser desenhado.
-
 :::dev BeforeNextRelease
 TODO: translate CSwFP/7.2, "Logical Representations for Quantifiers", from
 "The pairs of cardinals that characterize…" to the definitions of `allNum`,
@@ -913,6 +906,14 @@ TODO: translate CSwFP/7.2, "Logical Representations for Quantifiers", from
 :::dev "Claude Opus 5.5" (year := 2026)
 Comentário gerado por IA. É um rascunho de explicação, não uma tradução do
 CSwFP.
+
+Esta subseção tira a conclusão da anterior. Um padrão na árvore é um
+subconjunto dos pares de naturais. Por isso, o próprio quantificador pode ser
+escrito como uma expressão aritmética em `m` e `n`, sem conjuntos e sem
+listas: *all* é $`m = 0`, *no* é $`n = 0`, *at least k* é $`n \geq k` e *at
+most k* é $`n \leq k`. Em Lean, essa expressão tem o tipo `NumQuant`, que é
+justamente o tipo do argumento de `patternTree`. Por isso todo `NumQuant` pode
+ser desenhado.
 :::
 ::::
 
@@ -1443,7 +1444,8 @@ theorem orNum_monDown (q₁ q₂ : NumQuant)
 Mostre que, combinando um quantificador MON↑ com um MON↓, nada se pode
 garantir: nem a conjunção nem a disjunção são sempre MON↑ ou MON↓.
 
-Dica: use *at least one* e *at most three*. Antes de provar, desenhe os
+Dica: para a conjunção, use *at least one* e *at most three*; para a
+disjunção, *at least three* e *at most one*. Antes de provar, desenhe os
 padrões da conjunção e da disjunção com `patternTree`.
 
 ```lean
@@ -1508,8 +1510,8 @@ Defina `UpMonNum q` e `DownMonNum q`, as formas do padrão de um quantificador
 ↑MON e de um ↓MON. Depois, prove que *some* e *not all* são ↑MON, e que
 *all* e *no* são ↓MON.
 
-Dica: acrescentar um elemento a `A` aumenta `m` ou `n` em um, conforme o
-elemento esteja ou não em `B`.
+Dica: acrescentar um elemento a `A` aumenta em um `n`, se o elemento está
+em `B`, ou `m`, se não está.
 
 ```lean
 def UpMonNum (q : NumQuant) : Prop :=
@@ -1683,8 +1685,9 @@ theorem langOf_allNum :
   computa `q`.
 - Os quantificadores definíveis em primeira ordem (com $`\forall`,
   $`\exists`, igualdade e os predicados da restrição e do escopo) são
-  exatamente os computados por um autômato finito acíclico e invariante
-  por permutação (van Benthem).
+  exatamente os computados por um autômato finito invariante por
+  permutação e sem ciclos, exceto laços que levam um estado a ele mesmo
+  (van Benthem).
 - *An even number of* pede um autômato com ciclo. *Most* não tem autômato
   finito nenhum: é preciso memória para comparar $`|A - B|` e
   $`|A \cap B|`. Nenhum dos dois é definível em primeira ordem.

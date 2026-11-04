@@ -7,6 +7,7 @@ open CSwLMeta
 #doc (Manual) "As regras do jogo" =>
 %%%
 tag := "comp-rules"
+file := "Rules"
 %%%
 
 :::terse
