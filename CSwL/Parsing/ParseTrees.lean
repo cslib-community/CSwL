@@ -18,7 +18,7 @@ namespace Parsing
 - Uma árvore sintática tem informação lexical nas folhas e informação
   sintática nos nós internos.
 - O tipo deixa as duas em aberto: `α` para as folhas, `β` para os rótulos
-  dos nós. `ep` é a árvore vazia.
+  dos nós. O construtor `ep` é a árvore vazia.
 - Um `branch` guarda a *lista* das suas subárvores, por isso cada nó pode
   ter quantas filhas quiser.
 - A função `toText` escreve a árvore entre colchetes, com o rótulo depois
@@ -65,11 +65,12 @@ def snowWhite : ParseTree String String :=
 - Para apontar uma ocorrência usamos uma *posição*: a lista dos índices
   das filhas no caminho desde a raiz, contando a partir de 0. A raiz é a
   posição `[]`.
-- `pos` lista todas as posições. Como a recursão desce por uma lista de
-  subárvores, ela é escrita junto com `posFrom`, num bloco `mutual`:
-  `posFrom i ts` dá as posições das árvores de `ts`, a primeira com
-  índice `i`.
-- `subtree t p` é a subárvore de `t` na posição `p`. Numa posição que
+- A função `pos` lista todas as posições. Como a recursão desce por uma
+  lista de subárvores, ela usa uma função auxiliar local, definida com
+  `let rec`: `posFrom i ts` dá as posições das árvores de `ts`, a
+  primeira com índice `i`.
+- A função `subtree` dá subárvores: `subtree t p` é a de `t` na posição
+  `p`. Numa posição que
   não existe em `t`, devolve `ep`; isso nunca acontece com as posições
   de `pos t`.
 :::
@@ -120,8 +121,8 @@ def subtrees {α β : Type} (t : ParseTree α β)
 - Em Lean, `p <+: q` diz que `p` é prefixo de `q`. É uma proposição
   decidível, então pode ser usada como `Bool` num `filter`.
 - As relações sobre as posições de uma árvore são listas de pares.
-  `posPairs` lista todos os pares de posições; cada relação filtra os
-  que lhe interessam.
+  A função `posPairs` lista todos os pares de posições; cada relação
+  filtra os que lhe interessam.
 :::
 
 ::::full
@@ -176,8 +177,9 @@ theorem immDominance_snowWhite :
   coincidem em tudo, menos no último índice.
 - O *c-comando* é a composição de duas relações: `p` c-comanda `q` quando
   uma irmã de `p` domina `q`.
-- `relComp r s` liga `x` a `z` quando `r` liga `x` a algum `y` e `s` liga
-  esse `y` a `z`. `eraseDups` tira os pares repetidos.
+- A composição é `relComp`: `relComp r s` liga `x` a `z` quando `r`
+  liga `x` a algum `y` e `s` liga esse `y` a `z`. A função `eraseDups`
+  tira os pares repetidos.
 - Na árvore `snowWhite`, o sujeito `[0]` c-comanda tudo o que está dentro
   do VP; o objeto `[1, 1]` c-comanda o verbo `[1, 0]`, mas não o sujeito.
 :::
@@ -346,8 +348,8 @@ theorem mutualCCommand_snowWhite :
 ::::
 
 :::terse
-- `p` *precede* `q` quando, no primeiro índice em que diferem, o de `p` é
-  menor. Uma posição não precede as que ela domina.
+- Uma posição `p` *precede* `q` quando, no primeiro índice em que
+  diferem, o de `p` é menor. Uma posição não precede as que ela domina.
 :::
 
 ::::full

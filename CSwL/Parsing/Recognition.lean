@@ -26,7 +26,8 @@ namespace Parsing
 - A ideia para qualquer gramática livre de contexto: uma regra com `n`
   símbolos à direita divide a entrada em `n` pedaços, de todos os modos
   possíveis, e testa cada pedaço contra o seu símbolo.
-- `split2` dá todas as divisões de uma lista em duas; `splitN n`, em `n`.
+- A função `split2` dá todas as divisões de uma lista em duas;
+  `splitN n`, em `n`.
 - Em Lean. `"Jan".toList` dá a lista de caracteres, e `String.ofList` faz o caminho de volta.
 :::
 
@@ -62,13 +63,14 @@ def splitN {α : Type} : Nat → List α → List (List (List α))
 - O reconhecedor segue a gramática: uma linha por regra. Para A → aAa,
   ele procura uma divisão em três pedaços `[a]`, `ys`, `[a]` e reconhece
   `ys`.
-- `recognize` chama a si mesma em `ys`. Lean exige que toda função
+- A função `recognize` chama a si mesma em `ys`. Lean exige que toda função
   termine, e sozinho ele não vê que `ys` é menor do que `xs`: o padrão
   `[['a'], ys, ['a']]` não diz de onde a lista veio.
-- `attach` junta a cada divisão a prova de que ela está em
-  `splitN 3 xs`. `termination_by xs.length` diz o que diminui;
-  `decreasing_by` prova que diminui, com o lema do bloco acima: os
-  pedaços juntos dão `xs`, então `ys` tem dois elementos a menos.
+- A função `attach` junta a cada divisão a prova de que ela está em
+  `splitN 3 xs`. A cláusula `termination_by xs.length` diz o que
+  diminui, e `decreasing_by` prova que diminui, com o lema do bloco
+  acima: os pedaços juntos dão `xs`, então `ys` tem dois elementos a
+  menos.
 - Uma regra recursiva à esquerda, V → V T, também não seria problema,
   porque V recebe um pedaço menor da entrada, desde que o pedaço de T
   não seja vazio.
@@ -133,9 +135,9 @@ decreasing_by
 ```
 
 :::terse
-- `gener n` dá as palavras de comprimento `n`; `generUpTo n`, as de
-  comprimento até `n`. As palavras são infinitas, mas uma lista em Lean é
-  finita, por isso a geração para num comprimento dado.
+- A função `gener n` dá as palavras de comprimento `n`; `generUpTo n`,
+  as de comprimento até `n`. As palavras são infinitas, mas uma lista
+  em Lean é finita, por isso a geração para num comprimento dado.
 :::
 
 ::::full
@@ -165,12 +167,13 @@ def generUpTo {α : Type} (n : Nat) (alphabet : List α) :
   `List.Palindrome`. Os seus três construtores são as regras da
   gramática: a lista vazia, uma lista de um elemento, e `x :: (l ++ [x])`
   para `l` palíndromo.
-- `recognize_iff_palindrome`: `recognize` concorda com essa definição
-  em toda palavra sobre `{a, b, c}`, de qualquer comprimento.
+- O teorema `recognize_iff_palindrome` diz que `recognize` concorda
+  com essa definição em toda palavra sobre `{a, b, c}`, de qualquer
+  comprimento.
 - A prova é por indução no comprimento da palavra, uma direção de cada
   vez. Ela só é possível porque `recognize` não é `partial`: o Lean
   conhece a equação que a define.
-- `recognize_generUpTo` é o caso das palavras geradas por
+- O teorema `recognize_generUpTo` é o caso das palavras geradas por
   `generUpTo n`, para todo `n`.
 :::
 
