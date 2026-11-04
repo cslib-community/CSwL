@@ -153,4 +153,22 @@ def FAA2025 : Article where
   number  := inlines!""
   url     := "https://github.com/sorrachai/FAA2025"
 
+def mostowski1957 : Article where
+  title   := inlines!"On a generalization of quantifiers"
+  authors := #[inlines!"Andrzej Mostowski"]
+  journal := inlines!"Fundamenta Mathematicae"
+  year    := 1957
+  month   := none
+  volume  := inlines!"44"
+  number  := inlines!""
+
+def barwise1981 : Article where
+  title   := inlines!"Generalized quantifiers and natural language"
+  authors := #[inlines!"Jon Barwise", inlines!"Robin Cooper"]
+  journal := inlines!"Linguistics and Philosophy"
+  year    := 1981
+  month   := none
+  volume  := inlines!"4"
+  number  := inlines!""
+
 end Bib

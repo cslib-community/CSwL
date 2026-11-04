@@ -122,6 +122,12 @@ The book is in Brazilian Portuguese.
 Where AI is used to translate, the translation is as literal as the target
 language allows, produced as a draft for a human to revise. Prose is never
 invented, expanded, or restructured on the AI's initiative — see `CLAUDE.md`.
+
+A `:::terse` cue (see `STYLE-CODE.md`) is the one exception: it is new text by
+nature, not a translation, since CSwFP has no lecture cut. AI drafts the cues
+of a section, together with its code, and a human approves or rewrites each
+one. The `:::full` prose next to it keeps the rule above, and is translated
+afterwards, a step at a time, from the pending notes the cues leave behind.
 The failure mode this section guards against is the systematic one: a
 translation that is fluent, plausible, and consistently wrong about a term.
 
@@ -141,6 +147,8 @@ entry until something contradicts them. What the sweep found instead:
   verb means *to take on*, and the false friend is the commonest
   translation error in this material)
 - "avaliar" / "rodar" (for `#eval`)
+- "escopo" / "corpo" (for the second argument of a determiner; CSwFP says
+  *scope* in its chapter 6 and *body* in chapter 7, for the same thing)
 
 ### Code and prose
 
