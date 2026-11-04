@@ -50,7 +50,8 @@ adapts — see [DEVIATIONS.md](DEVIATIONS.md) for why.
 - [~] The composition of meaning — [source](CSwL/Composition.lean)
   (sections in [`CSwL/Composition/`](CSwL/Composition))
 - [ ] Extension and intension
-- [ ] Parsing
+- [~] Parsing — [source](CSwL/Parsing.lean) (sections in
+  [`CSwL/Parsing/`](CSwL/Parsing))
 - [ ] Relations and scope
 - [ ] Semantics in continuation passing style
 - [ ] Discourse representation and context

@@ -84,6 +84,7 @@ this way is usually a mistake; see "Known gaps."
 | `InfEngine` | `let rec` | `do`-notation | — |
 | `ModelChecking` | `mutual` over `inductive` types (`Logic/FOL` only uses it over `def`) | guillemet identifiers (`«with»`), pattern-matching `fun \| … => …` (first use outside a solution) | *(none new)* |
 | `Composition` | — | image `f '' A`, `Set.BijOn`, `Set.ncard`, `List.count`, `List.Perm`, Mathlib's `Language` with `ᶜ`, `⊓`, `+` and `∗` | *(none new)* |
+| `Parsing` | `termination_by`, `decreasing_by`, `partial def` | `<+:` (`List.IsPrefix`), Mathlib's `List.Palindrome`, `List.attach` and subtype patterns (`\| ⟨l, h⟩`), `congrArg`, `StateT` with Mathlib's `Monad`/`Alternative List`, `pure`, `failure`, `<\|>`, `<$>`, `>>=`, `.run` | `subst`, `split at`, `try`, `rename_i`, `contradiction`; `rcases` and `Or.inr` (first use outside a solution) |
 
 `ModelChecking` is where `abbrev` and `ToString` instances become the
 dominant idiom, but both arrive earlier; what is genuinely new there is the mutually
@@ -147,7 +148,9 @@ author decision, not a mechanical fix.
   a solution (`Phonemes.lean:309`) and visible only much later, at
   `InfEngine.lean:439`. The pattern-matching `fun` is the same shape again —
   `IntroL.lean:364` and `PL.lean:245`, both in solutions, then ordinary code
-  throughout `ModelChecking`. The rest never surface at all.
+  throughout `ModelChecking`. `rcases` and `Or.inr` surface in the
+  `:::details` proofs of `Parsing/Recognition.lean` (lines 100 and 189).
+  The rest never surface at all.
 
 `IntroCS` is the constraint's one accepted exception: it uses Lean that
 `IntroL` only presents later, deliberately, and the chapter says so where its

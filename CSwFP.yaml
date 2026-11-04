@@ -158,6 +158,25 @@ exercises:
     7.26 (p. 180): deferred with 7.7 (issue 43)
     7.27 (p. 181): deferred with 7.7 (issue 43)
     7.28 (p. 182): deferred with 7.7 (issue 43)
+  CSwFP/9:
+    9.1 (p. 208): imm-dominance
+    9.2 (p. 210): c-command-dominance
+    9.3 (p. 210): mutual-c-command
+    9.4 (p. 211): imm-precedence
+    9.5 (p. 211): command
+    9.6 (p. 214): split-nonempty
+    9.7 (p. 214): absorbed into the cue on termination, which says why left
+      recursion is no trouble for recognition by splitting
+    9.8 (p. 217): symbol-satisfy
+    9.9 (p. 222): absorbed into the closing cue of parser-combinators, which
+      says why left recursion makes a parser loop
+    9.10 (p. 237): TODO
+    9.11 (p. 241): TODO
+    9.12 (p. 244): TODO
+    9.13 (p. 246): TODO
+    9.14 (p. 248): TODO
+    9.15 (p. 257): TODO
+    9.16 (p. 259): TODO
 
 original:
   IntroL.lean: [sum-of-squares, sum-to, sum-list, count-zeros]
@@ -205,6 +224,7 @@ original:
     - left-mon-pattern # from the prose on ↑MON and ↓MON in 7.2, "left to the reader"
     - lang-and-or     # from the prose on quantifier automata in 7.2
     - all-kstar       # from the prose in 7.2, "all corresponds to the regular language 1∗"
+  Parsing/Combinators.lean: [parse-many-as]
 
 depends:
   bangu-proof: bangu-form
@@ -336,7 +356,17 @@ sections:
         reach looked of little use (issue 43).
     7.8 Further Reading: omitted
   CSwFP/8 Extension and Intension: not yet taken up
-  CSwFP/9 Parsing: not yet taken up
+  CSwFP/9:
+    9.1 Talking About Parse Trees: Parsing
+    9.2 Recognizing and Parsing Context-Free Languages: Parsing
+    9.3 Parsers and Parser Combinators: Parsing, without the Mastermind
+      parser, since Mastermind is dropped with 5.4
+    9.4 Features and Categories: Parsing, not yet written
+    9.5 Lexical Lookup and Scanning: Parsing, not yet written
+    9.6 Parsing Categories: Parsing, not yet written
+    9.7 Handling Extractions: Parsing, not yet written
+    9.8 Adding Semantics: Parsing, not yet written
+    9.9 Further Reading: omitted
   CSwFP/10 Handling Relations and Scoping: not yet taken up
   CSwFP/11 Continuation Passing Style Semantics: not yet taken up
   CSwFP/12 Discourse Representation and Context: not yet taken up

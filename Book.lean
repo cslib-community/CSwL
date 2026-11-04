@@ -10,6 +10,7 @@ import CSwL.Morphology
 import CSwL.InfEngine
 import CSwL.ModelChecking
 import CSwL.Composition
+import CSwL.Parsing
 
 import VersoManual
 
@@ -37,3 +38,4 @@ set_option verso.code.warnLineLength 80
 {include CSwL.InfEngine}
 {include CSwL.ModelChecking}
 {include CSwL.Composition}
+{include CSwL.Parsing}
