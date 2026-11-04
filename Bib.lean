@@ -50,6 +50,12 @@ def love2026 : Article where
   number  := inlines!""
   url     := "https://github.com/lean-forward/logical_verification_2026"
 
+def danielsson2010 : InProceedings where
+  title     := inlines!"Total Parser Combinators"
+  authors   := #[inlines!"Nils Anders Danielsson"]
+  year      := 2010
+  booktitle := inlines!"Proceedings of the 15th ACM SIGPLAN International Conference on Functional Programming (ICFP 2010)"
+
 def FPiL : Article where
   title   := inlines!"Functional Programming in Lean"
   authors := #[inlines!"David Thrane Christiansen"]

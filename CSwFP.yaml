@@ -138,8 +138,9 @@ exercises:
     9.6 (p. 214): split-nonempty
     9.7 (p. 214): absorbed into the cue on termination, which says why left
       recursion is no trouble for recognition by splitting
-    9.8 (p. 217): TODO
-    9.9 (p. 222): TODO
+    9.8 (p. 217): symbol-satisfy
+    9.9 (p. 222): absorbed into the closing cue of parser-combinators, which
+      says why left recursion makes a parser loop
     9.10 (p. 237): TODO
     9.11 (p. 241): TODO
     9.12 (p. 244): TODO
@@ -179,6 +180,7 @@ original:
   Morphology/Phonemes.lean: [append-suffix-text]
   Morphology/SwedishPlural.lean: [swedish-plural]
   InfEngine.lean: [inconsistent-kb, ferio]
+  Parsing/Combinators.lean: [parse-many-as]
 
 depends:
   bangu-proof: bangu-form
@@ -291,7 +293,8 @@ sections:
   CSwFP/9:
     9.1 Talking About Parse Trees: Parsing
     9.2 Recognizing and Parsing Context-Free Languages: Parsing
-    9.3 Parsers and Parser Combinators: Parsing, not yet written
+    9.3 Parsers and Parser Combinators: Parsing, without the Mastermind
+      parser, since Mastermind is dropped with 5.4
     9.4 Features and Categories: Parsing, not yet written
     9.5 Lexical Lookup and Scanning: Parsing, not yet written
     9.6 Parsing Categories: Parsing, not yet written

@@ -2,6 +2,7 @@ import CSwLMeta
 import Bib
 import CSwL.Parsing.ParseTrees
 import CSwL.Parsing.Recognition
+import CSwL.Parsing.Combinators
 
 open Verso.Genre Manual
 open CSwLMeta
@@ -21,10 +22,10 @@ omitted). Sections are written `terse` first (see `STYLE-CODE.md`).
 - 9.2: recognition and parsing by splitting, for the palindrome grammar,
   total by `termination_by`; agreement with Mathlib's `List.Palindrome`
   proved for every word over `{a, b, c}`.
-- 9.3: list-of-successes parsers, still to decide: `StateT (List α) List`
-  with Mathlib's `Monad`/`Alternative List`, or plain functions. Lean's
-  `Std.Internal.Parsec` returns one result, not all parses; it can serve
-  the lexer of 9.5.
+- 9.3: list-of-successes parsers as `StateT (List α) List`, with
+  Mathlib's `Monad`/`Alternative List`; recursive parsers are
+  `partial def`. Lean's `Std.Internal.Parsec` returns one result, not
+  all parses; it can serve the lexer of 9.5.
 - 9.4–9.8: to plan. The representation of `Cat` is tied to issue 42.
 :::
 
@@ -45,3 +46,5 @@ TODO: translate the CSwFP/9 summary.
 {include 1 CSwL.Parsing.ParseTrees}
 
 {include 1 CSwL.Parsing.Recognition}
+
+{include 1 CSwL.Parsing.Combinators}

@@ -166,6 +166,29 @@ CSwFP/8 is skipped for now, and the chapter follows `ModelChecking`.
   `:::details` block, proves that `recognize` agrees with Mathlib's
   `List.Palindrome` on every word over `{a, b, c}`. `parse` gives the
   empty word the empty tree `ep`, where CSwFP uses a leaf `"[]"`.
+- 9.3: `Parser α β` is `StateT (List α) List β`, which unfolds by
+  definition to CSwFP's `[a] -> [(b,[a])]` (an `example … := rfl` says
+  so). Mathlib's `Monad` and `Alternative` instances for `List` then give
+  `pure`, `failure`, `<|>` and `<$>` with CSwFP's meaning, so `succeed`
+  and `failp` are not defined: they are `pure` and `failure`. CSwFP's
+  sequencing `<*>` and `<:>` become `do` blocks (Lean's `<*>` is the
+  applicative one, with another type), and `collect` is written with
+  `do`. The synonym `PARSER a b` is not ported: as an `abbrev` over
+  `Parser α (ParseTree α β)` it hides the type constructor that `<$>`
+  and `<|>` need to find their instances. Lean's `Std.Internal.Parsec`
+  was considered and rejected: it returns one result, and its `<|>`
+  commits to the first alternative that succeeds.
+- 9.3: `palindrome`, `many` and the left-recursive example are
+  `partial def`. The input they recurse on is the remainder left inside
+  the `StateT`, and proving it shorter would need parsers that carry a
+  proof that their remainder is a suffix of the input. Later sections
+  only run parsers. A cue cites Danielsson's total parser combinators.
+  The left-recursive example is defined but never run: it overflows the
+  stack.
+- 9.3: the Mastermind parser is dropped with Mastermind (see 5.4).
+  `many` stays: 9.6 uses it. `parseManyAs`, which only the Mastermind
+  parser used, becomes the new exercise `parse-many-as`, checked on a
+  sequence of adjectives.
 
 ## Beyond CSwFP/6
 
