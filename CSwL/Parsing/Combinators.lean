@@ -17,11 +17,9 @@ namespace Parsing
 ```
 
 :::terse
-- Objetivo: um método geral para analisar com qualquer gramática livre
-  de contexto, em que o código do parser tem a forma das regras da
-  gramática.
-- Basta tratar três coisas: os símbolos terminais, a escolha `|` entre
-  regras, e a sequência B₁ ⋯ Bₙ do lado direito de uma regra.
+- Objetivo: um método para análise de palavras geradas por uma gramática livre
+  de contexto usando combinadores de parsers.
+- Bastam: reconhecedores primitivos e combinadores (escolha e sequência).
 - Um parser lê um *prefixo* da entrada e devolve todos os pares
   (resultado, resto da entrada) que consegue construir. A lista vazia é
   a falha; mais de um par é ambiguidade.
@@ -34,13 +32,11 @@ TODO: translate CSwFP/9.3, from the start to the type of a parser.
 ::::
 
 :::terse
-- Em Lean, esse tipo já existe: `StateT (List α) List β`. O estado é o
-  resto da entrada, e `List` dá as várias respostas.
-- O `example` mostra que os dois tipos são o mesmo, por definição: um
-  `Parser` é uma função, e pode ser escrito como tal.
+- Em Lean, vamos usar o tipo {lean}`StateT`.
+- O `example` mostra que os dois tipos são o mesmo, o `Parser` é uma função.
 - Usar `StateT` dá de graça as operações de que vamos precisar, com a
   notação que o Lean já tem para elas: `pure`, `failure`, `<|>`, `<$>` e
-  `do`.
+  a notação `do`.
 :::
 
 ```lean
@@ -58,13 +54,13 @@ Figure 9.1 and the paragraph after it.
 ::::
 
 :::terse
-- Os dois parsers mais simples não leem nada. O parser `pure r` sempre
-  dá certo, com o resultado `r`. O parser `failure` sempre falha.
 - A expressão `p.run xs` aplica o parser `p` à entrada `xs`.
+- Os dois parsers mais simples não consomem nada da entrada. O parser `pure r` sempre
+  dá certo, com o resultado `r`. O parser `failure` sempre falha.
 :::
 
 ```lean
-#eval (pure 1 : Parser Char Nat).run "ab".toList
+#eval (pure 2 : Parser Char Nat).run "ab".toList
 #eval (failure : Parser Char Nat).run "ab".toList
 ```
 
@@ -100,8 +96,8 @@ def satisfy {α : Type} (p : α → Bool) : Parser α α
 
 def digit : Parser Char Char := satisfy Char.isDigit
 
-#eval (symbol 'a').run "ab".toList
-#eval (token "ab".toList).run "abc".toList
+#eval (symbol 'a').run "abc".toList
+#eval (token "ab".toList).run "abcde".toList
 #eval digit.run "42".toList
 ```
 
@@ -121,8 +117,8 @@ theorem symbol'_eq_symbol {α : Type} [BEq α] (c : α)
 
 :::terse
 - Os parsers elementares servem para os terminais. Com terminais
-  `String`, a palavra *Alice* é `symbol "Alice"`; com terminais `Char`,
-  é `token "Alice".toList`.
+  {lean}`String`, a palavra *Alice* é {lean}`symbol "Alice"`; com terminais {lean}`Char`,
+  é o {lean}`token "Alice".toList`.
 - Combinadores de parsers são funções que constroem parsers a partir de
   outros parsers.
 - O combinador `just` filtra as análises: `just p` só aceita as de `p`
@@ -235,6 +231,7 @@ def digitize : Parser Char Nat :=
   (fun c => c.toNat - '0'.toNat) <$> digit
 
 #eval digitize.run "42".toList
+#eval digitize.run "42".toList
 ```
 
 :::terse
@@ -259,9 +256,8 @@ trees." to the definition of `parseAs` and the paragraph after it.
 def epsilonT {α β : Type} : Parser α (ParseTree α β) :=
   pure .ep
 
-def symbolT {α β : Type} [BEq α] (s : α) :
-    Parser α (ParseTree α β) :=
-  .leaf <$> symbol s
+def symbolT {α β : Type} [BEq α] (s : α)
+  : Parser α (ParseTree α β) := .leaf <$> symbol s
 
 def collect {α β : Type} :
     List (Parser α β) → Parser α (List β)

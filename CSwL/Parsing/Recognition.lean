@@ -2,6 +2,7 @@ import CSwLMeta
 import Bib
 import CSwL.Parsing.ParseTrees
 import Mathlib.Data.List.Palindrome
+import CSwLCompat
 
 open Verso.Genre Manual
 open CSwLMeta
@@ -18,20 +19,30 @@ namespace Parsing
 
 :::terse
 - *Reconhecer*: dizer se a gramática gera ou não uma sequência.
-  *Analisar* (*parsing*): dizer também como ela é gerada, isto é, dar as
+- *Analisar*: ou *parsing*, dizer como ela é gerada, isto é, dar as
   suas árvores sintáticas.
-- O exemplo é a gramática dos palíndromos sobre `{a, b, c}`, as palavras
-  iguais à sua inversa:
-  A → ε | a | b | c | aAa | bAb | cAc.
-- A ideia para qualquer gramática livre de contexto: uma regra com `n`
-  símbolos à direita divide a entrada em `n` pedaços, de todos os modos
-  possíveis, e testa cada pedaço contra o seu símbolo.
-- A função `split2` dá todas as divisões de uma lista em duas;
-  `splitN n`, em `n`.
-- Em Lean. `"Jan".toList` dá a lista de caracteres, e `String.ofList` faz o caminho de volta.
+- O exemplo é a gramática dos palíndromos sobre `{a, b, c}`.
+- gramáticas livre de contexto: regras com
+  apenas um não terminal à esquerda e `n` símbolos à direita, divide a
+  entrada em `n` pedaços, de todos os modos possíveis, e testa cada
+  pedaço contra o seu símbolo.
 :::
 
 ::::full
+A linguagem de uma gramática pode ser palavras (sobre um alfabeto de caracteres) ou frases (sobre um alfabeto de palavras ou tokens).
+
+*Reconhecer* é dizer se a gramática gera ou não uma sequência. *Analisar* (ou *parsing*) é dizer como ela é gerada, isto é, dar as suas árvores sintáticas, que indicam as regras da gramática que devem ser aplicadas para justificar que a palavra pertence à linguagem gerada pela gramática.
+
+O exemplo é a gramática dos palíndromos sobre `{a, b, c}`, as palavras iguais à sua inversa:
+
+```bnf
+A ::= ε | a | b | c | aAa | bAb | cAc ;
+```
+
+A ideia para qualquer gramática livre de contexto: uma regra com `n` símbolos à direita divide a entrada em `n` pedaços, de todos os modos possíveis, e testa cada pedaço contra o seu símbolo.
+
+A função `split2` dá todas as divisões de uma lista em duas; `splitN n`, em `n`. Em Lean, {lean}`"Jan".toList` transforma uma string em uma lista de caracteres, e `String.ofList` faz o caminho inverso.
+
 :::dev BeforeNextRelease
 TODO: translate CSwFP/9.2, from the start to the definition of `splitN`.
 :::
@@ -49,14 +60,14 @@ def split2 {α : Type} : List α → List (List α × List α)
 
 def splitN {α : Type} : Nat → List α → List (List (List α))
   | 0, [] => [[]]
-  | 0, _ :: _ => []
+  | 0, a :: as => []
   | 1, xs => [[xs]]
   | n + 2, xs =>
     (split2 xs).flatMap fun (ys, zs) =>
       (splitN (n + 1) zs).map fun rs => ys :: rs
 
 #eval splitN 3 "Jan".toList |>.map
-   (·.map String.ofList)
+   λ xs => xs.map String.ofList
 ```
 
 :::terse
@@ -115,6 +126,16 @@ theorem flatten_of_mem_splitN {α : Type} :
 ```
 :::
 
+```lean +error
+def recognize₀ (xs : List Char) : Bool :=
+  xs == [] || xs == ['a'] || xs == ['b'] || xs == ['c'] ||
+  (splitN 3 xs).any fun
+    | [['a'], ys, ['a']] => recognize₀ ys
+    | [['b'], ys, ['b']] => recognize₀ ys
+    | [['c'], ys, ['c']] => recognize₀ ys
+    | _ => false
+```
+
 ```lean
 def recognize (xs : List Char) : Bool :=
   xs == [] || xs == ['a'] || xs == ['b'] || xs == ['c'] ||
@@ -158,23 +179,20 @@ def generUpTo {α : Type} (n : Nat) (alphabet : List α) :
     List (List α) :=
   (List.range (n + 1)).flatMap fun k => gener k alphabet
 
-#eval ((generUpTo 3 "abc".toList).filter recognize).map
+def language (n : Nat) (alphabet : List Char)
+  : List (List Char) :=
+  (generUpTo n alphabet).filter recognize
+
+#eval language 3 "abc".toList |>.map
   String.ofList
 ```
 
 :::terse
-- O Mathlib define palíndromo como um predicado indutivo,
-  `List.Palindrome`. Os seus três construtores são as regras da
-  gramática: a lista vazia, uma lista de um elemento, e `x :: (l ++ [x])`
-  para `l` palíndromo.
-- O teorema `recognize_iff_palindrome` diz que `recognize` concorda
-  com essa definição em toda palavra sobre `{a, b, c}`, de qualquer
-  comprimento.
-- A prova é por indução no comprimento da palavra, uma direção de cada
-  vez. Ela só é possível porque `recognize` não é `partial`: o Lean
-  conhece a equação que a define.
-- O teorema `recognize_generUpTo` é o caso das palavras geradas por
-  `generUpTo n`, para todo `n`.
+- O Mathlib define palíndromo como um predicado indutivo, `List.Palindrome`. Os seus três construtores são as regras da gramática: a lista vazia, uma lista de um elemento, e `x :: (l ++ [x])` para `l` palíndromo.
+- O teorema `recognize_iff_palindrome` diz que `recognize` concorda com essa definição em toda palavra sobre `{a, b, c}`, de qualquer comprimento.
+- Para listas, `w ⊆ l` diz que todo elemento de `w` está em `l`. Assim  `w ⊆ "abc".toList` diz que `w` só usa as letras `a`, `b` e `c` (alfabeto).
+- O teorema precisa dessa hipótese porque `List.Palindrome` vale sobre qualquer alfabeto, enquanto `recognize` só conhece os símbolos `a`, `b` e `c`. Em outras palavras, embora `xx` é um palíndromo, mas `recognize` o recusa.
+- A prova é por indução no comprimento da palavra, uma direção de cada vez. Ela só é possível porque `recognize` não é `partial`: o Lean conhece a equação que a define.
 :::
 
 :::details "O reconhecedor e a definição de palíndromo"
@@ -271,29 +289,6 @@ theorem recognize_iff_palindrome (w : List Char)
     recognize w ↔ w.Palindrome :=
   ⟨recognize_sound _ w (Nat.le_refl _),
    recognize_complete _ w (Nat.le_refl _) hw⟩
-
-theorem subset_of_mem_gener {α : Type} (alphabet : List α) :
-    ∀ n w, w ∈ gener n alphabet → w ⊆ alphabet
-  | 0, w, h => by
-    simp [gener] at h
-    simp [h]
-  | n + 1, w, h => by
-    simp only [gener, List.mem_flatMap, List.mem_map] at h
-    obtain ⟨x, hx, v, hv, rfl⟩ := h
-    intro c hc
-    simp at hc
-    rcases hc with rfl | hc
-    · exact hx
-    · exact subset_of_mem_gener alphabet n v hv hc
-
-theorem recognize_generUpTo (n : Nat) :
-    ∀ w ∈ generUpTo n "abc".toList,
-      recognize w = true ↔ w.Palindrome := by
-  intro w hw
-  simp only [generUpTo, List.mem_flatMap] at hw
-  obtain ⟨k, _, hk⟩ := hw
-  exact recognize_iff_palindrome w
-    (subset_of_mem_gener _ k w hk)
 ```
 :::
 
@@ -323,26 +318,26 @@ def parse (xs : List Char) : List (ParseTree Char Char) :=
   (if xs == ['b'] then [.leaf 'b'] else []) ++
   (if xs == ['c'] then [.leaf 'c'] else []) ++
   (splitN 3 xs).attach.flatMap fun
-    | ⟨[['a'], ys, ['a']], _h⟩ =>
+    | ⟨[['a'], ys, ['a']], h⟩ =>
       (parse ys).map fun t =>
         .branch 'A' [.leaf 'a', t, .leaf 'a']
-    | ⟨[['b'], ys, ['b']], _h⟩ =>
+    | ⟨[['b'], ys, ['b']], h⟩ =>
       (parse ys).map fun t =>
         .branch 'A' [.leaf 'b', t, .leaf 'b']
-    | ⟨[['c'], ys, ['c']], _h⟩ =>
+    | ⟨[['c'], ys, ['c']], h⟩ =>
       (parse ys).map fun t =>
         .branch 'A' [.leaf 'c', t, .leaf 'c']
     | _ => []
 termination_by xs.length
 decreasing_by
   all_goals
-    have := congrArg List.length (flatten_of_mem_splitN _h)
+    have := congrArg List.length (flatten_of_mem_splitN h)
     simp at this
     omega
 
+#eval IO.println (parse "".toList)
+#eval IO.println (parse "aab".toList)
 #eval IO.println (parse "aabaa".toList)
-#eval IO.println (parse "aabbaa".toList)
-#eval IO.println (parse "aabcbbcba".toList)
 ```
 
 ::::exercise (rating := 2) (name := "split-nonempty")
