@@ -247,8 +247,11 @@ CSwFP/8 is skipped for now, and the chapter follows `Composition`.
   recursion is no trouble here, which is exercise 9.7. Generation stops
   at a given length, since Lean lists are finite. A theorem, in a
   `:::details` block, proves that `recognize` agrees with Mathlib's
-  `List.Palindrome` on every word over `{a, b, c}`. `parse` gives the
-  empty word the empty tree `ep`, where CSwFP uses a leaf `"[]"`.
+  `List.Palindrome` on every word over `{a, b, c}`. `parse` gives every
+  rule used an `A` node, so as to follow the grammar: `A → ε` gives a
+  node with no children, and `A → a` a node over the leaf, where CSwFP
+  gives a leaf `"[]"` and a bare leaf. A `:::details` block says why
+  the shorter trees are not used.
 - 9.3: `Parser α β` is `StateT (List α) List β`, which unfolds by
   definition to CSwFP's `[a] -> [(b,[a])]` (an `example … := rfl` says
   so). Mathlib's `Monad` and `Alternative` instances for `List` then give
@@ -269,9 +272,30 @@ CSwFP/8 is skipped for now, and the chapter follows `Composition`.
   The left-recursive example is defined but never run: it overflows the
   stack.
 - 9.3: the Mastermind parser is dropped with Mastermind (see 5.4).
-  `many` stays: 9.6 uses it. `parseManyAs`, which only the Mastermind
-  parser used, becomes the new exercise `parse-many-as`, checked on a
-  sequence of adjectives.
+  `many` stays (9.6 uses it), moved to right after `parseAs`, and is
+  built from a new one-or-more `many1` (the names of Lean's
+  `Std.Internal.Parsec`): `many p` is `many1 p <|> pure []`. To give
+  them a use, the example grammar of Figure 9.1 is extended from the
+  start of the section with a sequence of adjectives,
+  `NP ::= … | D N | D ADJS N` and `ADJS ::= ADJ … ADJ` (one or more,
+  so that a bare `D N` has a single parse); `adjs` is
+  `.branch "ADJS" <$> many1 adj`. `parseManyAs`, used later in CSwFP
+  by nothing but the Mastermind parser, is not ported. The new
+  exercise `adjs-recursive` writes ADJS with the recursive rule
+  `ADJS ::= ADJ ADJS | ADJ`, compares its nested tree with the flat
+  one, and shows by running it that the variant with `ε` gives
+  *every wizard* two parses.
+- 9.3: `<$>` comes before sequencing, so that every parser past the
+  elementary ones builds a parse tree. The categories with only
+  terminals on the right (`det`, `adj`, `n`, `vp`) are built with `<$>`;
+  sequencing is shown on the rule NP → D N, combining two trees in a
+  node; `collect` and `parseAs` generalize it. CSwFP's `pS`, …, `pN`,
+  which return strings, are not ported.
+- 9.3: the palindrome parser becomes the new exercise
+  `palindrome-parser`, checked by running it on two inputs. It returns
+  the same trees as `parse` in 9.2, one `A` node for every rule used:
+  `A → ε` is `parseAs 'A' []`. CSwFP's `epsilonT`, which built the
+  empty tree `Ep` for that rule, has no use left and is not ported.
 
 ## Beyond CSwFP/9
 

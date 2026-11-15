@@ -301,7 +301,8 @@ theorem recognize_iff_palindrome (w : List Char)
 - As regras de uma gramática podem valer ao mesmo tempo, por isso as
   listas de todas as linhas são concatenadas com `++`. Numa gramática
   ambígua, uma palavra recebe assim mais de uma árvore.
-- A palavra vazia vira a árvore vazia `ep`.
+- Cada regra usada vira um nó `A`, inclusive `A → ε`, que dá um nó sem
+  filhas, e `A → a`, que dá um nó com uma folha.
 :::
 
 ::::full
@@ -313,10 +314,10 @@ to the end of the section.
 
 ```lean
 def parse (xs : List Char) : List (ParseTree Char Char) :=
-  (if xs == [] then [.ep] else []) ++
-  (if xs == ['a'] then [.leaf 'a'] else []) ++
-  (if xs == ['b'] then [.leaf 'b'] else []) ++
-  (if xs == ['c'] then [.leaf 'c'] else []) ++
+  (if xs == [] then [.branch 'A' []] else []) ++
+  (if xs == ['a'] then [.branch 'A' [.leaf 'a']] else []) ++
+  (if xs == ['b'] then [.branch 'A' [.leaf 'b']] else []) ++
+  (if xs == ['c'] then [.branch 'A' [.leaf 'c']] else []) ++
   (splitN 3 xs).attach.flatMap fun
     | ⟨[['a'], ys, ['a']], h⟩ =>
       (parse ys).map fun t =>
@@ -339,6 +340,15 @@ decreasing_by
 #eval IO.println (parse "aab".toList)
 #eval IO.println (parse "aabaa".toList)
 ```
+
+:::details "Árvores mais enxutas"
+Como a gramática tem um só não terminal, poderíamos omitir o nó `A`
+nas regras que não chamam `A` de novo: `A → ε` daria a árvore vazia
+`ep`, e `A → a` daria só a folha `a`. Nenhuma informação se perderia,
+porque o único rótulo possível é `A`. Mas a árvore deixaria de ter um
+nó para cada regra usada, e a correspondência entre a gramática e o
+parser ficaria menos direta. Por isso mantemos um nó para cada regra.
+:::
 
 ::::exercise (rating := 2) (name := "split-nonempty")
 Numa gramática sem regras ε, nenhum pedaço da divisão pode ser vazio.
