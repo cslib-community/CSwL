@@ -263,7 +263,7 @@ das listas de análises, com as de `p` primeiro. Se ambos tiverem
 sucesso, as análises de ambos aparecem no resultado.
 
 Por exemplo, para reconhecer `VP → smiled | laughed` em uma lista de
-palavras, podemos usar `symbol "smiled" <|> symbol "laughed"`. O
+palavras, podemos usar {lean}`symbol "smiled" <|> symbol "laughed"`. O
 `example` mostra a igualdade que caracteriza a escolha para parsers.
 ::::
 
@@ -371,16 +371,16 @@ def vp : Parser String (ParseTree String String) :=
 ```
 
 :::terse
-- Para `NP → D N` precisamos aplicar {name}`det`, depois {name}`n` sobre o resto que {name}`det`
-  deixou, e juntar as duas árvores num nó `NP`.
+- Para `NP → D N`, aplicamos {name}`det` e depois {name}`n` ao resto.
+  Juntamos as duas árvores num nó `NP`.
 - O operador `>>=` faz isso. Em `p >>= f`, o parser `p` é aplicado à
   entrada; para cada análise `(r, ys)` de `p`, a função `f`, ao receber
   o resultado de `p`, constrói um novo parser `f r`, que então é
   aplicado ao resto `ys`. O `example` mostra que isso é um {name}`List.flatMap`
   sobre as análises de `p`.
 - No `#eval`, a primeira função recebe a árvore `td` de {name}`det`; a
-  segunda, a árvore `tn` de {name}`n`; no fim, {name}`pure` devolve como resultado o nó `NP` com
-  as duas árvores.
+  segunda, a árvore `tn` de {name}`n`. Ao fim, {name}`pure` devolve o nó
+  `NP` com as duas árvores.
 :::
 
 ::::full
@@ -483,8 +483,9 @@ resultado e constrói um parser que devolve a lista dos resultados, na
 mesma ordem.
 
 Se a lista de parsers é vazia, `pure []` produz uma análise cujo
-resultado é `[]` e cujo resto é a entrada inteira. Para `p :: ps`, aplicamos `p`, aplicamos
-`collect ps` ao resto e acrescentamos o primeiro resultado à lista
+resultado é `[]` e cujo resto é a entrada inteira. Para `p :: ps`,
+aplicamos `p`, aplicamos `collect ps` ao resto e acrescentamos o
+primeiro resultado à lista
 dos demais. Por exemplo, `collect [det, n]` produz as duas árvores
 que usamos para construir o nó `NP`.
 
@@ -594,8 +595,8 @@ def many {α β : Type} (p : Parser α β) :
 - Faltam os parsers das categorias `ADJS`, `NP` e `S`.
 - O parser `adjs` lê um ou mais {name}`adj`, com {name}`many1`, e põe as árvores
   lidas, lado a lado, sob um nó `ADJS`.
-- `NP` e `S` usam {name}`parseAs`. Com {name}`det`, {name}`adj`, {name}`n` e {name}`vp`, a gramática
-  inteira está escrita.
+- Os parsers de `NP` e `S` usam {name}`parseAs`. Junto com {name}`det`,
+  {name}`adj`, {name}`n` e {name}`vp`, eles completam a gramática.
 :::
 
 ::::full
@@ -687,7 +688,7 @@ theorem npEps_every_wizard :
   ter consumido nada da entrada, e nunca para. O mesmo acontece se antes
   de `A` vêm só símbolos que podem não consumir nada.
 - O parser `leftRec` abaixo é aceito, por ser `partial def`, mas `leftRec` não deve
-  ser executado: cada chamada abre outra, até esgotar a pilha de recursão.
+  ser executado. Cada chamada abre outra, até esgotar a pilha de recursão.
 - O reconhecedor por divisão não tinha esse problema, desde que as
   divisões com pedaço vazio fossem descartadas. Cada chamada recebia
   um pedaço menor da entrada, e o Lean exigia uma prova disso.
@@ -698,13 +699,12 @@ theorem npEps_every_wizard :
 ::::full
 A descida recursiva exige cuidado com a posição da chamada recursiva.
 Em uma regra como `A → A a`, o parser de `A` chama a si mesmo sobre a
-mesma entrada, antes de tentar reconhecer `a`. O parser `leftRec` ilustra o problema. Cada chamada
-volta a executar o mesmo parser sem consumir a entrada. Isso também
-pode ocorrer se os símbolos antes da chamada recursiva aceitarem a
-entrada vazia.
+mesma entrada, antes de tentar reconhecer `a`, como ilustra
+`leftRec`. Isso também pode ocorrer se os símbolos antes da chamada
+recursiva aceitarem a entrada vazia.
 
 No reconhecedor por divisão da seção
-{ref "cf-recognition"}[Reconhecendo e analisando linguagens livres de contexto],
+{ref "cf-recognition"}[Reconhecendo e Analisando Linguagens Livres de Contexto],
 o descarte das divisões com pedaço vazio permitia provar que as
 chamadas recursivas recebiam entradas menores. Existem combinadores de
 parsers que garantem a terminação e aceitam recursão à esquerda
@@ -797,8 +797,9 @@ ordem em que aparecem. Quando há mais de uma alternativa, reunimos
 os parsers correspondentes com `<|>`. Se a regra tem um só símbolo à
 direita, podemos usar `<$>` para pôr o resultado do parser desse
 símbolo sob um nó rotulado com `A`, como fizemos com as categorias
-cujas regras só têm terminais. Para uma repetição como `ADJ "..." ADJ`, usamos {name}`many1` para
-aplicar o parser de `ADJ` uma ou mais vezes.
+cujas alternativas têm um só terminal. Para uma repetição como
+`ADJ "..." ADJ`, usamos {name}`many1` para aplicar o parser de `ADJ`
+uma ou mais vezes.
 ::::
 
 ```lean

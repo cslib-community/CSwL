@@ -4,7 +4,9 @@ import Bib
 open Verso.Genre Manual
 open CSwLMeta
 
-#doc (Manual) "Falando de árvores sintáticas" =>
+set_option verso.code.warnLineLength 100
+
+#doc (Manual) "Árvores Sintáticas" =>
 %%%
 tag := "parse-trees"
 file := "ParseTrees"
@@ -21,14 +23,30 @@ namespace Parsing
   dos nós.
 - Um `branch` guarda a *lista* das suas subárvores, por isso cada nó pode
   ter quantas filhas quiser.
-- A função `toText` escreve a árvore entre colchetes, com o rótulo depois
+- A função `ParseTree.toText` escreve a árvore entre colchetes, com o rótulo depois
   de `[.` e as filhas separadas por espaços.
 :::
 
 ::::full
-:::dev BeforeNextRelease
-TODO: translate CSwFP/9.1, from the start to the example tree.
-:::
+Uma árvore sintática representa a estrutura de uma expressão. As folhas
+guardam informação lexical, e os nós internos guardam informação
+sintática. O tipo `ParseTree α β` deixa em aberto que informação
+guardamos em cada caso. Uma folha, construída com `.leaf`, contém um
+valor de tipo `α`. Um nó, construído com `.branch`, contém um rótulo de
+tipo `β` e uma lista de subárvores. O número de filhas do nó é o
+comprimento dessa lista.
+
+Para exibir uma árvore, precisamos saber como exibir os valores de
+tipos `α` e `β`. A função `ParseTree.toText` usa {name}`ToString`
+para ambos. Ela escreve uma folha como o texto do seu conteúdo. Para
+um nó, escreve `[.`, o rótulo e as subárvores, separadas por espaços,
+e fecha com `]`.
+
+Na árvore `snowWhite`, tanto os rótulos quanto o conteúdo das folhas
+são textos de tipo {name}`String`. A raiz, rotulada `S`, tem duas
+filhas. A primeira é um `NP` com a folha `Snow White`. A segunda é um
+`VP`, que contém o verbo sob o rótulo `TV` e o objeto sob outro
+`NP`.
 ::::
 
 ```lean
@@ -59,9 +77,9 @@ def snowWhite : ParseTree String String :=
 
 :::terse
 - Uma mesma subárvore pode ocorrer mais de uma vez numa árvore: em
-  *Snow White loved Snow White*, `[NP Snow White]` ocorre duas vezes.
-- Para apontar uma ocorrência usamos uma *posição*: a lista dos índices
-  das filhas no caminho desde a raiz, contando a partir de 0. A raiz é a
+  `Snow White loved Snow White`, `[.NP Snow White]` ocorre duas vezes.
+- Para apontar uma ocorrência, usamos uma *posição*: a lista dos índices
+  das filhas no caminho desde a raiz, contando a partir de zero. A raiz é a
   posição `[]`.
 - A função `pos` lista todas as posições. Como a recursão desce por uma
   lista de subárvores, ela usa uma função auxiliar local, definida com
@@ -75,10 +93,30 @@ def snowWhite : ParseTree String String :=
 :::
 
 ::::full
-:::dev BeforeNextRelease
-TODO: translate CSwFP/9.1, from "In this first section, we will develop…"
-to the definition of `subtrees`.
-:::
+Uma mesma subárvore pode ocorrer em mais de um lugar. Se, na árvore
+{name}`snowWhite`, trocássemos a folha `the dwarfs` por `Snow White`,
+a subárvore `[.NP Snow White]` teria duas ocorrências. Para distinguir
+uma da outra, usamos o caminho da raiz até cada ocorrência. O primeiro
+`NP` fica em `[0]`, a primeira filha da raiz. O segundo fica em
+`[1, 1]`, a segunda filha da segunda filha da raiz.
+
+Uma *posição* é uma lista de índices naturais. Em cada passo, o índice
+indica qual filha visitar, contando a partir de zero. O caminho vazio
+`[]` aponta para a própria raiz. Para listar as posições de uma
+árvore, `pos` inclui `[]` e, para cada filha, acrescenta seu índice ao
+início de cada caminho que parte dela. A função auxiliar local
+`posFrom i ts`, definida com `let rec`, percorre as filhas em `ts` a
+partir do índice `i`.
+
+A função `subtree t p` percorre a árvore `t` seguindo os índices de
+`p`. O acesso `ts[i]?` devolve a filha de índice `i` quando ela existe.
+Se um índice estiver fora da lista ou se ainda houver passos a dar
+ao chegar a uma folha, o resultado é {name}`Option.none`. Quando o
+caminho termina, a função devolve a subárvore encontrada com
+{name}`Option.some`. Por fim, `subtrees` usa {name}`List.filterMap`
+para aplicar `subtree t` às posições de `pos t` e recolher as
+subárvores. Esses caminhos vêm da própria árvore e, portanto, todos
+são válidos.
 ::::
 
 ```lean
@@ -117,17 +155,26 @@ def subtrees {α β : Type} (t : ParseTree α β)
   em `q` está dentro da subárvore em `p`. Toda posição domina a si mesma;
   a dominância *própria* exclui esse caso.
 - Em Lean, `p <+: q` diz que `p` é prefixo de `q`. É uma proposição
-  decidível, então pode ser usada como `Bool` num `filter`.
+  decidível, então o Lean a converte em {name}`Bool` para {name}`List.filter`.
 - As relações sobre as posições de uma árvore são listas de pares.
   A função `posPairs` lista todos os pares de posições; cada relação
   filtra os que lhe interessam.
 :::
 
 ::::full
-:::dev BeforeNextRelease
-TODO: translate CSwFP/9.1, from "If p, q are tree positions…" to the
-definition of `dominance`.
-:::
+Uma posição `p` domina uma posição `q` se o caminho até `q` começa
+pelo caminho até `p`. Nesse caso, a subárvore em `q` está contida na
+subárvore em `p`. Em {name}`snowWhite`, por exemplo, `[1]` domina
+`[1, 0]` e também domina a si mesma. A *dominância própria* exige
+ainda que as duas posições sejam distintas.
+
+Para representar essas relações, `posPairs t` forma todos os pares
+de posições da árvore `t`. A notação `p <+: q` exprime a proposição
+de que `p` é prefixo de `q`, definida por {name}`List.IsPrefix`.
+Como essa proposição é decidível para listas de naturais, o Lean
+pode convertê-la em um {name}`Bool` para
+{name}`List.filter`. Assim, `dominance` conserva os pares em que
+`p <+: q`, e `properDominance` exige também que `p ≠ q`.
 ::::
 
 ```lean
@@ -150,7 +197,7 @@ def dominance {α β : Type} (t : ParseTree α β) :
 A posição `p` *domina imediatamente* `q` quando `p` domina propriamente
 `q` e não há posição `r`, diferente das duas, tal que `p` domina `r` e
 `r` domina `q`. Defina `immDominance` e confira o resultado na árvore
-`snowWhite`.
+{name}`snowWhite`.
 
 ```lean
 def immDominance {α β : Type} (t : ParseTree α β) :
@@ -176,17 +223,30 @@ theorem immDominance_snowWhite :
 - O *c-comando* é a composição de duas relações: `p` c-comanda `q` quando
   uma irmã de `p` domina `q`.
 - A composição é `relComp`: `relComp r s` liga `x` a `z` quando `r`
-  liga `x` a algum `y` e `s` liga esse `y` a `z`. A função `eraseDups`
+  liga `x` a algum `y` e `s` liga esse `y` a `z`. A função {name}`List.eraseDups`
   tira os pares repetidos.
-- Na árvore `snowWhite`, o sujeito `[0]` c-comanda tudo o que está dentro
-  do VP; o objeto `[1, 1]` c-comanda o verbo `[1, 0]`, mas não o sujeito.
+- Na árvore {name}`snowWhite`, o sujeito `[0]` c-comanda tudo o que está dentro
+  do `VP`; o objeto `[1, 1]` c-comanda o verbo `[1, 0]`, mas não o sujeito.
 :::
 
 ::::full
-:::dev BeforeNextRelease
-TODO: translate CSwFP/9.1, from "Two positions p, q are sister positions…"
-to the c-command relation of the example tree.
-:::
+Duas posições são *irmãs* quando são filhas diferentes do
+mesmo nó. Os caminhos até elas coincidem até a mãe e diferem no
+último índice. A função `sisters` testa essa condição, e
+`sisterhood` reúne os pares de posições que a satisfazem.
+
+Uma posição `p` *c-comanda* uma posição `q` quando alguma irmã de
+`p` domina `q`. Para expressar isso, `cCommand` usa a composição
+das relações de irmandade e dominância. Em `relComp r s`, cada
+`(x, y)` de `r` é combinado com os pares de `s` que começam em
+`y`. Cada combinação com um par `(y, z)` produz `(x, z)`.
+{name}`List.eraseDups` elimina os pares repetidos.
+
+Em {name}`snowWhite`, a posição do sujeito, `[0]`, tem como irmã a
+posição do `VP`, `[1]`. Por isso, o sujeito c-comanda o `VP` e
+todas as posições que ele domina. Já o objeto, em `[1, 1]`, tem como
+irmã a posição do verbo, `[1, 0]`. O objeto c-comanda essa posição
+e a folha do verbo. A posição do sujeito está fora desse ramo.
 ::::
 
 ```lean
@@ -217,13 +277,15 @@ def cCommand {α β : Type} (t : ParseTree α β) :
 
 :::terse
 - Uma posição *ramifica* quando tem pelo menos duas filhas. Na árvore
-  `snowWhite`, só a raiz e o VP ramificam.
+  {name}`snowWhite`, só a raiz e o `VP` ramificam.
 :::
 
 ::::full
-:::dev BeforeNextRelease
-TODO: translate CSwFP/9.1, the branching positions.
-:::
+Uma posição ramifica quando domina imediatamente pelo menos duas
+posições distintas. Como as filhas são numeradas a partir de zero,
+basta verificar se os caminhos `p ++ [0]` e `p ++ [1]` existem.
+Em {name}`snowWhite`, apenas a raiz, `[]`, e o `VP`, `[1]`,
+satisfazem essa condição.
 ::::
 
 ```lean
@@ -328,7 +390,7 @@ theorem cCommand_not_dominated (p r q : Pos)
 ::::exercise (rating := 2) (name := "mutual-c-command")
 O c-comando não é simétrico, mas o *c-comando mútuo* é: `p` e `q` se
 c-comandam mutuamente quando `p` c-comanda `q` e `q` c-comanda `p`.
-Defina `mutualCCommand` e confira, na árvore `snowWhite`, que ele coincide
+Defina `mutualCCommand` e confira, na árvore {name}`snowWhite`, que ele coincide
 com a relação de irmãs.
 
 ```lean
@@ -346,15 +408,22 @@ theorem mutualCCommand_snowWhite :
 ::::
 
 :::terse
-- Uma posição `p` *precede* `q` quando, no primeiro índice em que
-  diferem, o de `p` é menor. Uma posição não precede as que ela domina.
+Uma posição `p` *precede* `q` quando, no primeiro índice em que diferem, o de
+`p` é menor. Uma posição não precede as que ela domina.
 :::
 
 ::::full
-:::dev BeforeNextRelease
-TODO: translate CSwFP/9.1, from "A position p in a syntax tree precedes…"
-to the precedence relation of the example tree.
-:::
+Para saber se uma posição `p` precede outra posição `q`,
+comparamos os caminhos até elas a partir da raiz. Enquanto os índices
+coincidem, avançamos nas duas listas. Na primeira diferença, `p`
+precede `q` se o seu índice é menor. Se um dos caminhos termina antes
+de encontrarmos uma diferença, a precedência não vale. Em particular,
+uma posição não precede nenhuma das posições que domina.
+
+Por exemplo, em {name}`snowWhite`, a posição do sujeito, `[0]`,
+precede a do objeto, `[1, 1]`, pois já diferem no primeiro índice.
+A função `precedence` aplica o teste `precede` aos pares de
+posições da árvore.
 ::::
 
 ```lean
@@ -372,7 +441,7 @@ def precedence {α β : Type} (t : ParseTree α β) :
 ::::exercise (rating := 2) (name := "imm-precedence")
 Defina a *precedência imediata*, a partir da precedência, do mesmo modo
 que a dominância imediata foi definida a partir da dominância. Confira o
-resultado na árvore `snowWhite`.
+resultado na árvore {name}`snowWhite`.
 
 ```lean
 def immPrecedence {α β : Type} (t : ParseTree α β) :
@@ -394,20 +463,20 @@ theorem immPrecedence_snowWhite :
 ::::
 
 :::terse
-- O *comando* é uma noção anterior ao c-comando: `p` comanda `q` quando
-  nenhuma das duas domina a outra e o S mais próximo acima de `p` também
-  domina `q`.
+O *comando* é uma noção anterior ao c-comando: `p` comanda `q` quando nenhuma
+das duas domina a outra e o `S` mais próximo acima de `p` também domina `q`.
 :::
 
 ::::full
-:::dev BeforeNextRelease
-TODO: translate CSwFP/9.1, the paragraph on command.
-:::
+Antes da noção de c-comando, foi proposta a relação de *comando*.
+Uma posição `p` comanda `q` quando nenhuma das duas domina a outra
+e o nó com rótulo `S` mais próximo que domina `p` também domina
+`q`.
 ::::
 
 ::::exercise (rating := 2) (name := "command")
-Defina `command` supondo que o S mais próximo é sempre a raiz da árvore.
-Confira o resultado na árvore `snowWhite`.
+Defina `command` supondo que o `S` mais próximo é sempre a raiz da árvore.
+Confira o resultado na árvore {name}`snowWhite`.
 
 ```lean
 def command {α β : Type} (t : ParseTree α β) :
