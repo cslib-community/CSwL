@@ -369,6 +369,20 @@ CSwFP/8 is skipped for now, and the chapter follows `Composition`.
   the same trees as `parse` in 9.2, one `A` node for every rule used:
   `A → ε` is `parseAs 'A' []`. CSwFP's `epsilonT`, which built the
   empty tree `Ep` for that rule, has no use left and is not ported.
+- 9.4: `combine` returns an `Option Agreement`, and `assign` an
+  `Option Cat`, where CSwFP returns a list that is empty on failure and
+  has one element otherwise. `combine` puts the features in a canonical
+  order by filtering `allFeats`, the list of every feature, where CSwFP
+  sorts and removes duplicates: Lean's `List.mergeSort` is defined by
+  well-founded recursion, so `decide` cannot evaluate it. The lists of
+  the values of each kind of feature (`genderFeats`, …) are named, and
+  `allFeats` joins them. `Cat` is a structure, whose fields replace
+  CSwFP's functions `phon`, `catLabel`, `fs` and `subcatList`.
+  Constructors of `Feat` are lowercase (`sg`, `mascOrFem`), as Lean
+  style asks, and `Feat.toString` prints them as in CSwFP (`Sg`).
+  The new exercises `combine-comm` and `all-feats` prove that `combine`
+  does not depend on the order of the categories and that every
+  feature is in `allFeats`.
 - 9.9: further reading is kept, unlike in the other chapters, as the
   last section of the chapter, and extended with references on general
   parsing algorithms (CKY, Earley) that a `:::details` block after
