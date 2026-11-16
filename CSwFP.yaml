@@ -184,7 +184,7 @@ original:
     - rfl-arithmetic
     - de-morgan
     - contrapositive
-    - exchange-prop
+    - prop-exchange
     - implication-as-disj
     - and-comm
     - implication-transitivity
