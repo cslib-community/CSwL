@@ -47,9 +47,11 @@ a entrada em `n` pedaços consecutivos, de todos os modos possíveis.
 Para cada divisão, testamos se cada símbolo gera o pedaço que lhe
 corresponde.
 
-A função `split2` enumera as divisões em dois pedaços. Para uma lista
-não vazia, ela produz dois pedaços vazios. As demais divisões são obtidas
-dividindo a cauda e recolocando o primeiro elemento no primeiro pedaço.
+A função `split2` enumera as divisões em dois pedaços. Para a lista
+vazia, ela produz uma só divisão, com dois pedaços vazios. Para uma
+lista não vazia, a primeira divisão é o pedaço vazio seguido da lista
+inteira. As demais divisões são obtidas dividindo a cauda e recolocando
+o primeiro elemento no primeiro pedaço.
 O exemplo usa {lean}`"Jan".toList` para obter os caracteres e {name}`String.ofList`
 para exibir os pedaços como textos.
 
@@ -60,7 +62,7 @@ o restante.
 ::::
 
 ```bnf
-A ::= ε | a | b | c | aAa | bAb | cAc ;
+A ::= ε | "a" | "b" | "c" | "a" A "a" | "b" A "b" | "c" A "c" ;
 ```
 
 ```lean

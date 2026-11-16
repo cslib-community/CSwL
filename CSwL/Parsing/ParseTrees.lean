@@ -526,7 +526,7 @@ def labelPairs {α : Type} (t : ParseTree α α)
   r.filterMap fun (p, q) => do
     let s ← subtree t p
     let u ← subtree t q
-    pure (s.label, u.label)
+    some (s.label, u.label)
 
 def cCommandBranching {α β : Type} (t : ParseTree α β) :
     List (Pos × Pos) :=

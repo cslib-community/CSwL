@@ -58,12 +58,12 @@ do símbolo inicial e desce pelas regras até os terminais, é chamada de
 
 ```bnf
 S    ::= NP VP ;
-NP   ::= Alice | Dorothy | D N | D ADJS N ;
+NP   ::= "Alice" | "Dorothy" | D N | D ADJS N ;
 ADJS ::= ADJ "..." ADJ ;
-VP   ::= smiled | laughed ;
-D    ::= every | some | no ;
-ADJ  ::= happy | evil ;
-N    ::= dwarf | wizard ;
+VP   ::= "smiled" | "laughed" ;
+D    ::= "every" | "some" | "no" ;
+ADJ  ::= "happy" | "evil" ;
+N    ::= "dwarf" | "wizard" ;
 ```
 
 :::terse
@@ -689,9 +689,10 @@ theorem npEps_every_wizard :
   de `A` vêm só símbolos que podem não consumir nada.
 - O parser `leftRec` abaixo é aceito, por ser `partial def`, mas `leftRec` não deve
   ser executado. Cada chamada abre outra, até esgotar a pilha de recursão.
-- O reconhecedor por divisão não tinha esse problema, desde que as
-  divisões com pedaço vazio fossem descartadas. Cada chamada recebia
-  um pedaço menor da entrada, e o Lean exigia uma prova disso.
+- O reconhecedor por divisão não tinha esse problema. Nas regras
+  recursivas, os dois pedaços externos têm um símbolo cada, então o
+  pedaço central, que vai para a chamada recursiva, é menor que a
+  entrada, e o Lean exigia uma prova disso.
 - Há combinadores de parsers que garantem a terminação e aceitam
   recursão à esquerda; ver {citep Bib.danielsson2010}[].
 :::
@@ -705,8 +706,8 @@ recursiva aceitarem a entrada vazia.
 
 No reconhecedor por divisão da seção
 {ref "cf-recognition"}[Reconhecendo e Analisando Linguagens Livres de Contexto],
-o descarte das divisões com pedaço vazio permitia provar que as
-chamadas recursivas recebiam entradas menores. Existem combinadores de
+os pedaços externos das regras recursivas têm um símbolo cada, o que
+permitia provar que as chamadas recursivas recebiam entradas menores. Existem combinadores de
 parsers que garantem a terminação e aceitam recursão à esquerda
 {citep Bib.danielsson2010}[].
 ::::
@@ -744,7 +745,7 @@ rótulo `A`, inclusive `A → ε` e as regras que só têm um terminal à
 direita:
 
 ```bnf
-A ::= ε | a | b | c | aAa | bAb | cAc ;
+A ::= ε | "a" | "b" | "c" | "a" A "a" | "b" A "b" | "c" A "c" ;
 ```
 
 Como o parser é recursivo, a definição é `partial def`, e os testes

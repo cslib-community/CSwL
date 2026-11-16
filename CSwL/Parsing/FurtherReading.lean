@@ -59,8 +59,8 @@ centro, é o Grammatical Framework, ou GF. O GF é semelhante a Haskell,
 mas especializado na escrita de gramáticas. Ver {citet Bib.ranta2009}[]
 e [grammaticalframework.org](https://www.grammaticalframework.org).
 
-Os parsers deste capítulo seguem a descida recursiva, que não aceita
-regras recursivas à esquerda. Algoritmos que analisam qualquer gramática
+Os parsers construídos com combinadores seguem a descida recursiva,
+que não aceita regras recursivas à esquerda. Algoritmos que analisam qualquer gramática
 livre de contexto, como CKY e Earley, são apresentados no capítulo 19
 de {citet Bib.jurafsky2026}[], em {citet Bib.carroll2022}[] e em
 {citet Bib.allen1995}[]. {citet Bib.bunt2004}[] reúnem trabalhos sobre
