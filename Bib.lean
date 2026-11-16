@@ -321,4 +321,11 @@ def wikipediaCCommand : Article where
   number  := inlines!""
   url     := "https://en.wikipedia.org/wiki/C-command"
 
+def mathlib2020 : InProceedings where
+  title     := inlines!"The Lean mathematical library"
+  authors   := #[inlines!"The mathlib Community"]
+  year      := 2020
+  booktitle := inlines!"Proceedings of the 9th ACM SIGPLAN International Conference on Certified Programs and Proofs (CPP 2020)"
+  url       := "https://doi.org/10.1145/3372885.3373824"
+
 end Bib
