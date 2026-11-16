@@ -53,6 +53,32 @@ and the tactic library. No chapter imports CSLib yet.
   Soundness needs CSLib's derivations and this book's valuations together.
   Its natural place is after `Sets`, once CSwFP/1–6 are in place.
 
+## Inconsistencies found in CSwFP
+
+Porting CSwFP turned up inconsistencies in it. Some were found by
+reading, when two passages disagree; others were forced into view,
+because Lean checks things that Haskell lets pass, such as total
+functions and exhaustive pattern matches. They are recorded here,
+with what was done about them.
+
+- **The empty parse tree `Ep` (CSwFP/9).** `ParseTree` has three
+  constructors, `Ep | Leaf a | Branch b [ParseTree a b]`, but `Ep` is
+  built in one place only: `epsilonT = succeed Ep`, used only by the
+  palindrome parser of 9.3, for the rule `A → ε`. The palindrome
+  parser of 9.2, for the same grammar, gives the empty word the leaf
+  `Leaf "[]"` instead, so the two parsers return different trees for
+  the same word. Both also give `A → a` a bare leaf, while every other
+  rule gets an `A` node. After 9.3, `Ep` never occurs: the gaps of 9.7
+  are leaves with a special category, and `t2c` and `assignT` (9.6) and
+  the interpretation functions of chapter 12 (`dintTXT`, `dintNP`, …)
+  match only `Leaf` and `Branch`. Haskell accepts these partial
+  functions; Lean does not, so keeping `Ep` would cost every function
+  on trees a case for a tree that never occurs. CSwL drops `Ep` and
+  `epsilonT`, gives every rule used an `A` node in both parsers
+  (`A → ε` gives a node with no children), and makes `subtree`, which
+  was CSwFP's other partial function on trees, return an `Option`.
+  Discussed in issue #51.
+
 ## By chapter
 
 Where a CSwFP section went, and why, is in `CSwFP.yaml`. What follows are the
@@ -221,8 +247,11 @@ CSwFP/8 is skipped for now, and the chapter follows `Composition`.
   and cannot be printed. Dominance uses Lean's `<+:` (`List.IsPrefix`) in
   place of a helper `prefix`. `pos` is written with a local helper
   `posFrom` (`let rec`), so that Lean sees the recursion over the list
-  of subtrees as structural. `subtree` returns `ep` at a position the
-  tree does not have, where CSwFP's is undefined. `toText` separates the
+  of subtrees as structural. `ParseTree` has no empty tree: CSwFP's
+  `Ep` is not ported (see "Inconsistencies found in CSwFP" below).
+  `subtree` returns an `Option`, `none` at a position the tree does
+  not have, where CSwFP's is undefined; `subtrees` drops the `none`s
+  with `filterMap`. `toText` separates the
   daughters of a node by spaces, as in the bracket notation of LaTeX's
   `qtree` (`[.NP Snow White]`); CSwFP's `show` prints them as a list,
   with a further pair of brackets and commas. Nothing reads the text

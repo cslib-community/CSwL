@@ -343,11 +343,12 @@ decreasing_by
 
 :::details "Árvores mais enxutas"
 Como a gramática tem um só não terminal, poderíamos omitir o nó `A`
-nas regras que não chamam `A` de novo: `A → ε` daria a árvore vazia
-`ep`, e `A → a` daria só a folha `a`. Nenhuma informação se perderia,
-porque o único rótulo possível é `A`. Mas a árvore deixaria de ter um
-nó para cada regra usada, e a correspondência entre a gramática e o
-parser ficaria menos direta. Por isso mantemos um nó para cada regra.
+na regra `A → a` e devolver só a folha `a`. Nenhuma informação se
+perderia, porque o único rótulo possível é `A`. Mas a árvore deixaria
+de ter um nó para cada regra usada, e a correspondência entre a
+gramática e o parser ficaria menos direta. Na regra `A → ε` nem há
+essa opção pois uma árvore é uma folha ou um nó, sem o nó `A`, não sobra
+nada para devolver. Por isso mantemos um nó para cada regra.
 :::
 
 ::::exercise (rating := 2) (name := "split-nonempty")

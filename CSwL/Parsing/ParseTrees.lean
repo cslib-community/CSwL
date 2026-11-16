@@ -18,7 +18,7 @@ namespace Parsing
 - Uma árvore sintática tem informação lexical nas folhas e informação
   sintática nos nós internos.
 - O tipo deixa as duas em aberto: `α` para as folhas, `β` para os rótulos
-  dos nós. O construtor `ep` é a árvore vazia.
+  dos nós.
 - Um `branch` guarda a *lista* das suas subárvores, por isso cada nó pode
   ter quantas filhas quiser.
 - A função `toText` escreve a árvore entre colchetes, com o rótulo depois
@@ -33,14 +33,12 @@ TODO: translate CSwFP/9.1, from the start to the example tree.
 
 ```lean
 inductive ParseTree (α β : Type) where
-  | ep
   | leaf (a : α)
   | branch (b : β) (ts : List (ParseTree α β))
   deriving Repr, BEq
 
 def ParseTree.toText {α β : Type}
     [ToString α] [ToString β] : ParseTree α β → String
-  | .ep => "[]"
   | .leaf a => toString a
   | .branch b ts =>
     "[." ++ toString b ++ " " ++
@@ -69,10 +67,11 @@ def snowWhite : ParseTree String String :=
   lista de subárvores, ela usa uma função auxiliar local, definida com
   `let rec`: `posFrom i ts` dá as posições das árvores de `ts`, a
   primeira com índice `i`.
-- A função `subtree` dá subárvores: `subtree t p` é a de `t` na posição
-  `p`. Numa posição que
-  não existe em `t`, devolve `ep`; isso nunca acontece com as posições
-  de `pos t`.
+- A função `subtree` dá subárvores: `subtree t p` é {name}`Option.some` da subárvore
+  de `t` na posição `p`, ou {name}`Option.none` se a posição não existe em `t`.
+- A função `subtrees` aplica `subtree t` a todas as posições de `pos t`
+  com {name}`List.filterMap`. Como essas posições são válidas,
+  nenhuma aplicação devolve {name}`Option.none`.
 :::
 
 ::::full
@@ -92,24 +91,23 @@ def pos {α β : Type} (p : ParseTree α β) : List Pos :=
    | i, t :: ts =>
      (pos t).map (i :: ·) ++ posFrom (i + 1) ts
   match p with
-  | .ep => [[]]
   | .leaf _ => [[]]
   | .branch _ ts => [] :: posFrom 0 ts
 
 #eval pos snowWhite
 
 def subtree {α β : Type} :
-  ParseTree α β → Pos → ParseTree α β
-  | t, [] => t
+  ParseTree α β → Pos → Option (ParseTree α β)
+  | t, [] => some t
   | .branch _ ts, i :: is =>
     match ts[i]? with
     | some t => subtree t is
-    | none => .ep
-  | _, _ :: _ => .ep
+    | none => none
+  | .leaf t, a :: as => none
 
 def subtrees {α β : Type} (t : ParseTree α β)
   : List (ParseTree α β) :=
-  (pos t).map (subtree t)
+  (pos t).filterMap (subtree t)
 
 #eval IO.println (subtree snowWhite [1])
 ```
