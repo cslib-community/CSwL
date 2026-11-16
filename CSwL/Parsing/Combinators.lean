@@ -717,6 +717,26 @@ partial def leftRec : Parser Char (ParseTree Char Char) :=
   <|> parseAs 'A' [symbolT 'b']
 ```
 
+:::details "Contornando a recursão à esquerda"
+Toda gramática livre de contexto pode ser reescrita sem recursão à
+esquerda, sem mudar a linguagem que ela gera. A gramática de `leftRec`,
+`A → A a | b`, gera as palavras formadas por um `b` seguido de zero ou
+mais `a`. A mesma linguagem é gerada por `A → b A'` e `A' → a A' | ε`,
+com um novo não terminal `A'`. Agora toda chamada recursiva vem depois
+de consumir um `b` ou um `a`, e o parser termina. O preço é que as
+árvores mudam. Para `baa`, a gramática original dá
+`[.A [.A [.A b] a] a]`, uma árvore que cresce para a esquerda; a nova
+dá uma árvore que cresce para a direita, com os nós `A'`. Se a forma da
+árvore importa, por exemplo para a interpretação semântica, é preciso
+converter uma árvore na outra.
+
+Há também algoritmos que analisam qualquer gramática livre de contexto,
+inclusive com recursão à esquerda, como CKY e Earley. Em vez de descer
+pelas regras, eles guardam numa tabela as análises já encontradas para
+cada trecho da entrada. A seção
+{ref "parsing-further-reading"}[Leituras adicionais] traz referências.
+:::
+
 ::::exercise (rating := 2) (name := "palindrome-parser")
 Defina `palindrome`, um parser para a gramática dos palíndromos sobre
 `{a, b, c}`, com uma linha por regra. Cada regra usada vira um nó com

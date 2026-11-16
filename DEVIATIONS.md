@@ -325,6 +325,11 @@ CSwFP/8 is skipped for now, and the chapter follows `Composition`.
   the same trees as `parse` in 9.2, one `A` node for every rule used:
   `A → ε` is `parseAs 'A' []`. CSwFP's `epsilonT`, which built the
   empty tree `Ep` for that rule, has no use left and is not ported.
+- 9.9: further reading is kept, unlike in the other chapters, as the
+  last section of the chapter, and extended with references on general
+  parsing algorithms (CKY, Earley) that a `:::details` block after
+  `leftRec` points to. The sentences on 9.7 (gaps, extraction grammars)
+  wait in a `:::dev` note until 9.7 is written.
 
 ## Beyond CSwFP/9
 

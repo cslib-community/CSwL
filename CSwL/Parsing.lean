@@ -3,6 +3,7 @@ import Bib
 import CSwL.Parsing.ParseTrees
 import CSwL.Parsing.Recognition
 import CSwL.Parsing.Combinators
+import CSwL.Parsing.FurtherReading
 
 open Verso.Genre Manual
 open CSwLMeta
@@ -14,8 +15,9 @@ file := "Parsing"
 %%%
 
 :::dev NOW
-Plan. The headings follow CSwFP/9.1–9.8 (9.9, further reading, is
-omitted). Sections are written `terse` first (see `STYLE-CODE.md`).
+Plan. The headings follow CSwFP/9.1–9.9; 9.9, further reading, is
+translated and extended, and stays the last section. Sections are
+written `terse` first (see `STYLE-CODE.md`).
 
 - 9.1: `ParseTree α β`, positions, and the tree relations as lists of
   pairs; dominance with Lean's `<+:`.
@@ -48,3 +50,5 @@ TODO: translate the CSwFP/9 summary.
 {include 1 CSwL.Parsing.Recognition}
 
 {include 1 CSwL.Parsing.Combinators}
+
+{include 1 CSwL.Parsing.FurtherReading}
