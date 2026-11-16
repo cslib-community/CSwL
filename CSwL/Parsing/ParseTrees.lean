@@ -301,11 +301,22 @@ def branchingPos {α β : Type} (t : ParseTree α β) :
 :::terse
 - Os fatos sobre o c-comando valem para quaisquer posições, não só para
   as de uma árvore. Por isso os teoremas abaixo falam de posições.
-- Dois lemas sobre irmãs: elas têm o mesmo comprimento, e nenhuma é
-  prefixo da outra.
+- Três lemas sobre irmãs: elas têm o mesmo comprimento, nenhuma é
+  prefixo da outra, e as duas têm a mesma mãe.
 :::
 
-:::details "Dois lemas sobre posições irmãs"
+::::full
+Para estudar a relação entre c-comando e dominância, basta considerar
+os caminhos envolvidos. Se `p` c-comanda `q`, existe uma irmã `r`
+de `p` que é prefixo de `q`. Os três lemas abaixo descrevem o que
+sabemos sobre `p` e `r` a partir de {name}`sisters`: os caminhos
+têm o mesmo comprimento, `p` não é prefixo de `r`, e, sem o último
+índice, os dois caminhos coincidem, isto é, `p` e `r` têm a mesma
+mãe. O exercício
+usa esses fatos para investigar a dominância entre `p` e `q`.
+::::
+
+:::details "Três lemas sobre posições irmãs"
 ```lean
 theorem sisters_length (p r : Pos)
     (h : sisters p r = true) : p.length = r.length := by
@@ -350,21 +361,54 @@ theorem sisters_not_prefix (p r : Pos)
           rw [List.cons_prefix_cons]
           intro ⟨_, hp⟩
           exact ih _ h hp
+
+theorem sisters_dropLast (p r : Pos)
+    (h : sisters p r = true) : p.dropLast = r.dropLast := by
+  induction p generalizing r with
+  | nil => simp [sisters] at h
+  | cons i is ih =>
+    cases r with
+    | nil => simp [sisters] at h
+    | cons j js =>
+      cases is with
+      | nil =>
+        cases js with
+        | nil => rfl
+        | cons k ks => simp [sisters] at h
+      | cons i' is' =>
+        cases js with
+        | nil => simp [sisters] at h
+        | cons k ks =>
+          simp only [sisters, Bool.and_eq_true,
+            beq_iff_eq] at h
+          obtain ⟨rfl, h⟩ := h
+          simp [List.dropLast_cons_cons, ih _ h]
 ```
 :::
 
 ::::exercise (rating := 3) (name := "c-command-dominance")
-Suponha que `p` c-comanda `q`: uma irmã `r` de `p` domina `q`. Prove que
-`p` não domina `q` e que `q` não domina `p`.
+Suponha que `p` c-comanda `q`, isto é, uma irmã `r` de `p` domina `q`. Prove que
+`p` não domina `q` e que `q` não domina `p`. Prove também que a mãe
+de `p`,  domina `q`. A mãe ramifica, porque tem as filhas
+`p` e `r`, e é a posição ramificada mais baixa acima de `p`.
 
-Dica: um prefixo de `q` que não é mais longo do que outro prefixo de `q`
-é prefixo dele (`List.prefix_of_prefix_length_le`), e um prefixo do mesmo
-comprimento é a própria lista (`List.IsPrefix.eq_of_length`).
+Dicas, uma para cada teorema:
+
+- Se `p` dominasse `q`, `p` e `r` seriam prefixos de `q` com o mesmo
+  comprimento. Então `p` seria prefixo de `r`
+  ({name}`List.prefix_of_prefix_length_le`), o que {name}`sisters_not_prefix`
+  proíbe.
+- Se `q` dominasse `p`, teríamos `r` prefixo de `q` e `q` prefixo de `p`,
+  com `p` e `r` do mesmo comprimento. Os três teriam o mesmo comprimento e
+  seriam iguais ({name}`List.IsPrefix.eq_of_length`), e `p` seria irmã de
+  si mesma.
+- As irmãs `p` e `r` têm a mesma mãe ({name}`sisters_dropLast`), e uma lista
+  sem o último elemento é prefixo dela ({name}`List.dropLast_prefix`).
 
 ```lean
 theorem cCommand_not_dominates (p r q : Pos)
-    (hs : sisters p r = true) (hd : r <+: q) :
-    ¬ p <+: q := by
+    (hs : sisters p r) (hd : r <+: q)
+    : ¬ p <+: q := by
   solution!
    intro hp
    have hl := sisters_length p r hs
@@ -373,8 +417,8 @@ theorem cCommand_not_dominates (p r q : Pos)
    exact sisters_not_prefix p r hs h
 
 theorem cCommand_not_dominated (p r q : Pos)
-    (hs : sisters p r = true) (hd : r <+: q) :
-    ¬ q <+: p := by
+    (hs : sisters p r) (hd : r <+: q)
+    : ¬ q <+: p := by
   solution!
    intro hq
    have hl := sisters_length p r hs
@@ -384,6 +428,13 @@ theorem cCommand_not_dominated (p r q : Pos)
    have hrq : r = q := hd.eq_of_length (by omega)
    rw [hrq, hqp] at hs
    exact sisters_not_prefix p p hs (List.prefix_refl p)
+
+theorem cCommand_mother_dominates (p r q : Pos)
+    (hs : sisters p r) (hd : r <+: q)
+    : p.dropLast <+: q := by
+  solution!
+   rw [sisters_dropLast p r hs]
+   exact (List.dropLast_prefix r).trans hd
 ```
 ::::
 
@@ -402,6 +453,120 @@ def mutualCCommand {α β : Type} (t : ParseTree α β) :
 
 theorem mutualCCommand_snowWhite :
     mutualCCommand snowWhite = sisterhood snowWhite := by
+  solution!
+   decide
+```
+::::
+
+::::exercise (rating := 3) (name := "c-command-variants")
+A definição de c-comando deste capítulo não é a única em
+uso. Outras duas partem do primeiro nó ramificado acima de `p`:
+
+- `p` c-comanda `q` quando o primeiro nó ramificado acima de `p` domina
+  `q`, com a dominância reflexiva. É uma definição usada para descrever a
+  ligação de variáveis.
+- `p` c-comanda `q` quando nenhuma das duas posições domina a outra e o
+  primeiro nó ramificado acima de `p` domina `q`. É a definição que o
+  verbete _C-command_ {citep Bib.wikipediaCCommand}[] apresenta como padrão.
+
+A função `lowestBranchingAbove` dá o primeiro nó ramificado acima de uma
+posição, se houver um. A função `labelPairs` troca cada par de posições
+pelo par dos rótulos dos nós nessas posições; na árvore `cTree`, cada
+rótulo aparece uma só vez, e o rótulo identifica o nó. Defina
+`cCommandBranching` e `cCommandStandard`, uma para cada definição. Os teoremas
+abaixo comparam as três definições na árvore `cTree`, em que `A` está em `[0]`,
+`B` em `[1]`, `C` em `[1, 0]`, `E` em `[1, 0, 0]`, `D` em `[1, 1]`, `F` em
+`[1, 1, 0]` e `G` em `[1, 1, 1]`:
+
+:::diagramWithAlt
+```diagram (cssWidth := "12em") (texWidth := "9em")
+CSwLMeta.Diagrams.cCommandTree
+```
+
+```
+        M
+      ┌─┴─┐
+      A   B
+        ┌─┴─┐
+        C   D
+        │ ┌─┴─┐
+        E F   G
+
+A raiz M tem as filhas A e B. B tem as filhas C e D. C tem uma só filha, E. D tem
+as filhas F e G.
+```
+:::
+
+O nó `C` tem uma só filha, `E`. Pela definição deste capítulo, `E` não
+c-comanda nada, porque não tem irmãs. Por `cCommandStandard`, `E` c-comanda
+`D`, `F` e `G`. O exemplo do próprio verbete diz que `E` não c-comanda
+nada: ele segue a definição pelas irmãs, a da primeira frase do verbete, e
+não a que o verbete chama de padrão. Então `cCommandBranching`
+acrescenta os pares em que uma posição domina a outra: `E`, por
+exemplo, passa a c-comandar também a si mesmo, a sua mãe, `C`, e a sua
+avó, `B`.
+
+```lean
+def cTree : ParseTree Char Char :=
+  .branch 'M' [.leaf 'A',
+    .branch 'B' [.branch 'C' [.leaf 'E'],
+      .branch 'D' [.leaf 'F', .leaf 'G']]]
+
+def lowestBranchingAbove {α β : Type} (t : ParseTree α β)
+    (p : Pos) : Option Pos :=
+  ((List.range p.length).map p.take).reverse.find?
+    (branchingPos t).contains
+
+def ParseTree.label {α : Type} : ParseTree α α → α
+  | .leaf a => a
+  | .branch b _ => b
+
+def labelPairs {α : Type} (t : ParseTree α α)
+    (r : List (Pos × Pos)) : List (α × α) :=
+  r.filterMap fun (p, q) => do
+    let s ← subtree t p
+    let u ← subtree t q
+    pure (s.label, u.label)
+
+def cCommandBranching {α β : Type} (t : ParseTree α β) :
+    List (Pos × Pos) :=
+  solution!(
+    (posPairs t).filter fun (p, q) =>
+      match lowestBranchingAbove t p with
+      | some m => m <+: q
+      | none => false)
+
+def cCommandStandard {α β : Type} (t : ParseTree α β) :
+    List (Pos × Pos) :=
+  solution!(
+    (posPairs t).filter fun (p, q) =>
+      !(p <+: q) && !(q <+: p) &&
+      match lowestBranchingAbove t p with
+      | some m => m <+: q
+      | none => false)
+
+theorem cCommand_sub_standard :
+  (cCommand cTree).all (cCommandStandard cTree).contains := by
+  solution!
+   decide
+
+theorem cCommandStandard_sub_branching :
+  (cCommandStandard cTree).all (cCommandBranching cTree).contains := by
+  solution!
+   decide
+
+theorem cCommandStandard_E :
+    (labelPairs cTree (cCommandStandard cTree)).filter
+      (fun ab => ab.1 == 'E') =
+      [('E', 'D'), ('E', 'F'), ('E', 'G')] := by
+  solution!
+   decide
+
+theorem cCommandBranching_E :
+    (labelPairs cTree (cCommandBranching cTree)).filter
+      (fun ab => ab.1 == 'E') =
+      [('E', 'B'), ('E', 'C'), ('E', 'E'), ('E', 'D'), ('E', 'F'),
+        ('E', 'G')] := by
   solution!
    decide
 ```

@@ -78,6 +78,49 @@ with what was done about them.
   (`A → ε` gives a node with no children), and makes `subtree`, which
   was CSwFP's other partial function on trees, return an `Option`.
   Discussed in issue #51.
+- **Two definitions of c-command (CSwFP/4.5 and 9.1).** Section 4.5
+  defines binding through c-command: a node `a` c-commands `b` if the
+  first branching node above `a` dominates `b`, with dominance
+  reflexive (`a = b` "in the limit case"). Section 9.1 defines
+  c-command as sisterhood composed with dominance, again reflexive:
+  `p` c-commands `q` if a sister of `p` dominates `q`. The two
+  disagree in two ways. By 4.5, a node c-commands itself, its
+  descendants and its mother, since the first branching node above it
+  dominates all three; by 9.1 it c-commands none of them, which is
+  what parts (1) and (2) of exercise 9.2 say. And a node with no
+  sister c-commands nothing by 9.1, but by 4.5 it c-commands what the
+  first branching node above it dominates: in the tree of 9.1, the
+  leaf `Snow White`, only daughter of the subject `NP`, c-commands
+  every node by 4.5 and none by 9.1. Three further problems: (a) 4.5
+  says that `∀x` binds an occurrence of `x` when it c-commands `x`,
+  but in the syntax tree drawn there `x` is not a node, only part of
+  the atoms `Px`, `Qx` and `Rxy` that are leaves; (b) part (3) of
+  exercise 9.2, "the lowest branching position that dominates `p`
+  also dominates `q`", is false with reflexive dominance: in the tree
+  of 9.1, the `VP` c-commands the subject, but the `VP` branches, so
+  the lowest branching position that dominates it is the `VP` itself,
+  which does not dominate the subject; the official solution has the
+  same gap; (c) neither definition is the standard one of the
+  syntax literature (Haegeman 1994, as in the Wikipedia article on
+  c-command): `a` c-commands `b` if neither dominates the other and
+  the lowest branching node that properly dominates `a` dominates
+  `b`. That definition agrees with 9.1 except on nodes with no
+  sister, and with it exercise 9.3 fails: in the tree of 9.1, the
+  leaf `Snow White` and the `VP` c-command each other without being
+  sisters. The Wikipedia article is itself split: its opening sentence
+  and its worked example follow the sister definition of 9.1. CSwL
+  adopts the sister definition throughout. In `Logic/FOL`, a `details`
+  block replaces the binding passage of 4.5: it draws the syntax tree,
+  says that `∀x` binds the occurrences of `x` in the atomic formulas
+  below its sister, names that relation c-command, and points to
+  `Parsing`. `Parsing/ParseTrees` ports 9.1 as `cCommand`, and
+  exercise 9.2 becomes three theorems: parts (1) and (2), and part (3)
+  with proper dominance, as "the mother of `p` dominates `q`". The
+  new exercise `c-command-variants` asks for the definition of 4.5 and
+  the standard one of the Wikipedia article, and checks on a tree with
+  a node with one daughter (the tree of the article) where the three
+  disagree. The prose describes the 4.5 definition without naming its
+  source, as `STYLE-WRITING.md` requires.
 
 ## By chapter
 
@@ -256,10 +299,11 @@ CSwFP/8 is skipped for now, and the chapter follows `Composition`.
   `qtree` (`[.NP Snow White]`); CSwFP's `show` prints them as a list,
   with a further pair of brackets and commas. Nothing reads the text
   back: later chapters walk the trees, not their text.
-- Exercise 9.2 becomes two theorems about positions, parts (1) and (2):
-  the relation of c-command is a sister followed by dominance, and neither
-  part depends on the tree. Part (3), on the lowest branching position, is
-  not ported. Exercises 9.1, 9.3, 9.4 and 9.5 ask for a definition checked
+- Exercise 9.2 becomes three theorems about positions: the relation of
+  c-command is a sister followed by dominance, and no part depends on the
+  tree. Part (3), on the lowest branching position, is stated with proper
+  dominance, as "the mother of `p` dominates `q`": with reflexive
+  dominance it is false (see "Inconsistencies found in CSwFP" above). Exercises 9.1, 9.3, 9.4 and 9.5 ask for a definition checked
   on the example tree; 9.6 asks for the splitting functions without empty
   parts.
 - 9.2: `splitN` is defined for every number of pieces, where CSwFP's

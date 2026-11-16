@@ -311,4 +311,14 @@ def bunt2004 : Article where
   volume  := inlines!""
   number  := inlines!""
 
+def wikipediaCCommand : Article where
+  title   := inlines!"C-command"
+  authors := #[inlines!"Colaboradores da Wikipedia"]
+  journal := inlines!"Wikipedia, the free encyclopedia; acesso em 15 nov. 2026"
+  year    := 2026
+  month   := none
+  volume  := inlines!""
+  number  := inlines!""
+  url     := "https://en.wikipedia.org/wiki/C-command"
+
 end Bib
