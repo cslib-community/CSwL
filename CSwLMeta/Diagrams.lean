@@ -62,4 +62,28 @@ def edgeGraph : Diagram SVG :=
   let cPos := (base.find (Lean.Name.mkSimple "node_2")).origin.toVec2
   Diagram.atop (selfLoop cPos) base
 
+/-- A tree whose nodes are text labels, laid out top-down by `treeLayout`. -/
+private def labelTree (t : Tree String) : Diagram SVG :=
+  treeLayout (t.map fun s => Diagram.text s) (config := { siblingGap := 28 })
+
+/--
+The syntax tree of `P[x] ∧ ∀x (Q[x] → R[x,y])`, drawn as in the binding
+example of `Logic/FOL`: unlabeled internal nodes, and atomic formulas,
+connectives and quantifiers as leaves.
+-/
+def bindingTree : Diagram SVG :=
+  labelTree <| .node "•" #[.leaf "P[x]", .leaf "∧",
+    .node "•" #[.leaf "∀x",
+      .node "•" #[.leaf "Q[x]", .leaf "→", .leaf "R[x,y]"]]]
+
+/--
+The tree `M(A, B(C(E), D(F, G)))` of the exercise on variants of c-command
+in `Parsing/ParseTrees`. `C` has a single daughter, which is where the
+variants disagree.
+-/
+def cCommandTree : Diagram SVG :=
+  labelTree <| .node "M" #[.leaf "A",
+    .node "B" #[.node "C" #[.leaf "E"],
+      .node "D" #[.leaf "F", .leaf "G"]]]
+
 end CSwLMeta.Diagrams

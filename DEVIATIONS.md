@@ -53,6 +53,75 @@ and the tactic library. No chapter imports CSLib yet.
   Soundness needs CSLib's derivations and this book's valuations together.
   Its natural place is after `Sets`, once CSwFP/1–6 are in place.
 
+## Inconsistencies found in CSwFP
+
+Porting CSwFP turned up inconsistencies in it. Some were found by
+reading, when two passages disagree; others were forced into view,
+because Lean checks things that Haskell lets pass, such as total
+functions and exhaustive pattern matches. They are recorded here,
+with what was done about them.
+
+- **The empty parse tree `Ep` (CSwFP/9).** `ParseTree` has three
+  constructors, `Ep | Leaf a | Branch b [ParseTree a b]`, but `Ep` is
+  built in one place only: `epsilonT = succeed Ep`, used only by the
+  palindrome parser of 9.3, for the rule `A → ε`. The palindrome
+  parser of 9.2, for the same grammar, gives the empty word the leaf
+  `Leaf "[]"` instead, so the two parsers return different trees for
+  the same word. Both also give `A → a` a bare leaf, while every other
+  rule gets an `A` node. After 9.3, `Ep` never occurs: the gaps of 9.7
+  are leaves with a special category, and `t2c` and `assignT` (9.6) and
+  the interpretation functions of chapter 12 (`dintTXT`, `dintNP`, …)
+  match only `Leaf` and `Branch`. Haskell accepts these partial
+  functions; Lean does not, so keeping `Ep` would cost every function
+  on trees a case for a tree that never occurs. CSwL drops `Ep` and
+  `epsilonT`, gives every rule used an `A` node in both parsers
+  (`A → ε` gives a node with no children), and makes `subtree`, which
+  was CSwFP's other partial function on trees, return an `Option`.
+  Discussed in issue #51.
+- **Two definitions of c-command (CSwFP/4.5 and 9.1).** Section 4.5
+  defines binding through c-command: a node `a` c-commands `b` if the
+  first branching node above `a` dominates `b`, with dominance
+  reflexive (`a = b` "in the limit case"). Section 9.1 defines
+  c-command as sisterhood composed with dominance, again reflexive:
+  `p` c-commands `q` if a sister of `p` dominates `q`. The two
+  disagree in two ways. By 4.5, a node c-commands itself, its
+  descendants and its mother, since the first branching node above it
+  dominates all three; by 9.1 it c-commands none of them, which is
+  what parts (1) and (2) of exercise 9.2 say. And a node with no
+  sister c-commands nothing by 9.1, but by 4.5 it c-commands what the
+  first branching node above it dominates: in the tree of 9.1, the
+  leaf `Snow White`, only daughter of the subject `NP`, c-commands
+  every node by 4.5 and none by 9.1. Three further problems: (a) 4.5
+  says that `∀x` binds an occurrence of `x` when it c-commands `x`,
+  but in the syntax tree drawn there `x` is not a node, only part of
+  the atoms `Px`, `Qx` and `Rxy` that are leaves; (b) part (3) of
+  exercise 9.2, "the lowest branching position that dominates `p`
+  also dominates `q`", is false with reflexive dominance: in the tree
+  of 9.1, the `VP` c-commands the subject, but the `VP` branches, so
+  the lowest branching position that dominates it is the `VP` itself,
+  which does not dominate the subject; the official solution has the
+  same gap; (c) neither definition is the standard one of the
+  syntax literature (Haegeman 1994, as in the Wikipedia article on
+  c-command): `a` c-commands `b` if neither dominates the other and
+  the lowest branching node that properly dominates `a` dominates
+  `b`. That definition agrees with 9.1 except on nodes with no
+  sister, and with it exercise 9.3 fails: in the tree of 9.1, the
+  leaf `Snow White` and the `VP` c-command each other without being
+  sisters. The Wikipedia article is itself split: its opening sentence
+  and its worked example follow the sister definition of 9.1. CSwL
+  adopts the sister definition throughout. In `Logic/FOL`, a `details`
+  block replaces the binding passage of 4.5: it draws the syntax tree,
+  says that `∀x` binds the occurrences of `x` in the atomic formulas
+  below its sister, names that relation c-command, and points to
+  `Parsing`. `Parsing/ParseTrees` ports 9.1 as `cCommand`, and
+  exercise 9.2 becomes three theorems: parts (1) and (2), and part (3)
+  with proper dominance, as "the mother of `p` dominates `q`". The
+  new exercise `c-command-variants` asks for the definition of 4.5 and
+  the standard one of the Wikipedia article, and checks on a tree with
+  a node with one daughter (the tree of the article) where the three
+  disagree. The prose describes the 4.5 definition without naming its
+  source, as `STYLE-WRITING.md` requires.
+
 ## By chapter
 
 Where a CSwFP section went, and why, is in `CSwFP.yaml`. What follows are the
@@ -221,16 +290,20 @@ CSwFP/8 is skipped for now, and the chapter follows `Composition`.
   and cannot be printed. Dominance uses Lean's `<+:` (`List.IsPrefix`) in
   place of a helper `prefix`. `pos` is written with a local helper
   `posFrom` (`let rec`), so that Lean sees the recursion over the list
-  of subtrees as structural. `subtree` returns `ep` at a position the
-  tree does not have, where CSwFP's is undefined. `toText` separates the
+  of subtrees as structural. `ParseTree` has no empty tree: CSwFP's
+  `Ep` is not ported (see "Inconsistencies found in CSwFP" below).
+  `subtree` returns an `Option`, `none` at a position the tree does
+  not have, where CSwFP's is undefined; `subtrees` drops the `none`s
+  with `filterMap`. `toText` separates the
   daughters of a node by spaces, as in the bracket notation of LaTeX's
   `qtree` (`[.NP Snow White]`); CSwFP's `show` prints them as a list,
   with a further pair of brackets and commas. Nothing reads the text
   back: later chapters walk the trees, not their text.
-- Exercise 9.2 becomes two theorems about positions, parts (1) and (2):
-  the relation of c-command is a sister followed by dominance, and neither
-  part depends on the tree. Part (3), on the lowest branching position, is
-  not ported. Exercises 9.1, 9.3, 9.4 and 9.5 ask for a definition checked
+- Exercise 9.2 becomes three theorems about positions: the relation of
+  c-command is a sister followed by dominance, and no part depends on the
+  tree. Part (3), on the lowest branching position, is stated with proper
+  dominance, as "the mother of `p` dominates `q`": with reflexive
+  dominance it is false (see "Inconsistencies found in CSwFP" above). Exercises 9.1, 9.3, 9.4 and 9.5 ask for a definition checked
   on the example tree; 9.6 asks for the splitting functions without empty
   parts.
 - 9.2: `splitN` is defined for every number of pieces, where CSwFP's
@@ -247,8 +320,11 @@ CSwFP/8 is skipped for now, and the chapter follows `Composition`.
   recursion is no trouble here, which is exercise 9.7. Generation stops
   at a given length, since Lean lists are finite. A theorem, in a
   `:::details` block, proves that `recognize` agrees with Mathlib's
-  `List.Palindrome` on every word over `{a, b, c}`. `parse` gives the
-  empty word the empty tree `ep`, where CSwFP uses a leaf `"[]"`.
+  `List.Palindrome` on every word over `{a, b, c}`. `parse` gives every
+  rule used an `A` node, so as to follow the grammar: `A → ε` gives a
+  node with no children, and `A → a` a node over the leaf, where CSwFP
+  gives a leaf `"[]"` and a bare leaf. A `:::details` block says why
+  the shorter trees are not used.
 - 9.3: `Parser α β` is `StateT (List α) List β`, which unfolds by
   definition to CSwFP's `[a] -> [(b,[a])]` (an `example … := rfl` says
   so). Mathlib's `Monad` and `Alternative` instances for `List` then give
@@ -269,9 +345,49 @@ CSwFP/8 is skipped for now, and the chapter follows `Composition`.
   The left-recursive example is defined but never run: it overflows the
   stack.
 - 9.3: the Mastermind parser is dropped with Mastermind (see 5.4).
-  `many` stays: 9.6 uses it. `parseManyAs`, which only the Mastermind
-  parser used, becomes the new exercise `parse-many-as`, checked on a
-  sequence of adjectives.
+  `many` stays (9.6 uses it), moved to right after `parseAs`, and is
+  built from a new one-or-more `many1` (the names of Lean's
+  `Std.Internal.Parsec`): `many p` is `many1 p <|> pure []`. To give
+  them a use, the example grammar of Figure 9.1 is extended from the
+  start of the section with a sequence of adjectives,
+  `NP ::= … | D N | D ADJS N` and `ADJS ::= ADJ … ADJ` (one or more,
+  so that a bare `D N` has a single parse); `adjs` is
+  `.branch "ADJS" <$> many1 adj`. `parseManyAs`, used later in CSwFP
+  by nothing but the Mastermind parser, is not ported. The new
+  exercise `adjs-recursive` writes ADJS with the recursive rule
+  `ADJS ::= ADJ ADJS | ADJ`, compares its nested tree with the flat
+  one, and shows by running it that the variant with `ε` gives
+  *every wizard* two parses.
+- 9.3: `<$>` comes before sequencing, so that every parser past the
+  elementary ones builds a parse tree. The categories with only
+  terminals on the right (`det`, `adj`, `n`, `vp`) are built with `<$>`;
+  sequencing is shown on the rule NP → D N, combining two trees in a
+  node; `collect` and `parseAs` generalize it. CSwFP's `pS`, …, `pN`,
+  which return strings, are not ported.
+- 9.3: the palindrome parser becomes the new exercise
+  `palindrome-parser`, checked by running it on two inputs. It returns
+  the same trees as `parse` in 9.2, one `A` node for every rule used:
+  `A → ε` is `parseAs 'A' []`. CSwFP's `epsilonT`, which built the
+  empty tree `Ep` for that rule, has no use left and is not ported.
+- 9.4: `combine` returns an `Option Agreement`, and `assign` an
+  `Option Cat`, where CSwFP returns a list that is empty on failure and
+  has one element otherwise. `combine` puts the features in a canonical
+  order by filtering `allFeats`, the list of every feature, where CSwFP
+  sorts and removes duplicates: Lean's `List.mergeSort` is defined by
+  well-founded recursion, so `decide` cannot evaluate it. The lists of
+  the values of each kind of feature (`genderFeats`, …) are named, and
+  `allFeats` joins them. `Cat` is a structure, whose fields replace
+  CSwFP's functions `phon`, `catLabel`, `fs` and `subcatList`.
+  Constructors of `Feat` are lowercase (`sg`, `mascOrFem`), as Lean
+  style asks, and `Feat.toString` prints them as in CSwFP (`Sg`).
+  The new exercises `combine-comm` and `all-feats` prove that `combine`
+  does not depend on the order of the categories and that every
+  feature is in `allFeats`.
+- 9.9: further reading is kept, unlike in the other chapters, as the
+  last section of the chapter, and extended with references on general
+  parsing algorithms (CKY, Earley) that a `:::details` block after
+  `leftRec` points to. The sentences on 9.7 (gaps, extraction grammars)
+  wait in a `:::dev` note until 9.7 is written.
 
 ## Beyond CSwFP/9
 

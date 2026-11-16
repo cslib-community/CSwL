@@ -47,8 +47,10 @@ boundaries, its order, its sentence boundaries and its punctuation. Most
 chapters are mixed, part translated and part written here because Lean makes
 something sayable that the source could not say. A new section has a
 structure of its own, chosen for what it teaches. `CSwFP.yaml` records which
-CSwFP section each chapter takes, and `DEVIATIONS.md` records any departure
-from it and why.
+CSwFP section each chapter takes, and `DEVIATIONS.md` records departures in
+the structure of chapters, sections and exercises, and why. A change in how
+a passage is presented, such as a paragraph added to a `:::full` block, is
+not recorded there.
 
 **The course is not about Lean.** Lean is introduced as far as the semantics
 needs it and no further. A feature that earns no work in a later chapter does
@@ -128,6 +130,8 @@ nature, not a translation, since CSwFP has no lecture cut. AI drafts the cues
 of a section, together with its code, and a human approves or rewrites each
 one. The `:::full` prose next to it keeps the rule above, and is translated
 afterwards, a step at a time, from the pending notes the cues leave behind.
+When a `:::full` block already holds prose, the translation is combined with
+it so that the block reads as one fluent, coherent text.
 The failure mode this section guards against is the systematic one: a
 translation that is fluent, plausible, and consistently wrong about a term.
 

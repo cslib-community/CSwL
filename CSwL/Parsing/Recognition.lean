@@ -2,11 +2,12 @@ import CSwLMeta
 import Bib
 import CSwL.Parsing.ParseTrees
 import Mathlib.Data.List.Palindrome
+import CSwLCompat
 
 open Verso.Genre Manual
 open CSwLMeta
 
-#doc (Manual) "Reconhecendo e analisando linguagens livres de contexto" =>
+#doc (Manual) "Reconhecendo e Analisando Linguagens Livres de Contexto" =>
 %%%
 tag := "cf-recognition"
 file := "Recognition"
@@ -18,24 +19,51 @@ namespace Parsing
 
 :::terse
 - *Reconhecer*: dizer se a gramática gera ou não uma sequência.
-  *Analisar* (*parsing*): dizer também como ela é gerada, isto é, dar as
+- *Analisar*: ou *parsing*, dizer como ela é gerada, isto é, dar as
   suas árvores sintáticas.
-- O exemplo é a gramática dos palíndromos sobre `{a, b, c}`, as palavras
-  iguais à sua inversa:
-  A → ε | a | b | c | aAa | bAb | cAc.
-- A ideia para qualquer gramática livre de contexto: uma regra com `n`
-  símbolos à direita divide a entrada em `n` pedaços, de todos os modos
-  possíveis, e testa cada pedaço contra o seu símbolo.
-- A função `split2` dá todas as divisões de uma lista em duas;
-  `splitN n`, em `n`.
-- Em Lean. `"Jan".toList` dá a lista de caracteres, e `String.ofList` faz o caminho de volta.
+- O exemplo é a gramática dos palíndromos sobre `{a, b, c}`.
+- Para testar uma regra livre de contexto com `n` símbolos à direita,
+  dividimos a entrada em `n` pedaços de todos os modos possíveis e
+  testamos cada pedaço contra o símbolo correspondente.
 :::
 
 ::::full
-:::dev BeforeNextRelease
-TODO: translate CSwFP/9.2, from the start to the definition of `splitN`.
-:::
+Uma gramática pode gerar palavras sobre um alfabeto de caracteres ou
+frases sobre um alfabeto de palavras ou tokens. Dada uma sequência,
+podemos usar a gramática para responder a duas perguntas.
+
+Chamamos de *reconhecimento* o procedimento que responde se a
+sequência pertence à linguagem gerada pela gramática. Na *análise*,
+ou *parsing*, a resposta consiste nas árvores sintáticas que
+representam as derivações da sequência.
+
+Vamos usar como exemplo a gramática abaixo, que gera os palíndromos
+sobre `{a, b, c}`. Um palíndromo é uma palavra igual à que obtemos
+ao invertê-la.
+
+Uma regra de uma gramática livre de contexto tem um único não terminal
+à esquerda. Para testar uma regra com `n` símbolos à direita, dividimos
+a entrada em `n` pedaços consecutivos, de todos os modos possíveis.
+Para cada divisão, testamos se cada símbolo gera o pedaço que lhe
+corresponde.
+
+A função `split2` enumera as divisões em dois pedaços. Para a lista
+vazia, ela produz uma só divisão, com dois pedaços vazios. Para uma
+lista não vazia, a primeira divisão é o pedaço vazio seguido da lista
+inteira. As demais divisões são obtidas dividindo a cauda e recolocando
+o primeiro elemento no primeiro pedaço.
+O exemplo usa {lean}`"Jan".toList` para obter os caracteres e {name}`String.ofList`
+para exibir os pedaços como textos.
+
+A função `splitN n` generaliza esse procedimento. Em zero pedaços, só a lista
+vazia pode ser dividida, e há uma única divisão. Para dois ou mais pedaços,
+a função usa `split2` para separar o primeiro e divide recursivamente
+o restante.
 ::::
+
+```bnf
+A ::= ε | "a" | "b" | "c" | "a" A "a" | "b" A "b" | "c" A "c" ;
+```
 
 ```lean
 def split2 {α : Type} : List α → List (List α × List α)
@@ -49,42 +77,65 @@ def split2 {α : Type} : List α → List (List α × List α)
 
 def splitN {α : Type} : Nat → List α → List (List (List α))
   | 0, [] => [[]]
-  | 0, _ :: _ => []
+  | 0, a :: as => []
   | 1, xs => [[xs]]
   | n + 2, xs =>
     (split2 xs).flatMap fun (ys, zs) =>
       (splitN (n + 1) zs).map fun rs => ys :: rs
 
 #eval splitN 3 "Jan".toList |>.map
-   (·.map String.ofList)
+   λ xs => xs.map String.ofList
 ```
 
 :::terse
-- O reconhecedor segue a gramática: uma linha por regra. Para A → aAa,
-  ele procura uma divisão em três pedaços `[a]`, `ys`, `[a]` e reconhece
+- O reconhecedor segue a gramática: uma linha por regra. Para `A → a A a`,
+  ele procura uma divisão em três pedaços `['a']`, `ys`, `['a']` e reconhece
   `ys`.
-- A função `recognize` chama a si mesma em `ys`. Lean exige que toda função
-  termine, e sozinho ele não vê que `ys` é menor do que `xs`: o padrão
-  `[['a'], ys, ['a']]` não diz de onde a lista veio.
-- A função `attach` junta a cada divisão a prova de que ela está em
+- Para aceitar a definição de `recognize`, o Lean exige uma prova de
+  terminação. O padrão `[['a'], ys, ['a']]` identifica `ys`, mas não
+  diz de onde a lista veio nem que ela é menor do que `xs`.
+- A função {name}`List.attach` junta a cada divisão a prova de que ela está em
   `splitN 3 xs`. A cláusula `termination_by xs.length` diz o que
-  diminui, e `decreasing_by` prova que diminui, com o lema do bloco
-  acima: os pedaços juntos dão `xs`, então `ys` tem dois elementos a
+  diminui, e `decreasing_by` prova que diminui, com o lema no bloco
+  de detalhes: os pedaços juntos dão `xs`, então `ys` tem dois elementos a
   menos.
-- Uma regra recursiva à esquerda, V → V T, também não seria problema,
-  porque V recebe um pedaço menor da entrada, desde que o pedaço de T
-  não seja vazio.
-- Se o pedaço de T puder ser vazio, V recebe a entrada inteira e chama
-  a si mesma sem fim. As divisões com pedaço vazio têm de ser
-  descartadas antes da chamada; sem isso, `decreasing_by` não prova
-  nada e o Lean recusa a definição.
+- Em uma regra recursiva à esquerda, como `V → V T`, podemos chamar
+  o reconhecedor de `V` sobre um pedaço menor se o pedaço de `T` for
+  não vazio. Se for vazio, a chamada recebe a entrada inteira. Só
+  podemos descartar essa divisão se `T` não gerar a palavra vazia.
 :::
 
 ::::full
-:::dev BeforeNextRelease
-TODO: translate CSwFP/9.2, from "Now the function for recognizing…" to
-"…for splitting the input into n substrings."
-:::
+O reconhecedor aceita diretamente as palavras geradas pelas regras
+`A → ε`, `A → a`, `A → b` e `A → c`. Para testar `A → a A a`,
+ele procura, entre as divisões de `splitN 3 xs`, uma que tenha
+`['a']` nas duas pontas. Se encontrar uma divisão assim, testa
+recursivamente se o pedaço do meio é um palíndromo. As regras
+`A → b A b` e `A → c A c` seguem o mesmo procedimento.
+
+Na primeira tentativa, `recognize₀`, o padrão
+`[['a'], ys, ['a']]` identifica o pedaço central, mas não carrega a
+informação de que a divisão veio de `splitN 3 xs`. O Lean precisa
+dessa informação para verificar que a chamada sobre `ys` termina.
+A definição de `recognize` usa {name}`List.attach` para associar
+cada divisão a uma prova de que ela pertence à lista de divisões.
+
+A cláusula `termination_by xs.length` indica que a medida usada
+para justificar a recursão é o comprimento da entrada. A cláusula
+`decreasing_by` fornece a prova de que a medida diminui em cada
+chamada. O lema `flatten_of_mem_splitN`, no bloco de detalhes,
+mostra que concatenar os pedaços recupera a entrada. Aplicamos
+{name}`List.length` à igualdade com {name}`congrArg`. Como os dois
+pedaços externos têm um elemento cada, o pedaço central tem dois
+elementos a menos do que a entrada.
+
+O mesmo raciocínio explica quando o método funciona para uma regra
+recursiva à esquerda, como `V → V T`. Se o pedaço de `T` tiver ao
+menos um símbolo, o pedaço de `V` é menor que a entrada. Se o pedaço
+de `T` for vazio, uma chamada para `V` sobre o primeiro pedaço
+receberá a entrada inteira. Podemos descartar essa divisão quando
+`T` não gera a palavra vazia. Em uma gramática que permite essa
+derivação, descartá-la sem outro tratamento pode perder análises.
 ::::
 
 :::details "As divisões juntam-se de volta na entrada"
@@ -115,6 +166,16 @@ theorem flatten_of_mem_splitN {α : Type} :
 ```
 :::
 
+```lean +error
+def recognize₀ (xs : List Char) : Bool :=
+  xs == [] || xs == ['a'] || xs == ['b'] || xs == ['c'] ||
+  (splitN 3 xs).any fun
+    | [['a'], ys, ['a']] => recognize₀ ys
+    | [['b'], ys, ['b']] => recognize₀ ys
+    | [['c'], ys, ['c']] => recognize₀ ys
+    | _ => false
+```
+
 ```lean
 def recognize (xs : List Char) : Bool :=
   xs == [] || xs == ['a'] || xs == ['b'] || xs == ['c'] ||
@@ -135,47 +196,82 @@ decreasing_by
 ```
 
 :::terse
-- A função `gener n` dá as palavras de comprimento `n`; `generUpTo n`,
-  as de comprimento até `n`. As palavras são infinitas, mas uma lista
-  em Lean é finita, por isso a geração para num comprimento dado.
+- A função `generate n alphabet` gera as palavras de comprimento `n`.
+  A função `generateUpTo n alphabet` reúne as de comprimento até `n`.
+  Há palavras de comprimento arbitrário, por isso limitamos a
+  geração a um comprimento dado.
 :::
 
 ::::full
-:::dev BeforeNextRelease
-TODO: translate CSwFP/9.2, from "From recognition to generation…" to the
-first fifteen palindromes.
-:::
+Podemos usar {name}`recognize` para gerar palavras da linguagem.
+Primeiro enumeramos as palavras sobre um alfabeto dado e depois
+conservamos apenas as que o reconhecedor aceita.
+
+A função `generate n alphabet` enumera as palavras de comprimento
+`n`. A única palavra de comprimento zero é a lista vazia. Para
+obter palavras de comprimento `n + 1`, a função antepõe cada
+símbolo do alfabeto a cada palavra de comprimento `n`.
+Como há palíndromos de comprimento arbitrário, fixamos um limite
+para que a enumeração caiba em uma lista finita. A função
+`generateUpTo n alphabet` reúne as palavras dos comprimentos de zero
+a `n`. A função `language` filtra essa lista com {name}`recognize`.
 ::::
 
 ```lean
-def gener {α : Type} : Nat → List α → List (List α)
+def generate {α : Type} : Nat → List α → List (List α)
   | 0, _ => [[]]
   | n + 1, alphabet =>
     alphabet.flatMap fun x =>
-      (gener n alphabet).map (x :: ·)
+      (generate n alphabet).map (x :: ·)
 
-def generUpTo {α : Type} (n : Nat) (alphabet : List α) :
+def generateUpTo {α : Type} (n : Nat) (alphabet : List α) :
     List (List α) :=
-  (List.range (n + 1)).flatMap fun k => gener k alphabet
+  (List.range (n + 1)).flatMap fun k => generate k alphabet
 
-#eval ((generUpTo 3 "abc".toList).filter recognize).map
+def language (n : Nat) (alphabet : List Char)
+  : List (List Char) :=
+  (generateUpTo n alphabet).filter recognize
+
+#eval language 3 "abc".toList |>.map
   String.ofList
 ```
 
 :::terse
-- O Mathlib define palíndromo como um predicado indutivo,
-  `List.Palindrome`. Os seus três construtores são as regras da
-  gramática: a lista vazia, uma lista de um elemento, e `x :: (l ++ [x])`
-  para `l` palíndromo.
-- O teorema `recognize_iff_palindrome` diz que `recognize` concorda
-  com essa definição em toda palavra sobre `{a, b, c}`, de qualquer
-  comprimento.
-- A prova é por indução no comprimento da palavra, uma direção de cada
-  vez. Ela só é possível porque `recognize` não é `partial`: o Lean
-  conhece a equação que a define.
-- O teorema `recognize_generUpTo` é o caso das palavras geradas por
-  `generUpTo n`, para todo `n`.
+- Os construtores de {name}`List.Palindrome` correspondem à lista
+  vazia, às listas de um elemento e à extensão `x :: (l ++ [x])`
+  de um palíndromo `l`.
+- O teorema `recognize_iff_palindrome` diz que {name}`recognize`
+  concorda com esse predicado sobre o alfabeto `{a, b, c}`.
+  A hipótese `w ⊆ "abc".toList` restringe os elementos de `w`
+  a esse alfabeto. Por exemplo, `xx` é um palíndromo que o
+  reconhecedor recusa.
+- A prova faz indução em um limite para o comprimento da palavra,
+  uma direção de cada vez, usando as equações de {name}`recognize`.
 :::
+
+::::full
+O Mathlib representa a propriedade de ser palíndromo pelo predicado
+indutivo {name}`List.Palindrome`. A lista vazia e as listas de um
+elemento são palíndromos. Se `l` é um palíndromo, acrescentar o mesmo
+elemento `x` às duas pontas produz outro, `x :: (l ++ [x])`. Esses
+casos correspondem às regras da nossa gramática, com a diferença de
+que o predicado permite qualquer elemento nas pontas.
+
+O teorema `recognize_iff_palindrome` diz que {name}`recognize`
+concorda com esse predicado para toda palavra `w` sobre `{a, b, c}`.
+Para listas, `w ⊆ "abc".toList` significa que cada elemento de
+`w` pertence a {lean}`"abc".toList`. Essa hipótese é necessária
+para garantir que todo palíndromo seja aceito. Por exemplo, `xx`
+é um palíndromo, mas contém um símbolo fora do alfabeto do
+reconhecedor.
+
+A prova trata uma direção de cada vez, por indução em um limite para
+o comprimento da palavra. Na primeira direção, cada sucesso do
+reconhecedor corresponde a um dos casos de {name}`List.Palindrome`.
+Na segunda, a forma do palíndromo determina uma divisão que o
+reconhecedor precisa testar. As equações de {name}`recognize` podem
+ser usadas nas duas provas porque sua terminação foi demonstrada.
+::::
 
 :::details "O reconhecedor e a definição de palíndromo"
 ```lean
@@ -271,82 +367,86 @@ theorem recognize_iff_palindrome (w : List Char)
     recognize w ↔ w.Palindrome :=
   ⟨recognize_sound _ w (Nat.le_refl _),
    recognize_complete _ w (Nat.le_refl _) hw⟩
-
-theorem subset_of_mem_gener {α : Type} (alphabet : List α) :
-    ∀ n w, w ∈ gener n alphabet → w ⊆ alphabet
-  | 0, w, h => by
-    simp [gener] at h
-    simp [h]
-  | n + 1, w, h => by
-    simp only [gener, List.mem_flatMap, List.mem_map] at h
-    obtain ⟨x, hx, v, hv, rfl⟩ := h
-    intro c hc
-    simp at hc
-    rcases hc with rfl | hc
-    · exact hx
-    · exact subset_of_mem_gener alphabet n v hv hc
-
-theorem recognize_generUpTo (n : Nat) :
-    ∀ w ∈ generUpTo n "abc".toList,
-      recognize w = true ↔ w.Palindrome := by
-  intro w hw
-  simp only [generUpTo, List.mem_flatMap] at hw
-  obtain ⟨k, _, hk⟩ := hw
-  exact recognize_iff_palindrome w
-    (subset_of_mem_gener _ k w hk)
 ```
 :::
 
 :::terse
-- Analisar é construir as árvores. A entrada é uma `List Char`, e as
-  árvores são do tipo `ParseTree Char Char`: caracteres nas folhas e o
+- Analisar é construir as árvores. A entrada é uma {lean}`List Char`, e as
+  árvores são do tipo {lean}`ParseTree Char Char`: caracteres nas folhas e o
   rótulo `A` nos nós.
-- Mesma receita do reconhecedor, uma linha por regra; agora cada linha
-  devolve a lista das suas árvores, vazia quando a regra não se aplica.
+- A análise segue as mesmas regras do reconhecedor. Para cada regra,
+  construímos uma lista de árvores, vazia quando ela não se aplica.
 - As regras de uma gramática podem valer ao mesmo tempo, por isso as
   listas de todas as linhas são concatenadas com `++`. Numa gramática
   ambígua, uma palavra recebe assim mais de uma árvore.
-- A palavra vazia vira a árvore vazia `ep`.
+- Cada regra usada vira um nó `A`, inclusive `A → ε`, que dá um nó sem
+  filhas, e `A → a`, que dá um nó com uma folha.
 :::
 
 ::::full
-:::dev BeforeNextRelease
-TODO: translate CSwFP/9.2, from "Parsing with a context-free grammar…"
-to the end of the section.
-:::
+Para construir as árvores que a gramática atribui a uma palavra,
+seguimos as mesmas regras usadas no reconhecimento. A entrada
+continua sendo uma lista de caracteres. A análise devolve uma lista
+de árvores de tipo {lean}`ParseTree Char Char`, com caracteres nas
+folhas e o rótulo `'A'` nos nós internos.
+
+Cada uso de uma regra produz um nó. A regra `A → ε` produz um nó sem
+filhas, e uma regra como `A → a` produz um nó com uma folha. Para
+`A → a A a`, percorremos as divisões com `['a']` nas duas pontas.
+Para cada árvore obtida ao analisar o pedaço central, construímos uma
+árvore com essa subárvore entre duas folhas com o caractere `a`.
+A justificativa de que a chamada recursiva recebe uma palavra menor é
+a mesma usada para {name}`recognize`.
+
+O reconhecedor pode parar assim que uma regra der certo. Para analisar
+a palavra, reunimos com `++` os resultados das regras e usamos
+{name}`List.flatMap` para reunir os resultados das divisões. Se a
+palavra não pertence à linguagem, a lista de árvores é vazia. Se a
+gramática atribui mais de uma árvore à palavra, a lista contém todas
+elas.
 ::::
 
 ```lean
 def parse (xs : List Char) : List (ParseTree Char Char) :=
-  (if xs == [] then [.ep] else []) ++
-  (if xs == ['a'] then [.leaf 'a'] else []) ++
-  (if xs == ['b'] then [.leaf 'b'] else []) ++
-  (if xs == ['c'] then [.leaf 'c'] else []) ++
+  (if xs == [] then [.branch 'A' []] else []) ++
+  (if xs == ['a'] then [.branch 'A' [.leaf 'a']] else []) ++
+  (if xs == ['b'] then [.branch 'A' [.leaf 'b']] else []) ++
+  (if xs == ['c'] then [.branch 'A' [.leaf 'c']] else []) ++
   (splitN 3 xs).attach.flatMap fun
-    | ⟨[['a'], ys, ['a']], _h⟩ =>
+    | ⟨[['a'], ys, ['a']], h⟩ =>
       (parse ys).map fun t =>
         .branch 'A' [.leaf 'a', t, .leaf 'a']
-    | ⟨[['b'], ys, ['b']], _h⟩ =>
+    | ⟨[['b'], ys, ['b']], h⟩ =>
       (parse ys).map fun t =>
         .branch 'A' [.leaf 'b', t, .leaf 'b']
-    | ⟨[['c'], ys, ['c']], _h⟩ =>
+    | ⟨[['c'], ys, ['c']], h⟩ =>
       (parse ys).map fun t =>
         .branch 'A' [.leaf 'c', t, .leaf 'c']
     | _ => []
 termination_by xs.length
 decreasing_by
   all_goals
-    have := congrArg List.length (flatten_of_mem_splitN _h)
+    have := congrArg List.length (flatten_of_mem_splitN h)
     simp at this
     omega
 
+#eval IO.println (parse "".toList)
+#eval IO.println (parse "aab".toList)
 #eval IO.println (parse "aabaa".toList)
-#eval IO.println (parse "aabbaa".toList)
-#eval IO.println (parse "aabcbbcba".toList)
 ```
 
+:::details "Árvores mais enxutas"
+Como a gramática tem um só não terminal, poderíamos omitir o nó `A`
+na regra `A → a` e devolver só a folha `a`. Nenhuma informação se
+perderia, porque o único rótulo possível é `A`. Mas a árvore deixaria
+de ter um nó para cada regra usada, e a correspondência entre a
+gramática e o parser ficaria menos direta. Na regra `A → ε` nem há
+essa opção pois uma árvore é uma folha ou um nó, sem o nó `A`, não sobra
+nada para devolver. Por isso mantemos um nó para cada regra.
+:::
+
 ::::exercise (rating := 2) (name := "split-nonempty")
-Numa gramática sem regras ε, nenhum pedaço da divisão pode ser vazio.
+Numa gramática sem regras com `ε`, nenhum pedaço da divisão pode ser vazio.
 Defina `split2'` e `splitN'`, que dão só as divisões sem pedaços vazios.
 Confira o resultado em `"Jan"`.
 

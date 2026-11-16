@@ -3,6 +3,8 @@ import Bib
 import CSwL.Parsing.ParseTrees
 import CSwL.Parsing.Recognition
 import CSwL.Parsing.Combinators
+import CSwL.Parsing.Features
+import CSwL.Parsing.FurtherReading
 
 open Verso.Genre Manual
 open CSwLMeta
@@ -14,8 +16,9 @@ file := "Parsing"
 %%%
 
 :::dev NOW
-Plan. The headings follow CSwFP/9.1–9.8 (9.9, further reading, is
-omitted). Sections are written `terse` first (see `STYLE-CODE.md`).
+Plan. The headings follow CSwFP/9.1–9.9; 9.9, further reading, is
+translated and extended, and stays the last section. Sections are
+written `terse` first (see `STYLE-CODE.md`).
 
 - 9.1: `ParseTree α β`, positions, and the tree relations as lists of
   pairs; dominance with Lean's `<+:`.
@@ -26,7 +29,10 @@ omitted). Sections are written `terse` first (see `STYLE-CODE.md`).
   Mathlib's `Monad`/`Alternative List`; recursive parsers are
   `partial def`. Lean's `Std.Internal.Parsec` returns one result, not
   all parses; it can serve the lexer of 9.5.
-- 9.4–9.8: to plan. The representation of `Cat` is tied to issue 42.
+- 9.4: `Feat` as one type, `Agreement` as a list put in a canonical
+  order by filtering `allFeats`; `combine` and `assign` return
+  `Option`; `Cat` is a structure.
+- 9.5–9.8: to plan. The representation of `Cat` is tied to issue 42.
 :::
 
 :::terse
@@ -48,3 +54,7 @@ TODO: translate the CSwFP/9 summary.
 {include 1 CSwL.Parsing.Recognition}
 
 {include 1 CSwL.Parsing.Combinators}
+
+{include 1 CSwL.Parsing.Features}
+
+{include 1 CSwL.Parsing.FurtherReading}

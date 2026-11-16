@@ -184,7 +184,7 @@ original:
     - rfl-arithmetic
     - de-morgan
     - contrapositive
-    - exchange-prop
+    - prop-exchange
     - implication-as-disj
     - and-comm
     - implication-transitivity
@@ -224,7 +224,9 @@ original:
     - left-mon-pattern # from the prose on ↑MON and ↓MON in 7.2, "left to the reader"
     - lang-and-or     # from the prose on quantifier automata in 7.2
     - all-kstar       # from the prose in 7.2, "all corresponds to the regular language 1∗"
-  Parsing/Combinators.lean: [parse-many-as]
+  Parsing/Combinators.lean: [adjs-recursive, palindrome-parser]
+  Parsing/ParseTrees.lean: [c-command-variants]
+  Parsing/Features.lean: [combine-comm, all-feats]
 
 depends:
   bangu-proof: bangu-form
@@ -361,12 +363,12 @@ sections:
     9.2 Recognizing and Parsing Context-Free Languages: Parsing
     9.3 Parsers and Parser Combinators: Parsing, without the Mastermind
       parser, since Mastermind is dropped with 5.4
-    9.4 Features and Categories: Parsing, not yet written
+    9.4 Features and Categories: Parsing
     9.5 Lexical Lookup and Scanning: Parsing, not yet written
     9.6 Parsing Categories: Parsing, not yet written
     9.7 Handling Extractions: Parsing, not yet written
     9.8 Adding Semantics: Parsing, not yet written
-    9.9 Further Reading: omitted
+    9.9 Further Reading: Parsing, translated and extended with further references
   CSwFP/10 Handling Relations and Scoping: not yet taken up
   CSwFP/11 Continuation Passing Style Semantics: not yet taken up
   CSwFP/12 Discourse Representation and Context: not yet taken up
