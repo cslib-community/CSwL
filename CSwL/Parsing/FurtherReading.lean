@@ -29,7 +29,8 @@ Lógicas para falar de relações em árvores foram propostas em
 usamos na seção {ref "parse-trees"}[Árvores Sintáticas] podem ser
 facilmente descritas em termos lógicos.
 
-A análise sintática de língua natural é assimilada à dedução lógica em
+A análise sintática de língua natural pode ser também entendida como um processo
+de dedução, muito semelhante à dedução lógica
 {citet Bib.pereira1983}[]. A bíblia da análise sintática no contexto da
 teoria das linguagens formais é {citet Bib.aho1972}[]. A análise de
 fragmentos de língua natural com Prolog é o tema de

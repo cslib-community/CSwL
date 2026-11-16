@@ -389,7 +389,7 @@ theorem sisters_dropLast (p r : Pos)
 ::::exercise (rating := 3) (name := "c-command-dominance")
 Suponha que `p` c-comanda `q`, isto é, uma irmã `r` de `p` domina `q`. Prove que
 `p` não domina `q` e que `q` não domina `p`. Prove também que a mãe
-de `p`,  domina `q`. A mãe ramifica, porque tem as filhas
+de `p` domina `q`. A mãe ramifica, porque tem as filhas
 `p` e `r`, e é a posição ramificada mais baixa acima de `p`.
 
 Dicas, uma para cada teorema:
