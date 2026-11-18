@@ -379,7 +379,13 @@ CSwFP/8 is skipped for now, and the chapter follows `Composition`.
   `allFeats` joins them. `Cat` is a structure, whose fields replace
   CSwFP's functions `phon`, `catLabel`, `fs` and `subcatList`.
   Constructors of `Feat` are lowercase (`sg`, `mascOrFem`), as Lean
-  style asks, and `Feat.toString` prints them as in CSwFP (`Sg`).
+  style asks, and `Feat.toString` prints them as in CSwFP (`Sg`). A
+  category is printed as an attribute-value matrix, as in HPSG and the
+  ERG (`[CAT NP, ORTH she, GEN fem, NUM sg, …]`, with `SUBCAT ⟨…⟩`),
+  where CSwFP prints `she NP[Pers,Thrd,Sg,Nom,Fem]`; the attributes are
+  the kinds of features, and the display, a `Repr` instance built with
+  `Std.Format`, sits in a `:::details` block. The terse cues present
+  `combine` as unification of these matrices.
   The new exercise `combine-comm` proves that `combine` does not
   depend on the order of the categories.
 - 9.9: further reading is kept, unlike in the other chapters, as the
