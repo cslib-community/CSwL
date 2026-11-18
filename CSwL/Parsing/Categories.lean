@@ -32,10 +32,14 @@ namespace Parsing
   então não produz nenhuma análise. A função `fromOption` faz essa
   ponte: `some b` vira `pure b`, e `none` vira `failure`.
 - Para exibir uma árvore, usamos um único AVM, como em HPSG
-  {citep Bib.sag1999}[], onde a frase inteira é uma estrutura de traços. As filhas de um nó ficam
-  dentro dela, no atributo `ARGS`: o nó `.branch c ts` é o AVM de `c`
-  com mais um atributo, `ARGS ⟨…⟩`, a lista dos AVMs das árvores `ts`.
+  {citep Bib.sag1999}[], onde a frase inteira é uma estrutura de traços.
+  As filhas de um nó ficam dentro dela, no atributo `ARGS`: o nó
+  `.branch c ts` é o AVM de `c` com mais um atributo, `ARGS ⟨…⟩`, a
+  lista dos AVMs das árvores `ts`.
   Uma folha `.leaf c` é só o AVM de `c`.
+- Num sintagma, `ORTH` é a lista das formas das folhas, na ordem, como
+  em HPSG: o `VP` de _loved her_ tem `ORTH ⟨loved, her⟩`. O campo `phon`
+  do nó continua `"_"`; a lista é calculada só para a exibição.
 - A árvore continua lá, mas aninhada: cada `ARGS` é um nível abaixo.
 :::
 
@@ -70,12 +74,19 @@ def fromOption {α β : Type} : Option β → Parser α β
 
 :::details "Exibindo árvores como AVMs"
 ```lean
+partial def ParseTree.yield : ParseTree Cat Cat → List String
+  | .leaf c => [c.phon]
+  | .branch _ ts => ts.flatMap ParseTree.yield
+
 partial def ParseTree.fmt : ParseTree Cat Cat → Std.Format
   | .leaf c => avmFmt c.attrs
   | .branch c [] => avmFmt c.attrs
-  | .branch c ts =>
+  | t@(.branch c ts) =>
+    -- a phrase has no form of its own: show the forms of its leaves
+    let orth := "ORTH " ++ listFmt (t.yield.map Std.Format.text)
+    let cattrs := c.attrs.take 1 ++ [orth] ++ c.attrs.drop 1
     let attrs := Std.Format.group
-      (Std.Format.joinSep c.attrs ("," ++ Std.Format.line))
+      (Std.Format.joinSep cattrs ("," ++ Std.Format.line))
     let args := "ARGS " ++ Std.Format.nest 5 (listFmt (ts.map ParseTree.fmt))
     Std.Format.bracket "[" (attrs ++ "," ++ Std.Format.line ++ args) "]"
 
@@ -167,6 +178,8 @@ open Examples in
   dwarf_; em _Alice loved him_, é _him_. Ao encontrá-lo, a pendência é
   resolvida. O `VP` formado pela regra tem a lista vazia, porque já tem
   todos os seus complementos.
+- A folha do verbo continua com a sua lista: ela registra o que o verbo
+  pede. A pendência é resolvida no nó pai, e não apagada da folha.
 - A função `matchSubcat` faz essa casagem, elemento a elemento: os
   rótulos têm de ser iguais, e os traços têm de concordar. É assim que
   _gave_ aceita um `PP` com `to`, e não um com `with`.
