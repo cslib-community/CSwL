@@ -50,7 +50,6 @@ inductive Feat where
   | tense | infl
   | on | with | by | to | from
   deriving Repr, DecidableEq
-
 def Feat.toString : Feat → String
   | .masc => "Masc" | .fem => "Fem" | .neutr => "Neutr"
   | .mascOrFem => "MascOrFem"
@@ -71,6 +70,12 @@ abbrev Agreement := List Feat
 - Os traços se dividem em tipos: gênero, número, pessoa, caso, tipo de
   pronome, tempo e preposição. Cada tipo tem a lista dos seus valores,
   e `allFeats` junta todas.
+- O caso marca a função de um `NP` na frase. Em inglês, só os pronomes
+  o mostram. O nominativo, `nom`, é o caso do sujeito: _she_, _he_, _I_.
+  O acusativo é o caso do objeto direto, e o dativo, o do objeto
+  indireto. O inglês não distingue os casos dativo e acusativo, e por
+  isso há um único valor, `accOrDat`: _her_, _him_, _me_. É também o
+  caso do `NP` que vem depois de uma preposição.
 - As funções `gender`, `number`, `person` etc. selecionam, numa lista
   de traços, os de um tipo.
 - Dois valores diferentes do mesmo tipo entram em conflito.
@@ -114,8 +119,6 @@ def tense (fs : Agreement) : Agreement :=
 def prepType (fs : Agreement) : Agreement :=
   fs.filter (· ∈ prepTypeFeats)
 
-#eval number [.pers, .sg, .thrd, .nom]
-
 def prune (fs : Agreement) : Agreement :=
   if .masc ∈ fs || .fem ∈ fs then fs.erase .mascOrFem else fs
 
@@ -131,8 +134,19 @@ def prune (fs : Agreement) : Agreement :=
   nesse lugar.
 - `Cat` é uma estrutura com um campo para cada componente. O campo
   `subcatList` é uma lista de `Cat`, então o tipo é recursivo.
-- Para exibir uma categoria, escrevemos a palavra, se houver, o rótulo
-  e os traços.
+- Para exibir uma categoria, usamos a notação das gramáticas de
+  unificação, como HPSG {citep Bib.sag1999}[]: uma *matriz de atributos
+  e valores*, ou AVM.
+  Cada componente é um atributo: o rótulo é `CAT`, a forma é `ORTH` e a
+  lista de subcategorização é `SUBCAT`. Cada tipo de traço também é um
+  atributo: `GEN`, `NUM`, `PER`, `CASE`, `PRON`, `VFORM` e `PFORM`.
+- Assim, _she_ é `[CAT NP, ORTH she, GEN fem, NUM sg, PER thrd, CASE nom,
+  PRON pers]`. Um atributo sem valor não aparece, e uma categoria não
+  lexical não tem `ORTH`.
+- Os colchetes `[…]` delimitam um AVM, e os sinais `⟨…⟩` delimitam uma
+  lista de AVMs. O valor de `SUBCAT` é uma lista: _loved_ é
+  `[CAT VP, ORTH loved, VFORM tense, SUBCAT ⟨[CAT NP, CASE accOrDat]⟩]`,
+  um verbo que espera um `NP` com `accOrDat`.
 :::
 
 ::::full
@@ -153,12 +167,40 @@ structure Cat where
   fs : Agreement
   subcatList : List Cat
   deriving Repr, BEq
+```
 
-instance : ToString Cat where
-  toString c :=
-    if c.phon == "_" then c.label ++ toString c.fs
-    else c.phon ++ " " ++ c.label ++ toString c.fs
+:::details "Exibindo categorias como AVMs"
+```lean
+open Std (Format)
 
+def featPairs (fs : Agreement) : List String :=
+  let attrs := [("GEN", gender fs), ("NUM", number fs),
+    ("PER", person fs), ("CASE", gcase fs), ("PRON", pronType fs),
+    ("VFORM", tense fs), ("PFORM", prepType fs)]
+  (attrs.filter (!·.2.isEmpty)).map fun (a, vs) =>
+    a ++ " " ++ "/".intercalate (vs.map fun v => (toString v).decapitalize)
+
+def avmFmt (attrs : List Format) : Format :=
+  Format.bracket "[" (Format.joinSep attrs ("," ++ Format.line)) "]"
+
+def listFmt (xs : List Format) : Format :=
+  Format.bracket "⟨" (Format.joinSep xs ("," ++ Format.line)) "⟩"
+
+def featAVM (fs : Agreement) : String :=
+  (avmFmt ((featPairs fs).map Format.text)).pretty
+
+def Cat.attrs : Cat → List Format
+  | ⟨phon, label, fs, subcatList⟩ =>
+    let orth := if phon == "_" then [] else [f!"ORTH {phon}"]
+    let sub := if subcatList.isEmpty then []
+      else [f!"SUBCAT " ++ listFmt (subcatList.map fun c => avmFmt c.attrs)]
+    [f!"CAT {label}"] ++ orth ++ (featPairs fs).map Format.text ++ sub
+
+instance : Repr Cat := ⟨fun c _ => avmFmt c.attrs⟩
+```
+:::
+
+```lean
 namespace Examples
 
 def she : Cat := ⟨"she", "NP", [.pers, .thrd, .sg, .fem, .nom], []⟩
@@ -173,14 +215,21 @@ def the : Cat := ⟨"the", "DET", [], []⟩
 end Examples
 
 open Examples in
-#eval toString she
 
-#eval toString ({ phon := "_", label := "NP", fs := [.sg], subcatList := [] } : Cat)
+#eval she
+
+#eval ({
+   phon := "_", label := "NP", fs := [.sg],
+   subcatList := [] } : Cat)
 ```
 
 :::terse
 - A função `combine` junta os traços de duas categorias e devolve
   `none` quando há conflito: é a visão de restrição.
+- Em termos de AVMs, `combine` é uma *unificação*: junta a informação
+  das duas matrizes e falha se elas se contradizem. `[PER thrd]` e
+  `[NUM sg]` dão `[NUM sg, PER thrd]`; `[NUM sg]` e `[NUM pl]` não se
+  unificam.
 - O resultado não depende da ordem dos traços: filtramos `allFeats`,
   então cada traço aparece uma só vez, na ordem de `allFeats`.
 - Duas categorias concordam, `agree`, quando `combine` não falha.
@@ -189,6 +238,10 @@ open Examples in
   sujeito o traço `nom`.
 - A atribuição falha se `c` já tem um traço incompatível: `her`, que é
   `accOrDat`, não pode ser sujeito.
+- Para montar a categoria nova, `assign` usa `map` sobre o resultado
+  de `combine`. Numa `Option`, `o.map f` aplica `f` ao valor, se houver:
+  `some a` vira `some (f a)`, e `none` continua `none`. É o mesmo `map`
+  das listas, que aplica `f` a cada elemento.
 :::
 
 ::::full
@@ -217,12 +270,12 @@ def assign (f : Feat) (c : Cat) : Option Cat :=
 
 open Examples
 
-#eval combine she laughs
+#eval (combine she laughs).map featAVM
 #eval agree they laughs
-#eval combine the child
+#eval (combine the child).map featAVM
 #eval agree child thing
-#eval (assign .nom alice).map toString
-#eval (assign .nom her).map toString
+#eval assign .nom alice
+#eval assign .nom her
 ```
 
 ::::exercise (rating := 2) (name := "combine-comm")
@@ -237,17 +290,6 @@ theorem combine_comm (cat1 cat2 : Cat) :
 ```
 ::::
 
-::::exercise (rating := 1) (name := "all-feats")
-A função {name}`combine` filtra {name}`allFeats`, então um traço que não
-esteja nessa lista se perde. Prove que todo traço está em
-{name}`allFeats`.
-
-```lean
-theorem mem_allFeats (f : Feat) : f ∈ allFeats := by
-  solution!
-   cases f <;> decide
-```
-::::
 
 ```lean
 end Parsing

@@ -20,6 +20,7 @@ file := "FurtherReading"
 - Algoritmos para qualquer gramática livre de contexto, como CKY e
   Earley: {citet Bib.jurafsky2026}[] (cap. 19), {citet Bib.carroll2022}[],
   {citet Bib.allen1995}[].
+- Estruturas de traços e unificação em HPSG: {citet Bib.sag1999}[].
 :::
 
 ::::full
@@ -64,7 +65,9 @@ que não aceita regras recursivas à esquerda. Algoritmos que analisam qualquer 
 livre de contexto, como CKY e Earley, são apresentados no capítulo 19
 de {citet Bib.jurafsky2026}[], em {citet Bib.carroll2022}[] e em
 {citet Bib.allen1995}[]. {citet Bib.bunt2004}[] reúnem trabalhos sobre
-técnicas de análise sintática de língua natural. {citet Bib.bender2024}[]
+técnicas de análise sintática de língua natural. Estruturas de traços,
+unificação e subcategorização são apresentadas no formalismo HPSG em
+{citet Bib.sag1999}[]. {citet Bib.bender2024}[]
 tratam do uso computacional de gramáticas de grande cobertura no
 formalismo HPSG, incluindo a análise sintática com elas.
 ::::

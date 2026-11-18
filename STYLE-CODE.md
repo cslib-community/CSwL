@@ -84,7 +84,7 @@ this way is usually a mistake; see "Known gaps."
 | `InfEngine` | `let rec` | `do`-notation | — |
 | `ModelChecking` | `mutual` over `inductive` types (`Logic/FOL` only uses it over `def`) | guillemet identifiers (`«with»`), pattern-matching `fun \| … => …` (first use outside a solution) | *(none new)* |
 | `Composition` | — | image `f '' A`, `Set.BijOn`, `Set.ncard`, `List.count`, `List.Perm`, Mathlib's `Language` with `ᶜ`, `⊓`, `+` and `∗` | *(none new)* |
-| `Parsing` | `termination_by`, `decreasing_by`, `partial def` | `<+:` (`List.IsPrefix`), Mathlib's `List.Palindrome`, `List.attach` and subtype patterns (`\| ⟨l, h⟩`), `congrArg`, `StateT` with Mathlib's `Monad`/`Alternative List`, `pure`, `failure`, `<\|>`, `<$>`, `>>=`, `.run` | `subst`, `split at`, `try`, `rename_i`, `contradiction`; `rcases` and `Or.inr` (first use outside a solution) |
+| `Parsing` | `termination_by`, `decreasing_by`, `partial def` | `<+:` (`List.IsPrefix`), Mathlib's `List.Palindrome`, `List.attach` and subtype patterns (`\| ⟨l, h⟩`), `congrArg`, `StateT` with Mathlib's `Monad`/`Alternative List`, `pure`, `failure`, `<\|>`, `<$>`, `>>=`, `.run`, `Except` with `.ok`, `.error` and `throw` | `subst`, `split at`, `try`, `rename_i`, `contradiction`; `rcases` and `Or.inr` (first use outside a solution) |
 
 `ModelChecking` is where `abbrev` and `ToString` instances become the
 dominant idiom, but both arrive earlier; what is genuinely new there is the mutually

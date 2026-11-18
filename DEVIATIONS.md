@@ -379,10 +379,41 @@ CSwFP/8 is skipped for now, and the chapter follows `Composition`.
   `allFeats` joins them. `Cat` is a structure, whose fields replace
   CSwFP's functions `phon`, `catLabel`, `fs` and `subcatList`.
   Constructors of `Feat` are lowercase (`sg`, `mascOrFem`), as Lean
-  style asks, and `Feat.toString` prints them as in CSwFP (`Sg`).
-  The new exercises `combine-comm` and `all-feats` prove that `combine`
-  does not depend on the order of the categories and that every
-  feature is in `allFeats`.
+  style asks, and `Feat.toString` prints them as in CSwFP (`Sg`). A
+  category is printed as an attribute-value matrix, as in HPSG and the
+  ERG (`[CAT NP, ORTH she, GEN fem, NUM sg, …]`, with `SUBCAT ⟨…⟩`),
+  where CSwFP prints `she NP[Pers,Thrd,Sg,Nom,Fem]`; the attributes are
+  the kinds of features, and the display, a `Repr` instance built with
+  `Std.Format`, sits in a `:::details` block. The terse cues present
+  `combine` as unification of these matrices.
+  The new exercise `combine-comm` proves that `combine` does not
+  depend on the order of the categories.
+- 9.5: the lexicon is not one function by cases on the word. Its
+  entries are lists of `Cat`, one per word class (`pronouns`,
+  `commonNouns`, `verbs`, …), and `lexicon w` keeps the entries whose
+  form is `w`. The regular classes are built by helpers: `noun` gives
+  the singular and plural of a common noun, `verb` the past (`tense`)
+  and infinitive (`infl`) of a verb with a given subcategorization
+  list. The entries are the same as CSwFP's, in the same order for
+  each word. `collectCats` returns `Except String (List (List Cat))`,
+  with an error naming the unknown words, where CSwFP calls `error`. `scan`
+  works on the list of characters, `scanChars`, and `lexer` splits on
+  spaces with `splitOn`, as Lean has no `words`. The new exercise
+  `init-cats-length` proves that the number of lists returned by
+  `initCats` is the product of the number of categories of each word.
+- 9.6: the parsers are written bottom-up, from the lexical parsers to
+  `sRule`, because Lean needs a definition before its use; CSwFP
+  starts with `sRule`. The rules are in `do`-notation on the `Parser`
+  of 9.3, and `fromOption`, which is not in CSwFP, turns the `none` of
+  `combine`, `assign` and `assignT` into `failure`. `match` is renamed
+  `matchSubcat`, as `match` is a Lean keyword. `prs` returns
+  `Except String (List (ParseTree Cat Cat))`, following `collectCats`,
+  with two errors: an unknown word, and a sentence with no parse,
+  where CSwFP returns the empty list. So `.ok` always carries at least
+  one tree. A parse tree is printed as one AVM, the daughters of a node
+  under `ARGS` as in the ERG, through a `Repr` instance built with
+  `Std.Format` in a `:::details` block. Exercise 9.10 waits in issue
+  53.
 - 9.9: further reading is kept, unlike in the other chapters, as the
   last section of the chapter, and extended with references on general
   parsing algorithms (CKY, Earley) that a `:::details` block after

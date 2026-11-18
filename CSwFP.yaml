@@ -226,7 +226,8 @@ original:
     - all-kstar       # from the prose in 7.2, "all corresponds to the regular language 1∗"
   Parsing/Combinators.lean: [adjs-recursive, palindrome-parser]
   Parsing/ParseTrees.lean: [c-command-variants]
-  Parsing/Features.lean: [combine-comm, all-feats]
+  Parsing/Features.lean: [combine-comm]
+  Parsing/Lexicon.lean: [init-cats-length]
 
 depends:
   bangu-proof: bangu-form
@@ -364,8 +365,8 @@ sections:
     9.3 Parsers and Parser Combinators: Parsing, without the Mastermind
       parser, since Mastermind is dropped with 5.4
     9.4 Features and Categories: Parsing
-    9.5 Lexical Lookup and Scanning: Parsing, not yet written
-    9.6 Parsing Categories: Parsing, not yet written
+    9.5 Lexical Lookup and Scanning: Parsing
+    9.6 Parsing Categories: Parsing
     9.7 Handling Extractions: Parsing, not yet written
     9.8 Adding Semantics: Parsing, not yet written
     9.9 Further Reading: Parsing, translated and extended with further references

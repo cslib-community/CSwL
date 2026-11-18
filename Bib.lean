@@ -209,6 +209,16 @@ def aho1972 : Article where
   volume  := inlines!""
   number  := inlines!""
 
+def sag1999 : Article where
+  title   := inlines!"Syntactic Theory: A Formal Introduction"
+  authors := #[inlines!"Ivan A. Sag", inlines!"Thomas Wasow"]
+  journal := inlines!"CSLI Publications, Stanford"
+  year    := 1999
+  month   := none
+  volume  := inlines!""
+  number  := inlines!""
+  url     := "https://web.stanford.edu/group/cslipublications/cslipublications/pdf/1575861607.pdf"
+
 def pereira1987 : Article where
   title   := inlines!"Prolog and Natural-Language Analysis"
   authors := #[inlines!"Fernando C. N. Pereira", inlines!"Stuart M. Shieber"]
