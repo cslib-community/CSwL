@@ -388,6 +388,19 @@ CSwFP/8 is skipped for now, and the chapter follows `Composition`.
   `combine` as unification of these matrices.
   The new exercise `combine-comm` proves that `combine` does not
   depend on the order of the categories.
+- 9.5: the lexicon is not one function by cases on the word. Its
+  entries are lists of `Cat`, one per word class (`pronouns`,
+  `commonNouns`, `verbs`, …), and `lexicon w` keeps the entries whose
+  form is `w`. The regular classes are built by helpers: `noun` gives
+  the singular and plural of a common noun, `verb` the past (`tense`)
+  and infinitive (`infl`) of a verb with a given subcategorization
+  list. The entries are the same as CSwFP's, in the same order for
+  each word. `collectCats` returns `Except String (List (List Cat))`,
+  with an error naming the unknown words, where CSwFP calls `error`. `scan`
+  works on the list of characters, `scanChars`, and `lexer` splits on
+  spaces with `splitOn`, as Lean has no `words`. The new exercise
+  `init-cats-length` proves that the number of lists returned by
+  `initCats` is the product of the number of categories of each word.
 - 9.9: further reading is kept, unlike in the other chapters, as the
   last section of the chapter, and extended with references on general
   parsing algorithms (CKY, Earley) that a `:::details` block after
