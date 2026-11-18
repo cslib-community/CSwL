@@ -5,6 +5,7 @@ import CSwL.Parsing.Recognition
 import CSwL.Parsing.Combinators
 import CSwL.Parsing.Features
 import CSwL.Parsing.Lexicon
+import CSwL.Parsing.Categories
 import CSwL.Parsing.FurtherReading
 
 open Verso.Genre Manual
@@ -36,7 +37,10 @@ written `terse` first (see `STYLE-CODE.md`).
 - 9.5: the lexicon as lists of `Cat`, one per word class, looked up by
   form; `noun` and `verb` build the regular pairs;
   `collectCats` returns `Except String` where CSwFP raises an error.
-- 9.6–9.8: to plan. The representation of `Cat` is tied to issue 42.
+- 9.6: parsers over `Cat` in `do`-notation on the `Parser` of 9.3;
+  `fromOption` turns a failed `combine`/`assign` into `failure`; `prs`
+  returns `Except String`.
+- 9.7–9.8: to plan. The representation of `Cat` is tied to issue 42.
 :::
 
 :::terse
@@ -62,5 +66,7 @@ TODO: translate the CSwFP/9 summary.
 {include 1 CSwL.Parsing.Features}
 
 {include 1 CSwL.Parsing.Lexicon}
+
+{include 1 CSwL.Parsing.Categories}
 
 {include 1 CSwL.Parsing.FurtherReading}

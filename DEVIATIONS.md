@@ -401,6 +401,19 @@ CSwFP/8 is skipped for now, and the chapter follows `Composition`.
   spaces with `splitOn`, as Lean has no `words`. The new exercise
   `init-cats-length` proves that the number of lists returned by
   `initCats` is the product of the number of categories of each word.
+- 9.6: the parsers are written bottom-up, from the lexical parsers to
+  `sRule`, because Lean needs a definition before its use; CSwFP
+  starts with `sRule`. The rules are in `do`-notation on the `Parser`
+  of 9.3, and `fromOption`, which is not in CSwFP, turns the `none` of
+  `combine`, `assign` and `assignT` into `failure`. `match` is renamed
+  `matchSubcat`, as `match` is a Lean keyword. `prs` returns
+  `Except String (List (ParseTree Cat Cat))`, following `collectCats`,
+  with two errors: an unknown word, and a sentence with no parse,
+  where CSwFP returns the empty list. So `.ok` always carries at least
+  one tree. A parse tree is printed as one AVM, the daughters of a node
+  under `ARGS` as in the ERG, through a `Repr` instance built with
+  `Std.Format` in a `:::details` block. Exercise 9.10 waits in issue
+  53.
 - 9.9: further reading is kept, unlike in the other chapters, as the
   last section of the chapter, and extended with references on general
   parsing algorithms (CKY, Earley) that a `:::details` block after
