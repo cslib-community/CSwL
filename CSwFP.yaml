@@ -226,7 +226,7 @@ original:
     - all-kstar       # from the prose in 7.2, "all corresponds to the regular language 1∗"
   Parsing/Combinators.lean: [adjs-recursive, palindrome-parser]
   Parsing/ParseTrees.lean: [c-command-variants]
-  Parsing/Features.lean: [combine-comm, all-feats]
+  Parsing/Features.lean: [combine-comm]
 
 depends:
   bangu-proof: bangu-form

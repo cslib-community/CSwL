@@ -380,9 +380,8 @@ CSwFP/8 is skipped for now, and the chapter follows `Composition`.
   CSwFP's functions `phon`, `catLabel`, `fs` and `subcatList`.
   Constructors of `Feat` are lowercase (`sg`, `mascOrFem`), as Lean
   style asks, and `Feat.toString` prints them as in CSwFP (`Sg`).
-  The new exercises `combine-comm` and `all-feats` prove that `combine`
-  does not depend on the order of the categories and that every
-  feature is in `allFeats`.
+  The new exercise `combine-comm` proves that `combine` does not
+  depend on the order of the categories.
 - 9.9: further reading is kept, unlike in the other chapters, as the
   last section of the chapter, and extended with references on general
   parsing algorithms (CKY, Earley) that a `:::details` block after

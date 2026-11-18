@@ -50,7 +50,6 @@ inductive Feat where
   | tense | infl
   | on | with | by | to | from
   deriving Repr, DecidableEq
-
 def Feat.toString : Feat → String
   | .masc => "Masc" | .fem => "Fem" | .neutr => "Neutr"
   | .mascOrFem => "MascOrFem"
@@ -114,8 +113,6 @@ def tense (fs : Agreement) : Agreement :=
 def prepType (fs : Agreement) : Agreement :=
   fs.filter (· ∈ prepTypeFeats)
 
-#eval number [.pers, .sg, .thrd, .nom]
-
 def prune (fs : Agreement) : Agreement :=
   if .masc ∈ fs || .fem ∈ fs then fs.erase .mascOrFem else fs
 
@@ -173,9 +170,12 @@ def the : Cat := ⟨"the", "DET", [], []⟩
 end Examples
 
 open Examples in
+
 #eval toString she
 
-#eval toString ({ phon := "_", label := "NP", fs := [.sg], subcatList := [] } : Cat)
+#eval toString ({
+   phon := "_", label := "NP", fs := [.sg],
+   subcatList := [] } : Cat)
 ```
 
 :::terse
@@ -237,17 +237,6 @@ theorem combine_comm (cat1 cat2 : Cat) :
 ```
 ::::
 
-::::exercise (rating := 1) (name := "all-feats")
-A função {name}`combine` filtra {name}`allFeats`, então um traço que não
-esteja nessa lista se perde. Prove que todo traço está em
-{name}`allFeats`.
-
-```lean
-theorem mem_allFeats (f : Feat) : f ∈ allFeats := by
-  solution!
-   cases f <;> decide
-```
-::::
 
 ```lean
 end Parsing
