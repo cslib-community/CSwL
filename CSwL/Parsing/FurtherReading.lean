@@ -56,8 +56,8 @@ detalhes."
 
 Uma linguagem de programação de propósito específico para desenvolver
 aplicações multilíngues de língua natural, com a análise sintática no
-centro, é o Grammatical Framework, ou GF. O GF é semelhante a Haskell,
-mas especializado na escrita de gramáticas. Ver {citet Bib.ranta2009}[]
+centro, é o Grammatical Framework, ou GF. O GF é uma linguagem
+funcional, especializada na escrita de gramáticas. Ver {citet Bib.ranta2009}[]
 e [grammaticalframework.org](https://www.grammaticalframework.org).
 
 Os parsers construídos com combinadores seguem a descida recursiva,

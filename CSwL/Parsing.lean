@@ -43,7 +43,8 @@ correspondentes no programa.
 Para analisar um fragmento do inglês, acrescentamos às categorias
 sintáticas traços de concordância e listas dos complementos que cada
 expressão exige. Um léxico associa as palavras a essas categorias,
-e a análise léxica prepara o texto para a consulta. Os parsers passam
+e a análise léxica prepara a sentença de entrada para a consulta ao
+léxico. Os parsers passam
 então a combinar categorias, verificando a compatibilidade dos traços
 e as exigências de subcategorização ao construir as árvores.
 
