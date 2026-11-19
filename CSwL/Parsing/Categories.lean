@@ -307,8 +307,10 @@ open Examples in
 
 :::terse
 - Nesta gramática, uma sentença tem uma só oração, formada pela regra
-  sujeito–predicado, `S → NP VP`. O sujeito e o predicado têm de concordar, o sujeito tem
-  de aceitar o caso {lean}`Feat.nom`, e o predicado já tem de ter todos os seus
+  sujeito–predicado, `S → NP VP`. Embora o léxico tenha `and`, a
+  sentença `Alice smiled and Dorothy laughed.` não tem análise.
+- O sujeito e o predicado têm de concordar, o sujeito tem de aceitar o
+  caso {lean}`Feat.nom`, e o predicado já tem de ter todos os seus
   complementos: a sua lista de subcategorização é vazia.
 - A função `prs` analisa uma cadeia: aplica {name}`lexer`, consulta o léxico
   com {name}`collectCats` e, para cada escolha de categorias, fica com as
@@ -330,7 +332,12 @@ também deve ter completado sua lista de subcategorização. A árvore
 resultante tem um nó `S` com o sujeito atualizado e o predicado
 como filhas. O parser `parseSent` usa essa regra.
 
-A função `prs` reúne as etapas da análise de um texto.
+Nesta gramática, essa é a única regra para `S`, e por isso uma
+sentença tem uma só oração. Embora o léxico tenha `and`, a sentença
+`Alice smiled and Dorothy laughed.` não tem análise, como mostra o
+último exemplo.
+
+A função `prs` reúne as etapas da análise de uma sentença.
 Primeiro, {name}`lexer` produz a lista de palavras. Depois,
 {name}`collectCats` consulta o léxico e enumera as escolhas
 de categorias para a entrada. Para cada escolha, aplicamos
@@ -379,6 +386,7 @@ def prs (s : String) : Except String (List (ParseTree Cat Cat)) := do
 #eval prs "Goldilocks gave the sword to Alice."
 #eval prs "Goldilocks gave the sword with Alice."
 #eval prs "Atreyu didn't kick the giant with a dagger."
+#eval prs "Alice smiled and Dorothy laughed."
 ```
 
 ```lean

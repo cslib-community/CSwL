@@ -270,7 +270,12 @@ def verbs : List Cat :=
   ponto final não está no léxico.
 - A conjunção `and` tem o rótulo `CONJ` e liga duas orações dentro da
   mesma sentença: _Alice smiled and Dorothy laughed_ é uma sentença com
-  duas orações.
+  duas orações. As palavras `if` e `then`, com os rótulos `COND` e
+  `THEN`, também ligam orações.
+- O léxico registra mais do que o parser da próxima seção analisa. Esse
+  parser só tem a regra `S → NP VP`, então não aceita orações
+  coordenadas nem condicionais. As entradas `CONJ`, `COND`, `THEN` e
+  `REL` serão usadas por regras que vamos acrescentar depois.
 - O léxico junta todas as listas. Uma palavra fora delas recebe a lista
   vazia.
 :::
@@ -286,9 +291,12 @@ Registramos também as palavras que conectam orações. A palavra
 `and` recebe o rótulo `CONJ`, e as palavras `if` e `then`
 recebem os rótulos `COND` e `THEN`. Essas palavras ligam orações
 dentro de uma mesma sentença: _Alice smiled and Dorothy laughed_
-é uma única sentença, com duas orações. O ponto final não tem
-entrada no léxico, porque a nossa gramática analisa uma sentença
-de cada vez, e não um texto.
+é uma única sentença, com duas orações. O parser da próxima seção,
+porém, só tem a regra `S → NP VP` e não aceita orações coordenadas
+nem condicionais. As entradas com os rótulos `CONJ`, `COND`, `THEN`
+e `REL` serão usadas por regras que acrescentaremos depois. O ponto
+final não tem entrada no léxico, porque a nossa gramática analisa
+uma sentença de cada vez, e não um texto.
 
 A função `lexicon` reúne as listas de entradas e filtra aquelas
 cuja forma coincide com a palavra consultada. A consulta de
