@@ -257,7 +257,7 @@ A raiz tem três filhos: P[x], ∧ e um nó interno. Esse nó tem os filhos ∀x
 ```
 :::
 
-O `∀x` liga as ocorrências de `x` em `Q[x]` e em `R[x,y]`, que estão abaixo do seu irmão na árvore, mas não a de `P[x]`, que está fora desse ramo. Essa relação entre um nó e os nós abaixo dos seus irmãos se chama *c-comando*. Ela vem da sintaxe das línguas naturais, e voltaremos a ela em {ref "Parsing"}[Análise sintática].
+O `∀x` liga as ocorrências de `x` em `Q[x]` e em `R[x,y]`, que estão abaixo do seu irmão na árvore, mas não a de `P[x]`, que está fora desse ramo. Essa relação entre um nó e os nós abaixo dos seus irmãos se chama *c-comando*. Ela vem da sintaxe das línguas naturais, e voltaremos a ela em {ref "Parsing"}[Análise Sintática].
 ::::
 
 Coletar as variáveis livres de uma fórmula é uma operação recorrente. Abaixo, definimos a função freeVars que recebe como parâmetro uma função que extrai as variáveis de um termo. Para {lean}`R_reflexive`, só precisamos de uma função que transforme uma variável em uma lista com ela mesma. Para fórmulas que podem conter termos complexos, {lean}`Formula Term`, nossa função terá que percorrer todo o termo coletando as variáveis. Nos quantificadores, `filter` preserva apenas as variáveis diferentes da variável que o quantificador introduz.

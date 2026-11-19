@@ -5,7 +5,7 @@ import CSwL.Composition.TypedMeanings
 open Verso.Genre Manual
 open CSwLMeta
 
-#doc (Manual) "Implementando a interpretação semântica" =>
+#doc (Manual) "Implementando a Interpretação Semântica" =>
 %%%
 tag := "comp-interpretation"
 file := "Interpretation"

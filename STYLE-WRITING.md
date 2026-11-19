@@ -179,6 +179,11 @@ writing pedagogical material.
 - Em dashes for parenthetical breaks, spaced as the surrounding prose does.
 - Portuguese quotation marks or straight quotes, consistently within a file.
 - Lean code in prose always in code font, never italicized.
+- Titles of chapters, sections and subsections are capitalized: every word
+  takes a capital except articles, prepositions and conjunctions, which stay
+  in lowercase unless they open the title ("A Visão Relacional dos
+  Quantificadores", "Parsers e Combinadores de Parsers"). The text of a
+  `{ref "…"}[…]` that quotes a title follows the title.
 - Every sentence starts with a capital letter. If a sentence would open with a
   lowercase Lean identifier, rephrase it — `Nat.add` may open a sentence,
   `omega` may not.

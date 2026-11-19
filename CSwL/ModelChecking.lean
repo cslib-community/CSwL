@@ -540,7 +540,7 @@ def lfDV : DV → Term → Term → Term → LF
 
 ## Variáveis novas
 
-A tradução de um determinante toma dois argumentos de tipo `Term → LF`, formas lógicas obtidas a partir de um termo, e produz uma forma lógica. No caso dos quantificadores, o primeiro argumento é a *restrição* e o segundo o *escopo*. Falaremos disso em {ref "comp-relational"}[A visão relacional dos quantificadores].
+A tradução de um determinante toma dois argumentos de tipo `Term → LF`, formas lógicas obtidas a partir de um termo, e produz uma forma lógica. No caso dos quantificadores, o primeiro argumento é a *restrição* e o segundo o *escopo*. Falaremos disso em {ref "comp-relational"}[A Visão Relacional dos Quantificadores].
 
 A tradução dos determinantes precisa ser feita com algum cuidado, porque envolve construir uma forma lógica em que uma variável fica ligada. Para garantir a ligação correta, temos de nos assegurar de que a variável recém-introduzida não seja capturada por um quantificador já presente na forma lógica. Mas, se refletirmos sobre como as variáveis são introduzidas, veremos que elas sempre aparecem junto de quem as liga, e que nenhuma ligação é vazia. Basta então colher os índices das ocorrências ligadas.
 

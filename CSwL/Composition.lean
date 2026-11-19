@@ -12,7 +12,7 @@ import CSwL.Composition.Interpretation
 open Verso.Genre Manual
 open CSwLMeta
 
-#doc (Manual) "A composição do significado na língua natural" =>
+#doc (Manual) "A Composição do Significado na Língua Natural" =>
 %%%
 tag := "Composition"
 file := "Composition"

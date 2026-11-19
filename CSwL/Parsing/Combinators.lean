@@ -6,7 +6,7 @@ import Mathlib.Data.List.Monad
 open Verso.Genre Manual
 open CSwLMeta
 
-#doc (Manual) "Parsers e combinadores de parsers" =>
+#doc (Manual) "Parsers e Combinadores de Parsers" =>
 %%%
 tag := "parser-combinators"
 file := "Combinators"
@@ -735,7 +735,7 @@ Há também algoritmos que analisam qualquer gramática livre de contexto,
 inclusive com recursão à esquerda, como CKY e Earley. Em vez de descer
 pelas regras, eles guardam numa tabela as análises já encontradas para
 cada trecho da entrada. A seção
-{ref "parsing-further-reading"}[Leituras adicionais] traz referências.
+{ref "parsing-further-reading"}[Leituras Adicionais] traz referências.
 :::
 
 ::::exercise (rating := 2) (name := "palindrome-parser")

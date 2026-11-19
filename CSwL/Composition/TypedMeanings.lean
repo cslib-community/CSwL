@@ -5,7 +5,7 @@ import CSwL.Composition.Quantification
 open Verso.Genre Manual
 open CSwLMeta
 
-#doc (Manual) "Significados tipados para a língua natural" =>
+#doc (Manual) "Significados Tipados para a Língua Natural" =>
 %%%
 tag := "comp-typed-meanings"
 file := "TypedMeanings"
@@ -69,7 +69,7 @@ end Rule
 
 :::terse
 - Os determinantes são relações entre duas propriedades, como em
-  {ref "comp-relational"}[A visão relacional dos quantificadores]. *Some* e
+  {ref "comp-relational"}[A Visão Relacional dos Quantificadores]. *Some* e
   *a* têm o mesmo significado, `a`; *every* é `every`.
 - *No*: nenhuma entidade com `p` tem `q`.
 - *The*, à maneira de Russell: há exatamente uma entidade com `p`, e ela

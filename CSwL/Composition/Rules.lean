@@ -4,7 +4,7 @@ import Bib
 open Verso.Genre Manual
 open CSwLMeta
 
-#doc (Manual) "As regras do jogo" =>
+#doc (Manual) "As Regras do Jogo" =>
 %%%
 tag := "comp-rules"
 file := "Rules"

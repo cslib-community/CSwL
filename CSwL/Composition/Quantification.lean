@@ -194,7 +194,7 @@ quantifiers." The two paragraphs on the noun phrases of (7.1) and on
 :::
 ::::
 
-# A visão relacional dos quantificadores
+# A Visão Relacional dos Quantificadores
 %%%
 tag := "comp-relational"
 %%%
@@ -311,7 +311,7 @@ def defeated (X : OnePlacePred → Bool) : OnePlacePred :=
 ```
 
 
-# Condições sobre as relações quantificadoras
+# Condições sobre as Relações Quantificadoras
 %%%
 tag := "comp-conditions"
 %%%
@@ -348,7 +348,7 @@ quantificadores. É uma definição, *quantificador* é o nome de uma relação 
   ISOM separa, entre eles, os que exprimem quantidade.
 - Juntas, as três condições reduzem o valor de `D E A B` a dois números,
   $`|A - B|` e $`|A \cap B|`. É isso que permite a árvore de números de
-  {ref "comp-trees"}[Árvores numéricas].
+  {ref "comp-trees"}[Árvores Numéricas].
 - Para enunciar as condições, saímos de `Bool` e passamos a `Prop` sobre
   `Set`, como em {ref "Sets"}[Conjuntos]: `D E A B` diz que o determinante
   `D` relaciona a *restrição* `A` e o *escopo* `B` no universo `E`.
@@ -685,7 +685,7 @@ theorem poss_not_isom :
 end GQ
 ```
 
-# Árvores numéricas
+# Árvores Numéricas
 %%%
 tag := "comp-trees"
 %%%
@@ -881,7 +881,7 @@ theorem genTree_no :
 ```
 ::::
 
-# Representações lógicas para quantificadores
+# Representações Lógicas para Quantificadores
 %%%
 tag := "comp-num-repr"
 %%%
@@ -890,7 +890,7 @@ tag := "comp-num-repr"
 - O objetivo desta subseção é representar cada quantificador por uma
   expressão aritmética em `m` e `n`. Isso é possível porque, com EXT, CONS e
   ISOM, o valor de `Q A B` depende só de $`m = |A - B|` e $`n = |A \cap B|`.
-- Os padrões de {ref "comp-trees"}[Árvores numéricas] já eram desenhados a
+- Os padrões de {ref "comp-trees"}[Árvores Numéricas] já eram desenhados a
   partir de funções de `m` e `n`, como `fun _ n => n ≥ 3`: é o tipo do
   argumento de `patternTree`. `NumQuant` dá um nome a esse tipo. Por isso
   todo `NumQuant` pode ser desenhado como árvore.
@@ -1055,7 +1055,7 @@ theorem atMostNum_eq (k : Nat) :
 ```
 ::::
 
-# Propriedades relacionais
+# Propriedades Relacionais
 %%%
 tag := "comp-rel-props"
 %%%
@@ -1544,7 +1544,7 @@ theorem no_downMon : DownMonNum noNum := by
 ```
 ::::
 
-# Quantificadores, autômatos e definibilidade
+# Quantificadores, Autômatos e Definibilidade
 %%%
 tag := "comp-automata"
 %%%
