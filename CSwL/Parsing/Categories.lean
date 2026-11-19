@@ -407,7 +407,9 @@ função de determinante e um numeral. Ela deve cobrir _less than n_,
 _more than n_, _at least n_, _at most n_ e _exactly n_. O
 pré-processamento já torna cada função de determinante uma única
 palavra. Você também vai precisar, é claro, de um modo de reconhecer
-os numerais.
+os numerais. Aqui, um numeral é uma palavra formada só por
+algarismos, como `3` ou `23`, e quem o reconhece é o léxico, que lhe
+dá a categoria `NUM`: não é preciso um parser para numerais.
 
 Faça isso em três passos:
 
