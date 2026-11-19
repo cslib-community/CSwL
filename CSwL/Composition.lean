@@ -46,9 +46,8 @@ conditions on quantifier relations is in commits `76821ee` and `95047b3`.
 :::
 
 :::terse
-- Em {ref "ModelChecking"}[Verificação de modelos com lógica de primeira
-  ordem] o caminho era indireto: sentença, depois fórmula, depois avaliação no
-  modelo.
+- Em {ref "ModelChecking"}[Verificação de modelos com lógica de primeira ordem]
+  o caminho era indireto: sentença, depois fórmula, depois avaliação no modelo.
 - Agora o caminho é direto: cada expressão da língua é ligada ao modelo, sem
   fórmula intermediária.
 - Os modelos da lógica de predicados se estendem à lógica tipada, que dá os
@@ -58,10 +57,28 @@ conditions on quantifier relations is in commits `76821ee` and `95047b3`.
 :::
 
 ::::full
-:::dev BeforeNextRelease
-TODO: translate the CSwFP/7 summary, with Lean in place of Haskell as the
-lambda-calculus engine of `ModelChecking`.
-:::
+Em {ref "ModelChecking"}[Verificação de modelos com lógica de primeira ordem],
+interpretamos as sentenças em duas etapas. Primeiro, construímos uma fórmula a
+partir da árvore sintática. Depois, avaliamos essa fórmula em um modelo. Neste
+capítulo, vamos construir os significados diretamente no modelo, compondo as
+interpretações das palavras conforme a estrutura sintática da expressão.
+
+Começamos pelos quantificadores e por sua interpretação como relações entre
+conjuntos. Essa perspectiva permite estudar tanto os quantificadores usuais
+quanto expressões como *most*. Examinamos suas propriedades por meio de
+contagens, árvores numéricas e linguagens formais. Em seguida, atribuímos tipos
+aos significados das categorias sintáticas e escrevemos as regras que os
+combinam como funções do Lean.
+
+Partimos das entidades e relações do modelo para interpretar também
+expressões de tipos funcionais. Uma propriedade pode ser argumento de outra
+função, como acontece quando um sintagma nominal quantificado recebe o
+significado de um predicado.
+
+Por fim, reunimos essas regras em funções que interpretam as árvores do
+fragmento de língua natural. A interpretação direta também permite compor
+significados com *most*, cuja comparação entre quantidades não pode ser
+expressa, em geral, na lógica de primeira ordem usada na tradução do fragmento.
 ::::
 
 {include 1 CSwL.Composition.Rules}
