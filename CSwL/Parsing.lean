@@ -17,32 +17,6 @@ tag := "Parsing"
 file := "Parsing"
 %%%
 
-:::dev NOW
-Plan. The headings follow CSwFP/9.1–9.9; 9.9, further reading, is
-translated and extended, and stays the last section. Sections are
-written `terse` first (see `STYLE-CODE.md`).
-
-- 9.1: `ParseTree α β`, positions, and the tree relations as lists of
-  pairs; dominance with Lean's `<+:`.
-- 9.2: recognition and parsing by splitting, for the palindrome grammar,
-  total by `termination_by`; agreement with Mathlib's `List.Palindrome`
-  proved for every word over `{a, b, c}`.
-- 9.3: list-of-successes parsers as `StateT (List α) List`, with
-  Mathlib's `Monad`/`Alternative List`; recursive parsers are
-  `partial def`. Lean's `Std.Internal.Parsec` returns one result, not
-  all parses; it can serve the lexer of 9.5.
-- 9.4: `Feat` as one type, `Agreement` as a list put in a canonical
-  order by filtering `allFeats`; `combine` and `assign` return
-  `Option`; `Cat` is a structure.
-- 9.5: the lexicon as lists of `Cat`, one per word class, looked up by
-  form; `noun` and `verb` build the regular pairs;
-  `collectCats` returns `Except String` where CSwFP raises an error.
-- 9.6: parsers over `Cat` in `do`-notation on the `Parser` of 9.3;
-  `fromOption` turns a failed `combine`/`assign` into `failure`; `prs`
-  returns `Except String`.
-- 9.7–9.8: to plan. The representation of `Cat` is tied to issue 42.
-:::
-
 :::terse
 - Até aqui as árvores sintáticas eram construídas à mão. Agora o caminho
   é o inverso: partir de uma sequência de palavras e encontrar as árvores
