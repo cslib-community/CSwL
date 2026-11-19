@@ -20,34 +20,66 @@ namespace Parsing
 
 :::terse
 - Agora a entrada do parser é uma lista de categorias, e as árvores têm
-  categorias nas folhas e nos nós internos: `Parser Cat (ParseTree Cat Cat)`.
+  categorias nas folhas e nos nós internos: {lean}`Parser Cat (ParseTree Cat Cat)`.
 - A função `t2c` devolve a categoria da raiz de uma árvore.
-- As funções `agreeC` e `assignT` levam `agree` e `assign` para as
+- As funções `agreeC` e `assignT` levam {name}`agree` e {name}`assign` para as
   árvores. Em `assignT`, `map` põe a categoria nova de volta na árvore,
-  dentro da `Option` devolvida por `assign`.
+  dentro da {name}`Option` devolvida por {name}`assign`.
 - O parser `leafP l` lê uma categoria com rótulo `l` e a devolve como
   folha.
-- As funções `combine` e `assign` devolvem `Option`. Dentro de um
+- As funções {name}`combine` e {name}`assign` devolvem {name}`Option`. Dentro de um
   parser, queremos que uma falha delas seja uma falha do parser, que
   então não produz nenhuma análise. A função `fromOption` faz essa
-  ponte: `some b` vira `pure b`, e `none` vira `failure`.
+  ponte: `some b` vira `pure b`, e `none` vira {name}`failure`.
 - Para exibir uma árvore, usamos um único AVM, como em HPSG
-  {citep Bib.sag1999}[], onde a frase inteira é uma estrutura de traços.
+  {citep Bib.sag1999}[], onde a sentença inteira é uma estrutura de traços.
   As filhas de um nó ficam dentro dela, no atributo `ARGS`: o nó
   `.branch c ts` é o AVM de `c` com mais um atributo, `ARGS ⟨…⟩`, a
   lista dos AVMs das árvores `ts`.
   Uma folha `.leaf c` é só o AVM de `c`.
-- Num sintagma, `ORTH` é a lista das formas das folhas, na ordem, como
-  em HPSG: o `VP` de _loved her_ tem `ORTH ⟨loved, her⟩`. O campo `phon`
+- Num sintagma, `PHON` é a lista das formas das folhas, na ordem, como
+  em HPSG: o `VP` de `loved her` tem `PHON ⟨loved, her⟩`. O campo `phon`
   do nó continua `"_"`; a lista é calculada só para a exibição.
 - A árvore continua lá, mas aninhada: cada `ARGS` é um nível abaixo.
 :::
 
 ::::full
-:::dev BeforeNextRelease
-TODO: translate CSwFP/9.6, from the start to the definition of
-`assignT`, plus a sentence on `fromOption`, which is not in CSwFP.
-:::
+Vamos analisar uma entrada em que cada palavra já foi substituída
+por uma categoria do léxico. Os parsers terão tipo
+{lean}`Parser Cat (ParseTree Cat Cat)`. Assim, tanto as folhas
+quanto os nós internos das árvores guardam categorias com rótulos,
+traços e listas de subcategorização.
+
+Para consultar a categoria de uma árvore, usamos `t2c`. Se a
+árvore é uma folha, a função devolve sua categoria. Se é um nó,
+devolve a categoria da raiz. A função `agreeC` usa {name}`agree`
+para testar a concordância entre duas árvores.
+
+A atribuição de um traço também pode ser feita sobre uma árvore.
+A função `assignT` aplica {name}`assign` à categoria da raiz
+e usa {name}`Option.map` para reconstruir a folha ou o nó com
+a categoria resultante. As filhas são conservadas.
+Se a atribuição falhar, o resultado será {name}`Option.none`.
+
+O parser elementar `leafP l` reconhece uma categoria cujo rótulo
+é `l` e a transforma em uma folha. Ao construir parsers mais
+complexos, precisaremos também converter resultados de
+{name}`combine` e {name}`assign` em passos da análise. A função
+`fromOption` faz essa conversão. Para `some b`, produz
+`pure b`, que entrega `b` sem consumir entrada. Para
+{name}`Option.none`, produz {name}`failure`, de modo que essa
+tentativa de análise não devolva resultado.
+
+Exibiremos cada árvore como uma AVM que contém as AVMs de suas
+filhas no atributo `ARGS`, como uma estrutura de traços aninhada
+{citep Bib.sag1999}[]. Uma folha mostra apenas a categoria lexical.
+Um nó com filhas mostra os atributos da categoria da raiz e a
+lista de árvores filhas em `ARGS`. Seu atributo `PHON` reúne
+as formas das folhas, na ordem em que aparecem. Por exemplo, o
+`VP` de `loved her` tem `PHON ⟨loved, her⟩`. Essa lista é
+calculada para a exibição; o campo {name}`Cat.phon` da categoria
+do sintagma continua contendo `"_"`. O bloco de detalhes
+implementa essa apresentação.
 ::::
 
 ```lean
@@ -83,8 +115,8 @@ partial def ParseTree.fmt : ParseTree Cat Cat → Std.Format
   | .branch c [] => avmFmt c.attrs
   | t@(.branch c ts) =>
     -- a phrase has no form of its own: show the forms of its leaves
-    let orth := "ORTH " ++ listFmt (t.yield.map Std.Format.text)
-    let cattrs := c.attrs.take 1 ++ [orth] ++ c.attrs.drop 1
+    let phonAttr := "PHON " ++ listFmt (t.yield.map Std.Format.text)
+    let cattrs := c.attrs.take 1 ++ [phonAttr] ++ c.attrs.drop 1
     let attrs := Std.Format.group
       (Std.Format.joinSep cattrs ("," ++ Std.Format.line))
     let args := "ARGS " ++ Std.Format.nest 5 (listFmt (ts.map ParseTree.fmt))
@@ -106,11 +138,15 @@ open Examples in
 :::
 
 ::::full
-:::dev BeforeNextRelease
-TODO: translate CSwFP/9.6, "Determiners are always lexical:", "For now,
-common nouns are always in the lexicon…" and "All prepositions and all
-auxiliaries are lexical:".
-:::
+Começamos pelas categorias que reconhecemos diretamente na entrada.
+Os determinantes têm rótulo `DET`, os substantivos comuns têm
+rótulo `CN`, as preposições têm rótulo `PREP` e os auxiliares
+têm rótulo `AUX`. Para cada uma, basta aplicar {name}`leafP`
+com o rótulo correspondente.
+
+Esses parsers reconhecem uma única categoria lexical por vez.
+Em particular, o parser de `CN` aceita apenas substantivos
+comuns encontrados no léxico.
 ::::
 
 ```lean
@@ -125,18 +161,36 @@ def parseAux : CatParser := leafP "AUX"
   `NP → DET CN`. Na regra, o determinante e o substantivo têm de
   concordar, e o `NP` recebe os traços dos dois.
 - Um `PP` é sempre formado pela regra `PP → PREP NP`. A preposição
-  impõe ao `NP` o caso `accOrDat`: é o controle de traços. Por isso
-  _with her_ é um `PP`, mas _with she_ não é: _she_ tem o caso `nom`,
-  que conflita com `accOrDat`.
+  impõe ao `NP` o caso {lean}`Feat.accOrDat`: é o controle de traços. Por isso
+  `with her` é um `PP`, mas `with she` não é: `she` tem o caso {lean}`Feat.nom`,
+  que conflita com {lean}`Feat.accOrDat`.
 - Os complementos de um verbo são `NP`s e `PP`s. O parser
-  `parseNPsorPPs` lê uma sequência deles, com `many`.
+  `parseNPsorPPs` lê uma sequência deles, com {name}`many`.
 :::
 
 ::::full
-:::dev BeforeNextRelease
-TODO: translate CSwFP/9.6, from "Noun phrases can either be formed
-according to a rule…" to the definition of `parseNPsorPPs`.
-:::
+Um sintagma nominal pode ser uma categoria lexical com rótulo
+`NP`, como a de um pronome ou nome próprio. Também pode ser
+construído pela regra `NP → DET CN`. A função `npRule`
+analisa o determinante e o substantivo comum e combina seus traços.
+Se houver incompatibilidade, a tentativa falha. Se a combinação
+der certo, o nó `NP` recebe os traços resultantes e tem as duas
+árvores como filhas. O parser `parseNP` reúne a alternativa
+lexical e essa regra.
+
+O sintagma preposicional segue a regra `PP → PREP NP`. Depois
+de analisar a preposição e o sintagma nominal, `ppRule` atribui
+{lean}`Feat.accOrDat` à raiz da árvore do `NP`. Esse passo
+expressa controle de traços. O pronome `her` aceita esse caso,
+mas `she` já tem {lean}`Feat.nom`, e a atribuição falha.
+Assim, a regra aceita `with her` e recusa `with she`.
+
+Os traços da preposição são combinados com os do sintagma nominal
+atualizado, e o resultado vai para o nó `PP`. Sua segunda filha
+é a árvore que recebeu o caso. Para ler os complementos de um
+verbo, `parseNPorPP` permite escolher entre os dois tipos de
+sintagma. A função `parseNPsorPPs` usa {name}`many` para
+analisar sequências deles, incluindo a sequência vazia.
 ::::
 
 ```lean
@@ -173,26 +227,51 @@ open Examples in
 - A regra do `VP` lê um verbo e uma sequência de `NP`s e `PP`s, que
   tem de casar com a lista de subcategorização do verbo.
 - A lista de subcategorização funciona como uma lista de pendências: diz
-  quais complementos o verbo ainda espera. _Loved_ espera um `NP` com
-  `accOrDat`, o objeto direto: em _Alice loved the dwarf_, é _the
-  dwarf_; em _Alice loved him_, é _him_. Ao encontrá-lo, a pendência é
-  resolvida. O `VP` formado pela regra tem a lista vazia, porque já tem
+  quais complementos o verbo ainda espera. A forma `loved` espera um `NP`
+  com {lean}`Feat.accOrDat`, o objeto direto. Em `Alice loved the dwarf`,
+  o objeto é `the dwarf`; em `Alice loved him`, é `him`. Ao encontrá-lo,
+  a pendência é resolvida. O `VP` formado pela regra tem a lista vazia, porque já tem
   todos os seus complementos.
 - A folha do verbo continua com a sua lista: ela registra o que o verbo
   pede. A pendência é resolvida no nó pai, e não apagada da folha.
 - A função `matchSubcat` faz essa casagem, elemento a elemento: os
   rótulos têm de ser iguais, e os traços têm de concordar. É assim que
-  _gave_ aceita um `PP` com `to`, e não um com `with`.
-- Num `VP` finito, o verbo tem de aceitar o traço `tense`.
+  `gave` aceita um `PP` com {lean}`Feat.to`, e não um com {lean}`Feat.with`.
+- Num `VP` finito, o verbo tem de aceitar o traço {lean}`Feat.tense`.
 - Um `VP` também pode ser um auxiliar seguido de um `VP` no infinitivo,
-  que tem de aceitar o traço `infl`.
+  que tem de aceitar o traço {lean}`Feat.infl`.
 :::
 
 ::::full
-:::dev BeforeNextRelease
-TODO: translate CSwFP/9.6, from "Verb phrases are either parsed with a
-rule for finite VPs…" to the definition of `auxVpRule`.
-:::
+Para construir um sintagma verbal, `vpRule` lê uma categoria
+lexical com rótulo `VP` e uma sequência de sintagmas nominais
+ou preposicionais. A sequência precisa satisfazer a lista de
+subcategorização do verbo. A função `matchSubcat` compara as
+listas na mesma ordem. Elas devem ter o mesmo comprimento, e
+cada complemento deve ter o rótulo esperado e traços compatíveis
+com os exigidos.
+
+Por exemplo, `loved` espera um `NP` com
+{lean}`Feat.accOrDat`. Em `Alice loved the dwarf`, o objeto
+é `the dwarf`; em `Alice loved him`, é `him`. Para uma
+entrada de `gave` que espera um `PP` com {lean}`Feat.to`,
+um complemento com {lean}`Feat.with` falha no teste de
+concordância.
+
+A lista de subcategorização registra os complementos que ainda
+precisam ser encontrados. Quando a regra os encontra, constrói
+um nó `VP` com lista vazia e com o verbo e os complementos como
+filhas. A folha lexical do verbo conserva a lista original,
+registrando as exigências que foram satisfeitas nesse nó.
+
+Há duas maneiras de obter um `VP` aceito por `parseVP`.
+A função `finVpRule` exige que o sintagma construído por
+`vpRule` aceite {lean}`Feat.tense`. Já `auxVpRule` lê
+um auxiliar e um sintagma verbal que aceite {lean}`Feat.infl`.
+Nesse caso, o novo nó `VP` recebe os traços do auxiliar e
+tem como filhas o auxiliar e o sintagma no infinitivo.
+Isso permite analisar `didn't smile`, enquanto
+`didn't smiled` falha pela incompatibilidade de forma verbal.
 ::::
 
 ```lean
@@ -227,28 +306,54 @@ open Examples in
 ```
 
 :::terse
-- Uma frase é sempre formada pela regra sujeito–predicado,
-  `S → NP VP`. O sujeito e o predicado têm de concordar, o sujeito tem
-  de aceitar o caso `nom`, e o predicado já tem de ter todos os seus
+- Nesta gramática, uma sentença tem uma só oração, formada pela regra
+  sujeito–predicado, `S → NP VP`. O sujeito e o predicado têm de concordar, o sujeito tem
+  de aceitar o caso {lean}`Feat.nom`, e o predicado já tem de ter todos os seus
   complementos: a sua lista de subcategorização é vazia.
-- A função `prs` analisa uma cadeia: aplica `lexer`, consulta o léxico
-  com `collectCats` e, para cada escolha de categorias, fica com as
+- A função `prs` analisa uma cadeia: aplica {name}`lexer`, consulta o léxico
+  com {name}`collectCats` e, para cada escolha de categorias, fica com as
   análises de `parseSent` que consomem a entrada inteira.
-- O resultado é um `Except`, com dois erros possíveis: uma palavra
-  desconhecida, vindo de `collectCats`, e uma frase que a gramática não
+- O resultado é um {name}`Except`, com dois erros possíveis: uma palavra
+  desconhecida, vindo de {name}`collectCats`, e uma sentença que a gramática não
   aceita, quando não sobra nenhuma análise. Assim, `.ok` sempre traz
   pelo menos uma árvore.
 - Em notação `do`, um `.error` interrompe o cálculo, como `none` faria
-  com `Option`. O comando `throw e` produz o erro `e`.
+  com {name}`Option`. O comando `throw e` produz o erro `e`.
 :::
 
 ::::full
-:::dev BeforeNextRelease
-TODO: translate CSwFP/9.6, from "Sentences are all constructed by means
-of the subject–predicate rule." to the definition of `parseSent`, and
-from "Parsing is the process of constructing a list of parse trees…" to
-the end of the section.
-:::
+A regra sujeito–predicado, `S → NP VP`, combina um sintagma
+nominal com um sintagma verbal. Para que a combinação seja aceita,
+o sujeito deve permitir a atribuição de {lean}`Feat.nom`,
+e os traços do sujeito e do predicado devem concordar. O predicado
+também deve ter completado sua lista de subcategorização. A árvore
+resultante tem um nó `S` com o sujeito atualizado e o predicado
+como filhas. O parser `parseSent` usa essa regra.
+
+A função `prs` reúne as etapas da análise de um texto.
+Primeiro, {name}`lexer` produz a lista de palavras. Depois,
+{name}`collectCats` consulta o léxico e enumera as escolhas
+de categorias para a entrada. Para cada escolha, aplicamos
+`parseSent` com {name}`just`, conservando somente as análises
+que consomem todas as categorias. Por fim, reunimos as árvores
+dessas análises em uma lista.
+
+O resultado usa {name}`Except`. Se uma palavra é desconhecida,
+{name}`collectCats` devolve um erro com a mensagem
+correspondente. Em um bloco `do` de {name}`Except`, um
+resultado {name}`Except.error` interrompe a sequência de
+passos e propaga o erro. Se todas as palavras são conhecidas, mas
+nenhuma análise é encontrada, `throw "no parse"` produz outro
+erro. Quando há sucesso, `return trees` entrega a lista de
+árvores com {name}`Except.ok`. Essa lista contém pelo menos
+uma árvore.
+
+Os exemplos permitem distinguir essas situações. A entrada
+`Her loved I.` viola as exigências de caso, enquanto
+`She despised me.` contém uma palavra ausente do léxico.
+Os exemplos com `gave` testam a preposição do complemento,
+e o último combina auxiliar, infinitivo e um complemento
+instrumental.
 ::::
 
 ```lean

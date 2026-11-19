@@ -24,7 +24,7 @@ namespace FOL
 tag := "fol-intro"
 %%%
 
-Se usarmos lógica proposicional para formalizar a frase "Toda maçã é vermelha", teremos uma letra proposicional, um átomo indivisível que não nos permitiria capturar a idéia do quantificador e da dependencia declarada entre as _coisas_ que são maçãs e a cor destas mesmas _coisas_. A lógica de predicados, também chamada lógica de primeira ordem (FOL, "first order logic") acrescenta os seguintes ingredientes a sintaxe da lógica proposicional:
+Se usarmos lógica proposicional para formalizar a sentença "Toda maçã é vermelha", teremos uma letra proposicional, um átomo indivisível que não nos permitiria capturar a idéia do quantificador e da dependencia declarada entre as _coisas_ que são maçãs e a cor destas mesmas _coisas_. A lógica de predicados, também chamada lógica de primeira ordem (FOL, "first order logic") acrescenta os seguintes ingredientes a sintaxe da lógica proposicional:
 
 * Termos para representar indivíduos de um domínio;
 * Proposições básicas serão predicados `n`-ários sobre termos;

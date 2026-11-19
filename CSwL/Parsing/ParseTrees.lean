@@ -17,6 +17,32 @@ namespace Parsing
 ```
 
 :::terse
+- Usamos quatro termos para as unidades da sintaxe, como no capítulo
+  sobre a ordem e a função das palavras de {citet Bib.caseli2024}[].
+- Uma *sentença* vai da letra maiúscula até a pontuação final. É a
+  maior unidade que a nossa gramática analisa.
+- Uma *oração* se organiza em torno de um verbo e descreve um evento.
+  Uma sentença pode ter mais de uma: _Alice smiled and Dorothy laughed_
+  é uma sentença com duas orações.
+- Um *sintagma* é um grupo de palavras com um núcleo, e a classe do
+  núcleo dá o tipo do sintagma: `NP` é um sintagma nominal, `VP` um
+  sintagma verbal, `PP` um sintagma preposicional.
+- Os *constituintes* de uma unidade são as partes que funcionam dentro
+  dela, palavras ou sintagmas.
+- O símbolo inicial das nossas gramáticas é `S`, de sentença. Não
+  temos um símbolo próprio para a oração: reusamos `S`. Numa regra como
+  `S → S and S`, cada `S` à direita é uma oração, e o `S` à esquerda é
+  a sentença que as coordena.
+:::
+
+::::full
+:::dev BeforeNextRelease
+TODO: adapt the terse cues above on sentença, oração, sintagma and
+constituinte into prose.
+:::
+::::
+
+:::terse
 - Uma árvore sintática tem informação lexical nas folhas e informação
   sintática nos nós internos.
 - O tipo deixa as duas em aberto: `α` para as folhas, `β` para os rótulos
@@ -500,7 +526,7 @@ as filhas F e G.
 O nó `C` tem uma só filha, `E`. Pela definição deste capítulo, `E` não
 c-comanda nada, porque não tem irmãs. Por `cCommandStandard`, `E` c-comanda
 `D`, `F` e `G`. O exemplo do próprio verbete diz que `E` não c-comanda
-nada: ele segue a definição pelas irmãs, a da primeira frase do verbete, e
+nada: ele segue a definição pelas irmãs, a da primeira sentença do verbete, e
 não a que o verbete chama de padrão. Então `cCommandBranching`
 acrescenta os pares em que uma posição domina a outra: `E`, por
 exemplo, passa a c-comandar também a si mesmo, a sua mãe, `C`, e a sua

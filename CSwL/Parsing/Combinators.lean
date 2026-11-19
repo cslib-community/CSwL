@@ -471,6 +471,7 @@ example {α β γ : Type} (f : β → γ) (p : Parser α β) :
   o bloco `do` de `NP`.
 - A função `parseAs` faz disso um nó: `parseAs A ps` é a regra
   `A → B₁ ⋯ Bₙ`, com `ps` os parsers de `B₁, …, Bₙ`, e o nó tem rótulo `A`.
+  Com `parseAs "NP" [det, n]`, voltamos ao nó `NP` do bloco `do`.
 - O `example` mostra que, com um só parser, `parseAs` constrói o mesmo
   nó que {name}`det` construía com `<$>`.
 :::
@@ -513,6 +514,10 @@ def parseAs {α β : Type} (label : β)
   (ps : List (Parser α (ParseTree α β)))
   : Parser α (ParseTree α β) :=
   .branch label <$> collect ps
+
+#eval (parseAs "NP" [det, n]).run
+    ["every", "wizard", "smiled"] |>.map
+  fun (t, ys) => (toString t, ys)
 
 example {α β : Type} (l : β)
     (p : Parser α (ParseTree α β)) :
@@ -707,8 +712,8 @@ recursiva aceitarem a entrada vazia.
 No reconhecedor por divisão da seção
 {ref "cf-recognition"}[Reconhecendo e Analisando Linguagens Livres de Contexto],
 os pedaços externos das regras recursivas têm um símbolo cada, o que
-permitia provar que as chamadas recursivas recebiam entradas menores. Existem combinadores de
-parsers que garantem a terminação e aceitam recursão à esquerda
+permitia provar que as chamadas recursivas recebiam entradas menores. Existem
+combinadores de parsers que garantem a terminação e aceitam recursão à esquerda
 {citep Bib.danielsson2010}[].
 ::::
 

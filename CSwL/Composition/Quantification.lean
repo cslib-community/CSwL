@@ -713,7 +713,7 @@ A as a first…" to "…both of these objects have property B.", with Figure 7.5
 Texto gerado por IA. É um rascunho de explicação, não uma tradução do
 CSwFP.
 
-Em uma frase como *Todo aluno passou*, o determinante relaciona a restrição `A`
+Em uma sentença como *Todo aluno passou*, o determinante relaciona a restrição `A`
 (os alunos) e o escopo `B` (quem passou). EXT, CONS e ISOM juntas garantem que
 o valor de `Q A B` depende só de dois números: `m`, quantos A não são B, e
 `n`, quantos A são B. Cada condição elimina uma informação. Por CONS, o que
@@ -727,7 +727,7 @@ A linha `k` reúne os casos com $`|A| = m + n = k`. Da esquerda para a
 direita, `n` cresce. Assim, a borda esquerda é "nenhum A é B" e a borda
 direita é "todo A é B". Para ler uma posição, tome `(1, 2)` na linha 3: há
 três alunos, um não passou e dois passaram. Se o quantificador tem `+` ali, a
-frase é verdadeira nessa situação.
+sentença é verdadeira nessa situação.
 :::
 ::::
 

@@ -380,8 +380,9 @@ CSwFP/8 is skipped for now, and the chapter follows `Composition`.
   CSwFP's functions `phon`, `catLabel`, `fs` and `subcatList`.
   Constructors of `Feat` are lowercase (`sg`, `mascOrFem`), as Lean
   style asks, and `Feat.toString` prints them as in CSwFP (`Sg`). A
-  category is printed as an attribute-value matrix, as in HPSG and the
-  ERG (`[CAT NP, ORTH she, GEN fem, NUM sg, …]`, with `SUBCAT ⟨…⟩`),
+  category is printed as an attribute-value matrix, as in HPSG
+  (`[CAT NP, PHON she, GEN fem, NUM sg, …]`, with `SUBCAT ⟨…⟩`; the
+  attribute `PHON` shows the field `phon`),
   where CSwFP prints `she NP[Pers,Thrd,Sg,Nom,Fem]`; the attributes are
   the kinds of features, and the display, a `Repr` instance built with
   `Std.Format`, sits in a `:::details` block. The terse cues present
@@ -398,7 +399,13 @@ CSwFP/8 is skipped for now, and the chapter follows `Composition`.
   each word. `collectCats` returns `Except String (List (List Cat))`,
   with an error naming the unknown words, where CSwFP calls `error`. `scan`
   works on the list of characters, `scanChars`, and `lexer` splits on
-  spaces with `splitOn`, as Lean has no `words`. The new exercise
+  spaces with `splitOn`, as Lean has no `words`. The full stop has no
+  entry in the lexicon, where CSwFP gives it the category `CONJ` and so
+  parses a text of several sentences as their conjunction (`TXT`, 9.7).
+  The grammar is one of sentences, not of texts: `lexer` takes one
+  sentence, and splitting a text into sentences is left to an outer
+  segmentation step that the book does not define. `and` keeps the
+  category `CONJ`. Discussed in issue #57. The new exercise
   `init-cats-length` proves that the number of lists returned by
   `initCats` is the product of the number of categories of each word.
 - 9.6: the parsers are written bottom-up, from the lexical parsers to

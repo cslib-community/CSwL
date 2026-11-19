@@ -29,7 +29,7 @@ namespace Parsing
 
 ::::full
 Uma gramática pode gerar palavras sobre um alfabeto de caracteres ou
-frases sobre um alfabeto de palavras ou tokens. Dada uma sequência,
+sentenças sobre um alfabeto de palavras ou tokens. Dada uma sequência,
 podemos usar a gramática para responder a duas perguntas.
 
 Chamamos de *reconhecimento* o procedimento que responde se a

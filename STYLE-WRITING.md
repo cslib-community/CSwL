@@ -153,6 +153,12 @@ entry until something contradicts them. What the sweep found instead:
 - "avaliar" / "rodar" (for `#eval`)
 - "escopo" / "corpo" (for the second argument of a determiner; CSwFP says
   *scope* in its chapter 6 and *body* in chapter 7, for the same thing)
+- "sentença" / "frase" (for *sentence*: the unit from the capital letter to
+  the final punctuation, and the input of a parser)
+- "oração" / "frase" (for *clause*: a predication around one verb; a
+  sentença may have several, as in _Alice smiled and Dorothy laughed_)
+- "sintagma" / "frase" (for *phrase*: `NP` is a sintagma nominal, `VP` a
+  sintagma verbal, `PP` a sintagma preposicional)
 
 ### Code and prose
 

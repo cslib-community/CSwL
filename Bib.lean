@@ -219,6 +219,17 @@ def sag1999 : Article where
   number  := inlines!""
   url     := "https://web.stanford.edu/group/cslipublications/cslipublications/pdf/1575861607.pdf"
 
+/-- Cited as the book's own page asks: the whole book, by its editors. -/
+def caseli2024 : Article where
+  title   := inlines!"Processamento de Linguagem Natural: Conceitos, Técnicas e Aplicações em Português"
+  authors := #[inlines!"H. M. Caseli", inlines!"M. G. V. Nunes (org.)"]
+  journal := inlines!"3ª edição, BPLN"
+  year    := 2024
+  month   := none
+  volume  := inlines!""
+  number  := inlines!""
+  url     := "https://brasileiraspln.com/livro-pln/3a-edicao/"
+
 def pereira1987 : Article where
   title   := inlines!"Prolog and Natural-Language Analysis"
   authors := #[inlines!"Fernando C. N. Pereira", inlines!"Stuart M. Shieber"]
