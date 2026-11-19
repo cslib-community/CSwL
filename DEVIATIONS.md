@@ -380,8 +380,9 @@ CSwFP/8 is skipped for now, and the chapter follows `Composition`.
   CSwFP's functions `phon`, `catLabel`, `fs` and `subcatList`.
   Constructors of `Feat` are lowercase (`sg`, `mascOrFem`), as Lean
   style asks, and `Feat.toString` prints them as in CSwFP (`Sg`). A
-  category is printed as an attribute-value matrix, as in HPSG and the
-  ERG (`[CAT NP, ORTH she, GEN fem, NUM sg, …]`, with `SUBCAT ⟨…⟩`),
+  category is printed as an attribute-value matrix, as in HPSG
+  (`[CAT NP, PHON she, GEN fem, NUM sg, …]`, with `SUBCAT ⟨…⟩`; the
+  attribute `PHON` shows the field `phon`),
   where CSwFP prints `she NP[Pers,Thrd,Sg,Nom,Fem]`; the attributes are
   the kinds of features, and the display, a `Repr` instance built with
   `Std.Format`, sits in a `:::details` block. The terse cues present
@@ -398,7 +399,13 @@ CSwFP/8 is skipped for now, and the chapter follows `Composition`.
   each word. `collectCats` returns `Except String (List (List Cat))`,
   with an error naming the unknown words, where CSwFP calls `error`. `scan`
   works on the list of characters, `scanChars`, and `lexer` splits on
-  spaces with `splitOn`, as Lean has no `words`. The new exercise
+  spaces with `splitOn`, as Lean has no `words`. The full stop has no
+  entry in the lexicon, where CSwFP gives it the category `CONJ` and so
+  parses a text of several sentences as their conjunction (`TXT`, 9.7).
+  The grammar is one of sentences, not of texts: `lexer` takes one
+  sentence, and splitting a text into sentences is left to an outer
+  segmentation step that the book does not define. `and` keeps the
+  category `CONJ`. Discussed in issue #57. The new exercise
   `init-cats-length` proves that the number of lists returned by
   `initCats` is the product of the number of categories of each word.
 - 9.6: the parsers are written bottom-up, from the lexical parsers to
@@ -410,10 +417,17 @@ CSwFP/8 is skipped for now, and the chapter follows `Composition`.
   `Except String (List (ParseTree Cat Cat))`, following `collectCats`,
   with two errors: an unknown word, and a sentence with no parse,
   where CSwFP returns the empty list. So `.ok` always carries at least
-  one tree. A parse tree is printed as one AVM, the daughters of a node
-  under `ARGS` as in the ERG, through a `Repr` instance built with
-  `Std.Format` in a `:::details` block. Exercise 9.10 waits in issue
-  53.
+  one tree. `prs` is `parseWith lexicon parseSent`: `parseWith`, which
+  is not in CSwFP, takes the lexicon and the parser as arguments, since
+  only this last step consults the lexicon. A parse tree is printed as
+  one AVM, the daughters of a node under `ARGS` as in the ERG, through a
+  `Repr` instance built with `Std.Format` in a `:::details` block.
+  Exercise 9.10 (`complex-det`) is scoped to the noun phrase: the reader
+  extends the lexicon in `lexicon'`, with the missing determiner
+  functions and digit strings as `NUM`, in place of a parser for
+  numerals, and tests `parseNP'` with `parseWith`. A whole sentence
+  would need `sRule` to use the new `NP`, which means redefining the
+  chain of rules (issue 53).
 - 9.9: further reading is kept, unlike in the other chapters, as the
   last section of the chapter, and extended with references on general
   parsing algorithms (CKY, Earley) that a `:::details` block after

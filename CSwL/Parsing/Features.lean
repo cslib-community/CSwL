@@ -17,8 +17,8 @@ namespace Parsing
 ```
 
 :::terse
-- Traços sintáticos, como número, pessoa, gênero e caso, decidem a
-  concordância: _she laughs_ é uma frase, mas _they laughs_ não é.
+- Traços sintáticos, como número, pessoa, gênero e caso, determinam a
+  concordância: `she laughs` é uma sentença, mas `they laughs` não é.
 - Há duas visões da concordância:
   - *controle*: os traços de um constituinte são calculados a partir
     dos traços de outro, que os controla;
@@ -29,15 +29,43 @@ namespace Parsing
   regra `S → NP VP` vira quatro regras sem traços, como
   `S → NP{Sg} VP{Sg}`. Os traços são finitos, então a gramática
   continua livre de contexto, só que com muito mais regras.
-- Todos os valores de traços ficam num único tipo, `Feat`, e um
-  conjunto de traços é uma lista, `Agreement`.
+- Todos os valores de traços ficam num único tipo, `Feat`, e uma
+  coleção de traços é uma lista, `Agreement`.
 :::
 
 ::::full
-:::dev BeforeNextRelease
-TODO: translate CSwFP/9.4, from the start to "…(at least they will not
-be caught by the type checking)."
-:::
+A análise de uma sentença depende de informações que os rótulos
+sintáticos, por si sós, deixam em aberto. Em inglês, `she laughs`
+é uma sentença, enquanto `they laughs` viola a concordância de número
+entre sujeito e verbo. Para representar essa informação, vamos
+associar às categorias sintáticas traços como número, pessoa,
+gênero e caso.
+
+Podemos tratar a concordância de duas maneiras. Na visão de
+*controle*, os traços de um constituinte determinam os de outro.
+Uma regra pode, por exemplo, atribuir caso nominativo ao sujeito.
+Na visão de *restrição*, cada constituinte fornece informações
+parciais, e a concordância resulta de verificar se elas são
+compatíveis. Nesse teste, os dois constituintes contribuem para
+a informação resultante. Nosso sistema combina os dois mecanismos.
+
+Se os traços têm um número finito de valores, acrescentá-los a uma
+gramática livre de contexto permite abreviar um conjunto maior de
+regras livres de contexto. Considere `S → NP VP` com concordância
+de número. Se o sujeito especifica singular ou plural e o predicado
+pode deixar o número em aberto, temos quatro possibilidades:
+`S → NP{Sg} VP{}`, `S → NP{Sg} VP{Sg}`,
+`S → NP{Pl} VP{}` e `S → NP{Pl} VP{Pl}`. Aqui, `{}` indica
+ausência de informação de número. Cada combinação pode ser tratada
+como um novo símbolo da gramática. Como há apenas um número finito
+dessas combinações, o conjunto de regras resultante também é finito.
+
+Representaremos todos os valores de traços pelo tipo `Feat` e
+uma coleção desses valores por uma lista, `Agreement`. Isso permite
+usar o mesmo tipo de lista para os traços de qualquer categoria.
+A verificação de tipos, porém, aceita listas com valores
+incompatíveis, como singular e plural juntos. A compatibilidade
+será verificada pelas funções que combinam os traços.
 ::::
 
 ```lean
@@ -70,25 +98,52 @@ abbrev Agreement := List Feat
 - Os traços se dividem em tipos: gênero, número, pessoa, caso, tipo de
   pronome, tempo e preposição. Cada tipo tem a lista dos seus valores,
   e `allFeats` junta todas.
-- O caso marca a função de um `NP` na frase. Em inglês, só os pronomes
-  o mostram. O nominativo, `nom`, é o caso do sujeito: _she_, _he_, _I_.
+- O caso marca a função de um `NP` na oração. Em inglês, só os pronomes
+  o mostram. O nominativo, {lean}`Feat.nom`, é o caso do sujeito: `she`, `he`, `I`.
   O acusativo é o caso do objeto direto, e o dativo, o do objeto
   indireto. O inglês não distingue os casos dativo e acusativo, e por
-  isso há um único valor, `accOrDat`: _her_, _him_, _me_. É também o
+  isso há um único valor, {lean}`Feat.accOrDat`: `her`, `him`, `me`. É também o
   caso do `NP` que vem depois de uma preposição.
 - As funções `gender`, `number`, `person` etc. selecionam, numa lista
   de traços, os de um tipo.
 - Dois valores diferentes do mesmo tipo entram em conflito.
-- A exceção é `mascOrFem`, a disjunção de `masc` e `fem`: conflita com
-  `neutr`, mas não com `masc` nem com `fem`. Nesses casos, a função
-  `prune` remove `mascOrFem`, e fica o valor mais específico.
+- A exceção é {lean}`Feat.mascOrFem`, a disjunção de
+  {lean}`Feat.masc` e {lean}`Feat.fem`. Ela conflita com
+  {lean}`Feat.neutr`, mas aceita os dois valores da disjunção. Nesses casos, a
+  função `prune` remove {lean}`Feat.mascOrFem`, e fica o valor mais específico.
 :::
 
 ::::full
-:::dev BeforeNextRelease
-TODO: translate CSwFP/9.4, from "The following functions pick out the
-gender, number, …" to the definition of `prune`.
-:::
+Os valores de {name}`Feat` são agrupados conforme a informação
+que expressam. As listas `genderFeats`, `numberFeats` e
+`personFeats` contêm, respectivamente, os valores de gênero,
+número e pessoa. As demais listas agrupam os valores de caso,
+tipo de pronome, forma verbal e preposição. A lista `allFeats`
+reúne todos esses valores.
+
+O caso gramatical indica a função de um `NP` na oração. Nos
+pronomes do inglês, o nominativo, {lean}`Feat.nom`, aparece nas
+formas usadas como sujeito, como `she`, `he` e `I`.
+O acusativo corresponde ao objeto direto, e o dativo, ao objeto
+indireto. Como as formas inglesas `her`, `him` e `me` servem
+para ambos, usamos o valor {lean}`Feat.accOrDat`. Esse valor
+também representa o caso do `NP` que segue uma preposição.
+
+Para obter os valores de um determinado grupo em uma lista de
+traços, basta filtrar os que pertencem à lista correspondente.
+É o que fazem `gender`, `number`, `person`, `gcase`,
+`pronType`, `tense` e `prepType`.
+
+Dois valores distintos do mesmo grupo normalmente entram em
+conflito. Um constituinte, por exemplo, não pode ter simultaneamente
+os valores {lean}`Feat.sg` e {lean}`Feat.pl`.
+O valor {lean}`Feat.mascOrFem` expressa uma disjunção e exige um
+tratamento próprio. Ele é compatível com {lean}`Feat.masc` e
+com {lean}`Feat.fem`, mas conflita com {lean}`Feat.neutr`.
+Quando uma lista contém a disjunção junto com um dos valores mais
+específicos, a função `prune` remove a disjunção. Se só houver
+a disjunção e o valor neutro, ambos permanecem para que o conflito
+possa ser detectado.
 ::::
 
 ```lean
@@ -137,24 +192,55 @@ def prune (fs : Agreement) : Agreement :=
 - Para exibir uma categoria, usamos a notação das gramáticas de
   unificação, como HPSG {citep Bib.sag1999}[]: uma *matriz de atributos
   e valores*, ou AVM.
-  Cada componente é um atributo: o rótulo é `CAT`, a forma é `ORTH` e a
+  Cada componente é um atributo: o rótulo é `CAT`, a forma é `PHON` e a
   lista de subcategorização é `SUBCAT`. Cada tipo de traço também é um
   atributo: `GEN`, `NUM`, `PER`, `CASE`, `PRON`, `VFORM` e `PFORM`.
-- Assim, _she_ é `[CAT NP, ORTH she, GEN fem, NUM sg, PER thrd, CASE nom,
+- Assim, `she` é `[CAT NP, PHON she, GEN fem, NUM sg, PER thrd, CASE nom,
   PRON pers]`. Um atributo sem valor não aparece, e uma categoria não
-  lexical não tem `ORTH`.
+  lexical não tem `PHON`.
 - Os colchetes `[…]` delimitam um AVM, e os sinais `⟨…⟩` delimitam uma
-  lista de AVMs. O valor de `SUBCAT` é uma lista: _loved_ é
-  `[CAT VP, ORTH loved, VFORM tense, SUBCAT ⟨[CAT NP, CASE accOrDat]⟩]`,
-  um verbo que espera um `NP` com `accOrDat`.
+  lista de AVMs. O valor de `SUBCAT` é uma lista: `loved` é
+  `[CAT VP, PHON loved, VFORM tense, SUBCAT ⟨[CAT NP, CASE accOrDat]⟩]`,
+  um verbo que espera um `NP` com {lean}`Feat.accOrDat`.
 :::
 
 ::::full
-:::dev BeforeNextRelease
-TODO: translate CSwFP/9.4, from "Now that we have features, we can
-define a data type for syntactic categories." to the functions for
-getting the components out of a category.
-:::
+Uma categoria sintática reúne quatro componentes. A forma fonológica
+identifica a expressão lexical, o rótulo indica a categoria, e os
+traços registram as informações de concordância. O quarto componente
+é a *lista de subcategorização*, que descreve as categorias com que
+a expressão deve se combinar. Um verbo transitivo, por exemplo,
+espera um `NP` como objeto.
+
+A estrutura `Cat` guarda esses componentes nos campos `phon`,
+`label`, `fs` e `subcatList`. Como cada item da lista de
+subcategorização é também uma categoria, o tipo é recursivo.
+Usamos textos tanto para a forma fonológica quanto para o rótulo.
+Uma categoria lexical tem a sua forma no campo `phon`; uma
+categoria sem conteúdo lexical usa `"_"` nesse campo.
+
+Para exibir categorias, usaremos uma *matriz de atributos e valores*,
+ou AVM, como nas gramáticas de unificação, entre elas a HPSG
+{citep Bib.sag1999}[]. Cada componente aparece associado a um nome
+de atributo. O rótulo aparece em `CAT`, a forma lexical em `PHON`
+e a lista de subcategorização em `SUBCAT`. Os grupos de traços
+aparecem em `GEN`, `NUM`, `PER`, `CASE`, `PRON`, `VFORM`
+e `PFORM`.
+
+Por exemplo, a categoria de `she` é exibida como
+`[CAT NP, PHON she, GEN fem, NUM sg, PER thrd, CASE nom, PRON pers]`.
+Os atributos cujas listas de valores são vazias são omitidos. Assim, o pronome
+não exibe `SUBCAT`, porque sua lista de subcategorização é vazia. Uma categoria
+com forma `"_"` também omite `PHON`.
+
+Os colchetes `[…]` delimitam um AVM, e `⟨…⟩` delimita uma
+lista de AVMs. A representação
+`[CAT VP, PHON loved, VFORM tense, SUBCAT ⟨[CAT NP, CASE accOrDat]⟩]`
+descreve um verbo com um objeto ainda por combinar. O valor de
+`SUBCAT` especifica que esse objeto deve ser um `NP` de caso
+{lean}`Feat.accOrDat`. O bloco de detalhes implementa essa apresentação,
+e os exemplos mostram categorias lexicais e uma categoria sem
+conteúdo lexical.
 ::::
 
 ```lean
@@ -191,10 +277,10 @@ def featAVM (fs : Agreement) : String :=
 
 def Cat.attrs : Cat → List Format
   | ⟨phon, label, fs, subcatList⟩ =>
-    let orth := if phon == "_" then [] else [f!"ORTH {phon}"]
+    let phonAttr := if phon == "_" then [] else [f!"PHON {phon}"]
     let sub := if subcatList.isEmpty then []
       else [f!"SUBCAT " ++ listFmt (subcatList.map fun c => avmFmt c.attrs)]
-    [f!"CAT {label}"] ++ orth ++ (featPairs fs).map Format.text ++ sub
+    [f!"CAT {label}"] ++ phonAttr ++ (featPairs fs).map Format.text ++ sub
 
 instance : Repr Cat := ⟨fun c _ => avmFmt c.attrs⟩
 ```
@@ -226,30 +312,59 @@ open Examples in
 :::terse
 - A função `combine` junta os traços de duas categorias e devolve
   `none` quando há conflito: é a visão de restrição.
-- Em termos de AVMs, `combine` é uma *unificação*: junta a informação
-  das duas matrizes e falha se elas se contradizem. `[PER thrd]` e
+- Em termos de AVMs, `combine` unifica os traços de concordância
+  dos dois AVMs e falha se eles se contradizem. `[PER thrd]` e
   `[NUM sg]` dão `[NUM sg, PER thrd]`; `[NUM sg]` e `[NUM pl]` não se
   unificam.
-- O resultado não depende da ordem dos traços: filtramos `allFeats`,
-  então cada traço aparece uma só vez, na ordem de `allFeats`.
+- O resultado não depende da ordem dos traços: filtramos {name}`allFeats`,
+  então cada traço aparece uma só vez, na ordem de {name}`allFeats`.
 - Duas categorias concordam, `agree`, quando `combine` não falha.
 - A função `assign f c` impõe o traço `f` à categoria `c`: é a visão de
   controle. A regra que junta sujeito e predicado, por exemplo, dá ao
-  sujeito o traço `nom`.
-- A atribuição falha se `c` já tem um traço incompatível: `her`, que é
-  `accOrDat`, não pode ser sujeito.
+  sujeito o traço {lean}`Feat.nom`.
+- A atribuição falha se `c` já tem um traço incompatível: {name}`Examples.her`,
+  que é {lean}`Feat.accOrDat`, não pode ser sujeito.
 - Para montar a categoria nova, `assign` usa `map` sobre o resultado
-  de `combine`. Numa `Option`, `o.map f` aplica `f` ao valor, se houver:
-  `some a` vira `some (f a)`, e `none` continua `none`. É o mesmo `map`
-  das listas, que aplica `f` a cada elemento.
+  de `combine`. Numa {name}`Option`, `o.map f` aplica `f` ao valor, se houver:
+  `some a` vira `some (f a)`, e `none` continua `none`. Nas listas,
+  {name}`List.map` aplica `f` a cada elemento.
 :::
 
 ::::full
-:::dev BeforeNextRelease
-TODO: translate CSwFP/9.4, from "The following function combine
-combines the feature lists of two categories." to the end of the
-section.
-:::
+A visão de restrição da concordância requer uma operação que reúna
+informações compatíveis. A função `combine` recebe duas categorias
+e tenta combinar suas listas de traços. Se houver conflito, devolve
+{name}`Option.none`. Se a combinação for possível, devolve a lista
+resultante com {name}`Option.some`.
+
+Em termos de AVMs, essa operação é uma *unificação* das informações
+de concordância. Os AVMs `[PER thrd]` e `[NUM sg]` fornecem
+informações que podem ser reunidas em `[NUM sg, PER thrd]`.
+Já `[NUM sg]` e `[NUM pl]` impõem valores incompatíveis ao mesmo
+atributo e não podem ser combinadas.
+
+Para construir a lista combinada, `combine` filtra
+{name}`allFeats`, conservando os valores presentes em qualquer
+uma das categorias. Cada valor aparece assim uma única vez, na
+ordem de {name}`allFeats`. Depois, {name}`prune` remove a
+disjunção de gênero quando há um valor mais específico. A combinação
+é aceita se cada grupo contém no máximo um valor. A função `agree`
+verifica se essa tentativa teve sucesso.
+
+A visão de controle aparece em `assign f c`, que atribui um traço
+`f` a uma categoria `c`. Para isso, a função combina os traços de
+`c` com uma categoria que contém apenas `f`. A atribuição também
+pode falhar. Atribuir {lean}`Feat.nom` ao nome `Alice` é possível,
+pois seus traços deixam o caso em aberto. A mesma atribuição ao
+pronome {name}`Examples.her` falha, pois ele já tem
+{lean}`Feat.accOrDat`.
+
+Para produzir a categoria com os novos traços, `assign` usa
+{name}`Option.map`. Para um resultado `some a`, a operação
+`o.map f` produz `some (f a)`; para {name}`Option.none`, o
+resultado continua sendo {name}`Option.none`. Assim, a atualização
+`{ c with fs := fs' }` é aplicada somente quando a combinação
+tem sucesso. Os demais campos da categoria conservam seus valores.
 ::::
 
 ```lean

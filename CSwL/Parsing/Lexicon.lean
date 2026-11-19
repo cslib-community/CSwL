@@ -19,20 +19,36 @@ namespace Parsing
 
 :::terse
 - O léxico leva cada palavra à lista das suas categorias. Uma palavra
-  ambígua, como _that_, tem mais de uma.
-- Guardamos as entradas em listas de `Cat`, uma por classe de palavras.
+  ambígua, como `that`, tem mais de uma.
+- Guardamos as entradas em listas de {name}`Cat`, uma por classe de palavras.
   Para consultar uma palavra, filtramos as entradas com essa forma.
 - Cada entrada é uma categoria, e a exibimos como um AVM. Uma entrada
-  do léxico sempre tem `ORTH`, a sua forma.
-- Os pronomes trazem pessoa, número, caso e gênero. Os pronomes _wh_ e
+  do léxico sempre tem `PHON`, a sua forma.
+- Os pronomes trazem pessoa, número, caso e gênero. Os pronomes `wh` e
   os relativos podem ter duas entradas, uma `NP` e uma `REL`.
 :::
 
 ::::full
-:::dev BeforeNextRelease
-TODO: translate CSwFP/9.5, from the start to the entries of the
-wh-pronouns and relatives.
-:::
+O léxico associa cada palavra às categorias sintáticas que ela pode
+ter. Uma palavra pode admitir mais de uma categoria. Por exemplo,
+`that` pode ser um determinante ou um pronome relativo. Por isso,
+a consulta ao léxico devolve uma lista de categorias.
+
+Guardaremos as entradas em listas de {name}`Cat`, agrupadas por
+classe de palavras. Cada entrada contém a forma da palavra, seu
+rótulo, seus traços e sua lista de subcategorização. Como são
+categorias lexicais, todas têm uma forma no campo {name}`Cat.phon`,
+exibida no atributo `PHON` da AVM. Para consultar uma palavra,
+selecionaremos as entradas cujo campo contém essa forma.
+
+Começamos pelos pronomes pessoais, reflexivos, interrogativos e
+relativos. Suas entradas especificam os traços que a forma permite
+determinar. Por exemplo, `she` tem terceira pessoa, número singular,
+gênero feminino e caso nominativo. Já `you` deixa o número e o caso
+em aberto. As formas que podem funcionar como interrogativos ou
+relativos recebem entradas distintas, com rótulos `NP` ou `REL`.
+A lista também inclui os usos de `that` e `which` como
+determinantes, com rótulo `DET`.
 ::::
 
 ```lean
@@ -74,15 +90,24 @@ def pronouns : List Cat := [
 :::terse
 - Os nomes próprios trazem só pessoa, gênero e número.
 - Os determinantes trazem no máximo o número.
-- Determinantes complexos, como _less than_, usam a categoria `DF`, de
+- Determinantes complexos, como `less than`, usam a categoria `DF`, de
   função de determinante.
 :::
 
 ::::full
-:::dev BeforeNextRelease
-TODO: translate CSwFP/9.5, from "Proper names are:" to the entries of
-the determiner functions.
-:::
+Os nomes próprios recebem o rótulo `NP` e traços de pessoa, gênero
+e número. O caso fica em aberto, para que a mesma entrada possa ser
+usada como sujeito ou como objeto. As formas são guardadas em
+minúsculas, como `alice` e `snowwhite`.
+
+Os determinantes, com rótulo `DET`, podem especificar o número.
+Assim, `every` exige singular e `all` exige plural. Outros,
+como `some` e `the`, deixam esse traço em aberto.
+
+Para expressões como `less than` e `more than`, usamos o rótulo
+`DF`, de função de determinante. A análise léxica representará
+cada uma dessas expressões por uma única forma, `less_than` ou
+`more_than`, que pode ser consultada no léxico.
 ::::
 
 ```lean
@@ -116,14 +141,20 @@ def determiners : List Cat := [
 :::terse
 - Os substantivos comuns vêm aos pares, singular e plural, com o mesmo
   gênero e a terceira pessoa. A função `noun` gera o par.
-- Uma forma irregular a mais, como _dwarves_, entra por extenso.
+- Uma forma irregular a mais, como `dwarves`, entra por extenso.
 :::
 
 ::::full
-:::dev BeforeNextRelease
-TODO: translate CSwFP/9.5, from "Common nouns are:" to the entries of
-"More common nouns:".
-:::
+Os substantivos comuns recebem o rótulo `CN`. Para cada um,
+registramos uma forma singular e uma forma plural, com o mesmo
+gênero e a terceira pessoa. A função `noun` recebe as duas formas
+e o gênero e produz as duas entradas.
+
+As formas são fornecidas explicitamente, de modo que podemos usar
+a mesma função para pares como `boy` e `boys` ou `man` e
+`men`. Quando há mais de uma forma para o plural, regular e irregular,
+acrescentamos uma entrada à lista. É o caso de `dwarves`, que aparece junto
+com o plural `dwarfs`.
 ::::
 
 ```lean
@@ -149,26 +180,48 @@ def commonNouns : List Cat :=
 ```
 
 :::terse
-- Os auxiliares são _did_ e _didn't_.
-- Os verbos vêm aos pares: a forma do passado, com `tense`, e o
-  infinitivo, com `infl`. As duas formas têm a mesma lista de
+- Os auxiliares são `did` e `didn't`.
+- Os verbos vêm aos pares: a forma do passado, com {lean}`Feat.tense`, e o
+  infinitivo, com {lean}`Feat.infl`. As duas formas têm a mesma lista de
   subcategorização, e a função `verb` gera o par.
 - O infinitivo é a forma do verbo sem tempo nem pessoa, a que aparece
-  no dicionário: _smile_, _love_. Em inglês, é a forma que vem depois de
-  um auxiliar, como em _didn't smile_.
+  no dicionário: `smile`, `love`. Em inglês, é a forma que vem depois de
+  um auxiliar, como em `didn't smile`.
 - Um verbo intransitivo tem a lista vazia. Um transitivo pede um `NP`
-  com `accOrDat`.
-- Um verbo ditransitivo, como _gave_, tem duas entradas: uma com `NP` e
-  `PP` com `to`, outra com dois `NP`.
-- Um complemento opcional também dá duas entradas: _kicked_ pede um `NP`
-  e, opcionalmente, um `PP` com `with`.
+  com {lean}`Feat.accOrDat`.
+- Um verbo ditransitivo, como `gave`, tem duas entradas: uma com `NP` e
+  `PP` com {lean}`Feat.to`, outra com dois `NP`.
+- Um complemento opcional também dá duas entradas: `kicked` pede um `NP`
+  e, opcionalmente, um `PP` com {lean}`Feat.with`.
 :::
 
 ::::full
-:::dev BeforeNextRelease
-TODO: translate CSwFP/9.5, from "Auxiliaries are:" to the entries of the
-verb which takes an NP and an optional from-PP.
-:::
+Os auxiliares do nosso fragmento são `did` e `didn't`, ambos
+com rótulo `AUX`. Para os demais verbos, registramos a forma
+do passado, com {lean}`Feat.tense`, e a forma infinitiva, com
+{lean}`Feat.infl`. O infinitivo é a forma sem marca de tempo ou
+pessoa que encontramos em `smile` e `love`. É também a forma
+usada depois do auxiliar, como em `didn't smile`. A função
+`verb` produz as duas entradas com a mesma lista de
+subcategorização.
+
+Um verbo intransitivo, como `smiled`, tem essa lista vazia.
+Um transitivo, como `loved`, pede um objeto `NP` com caso
+{lean}`Feat.accOrDat`. A categoria `objNP` representa essa
+exigência. Para complementos preposicionais, `objPP f` representa
+um `PP` com o traço de preposição `f`.
+
+Um mesmo verbo pode admitir diferentes listas de complementos.
+A forma `gave` tem uma entrada que pede um `NP` seguido de um
+`PP` com {lean}`Feat.to` e outra que pede dois `NP`.
+As entradas de `sold` seguem os mesmos padrões.
+
+Também representamos complementos opcionais com entradas distintas.
+Uma entrada de `kicked` pede um `NP` e um `PP` com
+{lean}`Feat.with`, enquanto a outra pede apenas o `NP`.
+Para `took`, o complemento opcional é um `PP` com
+{lean}`Feat.from`. Cada um desses padrões vale tanto para
+a forma do passado quanto para a infinitiva.
 ::::
 
 ```lean
@@ -209,22 +262,45 @@ def verbs : List Cat :=
 ```
 
 :::terse
-- As preposições trazem o traço da preposição, como `on` ou `with`.
+- As preposições trazem o traço da preposição, como {lean}`Feat.on` ou {lean}`Feat.with`.
   Esse traço passa para o `PP`, e é por ele que um verbo escolhe a
-  preposição do complemento: _gave_ pede um `PP` com `to`, e um `PP`
-  com `with` não concorda com ele.
-- O ponto final entre duas frases é tratado como conjunção: _Alice
-  smiled. Dorothy laughed._ se lê como _Alice smiled and Dorothy
-  laughed_. O ponto no fim da entrada é descartado por `preproc`.
+  preposição do complemento: `gave` pede um `PP` com {lean}`Feat.to`, e um `PP`
+  com {lean}`Feat.with` não concorda com ele.
+- A conjunção `and` tem o rótulo `CONJ` e liga duas orações dentro da
+  mesma sentença: _Alice smiled and Dorothy laughed_ é uma sentença com
+  duas orações. As palavras `if` e `then`, com os rótulos `COND` e
+  `THEN`, também ligam orações.
+- O léxico registra mais do que o parser da seção
+  {ref "parsing-categories"}[Análise Sintática com Categorias] analisa.
+  Esse parser só tem a regra `S → NP VP`, então não aceita orações
+  coordenadas nem condicionais. As entradas `CONJ`, `COND`, `THEN` e
+  `REL` serão usadas por regras que vamos acrescentar depois.
 - O léxico junta todas as listas. Uma palavra fora delas recebe a lista
   vazia.
 :::
 
 ::::full
-:::dev BeforeNextRelease
-TODO: translate CSwFP/9.5, from "Here are some prepositions:" to
-"Finally, we say that there is nothing else in the lexicon:".
-:::
+Cada preposição tem o rótulo `PREP` e um traço que identifica
+qual preposição ela é. Esse traço será transmitido ao `PP`.
+Assim, uma exigência de complemento como a de `gave` pode
+selecionar um `PP` com {lean}`Feat.to`. Um complemento com
+{lean}`Feat.with` entra em conflito com essa exigência.
+
+Registramos também as palavras que conectam orações. A palavra
+`and` recebe o rótulo `CONJ`, e as palavras `if` e `then`
+recebem os rótulos `COND` e `THEN`. Essas palavras ligam orações
+dentro de uma mesma sentença: _Alice smiled and Dorothy laughed_
+é uma única sentença, com duas orações. O parser da seção
+{ref "parsing-categories"}[Análise Sintática com Categorias], porém,
+só tem a regra `S → NP VP` e não aceita orações coordenadas
+nem condicionais. As entradas com os rótulos `CONJ`, `COND`, `THEN`
+e `REL` serão usadas por regras que acrescentaremos depois.
+
+A função `lexicon` reúne as listas de entradas e filtra aquelas
+cuja forma coincide com a palavra consultada. A consulta de
+`that` devolve suas duas categorias, e a de `gave` devolve seus
+dois padrões de subcategorização. Se a palavra não estiver nas
+listas, como `unicorn`, o resultado será a lista vazia.
 ::::
 
 ```lean
@@ -237,7 +313,6 @@ def prepositions : List Cat := [
 
 def connectives : List Cat := [
   ⟨"and",  "CONJ", [], []⟩,
-  ⟨".",    "CONJ", [], []⟩,
   ⟨"if",   "COND", [], []⟩,
   ⟨"then", "THEN", [], []⟩ ]
 
@@ -253,21 +328,59 @@ def lexicon (w : String) : List Cat :=
 
 :::terse
 - A análise léxica transforma o texto de entrada numa lista de palavras.
-- A função `scan` põe um espaço antes de cada sinal de pontuação, para
-  que ele vire uma palavra separada.
+- A função `scan` põe um espaço antes de cada sinal de pontuação, e só
+  antes, para que ele se separe da palavra que o precede.
 - A função `lexer` aplica `scan`, passa tudo para minúsculas, quebra o
   texto nos espaços e aplica `preproc`.
+- A entrada de `lexer` é uma única sentença: a nossa gramática analisa
+  uma sentença de cada vez, e não um texto. Dividir um texto em
+  sentenças é tarefa de uma segmentação anterior, que não definimos.
+  Uma entrada com mais de uma sentença, como
+  `Alice smiled. Dorothy laughed.`, está fora do que as funções desta
+  seção esperam.
 - A função `preproc` descarta as vírgulas e o ponto ou a interrogação no
-  fim da entrada.
-- Ela também ajusta a divisão das palavras: _did not_ vira _didn't_,
-  _nobody_ vira _no person_, _less than_ vira `less_than`.
+  fim da entrada. Numa só sentença, esse é o único ponto, e por isso o
+  ponto final não tem entrada no léxico.
+- Ela também ajusta a divisão das palavras: `did not` vira `didn't`,
+  `nobody` vira `no person`, `less than` vira `less_than`.
 :::
 
 ::::full
-:::dev BeforeNextRelease
-TODO: translate CSwFP/9.5, from "Now, the scan function scans an input
-string…" to the end of the definition of `preproc`.
-:::
+Antes de consultar o léxico, precisamos transformar o texto de
+entrada em uma lista de palavras. A função `scan` percorre os
+caracteres com `scanChars` e insere um espaço apenas antes de cada
+ponto, vírgula ou interrogação. Assim, em `smiled,`, a vírgula pode
+ser separada da palavra que a precede quando o texto é dividido nos
+espaços.
+
+O tipo `Words` abrevia uma lista de textos. A função `lexer`
+aplica `scan`, converte o resultado para minúsculas e o divide
+nos espaços. Em seguida, remove os textos vazios que essa divisão
+pode produzir e aplica `preproc` à lista obtida.
+
+Esperamos que a entrada de `lexer` seja uma única sentença, já que
+a nossa gramática analisa uma sentença de cada vez, e não um texto.
+A divisão de um texto em sentenças caberia a uma função de
+segmentação, aplicada antes, que não definimos aqui. Uma entrada
+com mais de uma sentença, como `Alice smiled. Dorothy laughed.`,
+está fora do que as funções desta seção esperam.
+
+O pré-processamento elimina as vírgulas e remove o ponto ou a
+interrogação que estiver no fim da lista. Numa só sentença, esse
+é o único ponto, e por isso o ponto final não tem entrada no
+léxico.
+
+A função `preproc` também ajusta a divisão de certas expressões
+às entradas do léxico. A sequência `did not` vira `didn't`, e
+`nobody` vira duas palavras, `no` e `person`. De modo
+semelhante, `everybody` vira `every person`. No sentido inverso,
+`less than` e `more than` são reunidas nas formas `less_than`
+e `more_than`. As expressões `at least` e `at most` também
+são reunidas, embora as formas `at_least` e `at_most` ainda
+não tenham entradas em {name}`lexicon`.
+
+Por exemplo, o processamento de `Did not everybody smile?`
+produz a lista {lean}`["didn't", "every", "person", "smile"]`.
 ::::
 
 ```lean
@@ -315,17 +428,41 @@ def lexer (s : String) : Words :=
   desconhecidas.
 - Para isso usamos o tipo `Except ε α`. Ele é como `Option α`, mas a
   falha carrega uma informação: `.ok a` é um sucesso com o valor `a`, e
-  `.error e` é uma falha com o erro `e`, aqui uma `String`.
-- Senão, `initCats` escolhe uma categoria para cada palavra, de todos os
-  modos possíveis: cada escolha é uma lista de categorias que o parser
-  vai tentar analisar.
+  `.error e` é uma falha com o erro `e`, aqui uma {name}`String`.
+- Quando todas as palavras são conhecidas, `initCats` escolhe uma
+  categoria para cada palavra, de todos os modos possíveis. Cada
+  escolha é uma lista de categorias que o parser vai tentar analisar.
 :::
 
 ::::full
-:::dev BeforeNextRelease
-TODO: translate CSwFP/9.5, from "The lexicon is a lexical database of
-type `String -> [Cat]`." to the end of the section.
-:::
+Uma consulta ao léxico tem tipo {lean}`String → List Cat`.
+A função `lookupWord db w` consulta a palavra `w` no léxico
+`db`. Para preparar uma entrada inteira para o parser, precisamos
+consultar todas as palavras e reunir suas possíveis categorias.
+
+A função `collectCats` associa cada palavra à lista de categorias
+devolvida pela consulta. Se alguma dessas listas for vazia, a
+palavra é desconhecida. Nesse caso, a função devolve um erro que
+contém as palavras desconhecidas da entrada.
+
+Para representar os dois resultados possíveis, usamos o tipo
+{name}`Except`. Em `Except ε α`, `ε` é o tipo do erro e
+`α` é o tipo do valor produzido em caso de sucesso. O construtor
+{name}`Except.ok` guarda esse valor, e {name}`Except.error`
+guarda o erro. Aqui, usamos {name}`String` para o erro e
+{lean}`List (List Cat)` para o resultado.
+
+Quando todas as palavras são conhecidas, `initCats` escolhe uma
+categoria de cada lista, conservando a ordem das palavras. Ela
+enumera todas as combinações possíveis. Para a lista vazia de
+palavras, há uma escolha, que também é vazia. Para uma lista não
+vazia, a função antepõe cada categoria da primeira palavra a cada
+escolha feita para as demais.
+
+Na entrada `Alice admired that girl.`, a palavra `that` dá
+origem a duas escolhas de categorias. O parser poderá testar
+cada uma para determinar se ela permite uma análise da sentença.
+Já a entrada com `unicorn` produz um erro durante a consulta.
 ::::
 
 ```lean

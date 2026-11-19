@@ -82,10 +82,13 @@ um novo estado.
 Para implementar um parser, usamos `List α` como estado, pois a lista
 representa a parte da entrada que ainda falta analisar. Escolhemos
 {lean}`List` para `m`, de modo que o parser possa devolver zero, uma
-ou várias respostas.
+ou várias respostas. A lista vazia indica falha, e duas árvores
+distintas com o mesmo resto são duas análises do mesmo prefixo.
 
 Substituindo, `StateT (List α) List β` é `List α → List (β × List α)`,
-como o `example` abaixo confirma. A vantagem de reusar {lean}`StateT` é que as
+como o `example` abaixo confirma. Em `Parser α β`, portanto, `α` é o
+tipo dos símbolos da entrada e `β` é o tipo do resultado, que pode ser
+uma árvore. A vantagem de reusar {lean}`StateT` é que as
 operações para combinar parsers, que veremos a seguir, já vêm prontas
 com ele, e não precisamos defini-las.
 ::::
@@ -98,14 +101,6 @@ abbrev Parser (α β : Type) := StateT (List α) List β
 example {α β : Type} :
     Parser α β = (List α → List (β × List α)) := rfl
 ```
-
-::::full
-Em `Parser α β`, `α` é o tipo dos símbolos da entrada e `β` é o tipo
-do resultado, que pode ser uma árvore. Cada par devolvido pelo parser
-contém um resultado e o resto da entrada correspondente. Quando o
-parser produz duas árvores distintas com o mesmo resto, elas são duas
-análises do mesmo prefixo.
-::::
 
 :::terse
 - A expressão `p.run xs` aplica o parser `p` à entrada `xs`.
@@ -471,6 +466,7 @@ example {α β γ : Type} (f : β → γ) (p : Parser α β) :
   o bloco `do` de `NP`.
 - A função `parseAs` faz disso um nó: `parseAs A ps` é a regra
   `A → B₁ ⋯ Bₙ`, com `ps` os parsers de `B₁, …, Bₙ`, e o nó tem rótulo `A`.
+  Com `parseAs "NP" [det, n]`, voltamos ao nó `NP` do bloco `do`.
 - O `example` mostra que, com um só parser, `parseAs` constrói o mesmo
   nó que {name}`det` construía com `<$>`.
 :::
@@ -513,6 +509,10 @@ def parseAs {α β : Type} (label : β)
   (ps : List (Parser α (ParseTree α β)))
   : Parser α (ParseTree α β) :=
   .branch label <$> collect ps
+
+#eval (parseAs "NP" [det, n]).run
+    ["every", "wizard", "smiled"] |>.map
+  fun (t, ys) => (toString t, ys)
 
 example {α β : Type} (l : β)
     (p : Parser α (ParseTree α β)) :
@@ -707,8 +707,8 @@ recursiva aceitarem a entrada vazia.
 No reconhecedor por divisão da seção
 {ref "cf-recognition"}[Reconhecendo e Analisando Linguagens Livres de Contexto],
 os pedaços externos das regras recursivas têm um símbolo cada, o que
-permitia provar que as chamadas recursivas recebiam entradas menores. Existem combinadores de
-parsers que garantem a terminação e aceitam recursão à esquerda
+permitia provar que as chamadas recursivas recebiam entradas menores. Existem
+combinadores de parsers que garantem a terminação e aceitam recursão à esquerda
 {citep Bib.danielsson2010}[].
 ::::
 

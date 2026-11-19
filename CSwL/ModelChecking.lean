@@ -35,7 +35,7 @@ Ao tentar traduzir a língua natural para a lógica de predicados de primeira or
 1. _Every dwarf loved Goldilocks._ ("Todo anão amava Cachinhos Dourados.")
 2. `∀x (Dwarf x → Love x g)`
 
-Na oração original em inglês, _Every dwarf_ é o sujeito da frase, formando um bloco sintático coeso. A discrepância decorre da perda de individualidade que o quantificador introduz. Se a sentença fosse _Alice loved Goldilocks_, o sujeito apontaria para uma pessoa específica no mundo, representada diretamente na lógica por uma constante individual `a` (resultando em `Love a g`).
+Na sentença original em inglês, _Every dwarf_ é o sujeito, formando um bloco sintático coeso. A discrepância decorre da perda de individualidade que o quantificador introduz. Se a sentença fosse _Alice loved Goldilocks_, o sujeito apontaria para uma pessoa específica no mundo, representada diretamente na lógica por uma constante individual `a` (resultando em `Love a g`).
 
 Contudo, ao dizermos _Every dwarf_, não estamos nos referindo a um anão em particular: não existe no mundo um indivíduo chamado "Todo anão". Em vez de apontar para uma entidade isolada, o quantificador estabelece uma condição geral sobre todos os objetos do universo: _para qualquer objeto x, se x for um anão, então x amou Cachinhos Dourados_ (o que equivale logicamente a dizer que ou esse objeto não é um anão, ou ele amou Cachinhos Dourados).
 
