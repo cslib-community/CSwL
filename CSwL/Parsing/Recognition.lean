@@ -56,7 +56,8 @@ O exemplo usa {lean}`"Jan".toList` para obter os caracteres e {name}`String.ofLi
 para exibir os pedaços como textos.
 
 A função `splitN n` generaliza esse procedimento. Em zero pedaços, só a lista
-vazia pode ser dividida, e há uma única divisão. Para dois ou mais pedaços,
+vazia pode ser dividida, e há uma única divisão. Em um pedaço, a única
+divisão tem a lista inteira como único pedaço. Para dois ou mais pedaços,
 a função usa `split2` para separar o primeiro e divide recursivamente
 o restante.
 ::::

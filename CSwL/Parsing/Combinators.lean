@@ -82,10 +82,13 @@ um novo estado.
 Para implementar um parser, usamos `List α` como estado, pois a lista
 representa a parte da entrada que ainda falta analisar. Escolhemos
 {lean}`List` para `m`, de modo que o parser possa devolver zero, uma
-ou várias respostas.
+ou várias respostas. A lista vazia indica falha, e duas árvores
+distintas com o mesmo resto são duas análises do mesmo prefixo.
 
 Substituindo, `StateT (List α) List β` é `List α → List (β × List α)`,
-como o `example` abaixo confirma. A vantagem de reusar {lean}`StateT` é que as
+como o `example` abaixo confirma. Em `Parser α β`, portanto, `α` é o
+tipo dos símbolos da entrada e `β` é o tipo do resultado, que pode ser
+uma árvore. A vantagem de reusar {lean}`StateT` é que as
 operações para combinar parsers, que veremos a seguir, já vêm prontas
 com ele, e não precisamos defini-las.
 ::::
@@ -98,14 +101,6 @@ abbrev Parser (α β : Type) := StateT (List α) List β
 example {α β : Type} :
     Parser α β = (List α → List (β × List α)) := rfl
 ```
-
-::::full
-Em `Parser α β`, `α` é o tipo dos símbolos da entrada e `β` é o tipo
-do resultado, que pode ser uma árvore. Cada par devolvido pelo parser
-contém um resultado e o resto da entrada correspondente. Quando o
-parser produz duas árvores distintas com o mesmo resto, elas são duas
-análises do mesmo prefixo.
-::::
 
 :::terse
 - A expressão `p.run xs` aplica o parser `p` à entrada `xs`.

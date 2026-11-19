@@ -266,8 +266,6 @@ def verbs : List Cat :=
   Esse traço passa para o `PP`, e é por ele que um verbo escolhe a
   preposição do complemento: `gave` pede um `PP` com {lean}`Feat.to`, e um `PP`
   com {lean}`Feat.with` não concorda com ele.
-- A nossa gramática analisa uma sentença de cada vez, não um texto: o
-  ponto final não está no léxico.
 - A conjunção `and` tem o rótulo `CONJ` e liga duas orações dentro da
   mesma sentença: _Alice smiled and Dorothy laughed_ é uma sentença com
   duas orações. As palavras `if` e `then`, com os rótulos `COND` e
@@ -294,9 +292,7 @@ dentro de uma mesma sentença: _Alice smiled and Dorothy laughed_
 é uma única sentença, com duas orações. O parser da próxima seção,
 porém, só tem a regra `S → NP VP` e não aceita orações coordenadas
 nem condicionais. As entradas com os rótulos `CONJ`, `COND`, `THEN`
-e `REL` serão usadas por regras que acrescentaremos depois. O ponto
-final não tem entrada no léxico, porque a nossa gramática analisa
-uma sentença de cada vez, e não um texto.
+e `REL` serão usadas por regras que acrescentaremos depois.
 
 A função `lexicon` reúne as listas de entradas e filtra aquelas
 cuja forma coincide com a palavra consultada. A consulta de
@@ -330,14 +326,19 @@ def lexicon (w : String) : List Cat :=
 
 :::terse
 - A análise léxica transforma o texto de entrada numa lista de palavras.
-- A entrada é uma única sentença. Dividir um texto em sentenças é tarefa
-  de uma segmentação anterior, que não definimos.
-- A função `scan` põe um espaço antes de cada sinal de pontuação, para
-  que ele vire uma palavra separada.
+- A função `scan` põe um espaço antes de cada sinal de pontuação, e só
+  antes, para que ele se separe da palavra que o precede.
 - A função `lexer` aplica `scan`, passa tudo para minúsculas, quebra o
   texto nos espaços e aplica `preproc`.
+- A entrada de `lexer` é uma única sentença: a nossa gramática analisa
+  uma sentença de cada vez, e não um texto. Dividir um texto em
+  sentenças é tarefa de uma segmentação anterior, que não definimos.
+  Uma entrada com mais de uma sentença, como
+  `Alice smiled. Dorothy laughed.`, está fora do que as funções desta
+  seção esperam.
 - A função `preproc` descarta as vírgulas e o ponto ou a interrogação no
-  fim da entrada.
+  fim da entrada. Numa só sentença, esse é o único ponto, e por isso o
+  ponto final não tem entrada no léxico.
 - Ela também ajusta a divisão das palavras: `did not` vira `didn't`,
   `nobody` vira `no person`, `less than` vira `less_than`.
 :::
@@ -345,22 +346,27 @@ def lexicon (w : String) : List Cat :=
 ::::full
 Antes de consultar o léxico, precisamos transformar o texto de
 entrada em uma lista de palavras. A função `scan` percorre os
-caracteres com `scanChars` e insere um espaço antes de cada ponto,
-vírgula ou interrogação. Assim, em `smiled,`, a vírgula pode ser
-separada da palavra quando o texto é dividido nos espaços.
+caracteres com `scanChars` e insere um espaço apenas antes de cada
+ponto, vírgula ou interrogação. Assim, em `smiled,`, a vírgula pode
+ser separada da palavra que a precede quando o texto é dividido nos
+espaços.
 
 O tipo `Words` abrevia uma lista de textos. A função `lexer`
 aplica `scan`, converte o resultado para minúsculas e o divide
 nos espaços. Em seguida, remove os textos vazios que essa divisão
 pode produzir e aplica `preproc` à lista obtida.
 
+Esperamos que a entrada de `lexer` seja uma única sentença, já que
+a nossa gramática analisa uma sentença de cada vez, e não um texto.
+A divisão de um texto em sentenças caberia a uma função de
+segmentação, aplicada antes, que não definimos aqui. Uma entrada
+com mais de uma sentença, como `Alice smiled. Dorothy laughed.`,
+está fora do que as funções desta seção esperam.
+
 O pré-processamento elimina as vírgulas e remove o ponto ou a
-interrogação que estiver no fim da lista. Esperamos que a entrada
-de `lexer` seja uma única sentença, já que a nossa gramática
-analisa uma sentença de cada vez, e não um texto. A divisão de um
-texto em sentenças caberia a uma função de segmentação, aplicada
-antes, que não definimos aqui. Se a entrada tiver um ponto no meio, esse ponto será uma
-palavra desconhecida do léxico.
+interrogação que estiver no fim da lista. Numa só sentença, esse
+é o único ponto, e por isso o ponto final não tem entrada no
+léxico.
 
 A função `preproc` também ajusta a divisão de certas expressões
 às entradas do léxico. A sequência `did not` vira `didn't`, e
