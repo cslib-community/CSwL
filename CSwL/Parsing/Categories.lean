@@ -312,9 +312,13 @@ open Examples in
 - O sujeito e o predicado têm de concordar, o sujeito tem de aceitar o
   caso {lean}`Feat.nom`, e o predicado já tem de ter todos os seus
   complementos: a sua lista de subcategorização é vazia.
-- A função `prs` analisa uma cadeia: aplica {name}`lexer`, consulta o léxico
-  com {name}`collectCats` e, para cada escolha de categorias, fica com as
-  análises de `parseSent` que consomem a entrada inteira.
+- A função `parseWith db p` analisa uma cadeia com o léxico `db` e o
+  parser `p`: aplica {name}`lexer`, consulta `db` com {name}`collectCats`
+  e, para cada escolha de categorias, fica com as análises de `p` que
+  consomem a entrada inteira.
+- A função `prs` é `parseWith` com o léxico {name}`lexicon` e o parser
+  `parseSent`. Os parsers das regras não dependem do léxico: só
+  `parseWith` o consulta.
 - O resultado é um {name}`Except`, com dois erros possíveis: uma palavra
   desconhecida, vindo de {name}`collectCats`, e uma sentença que a gramática não
   aceita, quando não sobra nenhuma análise. Assim, `.ok` sempre traz
@@ -337,13 +341,17 @@ sentença tem uma só oração. Embora o léxico tenha `and`, a sentença
 `Alice smiled and Dorothy laughed.` não tem análise, como mostra o
 último exemplo.
 
-A função `prs` reúne as etapas da análise de uma sentença.
+A função `parseWith` reúne as etapas da análise de uma entrada,
+com um léxico `db` e um parser `p` dados como argumentos.
 Primeiro, {name}`lexer` produz a lista de palavras. Depois,
-{name}`collectCats` consulta o léxico e enumera as escolhas
+{name}`collectCats` consulta `db` e enumera as escolhas
 de categorias para a entrada. Para cada escolha, aplicamos
-`parseSent` com {name}`just`, conservando somente as análises
+`p` com {name}`just`, conservando somente as análises
 que consomem todas as categorias. Por fim, reunimos as árvores
-dessas análises em uma lista.
+dessas análises em uma lista. Os parsers das regras trabalham
+sobre categorias e não consultam o léxico. Por isso, só
+`parseWith` depende dele, e `prs` é `parseWith` com o léxico
+{name}`lexicon` e o parser `parseSent`.
 
 O resultado usa {name}`Except`. Se uma palavra é desconhecida,
 {name}`collectCats` devolve um erro com a mensagem
@@ -359,7 +367,7 @@ Os exemplos permitem distinguir essas situações. A entrada
 `Her loved I.` viola as exigências de caso, enquanto
 `She despised me.` contém uma palavra ausente do léxico.
 Os exemplos com `gave` testam a preposição do complemento,
-e o último combina auxiliar, infinitivo e um complemento
+e o penúltimo combina auxiliar, infinitivo e um complemento
 instrumental.
 ::::
 
@@ -374,11 +382,15 @@ def sRule : CatParser := do
 
 def parseSent : CatParser := sRule
 
-def prs (s : String) : Except String (List (ParseTree Cat Cat)) := do
-  let catLists ← collectCats lexicon (lexer s)
-  let trees := catLists.flatMap fun cs => ((just parseSent).run cs).map (·.1)
+def parseWith (db : String → List Cat) (p : CatParser) (s : String) :
+    Except String (List (ParseTree Cat Cat)) := do
+  let catLists ← collectCats db (lexer s)
+  let trees := catLists.flatMap fun cs => ((just p).run cs).map (·.1)
   if trees.isEmpty then throw "no parse"
   return trees
+
+def prs (s : String) : Except String (List (ParseTree Cat Cat)) :=
+  parseWith lexicon parseSent s
 
 #eval prs "I loved her."
 #eval prs "Her loved I."
@@ -388,6 +400,83 @@ def prs (s : String) : Except String (List (ParseTree Cat Cat)) := do
 #eval prs "Atreyu didn't kick the giant with a dagger."
 #eval prs "Alice smiled and Dorothy laughed."
 ```
+
+::::exercise (rating := 3) (name := "complex-det")
+Acrescente uma regra para determinantes complexos, formados por uma
+função de determinante e um numeral. Ela deve cobrir _less than n_,
+_more than n_, _at least n_, _at most n_ e _exactly n_. O
+pré-processamento já torna cada função de determinante uma única
+palavra. Você também vai precisar, é claro, de um modo de reconhecer
+os numerais.
+
+Faça isso em três passos:
+
+- `lexicon'` estende {name}`lexicon` com as entradas `DF` que faltam,
+  `at_least`, `at_most` e `exactly`, e dá a categoria `NUM` a toda
+  palavra formada só por algarismos;
+- `complexDetRule` analisa um `DET` formado por um `DF` seguido de um
+  `NUM`, com os traços do `DF`;
+- `complexNpRule` analisa um `NP` formado por esse `DET` e um `CN`,
+  com os traços combinados por {name}`combine`, e `parseNP'` junta
+  {name}`parseNP` e a nova regra.
+
+Os testes usam {name}`parseWith` com `lexicon'` e `parseNP'`, e
+{name}`Except.toBool` dá `true` para um resultado `.ok`. Para analisar
+uma sentença inteira, como _Less than 3 dwarfs smiled_, `sRule` teria de
+usar `parseNP'`; aqui testamos só o sintagma nominal.
+
+```lean
+def lexicon' (w : String) : List Cat :=
+  solution!(
+    lexicon w ++
+      (if !w.isEmpty && w.all Char.isDigit then [⟨w, "NUM", [], []⟩]
+       else []) ++
+      ([⟨"at_least", "DF", [], []⟩, ⟨"at_most", "DF", [], []⟩,
+        ⟨"exactly", "DF", [], []⟩] : List Cat).filter (·.phon == w))
+
+def complexDetRule : CatParser :=
+  solution!(
+    do
+      let df ← leafP "DF"
+      let num ← leafP "NUM"
+      return .branch ⟨"_", "DET", (t2c df).fs, []⟩ [df, num])
+
+def complexNpRule : CatParser :=
+  solution!(
+    do
+      let det ← complexDetRule
+      let cn ← parseCN
+      let fs ← fromOption (combine (t2c det) (t2c cn))
+      return .branch ⟨"_", "NP", fs, []⟩ [det, cn])
+
+def parseNP' : CatParser := parseNP <|> complexNpRule
+
+theorem complexDet_less_than :
+    (parseWith lexicon' parseNP' "Less than 3 dwarfs").toBool = true := by
+  solution!
+   native_decide
+
+theorem complexDet_at_least :
+    (parseWith lexicon' parseNP' "At least 2 wizards").toBool = true := by
+  solution!
+   native_decide
+
+theorem complexDet_exactly :
+    (parseWith lexicon' parseNP' "Exactly 1 princess").toBool = true := by
+  solution!
+   native_decide
+
+theorem complexDet_agreement :
+    (parseWith lexicon' parseNP' "Less than 3 dwarf").toBool = false := by
+  solution!
+   native_decide
+
+theorem complexDet_simple :
+    (parseWith lexicon' parseNP' "The dwarfs").toBool = true := by
+  solution!
+   native_decide
+```
+::::
 
 ```lean
 end Parsing

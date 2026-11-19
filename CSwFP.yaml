@@ -170,7 +170,7 @@ exercises:
     9.8 (p. 217): symbol-satisfy
     9.9 (p. 222): absorbed into the closing cue of parser-combinators, which
       says why left recursion makes a parser loop
-    9.10 (p. 237): TODO
+    9.10 (p. 237): complex-det
     9.11 (p. 241): TODO
     9.12 (p. 244): TODO
     9.13 (p. 246): TODO

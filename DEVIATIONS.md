@@ -417,10 +417,17 @@ CSwFP/8 is skipped for now, and the chapter follows `Composition`.
   `Except String (List (ParseTree Cat Cat))`, following `collectCats`,
   with two errors: an unknown word, and a sentence with no parse,
   where CSwFP returns the empty list. So `.ok` always carries at least
-  one tree. A parse tree is printed as one AVM, the daughters of a node
-  under `ARGS` as in the ERG, through a `Repr` instance built with
-  `Std.Format` in a `:::details` block. Exercise 9.10 waits in issue
-  53.
+  one tree. `prs` is `parseWith lexicon parseSent`: `parseWith`, which
+  is not in CSwFP, takes the lexicon and the parser as arguments, since
+  only this last step consults the lexicon. A parse tree is printed as
+  one AVM, the daughters of a node under `ARGS` as in the ERG, through a
+  `Repr` instance built with `Std.Format` in a `:::details` block.
+  Exercise 9.10 (`complex-det`) is scoped to the noun phrase: the reader
+  extends the lexicon in `lexicon'`, with the missing determiner
+  functions and digit strings as `NUM`, in place of a parser for
+  numerals, and tests `parseNP'` with `parseWith`. A whole sentence
+  would need `sRule` to use the new `NP`, which means redefining the
+  chain of rules (issue 53).
 - 9.9: further reading is kept, unlike in the other chapters, as the
   last section of the chapter, and extended with references on general
   parsing algorithms (CKY, Earley) that a `:::details` block after
