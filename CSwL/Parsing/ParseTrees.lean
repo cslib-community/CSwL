@@ -36,10 +36,37 @@ namespace Parsing
 :::
 
 ::::full
-:::dev BeforeNextRelease
-TODO: adapt the terse cues above on sentença, oração, sintagma and
-constituinte into prose.
-:::
+Para descrever a estrutura das expressões, usaremos os termos
+*sentença*, *oração*, *sintagma* e *constituinte*, seguindo a
+terminologia do capítulo sobre a ordem e a função das palavras de
+{citet Bib.caseli2024}[]. Na escrita, uma sentença se estende da letra
+maiúscula até a pontuação final. Ela é a maior unidade que tomamos
+como entrada para a análise sintática.
+
+Uma oração se organiza em torno de um verbo e expressa uma predicação.
+Em `Alice smiled and Dorothy laughed.`, há uma única sentença e duas
+orações. A primeira atribui a Alice o evento de sorrir, e a segunda
+atribui a Dorothy o evento de rir. Uma sentença pode, portanto,
+reunir mais de uma oração.
+
+Um sintagma é uma unidade organizada em torno de um núcleo. A classe
+desse núcleo determina o tipo do sintagma. Usaremos `NP` para
+sintagmas nominais, `VP` para sintagmas verbais e `PP` para sintagmas
+preposicionais. Em `Alice loved the dwarfs.`, por exemplo,
+`the dwarfs` é um sintagma nominal cujo núcleo é `dwarfs`, e
+`loved the dwarfs` é um sintagma verbal cujo núcleo é `loved`.
+Chamamos de constituintes as partes que funcionam como unidades
+dentro de uma estrutura maior. Assim, `the dwarfs` é um constituinte
+do sintagma verbal, e esse sintagma é um constituinte da oração.
+Uma palavra também pode formar um constituinte, como `Alice` nesse
+exemplo.
+
+O símbolo inicial das gramáticas que usaremos é `S`, de sentença.
+Esse rótulo também representa orações. Em uma regra como
+`S → S and S`, os dois símbolos `S` à direita representam as
+orações coordenadas, enquanto o símbolo `S` à esquerda representa
+a sentença que elas formam. Para uma sentença com uma única oração,
+o mesmo nó representa ambas as unidades.
 ::::
 
 :::terse
