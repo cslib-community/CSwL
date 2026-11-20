@@ -149,71 +149,75 @@ instance : ToString That := ⟨fun | .that => "that"⟩
 
 O tipo `That` tem um único construtor e não carrega informação alguma. Ele está ali porque a palavra *that* ocupa uma posição na regra de `RCN`, e queremos que a árvore de análise registre essa posição como registra as outras.
 
-Os quatro não-terminais restantes se referem uns aos outros: `S` usa `NP` e `VP`, `NP` usa `RCN`, `RCN` usa `VP` e `NP`, e `VP` usa `NP`. Nenhum deles pode ser declarado antes dos outros, e por isso os quatro vão para um mesmo bloco `mutual`, como fizemos em {ref "FOL"}[FOL] para funções que se chamam mutuamente.
+As regras de `NP`, `RCN` e `VP` têm dependências circulares. `NP` usa `RCN`, `RCN` usa `VP` e `NP`, e `VP` usa `NP`. Por isso declaramos os três tipos em um bloco `mutual`. Depois do bloco, declaramos `Sent`, que representa a regra `S ::= NP VP`.
 
 ```lean
 mutual
-  inductive Sent where
-    | sent (np : NP) (vp : VP)
-  deriving Repr
 
-  inductive NP where
-    | snowWhite | alice | dorothy | goldilocks
-    | littleMook | atreyu
-    | everyone | someone
-    | npDet (det : DET) (cn : CN)
-    | npDetRel (det : DET) (rcn : RCN)
-  deriving Repr
+inductive NP where
+  | snowWhite | alice | dorothy | goldilocks
+  | littleMook | atreyu
+  | everyone | someone
+  | npDet (det : DET) (cn : CN)
+  | npDetRel (det : DET) (rcn : RCN)
+deriving Repr
 
-  inductive RCN where
-    | rcnSubj (cn : CN) (compl : That) (vp : VP)
-    | rcnObj (cn : CN) (compl : That) (np : NP) (tv : TV)
-    | rcnAdj (adj : ADJ) (cn : CN)
-  deriving Repr
+inductive RCN where
+  | rcnSubj (cn : CN) (compl : That) (vp : VP)
+  | rcnObj (cn : CN) (compl : That) (np : NP) (tv : TV)
+  | rcnAdj (adj : ADJ) (cn : CN)
+deriving Repr
 
-  inductive VP where
-    | laughed | cheered | shuddered
-    | vpTrans (tv : TV) (np : NP)
-    | vpDitrans (dv : DV) (iobj dobj : NP)
-  deriving Repr
+inductive VP where
+  | laughed | cheered | shuddered
+  | vpTrans (tv : TV) (np : NP)
+  | vpDitrans (dv : DV) (iobj dobj : NP)
+deriving Repr
+
 end
+
+inductive Sent where
+    | sent (np : NP) (vp : VP)
+deriving Repr
 ```
 
 Os nomes dos construtores dizem qual alternativa da regra cada um implementa. Em `RCN`, `rcnSubj` é a oração relativa em que o substantivo modificado faz o papel de sujeito — *girl that laughed* —, e `rcnObj` aquela em que ele faz o papel de objeto — *girl that some boy loved*. Essa diferença vai reaparecer quando dermos a semântica do fragmento.
 
-Falta o caminho de volta: dada a árvore, recuperar a sentença de superfície. As funções que fazem isso se chamam umas às outras exatamente como os tipos, e por isso também vão para um bloco `mutual`.
+Para recuperar a sentença de superfície a partir da árvore, definimos primeiro as funções de `NP`, `RCN` e `VP` em um bloco `mutual`. Depois do bloco, `Sent.toText` junta o texto do sujeito ao do predicado.
 
 ```lean
 mutual
-  def Sent.toText : Sent → String
-    | .sent np vp => s!"{np.toText} {vp.toText}"
 
-  def NP.toText : NP → String
-    | .snowWhite => "Snow White"
-    | .alice => "Alice"
-    | .dorothy => "Dorothy"
-    | .goldilocks => "Goldilocks"
-    | .littleMook => "Little Mook"
-    | .atreyu => "Atreyu"
-    | .everyone => "everyone"
-    | .someone => "someone"
-    | .npDet det cn => s!"{det} {cn}"
-    | .npDetRel det rcn => s!"{det} {rcn.toText}"
+def NP.toText : NP → String
+  | .snowWhite => "Snow White"
+  | .alice => "Alice"
+  | .dorothy => "Dorothy"
+  | .goldilocks => "Goldilocks"
+  | .littleMook => "Little Mook"
+  | .atreyu => "Atreyu"
+  | .everyone => "everyone"
+  | .someone => "someone"
+  | .npDet det cn => s!"{det} {cn}"
+  | .npDetRel det rcn => s!"{det} {rcn.toText}"
 
-  def RCN.toText : RCN → String
-    | .rcnSubj cn compl vp => s!"{cn} {compl} {vp.toText}"
-    | .rcnObj cn compl np tv =>
-      s!"{cn} {compl} {np.toText} {tv}"
-    | .rcnAdj adj cn => s!"{adj} {cn}"
+def RCN.toText : RCN → String
+  | .rcnSubj cn compl vp => s!"{cn} {compl} {vp.toText}"
+  | .rcnObj cn compl np tv =>
+    s!"{cn} {compl} {np.toText} {tv}"
+  | .rcnAdj adj cn => s!"{adj} {cn}"
 
-  def VP.toText : VP → String
-    | .laughed => "laughed"
-    | .cheered => "cheered"
-    | .shuddered => "shuddered"
-    | .vpTrans tv np => s!"{tv} {np.toText}"
-    | .vpDitrans dv iobj dobj =>
-      s!"{dv} {iobj.toText} {dobj.toText}"
+def VP.toText : VP → String
+  | .laughed => "laughed"
+  | .cheered => "cheered"
+  | .shuddered => "shuddered"
+  | .vpTrans tv np => s!"{tv} {np.toText}"
+  | .vpDitrans dv iobj dobj =>
+    s!"{dv} {iobj.toText} {dobj.toText}"
+
 end
+
+def Sent.toText : Sent → String
+  | .sent np vp => s!"{np.toText} {vp.toText}"
 
 instance : ToString Sent := ⟨Sent.toText⟩
 instance : ToString NP := ⟨NP.toText⟩
@@ -240,13 +244,13 @@ Ir da sentença de superfície para a árvore é o problema inverso, chamado de 
 
 ## Estender uma Gramática
 
-Um tipo indutivo em Lean é fechado: os construtores listados na declaração são todos os que existem, e não há como acrescentar um depois. É isso que torna as funções sobre `Sent` verificáveis — o compilador sabe que uma função que trata os cinco construtores de `VP` trata todos os casos. Mas é também o que impede que uma gramática seja estendida do jeito mais óbvio, acrescentando uma alternativa a uma regra que já existe.
+Um tipo indutivo em Lean é fechado. Seus construtores são fixados na declaração. Isso permite que Lean verifique se uma função definida por casos sobre `VP` cobre todos os seus cinco construtores. Para acrescentar uma alternativa diretamente a uma regra da gramática, seria preciso alterar a declaração do tipo correspondente.
 
 Há duas situações, e elas se comportam de maneiras diferentes.
 
 Acrescentar uma *palavra* a uma categoria — um adjetivo, um verbo transitivo — exige mesmo redeclarar o tipo daquela categoria, porque a palavra é um construtor novo. Por isso as palavras de que o capítulo precisa já entram na declaração: `ADJ` traz *fake*, *happy* e *evil* desde o início.
 
-Acrescentar uma *regra*, por outro lado, pode ser feito sem tocar no que já existe. Em vez de acrescentar um construtor a `Sent`, declaramos uma categoria nova que contém a antiga:
+Para acrescentar a coordenação de sentenças, podemos declarar uma nova categoria que inclui as sentenças do fragmento original e permite combiná-las com *and*.
 
 ```lean
 inductive Coord where
@@ -488,22 +492,9 @@ open FOL
 abbrev LF := Formula Term
 ```
 
-Supondo que estejamos tratando de um fragmento que gera sentenças declarativas cujos significados podem ser representados na lógica de predicados, é razoável dar o tipo `LF` às representações das sentenças.
+Traduzimos cada sentença do fragmento para uma fórmula de tipo `LF`. As traduções de `VP` e `RCN` têm tipo `Term → LF`. Elas recebem um termo e constroem uma fórmula sobre ele. Pela elevação de tipo apresentada em {ref "english-form"}[Formas Linguísticas e Traduções para Lógica], a tradução de `NP` tem tipo `(Term → LF) → LF`. Para traduzir a regra `S ::= NP VP`, aplicamos a tradução do sujeito à do sintagma verbal, como em `lfNP np (lfVP vp)`.
 
-Para traduzir o fragmento de {ref "english-fragment"}[Um Fragmento do Inglês] para a lógica de predicados, tudo o que temos a fazer é achar traduções apropriadas para todas as categorias da gramática. Mas a primeira regra, `S ::= NP VP`, já nos apresenta uma dificuldade. Ao procurar traduções de `NP` e traduções de `VP`, devemos representar o `NP` como uma função que toma a representação do `VP` como argumento, ou o contrário?
-
-De todo modo, as representações de `VP` terão um tipo funcional, pois sintagmas verbais denotam propriedades. Um tipo razoável para a função que representa um `VP` é `Term → LF`: alimentada com um termo, ela devolve uma forma lógica. Os nomes próprios podem então receber o tipo dos termos. Tome o exemplo *Goldilocks laughed*. O verbo *laughed* é representado pela função que leva o termo `x` à fórmula `laugh[x]`. Obtemos assim uma forma lógica apropriada para a sentença, se `x` for um termo para *Goldilocks*.
-
-A dificuldade apontada em {ref "english-form"}[Formas Linguísticas e Traduções para Lógica] é que sintagmas como *no boy* e *every girl* não se encaixam nesse padrão. Lá também dissemos que isso se resolve supondo que tais sintagmas se traduzem como funções que tomam representações de `VP` como argumento. Uma tradução apropriada para *everyone* seria uma função de tipo `(Term → LF) → LF`: alimentada com a representação de um `VP`, ela devolve uma forma lógica. O resultado da discussão é que, na representação de uma estrutura `S ::= NP VP`, a representação do `NP` deve ser a função e a do `VP` o argumento. Os tipos das quatro funções de tradução são, portanto, estes:
-
-```display
-lfSent : Sent → LF
-lfNP   : NP   → (Term → LF) → LF
-lfVP   : VP   → Term → LF
-lfRCN  : RCN  → Term → LF
-```
-
-Como `NP`, `VP` e `RCN` se referem uns aos outros, as quatro funções se chamam umas às outras, e vão para um bloco `mutual`. Antes dele, porém, vêm as funções de tradução que não dependem de nenhuma outra.
+Começamos pelas funções de tradução das categorias lexicais. Em seguida, definimos `lfNP`, `lfVP` e `lfRCN` em um bloco `mutual`. `lfSent` vem depois do bloco e combina as traduções de `NP` e `VP`.
 
 As categorias lexicais são as mais simples. Um substantivo comum tem o mesmo tipo que um sintagma verbal, e um adjetivo também.
 
@@ -542,7 +533,7 @@ def lfDV : DV → Term → Term → Term → LF
 
 A tradução de um determinante toma dois argumentos de tipo `Term → LF`, formas lógicas obtidas a partir de um termo, e produz uma forma lógica. No caso dos quantificadores, o primeiro argumento é a *restrição* e o segundo o *escopo*. Falaremos disso em {ref "comp-relational"}[A visão relacional dos quantificadores].
 
-A tradução dos determinantes precisa ser feita com algum cuidado, porque envolve construir uma forma lógica em que uma variável fica ligada. Para garantir a ligação correta, temos de nos assegurar de que a variável recém-introduzida não seja capturada por um quantificador já presente na forma lógica. Mas, se refletirmos sobre como as variáveis são introduzidas, veremos que elas sempre aparecem junto de quem as liga, e que nenhuma ligação é vazia. Basta, portanto, colher os índices que aparecem nos quantificadores: como toda variável ocorre dentro do escopo de quem a liga, eles incluem todos os índices em uso.
+A tradução dos determinantes precisa evitar a captura de variáveis. Em *Every dwarf defeated some giant*, por exemplo, a tradução de *defeated some giant* introduz o quantificador do objeto, enquanto a variável do sujeito só será ligada pelo quantificador externo, de *every dwarf*. Para escolher o índice da variável do sujeito, examinamos os índices dos quantificadores internos e escolhemos um índice maior. Assim, nenhum quantificador interno pode capturar uma ocorrência da variável do sujeito.
 
 ```lean
 def boundIndices : LF → List Nat
@@ -614,7 +605,7 @@ Nem todo determinante do inglês admite uma tradução para a lógica de predica
 
 ## O Bloco Mutuamente Recursivo
 
-Falta traduzir as quatro categorias que se referem umas às outras. Os nomes próprios são traduzidos como símbolos funcionais de aridade zero, isto é, como constantes: *Snow White* é o termo `SnowWhite`.
+Em `lfNP`, cada nome próprio é representado por uma constante, isto é, um símbolo funcional de aridade zero. Para *Snow White*, `lfNP` aplica a propriedade recebida ao termo `SnowWhite`.
 
 Os sintagmas *everyone* e *someone* não têm um termo que lhes corresponda. Eles são traduzidos como quantificadores restritos à propriedade de ser uma pessoa, e é justamente essa a forma de que falamos na primeira seção: uma função que toma a representação do sintagma verbal como argumento.
 
@@ -622,44 +613,45 @@ Usamos a conjunção para juntar a forma lógica de um substantivo comum e a de 
 
 ```lean
 mutual
-  def lfSent : Sent → LF
-    | .sent np vp => lfNP np (lfVP vp)
 
-  def lfNP : NP → (Term → LF) → LF
-    | .snowWhite, p => p (.struct "SnowWhite" [])
-    | .alice, p => p (.struct "Alice" [])
-    | .dorothy, p => p (.struct "Dorothy" [])
-    | .goldilocks, p => p (.struct "Goldilocks" [])
-    | .littleMook, p => p (.struct "LittleMook" [])
-    | .atreyu, p => p (.struct "Atreyu" [])
-    | .everyone, p =>
-      let v := freshVar [p]
-      .forall_ v
-        (.impl (.atom "person" [.var v]) (p (.var v)))
-    | .someone, p =>
-      let v := freshVar [p]
-      .exists_ v
-        (.conj (.atom "person" [.var v]) (p (.var v)))
-    | .npDet det cn, p => lfDET det (lfCN cn) p
-    | .npDetRel det rcn, p => lfDET det (lfRCN rcn) p
+def lfNP : NP → (Term → LF) → LF
+  | .snowWhite, p => p (.struct "SnowWhite" [])
+  | .alice, p => p (.struct "Alice" [])
+  | .dorothy, p => p (.struct "Dorothy" [])
+  | .goldilocks, p => p (.struct "Goldilocks" [])
+  | .littleMook, p => p (.struct "LittleMook" [])
+  | .atreyu, p => p (.struct "Atreyu" [])
+  | .everyone, p =>
+    let v := freshVar [p]
+    .forall_ v
+     (.impl (.atom "person" [.var v]) (p (.var v)))
+  | .someone, p =>
+    let v := freshVar [p]
+    .exists_ v
+     (.conj (.atom "person" [.var v]) (p (.var v)))
+  | .npDet det cn, p => lfDET det (lfCN cn) p
+  | .npDetRel det rcn, p => lfDET det (lfRCN rcn) p
 
-  def lfVP : VP → Term → LF
-    | .laughed, t => .atom "laugh" [t]
-    | .cheered, t => .atom "cheer" [t]
-    | .shuddered, t => .atom "shudder" [t]
-    | .vpTrans tv np, subj =>
-      lfNP np (fun obj => lfTV tv subj obj)
-    | .vpDitrans dv np1 np2, subj =>
-      lfNP np1 (fun iobj =>
-        lfNP np2 (fun dobj => lfDV dv subj iobj dobj))
+def lfVP : VP → Term → LF
+  | .laughed, t => .atom "laugh" [t]
+  | .cheered, t => .atom "cheer" [t]
+  | .shuddered, t => .atom "shudder" [t]
+  | .vpTrans tv np, subj =>
+    lfNP np (fun obj => lfTV tv subj obj)
+  | .vpDitrans dv np1 np2, subj =>
+    lfNP np1 (fun iobj =>
+      lfNP np2 (fun dobj => lfDV dv subj iobj dobj))
 
-  def lfRCN : RCN → Term → LF
-    | .rcnSubj cn _ vp, t => .conj (lfCN cn t) (lfVP vp t)
-    | .rcnObj cn _ np tv, t =>
-      .conj (lfCN cn t)
-        (lfNP np (fun subj => lfTV tv subj t))
-    | .rcnAdj adj cn, t => .conj (lfADJ adj t) (lfCN cn t)
+def lfRCN : RCN → Term → LF
+  | .rcnSubj cn _ vp, t => .conj (lfCN cn t) (lfVP vp t)
+  | .rcnObj cn _ np tv, t =>
+    .conj (lfCN cn t)
+      (lfNP np (fun subj => lfTV tv subj t))
+  | .rcnAdj adj cn, t => .conj (lfADJ adj t) (lfCN cn t)
 end
+
+def lfSent : Sent → LF
+  | .sent np vp => lfNP np (lfVP vp)
 ```
 
 A tradução do adjetivo em `rcnAdj` é a conjunção: um *happy wizard* é alguém que é feliz e é mago. Isso está certo para *happy* e para *evil*, e está errado para *fake*: um *fake wizard* justamente não é um mago. Adjetivos desse tipo pedem uma semântica que a lógica de predicados não alcança, e o fragmento os traduz assim porque em Lean uma função tem de estar definida em todos os casos — a tradução existe, mas não é uma boa tradução.
@@ -718,7 +710,7 @@ Construa as árvores de análise das quatro sentenças a seguir, todas geradas p
 3. Every princess loved every dwarf that defeated a giant.
 4. Every boy admired a girl that no wizard helped.
 
-Os teoremas conferem que cada árvore devolve a sentença certa. Depois disso, `#eval toString (lfSent tr1)` exibe a forma lógica da primeira.
+Os teoremas conferem que cada árvore devolve a sentença certa. Depois de construir as árvores, execute `#eval toString (lfSent tr1)` para ver a forma lógica da primeira sentença.
 
 ```lean
 def tr1 : Sent :=
@@ -823,9 +815,7 @@ def littleMook : Entity := .M
 def atreyu : Entity := .Y
 ```
 
-Substantivos comuns como *girl* e *dwarf*, e verbos intransitivos como *laugh* e *shudder*, são interpretados como propriedades de entidades. Verbos transitivos como *love* são interpretados como relações entre entidades.
-
-Para propriedades e relações sobre `Entity`, poderíamos usar um tipo geral `List Entity → Bool`. Isso nos permitiria falar de relações de qualquer aridade de maneira uniforme, mas não seria conveniente para a composição do significado: na sintaxe, um verbo transitivo combina primeiro com o objeto direto e depois com o sujeito, e um verbo ditransitivo combina com um objeto indireto e um objeto direto, e então com o sujeito. Queremos, portanto, que os verbos denotem funções que tomam seus argumentos um a um. Definimos assim os tipos dos predicados de um, dois e três lugares.
+Representamos propriedades e relações sobre `Entity` por funções que recebem um argumento de cada vez.
 
 ```lean
 abbrev OnePlacePred := Entity → Bool
@@ -847,7 +837,7 @@ def list3 (ts : List (Entity × Entity × Entity)) :
   fun x y z => ts.contains (x, y, z)
 ```
 
-Com elas, o léxico se escreve como listas.
+Substantivos comuns como *girl* e *dwarf* são interpretados como propriedades de entidades.
 
 ```lean
 def girl : OnePlacePred := list1 [.S, .A, .D, .G]
@@ -875,7 +865,7 @@ def thing : OnePlacePred := fun x =>
   !(person x || x == .Unspec)
 ```
 
-Como os verbos intransitivos também denotam propriedades, seus significados são representados igualmente por predicados de um lugar.
+Os verbos intransitivos também denotam propriedades. Seus significados são representados igualmente por predicados de um lugar.
 
 ```lean
 def laugh : OnePlacePred := list1 [.A, .G, .E]
@@ -883,7 +873,7 @@ def cheer : OnePlacePred := list1 [.M, .D]
 def shudder : OnePlacePred := list1 [.S]
 ```
 
-Os verbos transitivos denotam relações entre entidades, e é conveniente pensar um predicado de dois lugares como a lista dos pares para os quais ele vale. Dois deles não são dados por uma lista fixa: *admire* vale de toda pessoa para Goldilocks, e *defeat* vale de todo anão para todo gigante, além dos dois pares em que Alice derrota um mago.
+Verbos transitivos são interpretados como relações, o primeiro argumento é o sujeito e o segundo é o objeto direto. Dois deles não são dados por uma lista fixa: *admire* vale de toda pessoa para Goldilocks, e *defeat* vale de todo anão para todo gigante, além dos dois pares em que Alice derrota um mago.
 
 ```lean
 def love : TwoPlacePred :=
@@ -899,7 +889,7 @@ def defeat : TwoPlacePred := fun x y =>
   (dwarf x && giant y) || list2 [(.A, .W), (.A, .V)] x y
 ```
 
-Os significados dos verbos ditransitivos são representados por predicados de três lugares, da mesma maneira.
+Nas relações que interpretam os verbos ditransitivos, os argumentos são o sujeito, o objeto indireto e o objeto direto, nessa ordem.
 
 ```lean
 def give : ThreePlacePred :=
@@ -915,7 +905,7 @@ def kill : ThreePlacePred :=
          (.Unspec, .M, .Unspec)]
 ```
 
-O que essa entrada diz é que Atreyu matou o gigante com a espada, que Dorothy foi esfaqueada — deixando em aberto quem a esfaqueou — e que Little Mook simplesmente morreu.
+Atreyu matou o gigante com a espada. Dorothy foi morta com o punhal, com agente não especificado. Little Mook também figura como vítima na relação `kill`, com agente e instrumento não especificados. A lista contém a tupla `(.Unspec, .D, .X)`, então `kill .Unspec .D .X` devolve {lean}`true`. Uma consulta com Atreyu como agente, `kill .Y .D .X`, devolve {lean}`false`, pois essa tupla está ausente. Ou seja, {name}`Entity.Unspec` não é um coringa, mas uma entidade especial para designar uma entidade desconhecida.
 
 Usar `Unspec` para deixar argumentos implícitos pode ser explorado de maneira mais geral. Um exemplo são as passivas. A passivização é um processo de redução de argumentos: o agente da ação é suprimido. Sem entrar nas propriedades sutis das construções passivas, podemos especificar uma função de passivização semântica assim:
 
@@ -923,6 +913,8 @@ Usar `Unspec` para deixar argumentos implícitos pode ser explorado de maneira m
 def passivize (r : TwoPlacePred) : OnePlacePred :=
   fun x => r .Unspec x
 ```
+
+O predicado resultante vale para `x` quando a relação registra `x` com agente não especificado, ou seja, quando `r .Unspec x` vale.
 
 A redução de argumentos não aparece só nas passivas. Outro caso é uma análise dos pronomes reflexivos segundo a qual *himself* e *herself* diferem semanticamente de *him* e *her* por não serem interpretados como variáveis individuais: eles denotam funções que reduzem argumentos. Considere a sentença *Snow White admired herself*. O reflexivo *herself* é interpretado como uma função que toma o predicado de dois lugares *admired* e o transforma num predicado de um lugar, que toma o sujeito como argumento e exprime que essa entidade admira a si mesma.
 
@@ -1010,7 +1002,7 @@ def fintFairy : FInterp Entity
   | _, _ => .Unspec
 ```
 
-Como vimos em {ref "fol-semantics"}[FOL], um símbolo que a interpretação não menciona é avaliado como {lean}`false`. No fragmento isso acontece com *catch* e com os adjetivos: a estrutura simplesmente não diz nada sobre eles, e toda sentença que os use será falsa.
+No fragmento deste capítulo, *catch* e os adjetivos caem no caso padrão de `intFairy`, que devolve {lean}`false` para qualquer lista de argumentos. O valor da sentença inteira depende de como esses predicados aparecem na fórmula. Por exemplo, *No dwarf caught Alice* é verdadeira nesta estrutura porque nenhum anão satisfaz a relação *catch* com Alice como objeto.
 
 Falta a atribuição de valores às variáveis. As fórmulas que a tradução produz são sentenças, sem variáveis livres, e para elas a atribuição é irrelevante — mas {name}`FOL.Formula.eval` ainda exige alguma.
 
@@ -1068,9 +1060,7 @@ theorem everyoneCheered :
 :::
 ::::
 
-Temos assim um procedimento de interpretação indireta para o fragmento, em dois passos: primeiro construímos uma forma lógica a partir da expressão da língua natural, depois avaliamos essa forma lógica em relação a uma estrutura.
-
-Resta voltar a {name}`mem_entities`, como prometido. {name}`FOL.Formula.eval` decide um quantificador percorrendo uma lista, e só concorda com o `∀` de Lean se essa lista contiver todos os elementos do domínio — é o que a hipótese `hdom` de {name}`FOL.Formula.eval_iff_denote` exige, e é exatamente o que {name}`mem_entities` fornece.
+Para avaliar os quantificadores universal e existencial, {name}`FOL.Formula.eval` percorre a lista do domínio. A hipótese `hdom` de {name}`FOL.Formula.eval_iff_denote` exige que essa lista contenha todos os elementos do domínio. Para `entities`, essa hipótese é dada por {name}`mem_entities`.
 
 ```lean
 theorem eval_iff_denote_fairy (I : Interp Entity)
@@ -1082,7 +1072,7 @@ theorem eval_iff_denote_fairy (I : Interp Entity)
     (liftAssign fintFairy) g f
 ```
 
-Nesta estrutura, portanto, as duas leituras de qualquer fórmula concordam: o {lean}`Bool` que {name}`checkSentence` calcula e a proposição que a sentença afirma são a mesma coisa. Isso vale porque o domínio é finito e está listado — em {ref "FOL"}[FOL] vimos que nenhuma lista consegue fazer o mesmo pelos naturais.
+O teorema diz que a avaliação de uma fórmula devolve {lean}`true` se e somente se a proposição dada por {name}`FOL.Formula.denote` vale. Em particular, no exercício {cref "check-sentence"}[] vimos que {name}`checkSentence` devolve {lean}`true` exatamente quando a forma lógica da sentença é verdadeira nesta estrutura. Mas no capítulo {cref "FOL"}[], vimos que nenhuma lista finita contém todos os números naturais.
 
 ::::exercise (rating := 2) (name := "help-model")
 Até aqui a estrutura estava dada e perguntávamos que sentenças são verdadeiras nela. Agora o caminho é o inverso. A interpretação `intHelp h` coincide com `intFairy` em tudo, exceto em *help*, que passa a ser interpretado pela relação `h`. A função `holdsWithHelp h` avalia uma sentença na estrutura com essa interpretação.
