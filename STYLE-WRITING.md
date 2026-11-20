@@ -159,6 +159,8 @@ entry until something contradicts them. What the sweep found instead:
   sentença may have several, as in _Alice smiled and Dorothy laughed_)
 - "sintagma" / "frase" (for *phrase*: `NP` is a sintagma nominal, `VP` a
   sintagma verbal, `PP` a sintagma preposicional)
+- "ditransitivo" / "bitransitivo" (for *ditransitive*: the linguists' term,
+  and the one the code's names follow — `DV`, `vpDitrans`)
 
 ### Code and prose
 
