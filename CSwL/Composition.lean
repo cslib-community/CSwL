@@ -18,7 +18,7 @@ tag := "Composition"
 file := "Composition"
 %%%
 
-:::dev NOW
+:::dev
 Plan. The headings follow CSwFP/7.1–7.6, without 7.3 and 7.4 (7.7 is
 deferred, issue 43; 7.8, further reading, is omitted).
 Sections are written `terse` first (see `STYLE-CODE.md`). Code comes in the
@@ -37,12 +37,6 @@ section that presents each idea, not only in 7.6:
   built from the 7.2 definitions; a theorem that the direct interpretation
   agrees with `checkSentence`, if it turns out feasible.
 - 7.7: deferred (issue 43).
-
-The chapter's key point for the cues: direct interpretation admits
-quantifiers, such as *most*, that first-order logic cannot express.
-
-A first draft translation of the chapter opening, 7.1 and 7.2 up to the
-conditions on quantifier relations is in commits `76821ee` and `95047b3`.
 :::
 
 :::terse
