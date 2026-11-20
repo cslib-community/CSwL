@@ -138,12 +138,26 @@ example :
 - Lá, a sentença era traduzida para uma fórmula, e a fórmula avaliada no
   modelo. Aqui não há fórmula: a interpretação consulta o modelo
   diretamente.
-- Os dois caminhos dão o mesmo valor. O segundo `#eval` confere isso nas
-  trinta e duas sentenças de `sentences`.
+- Os dois caminhos dão o mesmo valor. `sentences` gera trinta e duas
+  sentenças `NP TV NP`, com os verbos *help* e *defeat*, e o segundo
+  `#eval` confere a concordância em todas elas.
 :::
 
 ```lean
 #eval (toString sent1, intSent sent1)
+
+/-- Four noun phrases to build test sentences from. -/
+def someNPs : List NP :=
+  [.alice, .snowWhite,
+   .npDet .every .wizard, .npDet .a .dwarf]
+
+/-- The thirty-two sentences `NP TV NP` built from `someNPs`
+and the verbs *helped* and *defeated*. -/
+def sentences : List Sent :=
+  someNPs.flatMap fun subj =>
+    [TV.helped, TV.defeated].flatMap fun v =>
+      someNPs.map fun obj =>
+        Sent.sent subj (.vpTrans v obj)
 
 open FOL in
 #eval sentences.all fun s =>

@@ -118,7 +118,7 @@ end Rule
 :::terse
 - VP → TV NP é o truque de `defeated`: fixar o sujeito `x` e entregar ao
   NP a propriedade "ser o objeto de `x`". `defeated` é `vpTrans defeat`.
-- Com um verbo bitransitivo, o mesmo truque duas vezes, um para cada
+- Com um verbo ditransitivo, o mesmo truque duas vezes, um para cada
   objeto.
 - O verbo recebe primeiro o sujeito, depois os objetos, como as relações
   do modelo.
