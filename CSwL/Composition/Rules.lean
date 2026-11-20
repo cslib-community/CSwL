@@ -29,13 +29,13 @@ file := "Rules"
 :::
 
 ::::full
-Um exercício de tradução de uma sentença para uma linguagem lógica pressupõe
-que entendemos tanto a sentença quanto as fórmulas dessa linguagem. O
-significado das fórmulas pode ser explicitado pelas definições de verdade da
-lógica. O exercício pede então que expressemos nessa linguagem uma mensagem
-que já compreendemos. Isso ajuda a explorar o poder expressivo da lógica, mas
-pressupõe justamente a compreensão da sentença cujo significado queremos
-explicar.
+Um exercício de tradução de uma sentença em linguagem natural para uma linguagem
+lógica formal pressupõe que entendemos tanto a sentença quanto as fórmulas dessa
+linguagem formal. O significado das fórmulas pode ser explicitado pelas definições
+de verdade da lógica. O exercício pede então que expressemos nessa linguagem
+uma mensagem que já compreendemos. Isso ajuda a explorar o poder expressivo
+da lógica, mas pressupõe justamente a compreensão da sentença cujo significado
+queremos explicar.
 
 O procedimento de interpretação apresentado em
 {cref "english-lf"}[] permite explicar como

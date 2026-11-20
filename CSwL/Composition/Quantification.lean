@@ -1003,9 +1003,9 @@ def patternTree (k : Nat) (q : Nat → Nat → Bool) :
   (uma lista) e uma propriedade: o tipo `ListQuant`. {lean}`List.all` e
   {lean}`List.any` já têm esse tipo, e são *all* e *some*. *No* é
   `fun dom p => !dom.any p`: nenhum elemento de `dom` tem `p`.
-- Um `ListQuant` é um determinante depois de CONS: o universo é o próprio `A` e
-  a propriedade é `B`. Pode ser assim porque, por CONS, nada fora de `A`
-  importa.
+- Um `ListQuant` é um determinante depois de CONS e EXT: o universo é o próprio
+  `A` e a propriedade é `B`. Por CONS, nada de `B` fora de `A` importa; por
+  EXT, o universo pode encolher até `A`.
 :::
 
 ::::full
@@ -1015,8 +1015,8 @@ possamos montar universos de teste. As funções {name}`List.all` e
 {name}`List.any` verificam se todos ou algum dos elementos da lista satisfazem a
 propriedade.
 
-Essa apresentação toma a própria restrição como universo da consulta, usando a
-redução permitida por CONS.
+Essa apresentação toma a própria restrição como universo da consulta, usando as
+reduções permitidas por CONS e EXT.
 ::::
 
 ```lean
