@@ -4,7 +4,7 @@ import Bib
 open Verso.Genre Manual
 open CSwLMeta
 
-#doc (Manual) "Leituras adicionais" =>
+#doc (Manual) "Leituras Adicionais" =>
 %%%
 tag := "parsing-further-reading"
 file := "FurtherReading"

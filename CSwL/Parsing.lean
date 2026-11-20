@@ -11,7 +11,7 @@ import CSwL.Parsing.FurtherReading
 open Verso.Genre Manual
 open CSwLMeta
 
-#doc (Manual) "Análise sintática" =>
+#doc (Manual) "Análise Sintática" =>
 %%%
 tag := "Parsing"
 file := "Parsing"

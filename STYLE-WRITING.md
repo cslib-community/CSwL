@@ -122,6 +122,15 @@ not want to explain yet.
 concept comes with something to do. An explanation plus an example can often
 become an explanation plus an exercise.
 
+**Do not give exercises away.** Neither the `full` prose nor a `terse` cue
+anticipates an exercise's answer or the path to it, and neither announces
+the exercise ("o exercício pede…", "os exercícios a seguir…"). The
+explanation stops at the concept; the exercise's own statement says what is
+asked, and its hint, if any, is the only nudge. Stating the claim to be
+proved is not giving it away, since the statement does so too: what stays
+out is the counterexample, the construction, or the argument. Text after the
+exercise may take the result up again.
+
 **Cutting is good.** Material grows and the temptation is to keep everything.
 Ask: does this serve the goal, does the audience need it? If some readers
 would benefit but not all, a `:::details` block or an appendix will hold it.
@@ -190,6 +199,11 @@ writing pedagogical material.
 - Em dashes for parenthetical breaks, spaced as the surrounding prose does.
 - Portuguese quotation marks or straight quotes, consistently within a file.
 - Lean code in prose always in code font, never italicized.
+- Titles of chapters, sections and subsections are capitalized: every word
+  takes a capital except articles, prepositions and conjunctions, which stay
+  in lowercase unless they open the title ("A Visão Relacional dos
+  Quantificadores", "Parsers e Combinadores de Parsers"). The text of a
+  `{ref "…"}[…]` that quotes a title follows the title.
 - Every sentence starts with a capital letter. If a sentence would open with a
   lowercase Lean identifier, rephrase it — `Nat.add` may open a sentence,
   `omega` may not.

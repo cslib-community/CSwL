@@ -531,7 +531,7 @@ def lfDV : DV → Term → Term → Term → LF
 
 ## Variáveis Novas
 
-A tradução de um determinante toma dois argumentos de tipo `Term → LF`, formas lógicas obtidas a partir de um termo, e produz uma forma lógica. No caso dos quantificadores, o primeiro argumento é a *restrição* e o segundo o *escopo*. Falaremos disso em {ref "comp-relational"}[A visão relacional dos quantificadores].
+A tradução de um determinante toma dois argumentos de tipo `Term → LF`, formas lógicas obtidas a partir de um termo, e produz uma forma lógica. No caso dos quantificadores, o primeiro argumento é a *restrição* e o segundo o *escopo*. Falaremos disso em {ref "comp-relational"}[A Visão Relacional dos Quantificadores].
 
 A tradução dos determinantes precisa evitar a captura de variáveis. Em *Every dwarf defeated some giant*, por exemplo, a tradução de *defeated some giant* introduz o quantificador do objeto, enquanto a variável do sujeito só será ligada pelo quantificador externo, de *every dwarf*. Para escolher o índice da variável do sujeito, examinamos os índices dos quantificadores internos e escolhemos um índice maior. Assim, nenhum quantificador interno pode capturar uma ocorrência da variável do sujeito.
 
