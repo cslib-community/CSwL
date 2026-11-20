@@ -18,7 +18,7 @@ open ModelChecking
 ```
 
 :::terse
-- Cada regra da gramática de {ref "ModelChecking"}[Model checking] ganha uma
+- Cada regra da gramática de {ref "ModelChecking"}[Verificação de Modelos com Lógica de Primeira Ordem] ganha uma
   regra semântica: como o significado do todo se constrói a partir dos
   significados das partes. Escrevemos `⟦X⟧` para o significado de `X`.
 - Os significados vivem na *lógica tipada*. Há dois tipos básicos, `e` para
@@ -37,7 +37,7 @@ open ModelChecking
 
 ::::full
 Cada regra sintática da gramática de
-{ref "ModelChecking"}[Verificação de modelos com lógica de primeira ordem]
+{ref "ModelChecking"}[Verificação de Modelos com Lógica de Primeira Ordem]
 recebe uma regra semântica que combina os significados de seus constituintes.
 Escrevemos `⟦X⟧` para o significado de uma expressão `X`. Para saber quais
 combinações fazem sentido, atribuímos tipos a esses significados.
@@ -184,7 +184,7 @@ abstraindo sobre `x`, obtemos a propriedade denotada pelo sintagma verbal. A
 regra `vpTrans` generaliza a construção usada em {name}`defeated`; o teorema
 abaixo verifica essa igualdade.
 
-Um verbo bitransitivo exige duas aplicações desse procedimento. Na regra
+Um verbo ditransitivo exige duas aplicações desse procedimento. Na regra
 `vpDitrans`, o primeiro objeto recebe uma propriedade que contém a aplicação do
 segundo objeto. A relação do modelo recebe os argumentos na ordem sujeito,
 primeiro objeto e segundo objeto. Essa ordem também fixa o escopo dos dois

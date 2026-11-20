@@ -40,7 +40,7 @@ section that presents each idea, not only in 7.6:
 :::
 
 :::terse
-- Em {ref "ModelChecking"}[Verificação de modelos com lógica de primeira ordem]
+- Em {ref "ModelChecking"}[Verificação de Modelos com Lógica de Primeira Ordem]
   o caminho era indireto: sentença, depois fórmula, depois avaliação no modelo.
 - Agora o caminho é direto: cada expressão da língua é ligada ao modelo, sem
   fórmula intermediária.
@@ -51,7 +51,7 @@ section that presents each idea, not only in 7.6:
 :::
 
 ::::full
-Em {ref "ModelChecking"}[Verificação de modelos com lógica de primeira ordem],
+Em {ref "ModelChecking"}[Verificação de Modelos com Lógica de Primeira Ordem],
 interpretamos as sentenças em duas etapas. Primeiro, construímos uma fórmula a
 partir da árvore sintática. Depois, avaliamos essa fórmula em um modelo. Neste
 capítulo, vamos construir os significados diretamente no modelo, compondo as

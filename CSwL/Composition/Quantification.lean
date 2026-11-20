@@ -79,7 +79,7 @@ inferência como *Darapti* pode falhar na lógica de primeira ordem.
   numéricos. "Pelo menos dois A são B" é
   $`\exists x \exists y (x \neq y \land Ax \land Ay \land Bx \land By)`.
 - A fórmula de "pelo menos dois A são B" em Lean é um valor do tipo {name}`LF`,
-  o mesmo de {ref "ModelChecking"}[Model checking]. Os predicados `a` e `b` são
+  o mesmo de {ref "ModelChecking"}[Verificação de Modelos com Lógica de Primeira Ordem]. Os predicados `a` e `b` são
   parâmetros, e a função devolve uma fórmula para cada par de predicados.
 - `.neg (.eq tx ty)` é $`x \neq y`. A igualdade já é um construtor de `Formula`
   desde {ref "FOL"}[FOL].
@@ -466,7 +466,7 @@ desses casos:
   Nada no tipo diz que `A` e `B` estão dentro de `E`. Essa exigência aparece
   como as hipóteses `A ⊆ E` e `B ⊆ E` em cada uma das três condições.
 - Não confundir {name}`DET` com `GQ.Det`. {name}`DET` é a categoria sintática
-  de {ref "ModelChecking"}[Model checking], com as palavras *a*, *the*,
+  de {ref "ModelChecking"}[Verificação de Modelos com Lógica de Primeira Ordem], com as palavras *a*, *the*,
   *every*, …. `GQ.Det` é o tipo dos significados dessas palavras. O tipo é
   amplo de propósito: todo quantificador é um `GQ.Det`, mas nem todo `GQ.Det` é
   um quantificador.
@@ -732,7 +732,7 @@ theorem only_not_cons : ¬ Cons (only : Det Entity) := by
   `D E A B` depende então só de $`|A - B|` e $`|A \cap B|`.
 - Os artigos também são quantificadores no sentido técnico desta seção. *a* tem
   o mesmo significado que *some*: vale quando $`|A \cap B| \geq 1`. *the*, na
-  leitura russelliana de {ref "ModelChecking"}[Model checking], vale quando
+  leitura russelliana de {ref "ModelChecking"}[Verificação de Modelos com Lógica de Primeira Ordem], vale quando
   $`|A \cap B| = 1` e $`|A - B| = 0`. A gramática tradicional, porém, não vê
   *the* como expressão de quantidade, e sim como um modo de identificar um
   referente. Quantificador, aqui, é uma propriedade semântica; determinante é
@@ -772,7 +772,7 @@ theorem some_isom {α : Type} : Isom (some : Det α) := by
 
 ::::exercise (rating := 2) (name := "the-quant")
 
-Na leitura de {ref "ModelChecking"}[Model checking], *The dwarf laughed* diz
+Na leitura de {ref "ModelChecking"}[Verificação de Modelos com Lógica de Primeira Ordem], *The dwarf laughed* diz
 que há exatamente um anão e que ele riu. Como relação entre conjuntos,
 `the E A B` diz que `A` tem um único elemento e que ele está em `B`. Mostre que
 `the` satisfaz EXT, CONS e ISOM. Assim, o artigo *the* é, no sentido técnico
@@ -1964,7 +1964,7 @@ theorem langOf_allNum :
   nenhum: é preciso memória para comparar $`|A - B|` e $`|A \cap B|`. Nenhum
   dos dois é definível em primeira ordem.
 - Por isso *most* ficou fora da tradução para a lógica de primeira ordem em
-  {ref "ModelChecking"}[Model checking]. Na interpretação direta, ele é uma
+  {ref "ModelChecking"}[Verificação de Modelos com Lógica de Primeira Ordem]. Na interpretação direta, ele é uma
   função como as outras.
 :::
 

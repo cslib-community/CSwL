@@ -25,7 +25,7 @@ open ModelChecking
 - Há uma função para cada categoria, com o tipo da categoria. Elas começam pelo
   *léxico*: cada palavra ganha o seu significado no modelo.
 - *Some* e *a* têm a mesma interpretação. Os adjetivos e *caught* não são
-  interpretados no modelo, como em {ref "ModelChecking"}[Model checking]: são
+  interpretados no modelo, como em {ref "ModelChecking"}[Verificação de Modelos com Lógica de Primeira Ordem]: são
   falsos para todos.
 :::
 
@@ -37,12 +37,12 @@ cada construtor. A interpretação de uma sentença, um valor de {name}`Sent`,
 será um valor de verdade.
 
 Começamos pelas categorias lexicais. Cada substantivo comum recebe a propriedade
-correspondente no modelo, e cada verbo transitivo ou bitransitivo recebe uma
+correspondente no modelo, e cada verbo transitivo ou ditransitivo recebe uma
 relação. Os determinantes recebem as funções já definidas; em particular, *some*
 e *a* têm a mesma interpretação.
 
 O modelo não fornece interpretações para os adjetivos nem para *caught*. Como em
-{ref "ModelChecking"}[Verificação de modelos com lógica de primeira ordem],
+{ref "ModelChecking"}[Verificação de Modelos com Lógica de Primeira Ordem],
 atribuímos a eles propriedades ou relações que são falsas para todos os
 argumentos.
 ::::
@@ -173,7 +173,7 @@ example :
 
 :::terse
 - {name}`sent1` é a árvore de *The dwarf that Snow White helped admired every
-  princess*, de {ref "ModelChecking"}[Model checking].
+  princess*, de {ref "ModelChecking"}[Verificação de Modelos com Lógica de Primeira Ordem].
 - Lá, a sentença era traduzida para uma fórmula, e a fórmula avaliada no modelo.
   Aqui não há fórmula: a interpretação consulta o modelo diretamente.
 - Os dois caminhos dão o mesmo valor. `sentences` gera trinta e duas sentenças
@@ -217,7 +217,7 @@ open FOL in
 
 :::terse
 - *Most* não tem tradução na lógica de primeira ordem, e por isso ficou fora de
-  {name}`DET` em {ref "ModelChecking"}[Model checking]. Na interpretação direta
+  {name}`DET` em {ref "ModelChecking"}[Verificação de Modelos com Lógica de Primeira Ordem]. Na interpretação direta
   ele é uma função como as outras: compara quantos `p` têm `q` com quantos não
   têm.
 - Sem mexer na gramática, ele entra pelas regras semânticas: *Most girls
