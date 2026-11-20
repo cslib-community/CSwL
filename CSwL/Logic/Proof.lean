@@ -537,7 +537,7 @@ tag := "counterexamples"
 
 Considere o argumento: "se chover, a rua fica molhada. A rua está molhada. Logo, choveu."
 
-Com `p` para "chove" e `q` para "a rua fica molhada", podemos formalizá-lo como fizemos no exercício `prop-exchange`.
+Com `p` para "chove" e `q` para "a rua fica molhada", podemos formalizá-lo como fizemos no exercício {cref "prop-exchange"}[].
 
 ```lean
 namespace WetStreet

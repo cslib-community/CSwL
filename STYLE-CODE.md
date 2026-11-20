@@ -338,6 +338,21 @@ each gets its cues when it is next revised.
 - `{include N Module}` — pulls a section file into its glue chapter at heading
   depth `N`.
 
+### Cross-references
+
+- `{cref "tag"}[]` — links to the section whose `tag :=` is `"tag"`, or to
+  the exercise whose `name :=` is `"tag"`, and generates the link text: the
+  section's title, or the exercise's name in code. Nothing else is added;
+  the prose names the kind of target ("no exercício {cref …}[]").
+  Defined in `CSwLMeta/Cref.lean`. The text is filled in during traversal,
+  so the HTML and the generated Lean projects both carry it.
+- `{cref "tag"}[texto]` — the same link with the text written by hand.
+- A tag that names neither a section nor an exercise, or both, fails the
+  build. Exercise names must therefore be unique across the book, and must
+  not coincide with a section tag.
+- Verso's `{ref "tag"}[texto]` still works for sections, but its text is
+  always hand-written and can drift from the title.
+
 ## Lean style
 
 Follow the Mathlib

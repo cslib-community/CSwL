@@ -154,7 +154,7 @@ example : Maria.form₁.names₁ == ["MB", "MJ", "MT"] :=
 :::
 
 
-Nem todos os conectivos precisam ser definidos como "primitivos". Como vimos na seção {ref "pl-lean"}[pl-lean] a implicação pode ser definida como uma disjunção. E a dupla implicação como uma conjunção de implicações.
+Nem todos os conectivos precisam ser definidos como "primitivos". Como vimos no exercício {cref "implication-as-disj"}[], a implicação pode ser definida como uma disjunção. E a dupla implicação como uma conjunção de implicações.
 
 ```lean
 def Formula.impl (f g : Formula) : Formula := .disj (.neg f) g
@@ -380,7 +380,7 @@ def Formula.contradiction (f : Formula) : Bool :=
 #eval form1.satisfiable
 ```
 
-E como já sabemos da seção {ref "pl-lean"}[pl-lean], podemos mostrar que {name}`form3` é uma tautologia.
+E como já sabemos do exercício {cref "implication-as-disj"}[], podemos mostrar que {name}`form3` é uma tautologia.
 
 ```lean
 #eval form3.tautology

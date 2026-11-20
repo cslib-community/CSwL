@@ -1,5 +1,6 @@
 -- Adapted from sf-in-lean/SFLMeta/Exercise.lean
--- (namespace SFLMeta -> CSwLMeta and nothing else: the
+-- (namespace SFLMeta -> CSwLMeta; besides, `Block.exercise` gets an HTML
+-- anchor and registers its name in `exerciseDomain`, for `{cref}`. The
 -- `solution!`/`workinclass!`/`suggested!` elaborators and the edit registry
 -- are a literal copy -- this is the delicate part, validated against this
 -- revision of Verso).
@@ -71,13 +72,26 @@ def decodeExerciseData (data : Json) : Nat × String × Option String × Bool :=
   | .arr #[.num jr, .str n] => (jr.toFloat.toUInt32.toNat, n, none, false)
   | _ => (0, "", none, false)
 
+/-- The domain in which every exercise registers its `name`, so that `{cref}`
+can link to it. -/
+def exerciseDomain : Name := `CSwLMeta.exercise
+
 block_extension Block.exercise (rating : Nat) (name : String)
     (level : Option String) (manual : Bool) where
   data := Json.arr #[.num (.fromNat rating), .str name, toJson level, .bool manual]
-  traverse _ _ _ := pure none
+  -- Give the exercise an anchor and register its name in `exerciseDomain`.
+  -- All three steps are idempotent, so repeated traversal passes are harmless.
+  traverse id data _ := do
+    let (_, name, _, _) := decodeExerciseData data
+    let path ← (·.path) <$> read
+    let _ ← Verso.Genre.Manual.externalTag id path s!"ex-{name}"
+    modify fun st => st
+      |>.saveDomainObject exerciseDomain name id
+      |>.saveDomainObjectData exerciseDomain name (json%{"name": $name})
+    pure none
   toHtml :=
     open Verso.Output.Html in
-    some fun _ goB _ data contents => do
+    some fun _ goB id data contents => do
       let (rating, name, level, manual) := decodeExerciseData data
       let stars := String.ofList (List.replicate rating '★')
       let desig := exerciseDesignation level manual
@@ -86,8 +100,9 @@ block_extension Block.exercise (rating : Nat) (name : String)
         else {{ <span class="exercise-level">{{desig}}</span> }}
       let body : Verso.Output.Html ← contents.foldlM (init := .empty) fun acc b =>
         return acc ++ (← goB b)
+      let idAttr := (← Verso.Doc.Html.HtmlT.state).htmlId id
       return {{
-        <div class={{s!"exercise stars-{rating}"}}>
+        <div class={{s!"exercise stars-{rating}"}} {{idAttr}}>
           <div class="exercise-header">
             <span class="exercise-label">"Exercício"</span>
             <span class="exercise-stars">{{stars}}</span>

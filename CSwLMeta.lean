@@ -14,6 +14,7 @@ import CSwLMeta.Save
 import CSwLMeta.Solution
 import CSwLMeta.Terse
 import CSwLMeta.Variant
+import CSwLMeta.Cref
 
 namespace CSwLMeta
 
