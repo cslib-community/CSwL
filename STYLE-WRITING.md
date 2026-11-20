@@ -66,6 +66,15 @@ moves between chapters — that is why nothing in this book is numbered. A
 `{ref "Tag"}[…]` survives a reorder; "the previous chapter" silently becomes
 false.
 
+**Prefer `{cref "tag"}[]` for cross-references.** It links to a section or
+an exercise and takes its text from the target: the section's title, or the
+exercise's name in code. It adds nothing else, so the prose says what is
+being cited: "seção", "capítulo", "exercício". The text then follows the title when the title changes,
+so it cannot fall out of step with it. Write the surrounding words so that
+the generated text fits: "como fizemos no exercício {cref "prop-exchange"}[]",
+"visto no capítulo {cref "IntroCS"}[]". Write the text by hand,
+`{cref "tag"}[texto]`, only when the sentence needs other words.
+
 Where a positional phrase is genuinely the clearest thing to write, it is a
 liability to be repaid: **after moving any chapter or section, sweep for the
 prose the move invalidated.** The search that has caught them so far:
