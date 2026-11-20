@@ -5,7 +5,7 @@ import CSwL.Logic.FOL
 open Verso.Genre Manual
 open CSwLMeta
 
-#doc (Manual) "Verificação de modelos com lógica de primeira ordem" =>
+#doc (Manual) "Verificação de Modelos com Lógica de Primeira Ordem" =>
 %%%
 tag := "ModelChecking"
 htmlSplit := .never
@@ -16,9 +16,9 @@ file := "ModelChecking"
 namespace ModelChecking
 ```
 
-Nas linguagens formais construídas artificialmente, como a lógica proposicional e a lógica de predicados, as regras de formação de fórmulas são perfeitamente estritas, unívocas e livres de ambiguidade. A língua natural humana, por outro lado, apresenta um desafio de outra ordem: ela é rica e expressiva, mas repleta de nuances estruturais. Para que um computador possa manipular e verificar a veracidade de sentenças em inglês, precisamos construir uma ponte rigorosa entre a gramática das línguas humanas e a precisão da lógica formal.
+Nas linguagens formais construídas artificialmente, como a lógica proposicional e a lógica de predicados, as regras de formação de fórmulas são perfeitamente estritas, unívocas e livres de ambiguidade. A língua natural humana, por outro lado, é rica e expressiva, mas repleta de nuances estruturais. Para que um computador possa manipular e verificar sentenças em inglês, precisamos construir uma ponte entre a gramática das línguas humanas e a precisão da lógica formal.
 
-Este capítulo constrói o pipeline clássico da semântica computacional para um fragmento do inglês. Primeiro, em {ref "english-fragment"}[Um fragmento do inglês], especificamos a sintaxe do fragmento por meio de uma gramática livre de contexto, implementada em Lean como tipos indutivos que representam diretamente árvores de análise sintática. Em seguida, em {ref "english-lf"}[FOL como linguagem de representação], traduzimos essas árvores sintáticas para fórmulas da lógica de primeira ordem, guiados pelo princípio da composicionalidade e por ferramentas do cálculo lambda. Por fim, em {ref "english-model"}[Uma estrutura de primeira ordem], avaliamos as fórmulas obtidas em um modelo concreto, conectando sentenças sobre um micromundo ficcional aos seus valores de verdade.
+Este capítulo constrói o pipeline clássico da semântica computacional para um fragmento do inglês. Primeiro, em {ref "english-fragment"}[Um Fragmento do Inglês], especificamos a sintaxe do fragmento por meio de uma gramática livre de contexto, implementada em Lean como tipos indutivos que representam diretamente árvores de análise sintática. Em seguida, em {ref "english-lf"}[FOL como Linguagem de Representação], traduzimos essas árvores sintáticas para fórmulas da lógica de primeira ordem, guiados pelo princípio da composicionalidade e por ferramentas do cálculo lambda. Por fim, em {ref "english-model"}[Uma Estrutura de Primeira Ordem], avaliamos as fórmulas obtidas em um modelo concreto, conectando sentenças sobre um micromundo ficcional aos seus valores de verdade. Decidir se uma fórmula é verdadeira em uma estrutura dada é o que se chama _verificação de modelos_ (_model checking_), e é isso que dá nome ao capítulo.
 
 
 # Formas Linguísticas e Traduções para Lógica
@@ -33,37 +33,37 @@ Em linguística, chamamos de _sintagma nominal_ (_Noun Phrase_, ou `NP`) qualque
 Ao tentar traduzir a língua natural para a lógica de predicados de primeira ordem, os lógicos notaram uma discrepância marcante: a fórmula lógica final não acompanhava a estrutura gramatical visível da oração. Considere o exemplo:
 
 1. _Every dwarf loved Goldilocks._ ("Todo anão amava Cachinhos Dourados.")
-2. `∀x (Dwarf x → Love x g)`
+2. $`\forall x\,(\mathit{Dwarf}\,x \to \mathit{Love}\,x\,g)`
 
-Na sentença original em inglês, _Every dwarf_ é o sujeito, formando um bloco sintático coeso. A discrepância decorre da perda de individualidade que o quantificador introduz. Se a sentença fosse _Alice loved Goldilocks_, o sujeito apontaria para uma pessoa específica no mundo, representada diretamente na lógica por uma constante individual `a` (resultando em `Love a g`).
+Na sentença original em inglês, _Every dwarf_ é o sujeito, formando um bloco sintático coeso. Na tradução, porém, o constituinte _every dwarf_ desapareceu: ele foi eliminado da fórmula. Se a sentença fosse _Alice loved Goldilocks_, o sujeito apontaria para uma pessoa específica no mundo, representada diretamente na lógica por uma constante individual $`a` (resultando em $`\mathit{Love}\,a\,g`).
 
 Contudo, ao dizermos _Every dwarf_, não estamos nos referindo a um anão em particular: não existe no mundo um indivíduo chamado "Todo anão". Em vez de apontar para uma entidade isolada, o quantificador estabelece uma condição geral sobre todos os objetos do universo: _para qualquer objeto x, se x for um anão, então x amou Cachinhos Dourados_ (o que equivale logicamente a dizer que ou esse objeto não é um anão, ou ele amou Cachinhos Dourados).
 
 É a isso que lógicos como Gottlob Frege chamavam de *eliminação contextual*: expressões quantificadas não denotam indivíduos e, por isso, deixam de existir como termos isolados na lógica de predicados. Seu significado só se manifesta na forma como condicionam a oração inteira.
 
-Essa discrepância levou muitos lógicos do início do século XX a supor que a língua natural era inerentemente imperfeita ou enganosa. Contudo, o desenvolvimento da semântica formal por Richard Montague revelou que essa conclusão era precipitada.
+Essa discrepância levou muitos lógicos do início do século XX a supor que a língua natural era inerentemente imperfeita ou enganosa. Contudo, a aplicação das ferramentas lógicas de abstração e redução do cálculo lambda permite ver que essa conclusão era injustificada.
 
-A chave para resolver esse impasse está em retomar o princípio da composicionalidade (visto em {ref "IntroCS"}[IntroCS]) sob a ótica do cálculo lambda (apresentado em {ref "lambda"}[IntroL]). Quando traduzimos a língua natural para uma lógica tipada, cada constituinte da oração corresponde a uma expressão funcional bem tipada. A combinação gramatical das palavras passa a refletir diretamente a aplicação de _funções aos seus argumentos_. O desaparecimento contextual dos quantificadores é simplesmente o resultado da computação dessas funções (a β-redução), e não uma falha estrutural da sentença original.
+A chave para resolver esse impasse está em retomar o princípio da composicionalidade (visto em {ref "IntroCS"}[IntroCS]) sob a ótica do cálculo lambda (apresentado em {ref "lambda"}[IntroL]). Quando traduzimos a língua natural para uma lógica tipada, cada constituinte da oração corresponde a uma expressão funcional bem tipada. A combinação gramatical das palavras passa a refletir diretamente a aplicação de _funções aos seus argumentos_. A eliminação contextual das expressões quantificadas é simplesmente o resultado da computação dessas funções (a β-redução), e não uma falha estrutural da sentença original.
 
 Para ilustrar como o cálculo lambda harmoniza a análise lógica, considere a combinação de sujeitos e predicados:
 
-* Na sentença simples _Goldilocks laughed_, a intuição imediata da lógica de primeira ordem é tratar o predicado como a função que consome o sujeito: `Laughed(g)`.
-* No entanto, essa estratégia falha para sujeitos quantificados como _No one laughed_: não existe um indivíduo "ninguém" que possamos passar como argumento para `Laughed`.
+* Na sentença simples _Goldilocks laughed_, a intuição imediata da lógica de primeira ordem é tratar o predicado como a função que consome o sujeito: $`\mathit{Laugh}\,g`.
+* No entanto, essa estratégia falha para sujeitos quantificados como _No one laughed_: não existe um indivíduo "ninguém" que possamos passar como argumento para $`\mathit{Laugh}`.
 
-A solução elegante de Montague consiste em _inverter a relação funcional_ para todos os sujeitos (processo conhecido como *elevação de tipo*, ou _type raising_): em vez de o predicado consumir o sujeito, é o sujeito que consome o predicado como argumento!
+Tudo se resolve, porém, se dissermos que o sujeito sempre toma o predicado como argumento, e fizermos isso funcionar para os sujeitos simples elevando logicamente seu estatuto de argumento a função (processo conhecido como *elevação de tipo*, ou _type raising_).
 
 Com expressões lambda, isso se torna direto:
 
-1. O nome próprio _Goldilocks_ deixa de ser tratado como a constante individual `g` e passa a ser a função de ordem superior `λP ↦ P g`. Essa função recebe uma propriedade `P` e afirma que `g` tem essa propriedade.
-2. O sintagma quantificado _no one_ recebe exatamente a mesma assinatura de tipo: `λP ↦ ¬∃x (Person x ∧ P x)`, consumindo igualmente uma propriedade `P`.
+1. O nome próprio _Goldilocks_ deixa de ser tratado como a constante individual $`g` e passa a ser a função de ordem superior $`\lambda P \mapsto P\,g`. Essa função recebe uma propriedade $`P` e afirma que $`g` tem essa propriedade.
+2. O sintagma quantificado _no one_ recebe exatamente a mesma assinatura de tipo: $`\lambda P \mapsto \neg\exists x\,(\mathit{Person}\,x \land P\,x)`, consumindo igualmente uma propriedade $`P`.
 Assim, tanto _Goldilocks laughed_ quanto _no one laughed_ combinam-se sintática e semanticamente da mesma maneira: o sujeito aplica-se ao predicado. A aparente assimetria só ressurge quando efetuamos a β-redução para simplificar a fórmula lógica final.
 
 Esse método nos permite realizar a _interpretação indireta_ da língua natural: em vez de tentar avaliar sentenças em inglês diretamente em um modelo, nós as traduzimos primeiro para fórmulas da lógica de primeira ordem, cuja semântica formal já dominamos.
 
-Para que essa tradução composicional seja viável, porém, precisamos de um ponto de partida indispensável: delimitar a estrutura sintática das sentenças que queremos analisar. É a essa tarefa de modelagem gramatical que nos dedicamos a seguir em {ref "english-fragment"}[Um fragmento do inglês].
+Para que essa tradução composicional seja viável, porém, precisamos de um ponto de partida indispensável: delimitar a estrutura sintática das sentenças que queremos analisar. É a essa tarefa de modelagem gramatical que nos dedicamos a seguir em {ref "english-fragment"}[Um Fragmento do Inglês].
 
 
-# Um fragmento do Inglês
+# Um Fragmento do Inglês
 %%%
 tag := "english-fragment"
 %%%
@@ -75,7 +75,7 @@ Suponha que queiramos escrever regras gramaticais para sentenças do inglês com
 3. Every girl that some boy loved cheered. ("Toda menina que algum menino amou torceu.")
 4. The wizard that helped Snow White defeated the giant. ("O mago que ajudou Branca de Neve derrotou o gigante.")
 
-O que precisamos é de uma regra para a estrutura sujeito–predicado das sentenças, uma regra para a estrutura interna dos sintagmas nominais, uma regra para os substantivos comuns com ou sem orações relativas, e é mais ou menos só isso. A gramática a seguir dá conta dos exemplos:
+O que precisamos é de uma regra para a estrutura sujeito–predicado das sentenças, uma regra para a estrutura interna dos sintagmas nominais, uma regra para os substantivos comuns com ou sem orações relativas, e praticamente nada além disso. A gramática a seguir dá conta dos exemplos:
 
 ```bnf
 S   ::= NP VP ;
@@ -91,7 +91,7 @@ TV  ::= "loved" | "admired" | "helped" | "defeated" | "caught" ;
 DV  ::= "gave" ;
 ```
 
-Isto é muito básico e grosseiro, claro, mas dá uma idéia de como seria uma gramática para um fragmento do inglês.
+Isto é muito básico e simplificado demais, claro, mas dá uma ideia de como seria uma gramática para um fragmento do inglês.
 
 A tradução para Lean é direta: cada não-terminal da gramática vira um tipo indutivo, e cada alternativa de uma regra vira um construtor desse tipo. Um valor do tipo `Sent` não é uma sequência de palavras, é a árvore de análise de uma sentença — a estrutura que a gramática atribui a ela.
 
@@ -238,13 +238,13 @@ def sent1 : Sent :=
 
 Ir da sentença de superfície para a árvore é o problema inverso, chamado de *análise sintática*. Não o trataremos aqui: neste capítulo as árvores são construídas à mão, e o que nos interessa é o que fazer com elas depois de construídas.
 
-## Estender uma gramática
+## Estender uma Gramática
 
 Um tipo indutivo em Lean é fechado: os construtores listados na declaração são todos os que existem, e não há como acrescentar um depois. É isso que torna as funções sobre `Sent` verificáveis — o compilador sabe que uma função que trata os cinco construtores de `VP` trata todos os casos. Mas é também o que impede que uma gramática seja estendida do jeito mais óbvio, acrescentando uma alternativa a uma regra que já existe.
 
 Há duas situações, e elas se comportam de maneiras diferentes.
 
-Acrescentar uma *palavra* a uma categoria — um adjetivo, um verbo transitivo — exige mesmo redeclarar o tipo daquela categoria, porque a palavra é um construtor novo. Por isso o léxico acima já está completo: `ADJ` traz *fake*, *happy* e *evil* desde a declaração.
+Acrescentar uma *palavra* a uma categoria — um adjetivo, um verbo transitivo — exige mesmo redeclarar o tipo daquela categoria, porque a palavra é um construtor novo. Por isso as palavras de que o capítulo precisa já entram na declaração: `ADJ` traz *fake*, *happy* e *evil* desde o início.
 
 Acrescentar uma *regra*, por outro lado, pode ser feito sem tocar no que já existe. Em vez de acrescentar um construtor a `Sent`, declaramos uma categoria nova que contém a antiga:
 
@@ -279,7 +279,7 @@ def sent2 : SentAnd :=
 
 Os dois exercícios a seguir estendem o fragmento por esse caminho.
 
-::::exercise (rating := 2) (name := "preposition-phrase")
+::::exercise (rating := 3) (name := "preposition-phrase")
 
 Estenda o fragmento com sintagmas preposicionais, de modo que a sentença *A dwarf defeated a giant with a sword* seja gerada de duas maneiras estruturalmente diferentes, enquanto há apenas uma maneira de gerar *A dwarf defeated Little Mook with a sword*.
 
@@ -297,7 +297,7 @@ S'  ::= NP VPP ;
 A regra `NPP ::= DET CN PP` exige um determinante e um substantivo comum. Como *Little Mook* é um nome próprio, sem determinante, não há como formar *Little Mook with a sword* como um único sintagma nominal, e resta apenas a leitura em que o sintagma preposicional se liga ao sintagma verbal.
 :::
 
-A preposição *with* tem o nome de uma palavra reservada de Lean. Para usá-la assim mesmo como nome de construtor, basta cercá-la de guillemets: `«with»`. Fora da declaração, `.with` já é lido como o construtor e dispensa os guilhemets.
+A preposição *with* tem o nome de uma palavra reservada de Lean. Para usá-la assim mesmo como nome de construtor, basta cercá-la de guillemets: `«with»`. Fora da declaração, `.with` já é lido como o construtor e dispensa os guillemets.
 
 ```lean
 inductive Prep where
@@ -393,7 +393,7 @@ example
 As duas primeiras árvores são diferentes e imprimem a mesma sentença: é a ambiguidade pedida.
 ::::
 
-::::exercise (rating := 2) (name := "complex-relative-clauses")
+::::exercise (rating := 3) (name := "complex-relative-clauses")
 
 Estenda o fragmento com orações relativas complexas, em que a oração relativa coordena dois sintagmas verbais ou dois pares sintagma nominal–verbo transitivo. O fragmento deve gerar, entre outras, a sentença *The dwarf that Snow White helped and Goldilocks admired cheered*. Que problemas você encontra?
 
@@ -475,7 +475,7 @@ example :
 ::::
 
 
-# FOL como Linguagem de representação
+# FOL como Linguagem de Representação
 %%%
 tag := "english-lf"
 %%%
@@ -490,11 +490,11 @@ abbrev LF := Formula Term
 
 Supondo que estejamos tratando de um fragmento que gera sentenças declarativas cujos significados podem ser representados na lógica de predicados, é razoável dar o tipo `LF` às representações das sentenças.
 
-Para traduzir o fragmento de {ref "english-fragment"}[Um fragmento do inglês] para a lógica de predicados, tudo o que temos a fazer é achar traduções apropriadas para todas as categorias da gramática. Mas a primeira regra, `S ::= NP VP`, já nos apresenta uma dificuldade. Ao procurar traduções de `NP` e traduções de `VP`, devemos representar o `NP` como uma função que toma a representação do `VP` como argumento, ou o contrário?
+Para traduzir o fragmento de {ref "english-fragment"}[Um Fragmento do Inglês] para a lógica de predicados, tudo o que temos a fazer é achar traduções apropriadas para todas as categorias da gramática. Mas a primeira regra, `S ::= NP VP`, já nos apresenta uma dificuldade. Ao procurar traduções de `NP` e traduções de `VP`, devemos representar o `NP` como uma função que toma a representação do `VP` como argumento, ou o contrário?
 
 De todo modo, as representações de `VP` terão um tipo funcional, pois sintagmas verbais denotam propriedades. Um tipo razoável para a função que representa um `VP` é `Term → LF`: alimentada com um termo, ela devolve uma forma lógica. Os nomes próprios podem então receber o tipo dos termos. Tome o exemplo *Goldilocks laughed*. O verbo *laughed* é representado pela função que leva o termo `x` à fórmula `laugh[x]`. Obtemos assim uma forma lógica apropriada para a sentença, se `x` for um termo para *Goldilocks*.
 
-A dificuldade apontada em {ref "english-form"}[Formas linguísticas e traduções para lógica] é que sintagmas como *no boy* e *every girl* não se encaixam nesse padrão. Lá também dissemos que isso se resolve supondo que tais sintagmas se traduzem como funções que tomam representações de `VP` como argumento. Uma tradução apropriada para *everyone* seria uma função de tipo `(Term → LF) → LF`: alimentada com a representação de um `VP`, ela devolve uma forma lógica. O resultado da discussão é que, na representação de uma estrutura `S ::= NP VP`, a representação do `NP` deve ser a função e a do `VP` o argumento. Os tipos das quatro funções de tradução são, portanto, estes:
+A dificuldade apontada em {ref "english-form"}[Formas Linguísticas e Traduções para Lógica] é que sintagmas como *no boy* e *every girl* não se encaixam nesse padrão. Lá também dissemos que isso se resolve supondo que tais sintagmas se traduzem como funções que tomam representações de `VP` como argumento. Uma tradução apropriada para *everyone* seria uma função de tipo `(Term → LF) → LF`: alimentada com a representação de um `VP`, ela devolve uma forma lógica. O resultado da discussão é que, na representação de uma estrutura `S ::= NP VP`, a representação do `NP` deve ser a função e a do `VP` o argumento. Os tipos das quatro funções de tradução são, portanto, estes:
 
 ```display
 lfSent : Sent → LF
@@ -524,7 +524,7 @@ def lfADJ : ADJ → Term → LF
   | .evil, t => .atom "evil" [t]
 ```
 
-Um verbo transitivo relaciona duas entidades, e um verbo bitransitivo, três. O primeiro argumento é sempre o do sujeito; no verbo bitransitivo, o segundo é o do objeto indireto e o terceiro o do objeto direto.
+Um verbo transitivo relaciona duas entidades, e um verbo ditransitivo, três. O primeiro argumento é sempre o do sujeito; no verbo ditransitivo, o segundo é o do objeto indireto e o terceiro o do objeto direto.
 
 ```lean
 def lfTV : TV → Term → Term → LF
@@ -538,11 +538,11 @@ def lfDV : DV → Term → Term → Term → LF
   | .gave, t1, t2, t3 => .atom "give" [t1, t2, t3]
 ```
 
-## Variáveis novas
+## Variáveis Novas
 
 A tradução de um determinante toma dois argumentos de tipo `Term → LF`, formas lógicas obtidas a partir de um termo, e produz uma forma lógica. No caso dos quantificadores, o primeiro argumento é a *restrição* e o segundo o *escopo*. Falaremos disso em {ref "comp-relational"}[A visão relacional dos quantificadores].
 
-A tradução dos determinantes precisa ser feita com algum cuidado, porque envolve construir uma forma lógica em que uma variável fica ligada. Para garantir a ligação correta, temos de nos assegurar de que a variável recém-introduzida não seja capturada por um quantificador já presente na forma lógica. Mas, se refletirmos sobre como as variáveis são introduzidas, veremos que elas sempre aparecem junto de quem as liga, e que nenhuma ligação é vazia. Basta então colher os índices das ocorrências ligadas.
+A tradução dos determinantes precisa ser feita com algum cuidado, porque envolve construir uma forma lógica em que uma variável fica ligada. Para garantir a ligação correta, temos de nos assegurar de que a variável recém-introduzida não seja capturada por um quantificador já presente na forma lógica. Mas, se refletirmos sobre como as variáveis são introduzidas, veremos que elas sempre aparecem junto de quem as liga, e que nenhuma ligação é vazia. Basta, portanto, colher os índices que aparecem nos quantificadores: como toda variável ocorre dentro do escopo de quem a liga, eles incluem todos os índices em uso.
 
 ```lean
 def boundIndices : LF → List Nat
@@ -559,7 +559,7 @@ def boundIndices : LF → List Nat
   | .exists_ v f => v.index ++ boundIndices f
 ```
 
-Para calcular um índice novo, basta escolher um índice fora dessa lista. Todas as variáveis são introduzidas pelo mesmo mecanismo: se começarmos com variáveis da forma `⟨"x", [0]⟩` e só introduzirmos variáveis novas da mesma forma, podemos supor que toda variável que ocorre na forma lógica tem esse feitio. O `0` inicial em `foldr max 0` garante que a lista sobre a qual tomamos o máximo não seja vazia.
+Para calcular um índice novo, basta escolher um índice fora dessa lista. Todas as variáveis são introduzidas pelo mesmo mecanismo, que só produz variáveis da forma `⟨"x", [i]⟩` para algum natural `i`, e por isso podemos supor que toda variável que ocorre na forma lógica tem esse feitio.
 
 Os argumentos de `lfDET` não são formas lógicas, e sim funções à espera de um termo. Para ver que variáveis elas carregam, aplicamos cada uma a um termo qualquer que não contenha variável alguma.
 
@@ -574,6 +574,8 @@ def freshIndex (ps : List (Term → LF)) : Nat :=
 def freshVar (ps : List (Term → LF)) : Variable :=
   ⟨"x", [freshIndex ps]⟩
 ```
+
+Em `freshIndex`, `foldr max 0` devolve o maior índice em uso, ou `0` quando nenhum quantificador foi introduzido ainda, e o `+ 1` escolhe um índice maior do que todos eles. O primeiro índice gerado é, portanto, `1`.
 
 Podemos agora dar a tradução dos determinantes. Os indefinidos *a* e *some* recebem a mesma tradução.
 
@@ -610,7 +612,7 @@ Para o determinante definido usamos a teoria das descrições definidas proposta
 
 Nem todo determinante do inglês admite uma tradução para a lógica de predicados. *Most* é o exemplo clássico: não há como dizer, com os quantificadores `∀` e `∃`, que a maioria dos anões riu. Determinantes como *at least n* e *at most n* têm tradução, mas as formas lógicas ficam muito pesadas. É por isso que `DET` traz apenas os cinco determinantes acima.
 
-## O bloco mutuamente recursivo
+## O Bloco Mutuamente Recursivo
 
 Falta traduzir as quatro categorias que se referem umas às outras. Os nomes próprios são traduzidos como símbolos funcionais de aridade zero, isto é, como constantes: *Snow White* é o termo `SnowWhite`.
 
@@ -823,7 +825,7 @@ def atreyu : Entity := .Y
 
 Substantivos comuns como *girl* e *dwarf*, e verbos intransitivos como *laugh* e *shudder*, são interpretados como propriedades de entidades. Verbos transitivos como *love* são interpretados como relações entre entidades.
 
-Para propriedades e relações sobre `Entity`, poderíamos usar um tipo geral `List Entity → Bool`. Isso nos permitiria falar de relações de qualquer aridade de maneira uniforme, mas não seria conveniente para a composição do significado: na sintaxe, um verbo transitivo combina primeiro com o objeto direto e depois com o sujeito, e um verbo bitransitivo combina com um objeto indireto e um objeto direto, e então com o sujeito. Queremos, portanto, que os verbos denotem funções que tomam seus argumentos um a um. Definimos assim os tipos dos predicados de um, dois e três lugares.
+Para propriedades e relações sobre `Entity`, poderíamos usar um tipo geral `List Entity → Bool`. Isso nos permitiria falar de relações de qualquer aridade de maneira uniforme, mas não seria conveniente para a composição do significado: na sintaxe, um verbo transitivo combina primeiro com o objeto direto e depois com o sujeito, e um verbo ditransitivo combina com um objeto indireto e um objeto direto, e então com o sujeito. Queremos, portanto, que os verbos denotem funções que tomam seus argumentos um a um. Definimos assim os tipos dos predicados de um, dois e três lugares.
 
 ```lean
 abbrev OnePlacePred := Entity → Bool
@@ -831,7 +833,7 @@ abbrev TwoPlacePred := Entity → Entity → Bool
 abbrev ThreePlacePred := Entity → Entity → Entity → Bool
 ```
 
-Como {ref "Sets"}[Conjuntos e Relações] mostrou, um predicado de um lugar é a função característica de um conjunto, e é natural pensá-lo como a lista das entidades para as quais ele vale. Definimos então funções de conversão que transformam listas em predicados.
+Como o capítulo {ref "Sets"}[Conjuntos e Relações] mostrou, um predicado de um lugar é a função característica de um conjunto, e é natural pensá-lo como a lista das entidades para as quais ele vale. Definimos então funções de conversão que transformam listas em predicados.
 
 ```lean
 def list1 (xs : List Entity) : OnePlacePred :=
@@ -897,7 +899,7 @@ def defeat : TwoPlacePred := fun x y =>
   (dwarf x && giant y) || list2 [(.A, .W), (.A, .V)] x y
 ```
 
-Os significados dos verbos bitransitivos são representados por predicados de três lugares, da mesma maneira.
+Os significados dos verbos ditransitivos são representados por predicados de três lugares, da mesma maneira.
 
 ```lean
 def give : ThreePlacePred :=
@@ -929,12 +931,12 @@ def self {α β : Type} (p : α → α → β) : α → β :=
   fun x => p x x
 ```
 
-Essa análise tem duas consequências desejáveis. A primeira é que a localidade dos reflexivos cai por terra sozinha: como `self` se aplica a um predicado e unifica argumentos desse predicado, não há como um argumento ser unificado com outro de fora da mesma oração. Em *Snow White thinks that Alice admired herself*, portanto, *herself* só pode se referir a Alice, e não a Snow White. A segunda é que reflexivos em posição de sujeito ficam excluídos: em *Herself admired Snow White*, a interpretação composicional aplica primeiro *admired* a Snow White, o que dá um predicado de um lugar, e aplicar `self` a ele falha, porque `self` espera um predicado de dois lugares. Não sobram duas posições de argumento a unificar.
+Essa análise tem duas consequências desejáveis. A primeira é que a localidade dos reflexivos decorre imediatamente: como `self` se aplica a um predicado e unifica argumentos desse predicado, não há como um argumento ser unificado com outro de fora da mesma oração. Em *Snow White thinks that Alice admired herself*, portanto, *herself* só pode se referir a Alice, e não a Snow White. A segunda é que reflexivos em posição de sujeito ficam excluídos: em *Herself admired Snow White*, a interpretação composicional aplica primeiro *admired* a Snow White, o que dá um predicado de um lugar, e aplicar `self` a ele falha, porque `self` espera um predicado de dois lugares. Não sobram duas posições de argumento a unificar.
 
 :::
 
-::::exercise (rating := 2) (name := "reflexive-ditransitive")
-Nos verbos bitransitivos, um reflexivo pode ser tanto o objeto direto quanto o objeto indireto:
+::::exercise (rating := 1) (name := "reflexive-ditransitive")
+Nos verbos ditransitivos, um reflexivo pode ser tanto o objeto direto quanto o objeto indireto:
 
 1. Alice introduced herself to the rabbit.
 2. Little Mook gave the figs to himself.
@@ -967,9 +969,11 @@ theorem self3IO_introduced :
 ::::
 
 
-## Interpretando os símbolos
+## Interpretando os Símbolos
 
-Já temos em {ref "fol-semantics"}[a semântica de FOL] tudo o que é preciso para avaliar fórmulas: {name}`FOL.Interp` interpreta os símbolos de predicado, {name}`FOL.FInterp` os símbolos funcionais, {name}`FOL.Assign` as variáveis, e {name}`FOL.Formula.eval` percorre a fórmula. Falta apenas ligar os nomes que a tradução produz às relações que acabamos de definir.
+Já temos, em {ref "fol-semantics"}[Semântica de FOL], tudo o que é preciso para avaliar fórmulas: {name}`FOL.Interp` interpreta os símbolos de predicado, {name}`FOL.FInterp` os símbolos funcionais, {name}`FOL.Assign` as variáveis, e {name}`FOL.Formula.eval` percorre a fórmula. Falta apenas ligar os nomes que a tradução produz às relações que acabamos de definir.
+
+Esses nomes e essas relações são coisas diferentes, embora sejam escritos de forma parecida. Na fórmula, `"laugh"` é um símbolo de predicado: uma string produzida pela tradução, que sozinha não diz nada sobre o mundo. Na estrutura, {name}`laugh` é uma função Lean de tipo {name}`OnePlacePred`, que diz quais entidades riram. A interpretação `intFairy` associa o primeiro à segunda.
 
 ```lean
 def intFairy : Interp Entity
@@ -993,7 +997,7 @@ def intFairy : Interp Entity
   | _, _ => false
 ```
 
-Os nomes próprios foram traduzidos como constantes, isto é, como símbolos funcionais de aridade zero. É {name}`FOL.FInterp` que diz qual entidade cada um nomeia, e `Unspec` é o valor natural para os símbolos que a estrutura não nomeia.
+Os nomes próprios foram traduzidos como constantes, isto é, como símbolos funcionais de aridade zero. É {name}`FOL.FInterp` que diz qual entidade cada um nomeia, e `Unspec` é o valor natural para os símbolos que a estrutura não nomeia. `"Goldilocks"` é a constante da fórmula, e {name}`goldilocks`, isto é, {name}`Entity.G`, é a entidade que ela nomeia.
 
 ```lean
 def fintFairy : FInterp Entity
@@ -1028,7 +1032,7 @@ def loveReflexive : LF :=
 false
 ```
 
-::::exercise (rating := 2) (name := "check-sentence")
+::::exercise (rating := 1) (name := "check-sentence")
 Junte as duas metades. Defina a função que decide se uma sentença do fragmento é verdadeira nesta estrutura: ela deve traduzir a sentença para uma forma lógica e avaliar essa forma lógica no domínio {name}`entities`, com as interpretações {name}`intFairy` e {name}`fintFairy` e com a atribuição {name}`ass0`.
 
 ```lean
@@ -1066,7 +1070,7 @@ theorem everyoneCheered :
 
 Temos assim um procedimento de interpretação indireta para o fragmento, em dois passos: primeiro construímos uma forma lógica a partir da expressão da língua natural, depois avaliamos essa forma lógica em relação a uma estrutura.
 
-Falta cobrar a promessa feita a {name}`mem_entities`. {name}`FOL.Formula.eval` decide um quantificador percorrendo uma lista, e só concorda com o `∀` de Lean se essa lista contiver todos os elementos do domínio — é o que a hipótese `hdom` de {name}`FOL.Formula.eval_iff_denote` exige, e é exatamente o que {name}`mem_entities` fornece.
+Resta voltar a {name}`mem_entities`, como prometido. {name}`FOL.Formula.eval` decide um quantificador percorrendo uma lista, e só concorda com o `∀` de Lean se essa lista contiver todos os elementos do domínio — é o que a hipótese `hdom` de {name}`FOL.Formula.eval_iff_denote` exige, e é exatamente o que {name}`mem_entities` fornece.
 
 ```lean
 theorem eval_iff_denote_fairy (I : Interp Entity)
@@ -1080,45 +1084,61 @@ theorem eval_iff_denote_fairy (I : Interp Entity)
 
 Nesta estrutura, portanto, as duas leituras de qualquer fórmula concordam: o {lean}`Bool` que {name}`checkSentence` calcula e a proposição que a sentença afirma são a mesma coisa. Isso vale porque o domínio é finito e está listado — em {ref "FOL"}[FOL] vimos que nenhuma lista consegue fazer o mesmo pelos naturais.
 
-::::exercise (rating := 2) (name := "help-defeat")
-Considere os verbos *help* e *defeat* e os sintagmas nominais *Alice*, *Snow White*, *every wizard* e *a dwarf*. Determine, para cada sentença da forma `S ::= NP TV NP` construída com esses verbos e sintagmas, se ela é verdadeira ou falsa nesta estrutura.
+::::exercise (rating := 2) (name := "help-model")
+Até aqui a estrutura estava dada e perguntávamos que sentenças são verdadeiras nela. Agora o caminho é o inverso. A interpretação `intHelp h` coincide com `intFairy` em tudo, exceto em *help*, que passa a ser interpretado pela relação `h`. A função `holdsWithHelp h` avalia uma sentença na estrutura com essa interpretação.
 
-A lista `sentences` abaixo tem as trinta e duas sentenças, na ordem em que os laços as geram. Complete `values` com os trinta e dois valores de verdade.
+Defina uma relação `help'` tal que, na estrutura em que *help* é interpretado por ela, as sentenças a seguir tenham os valores indicados.
+
+1. *Every wizard helped every wizard* — verdadeira.
+2. *Alice helped a dwarf* — verdadeira.
+3. *No dwarf helped Snow White* — verdadeira.
+4. *Snow White helped a dwarf* — falsa.
 
 ```lean
-def someNPs : List NP :=
-  [.alice, .snowWhite,
-   .npDet .every .wizard, .npDet .a .dwarf]
+def intHelp (h : TwoPlacePred) : Interp Entity
+  | "help", [x, y] => h x y
+  | n, as => intFairy n as
 
-def sentences : List Sent :=
-  someNPs.flatMap fun subj =>
-    [TV.helped, TV.defeated].flatMap fun v =>
-      someNPs.map fun obj =>
-        Sent.sent subj (.vpTrans v obj)
+def holdsWithHelp (h : TwoPlacePred) (s : Sent) : Bool :=
+  (lfSent s).eval entities (intHelp h) ass0
+    (liftAssign fintFairy)
 
-def values : List Bool :=
+def help' : TwoPlacePred :=
   solution!(
-    [false, false, false, false,
-     false, false, true,  false,
-     false, false, false, true,
-     false, false, false, false,
-     false, false, false, false,
-     false, false, false, false,
-     false, false, false, false,
-     false, false, false, false])
+    list2 [(.W, .W), (.V, .V), (.W, .V), (.V, .W),
+           (.A, .B)])
 
-theorem values_correct :
-    sentences.map checkSentence = values :=
+theorem every_wizard_helped_every_wizard :
+    holdsWithHelp help'
+      (.sent (.npDet .every .wizard)
+             (.vpTrans .helped (.npDet .every .wizard)))
+      = true :=
+  solution!(by native_decide)
+
+theorem alice_helped_a_dwarf :
+    holdsWithHelp help'
+      (.sent .alice (.vpTrans .helped (.npDet .a .dwarf)))
+      = true :=
+  solution!(by native_decide)
+
+theorem no_dwarf_helped_snowWhite :
+    holdsWithHelp help'
+      (.sent (.npDet .no .dwarf)
+             (.vpTrans .helped .snowWhite))
+      = true :=
+  solution!(by native_decide)
+
+theorem snowWhite_helped_a_dwarf :
+    holdsWithHelp help'
+      (.sent .snowWhite
+             (.vpTrans .helped (.npDet .a .dwarf)))
+      = false :=
   solution!(by native_decide)
 ```
 
-:::gradeTheorem "2" values_correct
+:::gradeTheorem "4" every_wizard_helped_every_wizard alice_helped_a_dwarf no_dwarf_helped_snowWhite snowWhite_helped_a_dwarf
 :::
 ::::
-
-:::dev "Claude Opus 5" PotentialImprovement (year := 2026)
-Comentário gerado por IA. Os trinta e dois valores em `values` foram calculados pela avaliação, não conferidos à mão; o `native_decide` garante que eles concordam com `checkSentence`, mas não que `checkSentence` seja a semântica pretendida. Vale conferir alguns casos no modelo antes de publicar.
-:::
 
 
 ```lean

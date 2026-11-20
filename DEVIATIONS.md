@@ -197,6 +197,10 @@ decisions inside the chapters.
   conditions rather than list comprehensions; `Unspec` is the default of the
   `FInterp`; and names and argument order agree with the translation, which
   in the Haskell source they do not.
+- 6.1 asks the reader to check sentences in the model; `help-model` inverts
+  it: the reader builds a `help` relation that gives four sentences
+  prescribed truth values, since checking is what `checkSentence` already
+  automates.
 
 ### `Composition`
 
@@ -273,7 +277,7 @@ syntax and model, so it comes after `ModelChecking`. Being written.
   `RCN` and `Sent` too (issue 42). The adjectives and *caught* are false
   of everything, as in `ModelChecking`'s model. An `#eval` checks that
   the direct interpretation agrees with the translation into a formula
-  on the sentences of exercise `help-defeat`.
+  on thirty-two sentences `NP TV NP` with *helped* and *defeated*.
 - 7.7, handling ambiguity, is deferred with its exercises 7.26–7.28
   (issue 43): its benefit is unclear for now, and the implementation
   within reach looked of little use. The scope reading of *Every dwarf
