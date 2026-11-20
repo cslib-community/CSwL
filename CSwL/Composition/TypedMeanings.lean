@@ -18,14 +18,14 @@ open ModelChecking
 ```
 
 :::terse
-- Cada regra da gramática de {ref "ModelChecking"}[Verificação de Modelos com Lógica de Primeira Ordem] ganha uma
+- Cada regra da gramática de {cref "ModelChecking"}[] ganha uma
   regra semântica: como o significado do todo se constrói a partir dos
   significados das partes. Escrevemos `⟦X⟧` para o significado de `X`.
 - Os significados vivem na *lógica tipada*. Há dois tipos básicos, `e` para
   entidades e `t` para valores de verdade, e os tipos de função
   $`\tau_1 \to \tau_2`.
 - Em Lean, `e` é {name}`Entity` e $`t` é {name}`Bool`, e os termos da lógica
-  tipada são funções do Lean, como em {ref "lambda"}[Lean e o Cálculo Lambda].
+  tipada são funções do Lean, como em {cref "lambda"}[].
 - O tipo de cada categoria:
   - `S`: {name}`Bool`;
   - {name}`CN`, {name}`RCN` e {name}`VP`: `Entity → Bool`, isto é,
@@ -37,7 +37,7 @@ open ModelChecking
 
 ::::full
 Cada regra sintática da gramática de
-{ref "ModelChecking"}[Verificação de Modelos com Lógica de Primeira Ordem]
+{cref "ModelChecking"}[]
 recebe uma regra semântica que combina os significados de seus constituintes.
 Escrevemos `⟦X⟧` para o significado de uma expressão `X`. Para saber quais
 combinações fazem sentido, atribuímos tipos a esses significados.
@@ -45,7 +45,7 @@ combinações fazem sentido, atribuímos tipos a esses significados.
 A lógica tipada usa dois tipos básicos, `e` para entidades e `t` para valores de
 verdade, e forma novos tipos de função a partir deles. Aqui, eles são
 representados por {name}`Entity` e {name}`Bool`. As expressões dessa lógica são
-funções do Lean, como em {ref "lambda"}[Lean e o Cálculo Lambda].
+funções do Lean, como em {cref "lambda"}[].
 
 Uma sentença, de categoria `S`, tem significado de tipo {name}`Bool`. Um
 substantivo comum, um substantivo com modificadores ou um sintagma verbal, de
@@ -101,7 +101,7 @@ end Rule
 
 :::terse
 - Os determinantes são relações entre duas propriedades, como em
-  {ref "comp-relational"}[A Visão Relacional dos Quantificadores]. *Some* e
+  {cref "comp-relational"}[]. *Some* e
   *a* têm o mesmo significado, `a`; *every* é {name}`every`.
 - *No*: nenhuma entidade com `p` tem `q`.
 - *The*, à maneira de Russell: há exatamente uma entidade com `p`, e ela tem
@@ -111,7 +111,7 @@ end Rule
 ::::full
 Os determinantes relacionam a propriedade que restringe a quantificação à
 propriedade que constitui seu escopo, conforme
-{ref "comp-relational"}[A Visão Relacional dos Quantificadores].
+{cref "comp-relational"}[].
 *Some* e *a* recebem a interpretação {name}`a`, e *every* recebe
 {name}`every`.
 
@@ -139,7 +139,7 @@ def the (p q : OnePlacePred) : Bool :=
 - Uma oração relativa é a interseção de duas propriedades.
   *girl that laughed*: ser menina e ter rido.
 - *girl that some boy loved*: ser menina e ser amada por algum menino. O
-  {name}`NP` *some boy* recebe a propriedade "amar `x` ", `fun y => tv y x`.
+  {name}`NP` *some boy* recebe a propriedade "amar `x`", `fun y => tv y x`.
 :::
 
 ::::full
@@ -170,7 +170,7 @@ end Rule
 
 :::terse
 - `VP → TV NP` é o truque de {name}`defeated`: fixar o sujeito `x` e entregar
-  ao {name}`NP` a propriedade "ser o objeto de `x` ". {name}`defeated` é
+  ao {name}`NP` a propriedade "ser o objeto de `x`". {name}`defeated` é
   `vpTrans defeat`.
 - Com um verbo ditransitivo, o mesmo truque duas vezes, um para cada objeto.
 - O verbo recebe primeiro o sujeito, depois os objetos, como as relações do

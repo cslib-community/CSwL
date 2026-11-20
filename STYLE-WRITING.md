@@ -122,6 +122,15 @@ not want to explain yet.
 concept comes with something to do. An explanation plus an example can often
 become an explanation plus an exercise.
 
+**Do not give exercises away.** Neither the `full` prose nor a `terse` cue
+anticipates an exercise's answer or the path to it, and neither announces
+the exercise ("o exercício pede…", "os exercícios a seguir…"). The
+explanation stops at the concept; the exercise's own statement says what is
+asked, and its hint, if any, is the only nudge. Stating the claim to be
+proved is not giving it away, since the statement does so too: what stays
+out is the counterexample, the construction, or the argument. Text after the
+exercise may take the result up again.
+
 **Cutting is good.** Material grows and the temptation is to keep everything.
 Ask: does this serve the goal, does the audience need it? If some readers
 would benefit but not all, a `:::details` block or an appendix will hold it.

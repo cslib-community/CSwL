@@ -25,7 +25,7 @@ open ModelChecking
   quantificadores. A de Frege é muito superior, mas deixa três problemas em
   aberto, e o resto do capítulo trata deles.
 - A teoria da quantificação de Aristóteles, que vimos em
-  {ref "InfEngine"}[Um motor de inferência], tem dois defeitos lógicos e uma
+  {cref "InfEngine"}[], tem dois defeitos lógicos e uma
   falha menor:
   1. ela não trata combinações de quantificadores, pois só admite um
      quantificador por sentença;
@@ -41,8 +41,8 @@ open ModelChecking
   "todo A é B" é $`\forall x (Ax \to Bx)`, "algum A é B" é
   $`\exists x (Ax \land Bx)`, e assim por diante.
 - Por que "esquecer" a pressuposição existencial: a questão não é o domínio (em
-  FOL ele é não vazio), mas a extensão de `A`. Se nenhum elemento satisfaz `A`
-  , então $`\forall x (Ax \to Bx)` é vacuamente verdadeira e
+  FOL ele é não vazio), mas a extensão de `A`. Se nenhum elemento satisfaz `A`,
+  então $`\forall x (Ax \to Bx)` é vacuamente verdadeira e
   $`\exists x (Ax \land Bx)` é falsa.
 - Com `A` vazio, só as diagonais (contraditórias) sobrevivem. Caem as contrárias
   ("todo A é B" e "nenhum A é B" ambas verdadeiras), as subcontrárias e a
@@ -51,7 +51,7 @@ open ModelChecking
 
 ::::full
 A quantificação é central para explicar as inferências em língua natural. A
-teoria aristotélica apresentada em {ref "InfEngine"}[Um motor de inferência]
+teoria aristotélica apresentada em {cref "InfEngine"}[]
 trata sentenças com um único quantificador. Ela não permite combinar
 quantificadores na mesma sentença nem abrange expressões como
 *most*, *half of* e *at least five*. Além disso, algumas de suas
@@ -62,8 +62,7 @@ em fórmulas arbitrárias, permitindo combinar várias quantificações. Eles po
 ser definidos um pelo outro com a negação: $`\exists x\,P(x)` equivale a
 $`\neg\forall x\,\neg P(x)`. As quatro formas do quadrado das oposições recebem
 representações nessa lógica. Por exemplo, «todo A é B» é
-$`\forall x\,(A(x)\to B(x))`, e «algum A é B» é $`\exists x\,(A(x)\land B(x))`
-.
+$`\forall x\,(A(x)\to B(x))`, e «algum A é B» é $`\exists x\,(A(x)\land B(x))`.
 
 Essas fórmulas não pressupõem que a extensão de `A` seja não vazia. Se nenhum
 elemento satisfaz `A`, a universal é verdadeira e a existencial é falsa. Nesse
@@ -79,10 +78,10 @@ inferência como *Darapti* pode falhar na lógica de primeira ordem.
   numéricos. "Pelo menos dois A são B" é
   $`\exists x \exists y (x \neq y \land Ax \land Ay \land Bx \land By)`.
 - A fórmula de "pelo menos dois A são B" em Lean é um valor do tipo {name}`LF`,
-  o mesmo de {ref "ModelChecking"}[Verificação de Modelos com Lógica de Primeira Ordem]. Os predicados `a` e `b` são
+  o mesmo de {cref "ModelChecking"}[]. Os predicados `a` e `b` são
   parâmetros, e a função devolve uma fórmula para cada par de predicados.
 - `.neg (.eq tx ty)` é $`x \neq y`. A igualdade já é um construtor de `Formula`
-  desde {ref "FOL"}[FOL].
+  desde o capítulo {cref "FOL"}[].
 - No modelo do capítulo há três pessoas que riem e só duas meninas que riem.
 :::
 
@@ -95,8 +94,7 @@ $`\exists x\exists y\,(x\neq y\land A(x)\land A(y)\land B(x)\land B(y))`.
 A função `atLeastTwo` recebe os nomes dos dois predicados e constrói uma fórmula
 de tipo {name}`LF`. O termo `.neg (.eq tx ty)` exprime a desigualdade entre as
 variáveis. A função `check` avalia a fórmula no modelo do fragmento. Nesse
-modelo, há três pessoas que riem, das quais duas são meninas. Os exemplos e o
-exercício usam essas contagens para testar fórmulas numéricas.
+modelo, há três pessoas que riem, das quais duas são meninas.
 ::::
 
 ```lean
@@ -223,8 +221,9 @@ theorem atMost_girl :
      quantificadores padrão.
 - O resto desta seção, a partir da visão relacional, responde aos problemas 1 e
   3: *every dwarf* vira uma função, e *most* é uma relação entre conjuntos como
-  *every*. A lógica tipada e o cálculo lambda, nas próximas seções, respondem ao
-  problema 2.
+  *every*. A lógica tipada, em
+  {cref "comp-typed-meanings"}[],
+  responde ao problema 2.
 :::
 
 ::::full
@@ -238,7 +237,7 @@ $`\exists y\,(Ballad(y)\land\forall x\,(Prince(x)\to Sang(x,y)))`. A sentença
 passiva *A ballad was sung by every prince* também permite examinar esse
 contraste.
 
-Como em {ref "english-form"}[Forma lógica e forma gramatical], a estrutura da
+Como em {cref "english-form"}[], a estrutura da
 fórmula pode diferir da estrutura sintática da sentença. Os sintagmas nominais
 deixam de aparecer como unidades na representação. Queremos preservar suas
 contribuições semânticas como componentes da composição e obter um procedimento
@@ -260,7 +259,7 @@ tag := "comp-relational"
   (Mostowski {citep Bib.mostowski1957}[]; Barwise e Cooper
   {citep Bib.barwise1981}[] ).
 - A relação já apareceu em
-  {ref "english-lf"}[FOL como linguagem de representação]: os dois argumentos
+  {cref "english-lf"}[]: os dois argumentos
   de {name}`lfDET` são a restrição e o escopo. Lá, porém, o determinante
   construía uma fórmula. Aqui ele relaciona diretamente dois conjuntos de
   entidades.
@@ -299,7 +298,7 @@ def every (p q : OnePlacePred) : Bool :=
 ```
 
 :::terse
-- Lembre de {ref "Sets"}[Conjuntos e Relações]: a função característica de um
+- Lembre de {cref "Sets"}[]: a função característica de um
   conjunto responde, para cada elemento, se ele pertence ao conjunto.
   `princess : Entity → Bool` é a função característica do conjunto das
   princesas.
@@ -314,7 +313,7 @@ def every (p q : OnePlacePred) : Bool :=
 ::::full
 Uma propriedade como {name}`princess` pode ser vista como a função
 característica de um conjunto de entidades, conforme
-{ref "Sets"}[Conjuntos e Relações]. Aplicamos a mesma ideia às propriedades:
+{cref "Sets"}[]. Aplicamos a mesma ideia às propriedades:
 `every princess` é a função característica do conjunto das propriedades que
 todas as princesas têm.
 
@@ -358,12 +357,12 @@ def a (p q : OnePlacePred) : Bool :=
   - `TV.defeated` é a palavra, um construtor da gramática;
   - `defeat : Entity → Entity → Bool` é a relação no modelo;
   - `defeated`, que definimos agora, é a tradução do verbo.
-- Lembre que {name}`OnePlacePred` é uma abreviação (`abbrev`) de `Entity → Bool`
-  , o tipo das propriedades. O objeto `a giant` tem tipo `OnePlacePred → Bool`:
+- Lembre que {name}`OnePlacePred` é uma abreviação (`abbrev`) de `Entity → Bool`,
+  o tipo das propriedades. O objeto `a giant` tem tipo `OnePlacePred → Bool`:
   ele espera uma propriedade. Mas {name}`defeat` tem dois argumentos e não é uma
   propriedade.
 - O truque é fixar o sujeito `y`. `fun z => defeat y z` é a propriedade "ser
-  derrotado por `y` ", e `X (fun z => defeat y z)` diz que `y` derrotou `X`.
+  derrotado por `y`", e `X (fun z => defeat y z)` diz que `y` derrotou `X`.
   Abstraindo `y`, obtemos uma propriedade do sujeito.
 - Por isso `defeated` toma o significado de um sintagma nominal,
   `X : OnePlacePred → Bool`, e devolve o de um {name}`VP`, um
@@ -379,8 +378,8 @@ palavra. A função {name}`defeat` é a relação binária entre entidades. Já
 `defeated` combinará essa relação com o significado de um sintagma nominal.
 
 O objeto `a giant` espera uma propriedade, mas a relação de derrotar recebe duas
-entidades. Fixando um sujeito `y`, obtemos a propriedade `fun z => defeat y z`
-. Aplicar o objeto a essa propriedade verifica se `y` derrotou algum gigante.
+entidades. Fixando um sujeito `y`, obtemos a propriedade `fun z => defeat y z`.
+Aplicar o objeto a essa propriedade verifica se `y` derrotou algum gigante.
 Abstraindo sobre `y`, obtemos a propriedade denotada por *defeated a giant*.
 
 A avaliação lista as entidades que têm essa propriedade. O resultado, `[B, R]`,
@@ -457,16 +456,15 @@ desses casos:
   separa, entre eles, os que exprimem quantidade.
 - Para conjuntos finitos, as três condições reduzem `D E A B` a dois números,
   $`|A - B|` e $`|A \cap B|`. É isso que permite a árvore de números de
-  {ref "comp-trees"}[Árvores Numéricas].
+  {cref "comp-trees"}[].
 - Para enunciar as condições, saímos de {name}`Bool` e passamos a {lean}`Prop`
-  sobre {name}`Set`, como em {ref "Sets"}[Conjuntos]: `D E A B` diz que o
-  determinante `D` relaciona a *restrição* `A` e o *escopo* `B` no universo `E`
-  .
+  sobre {name}`Set`, como em {cref "Sets"}[]: `D E A B` diz que o
+  determinante `D` relaciona a *restrição* `A` e o *escopo* `B` no universo `E`.
 - O tipo `GQ.Det α` é só uma abreviação para `Set α → Set α → Set α → Prop`.
   Nada no tipo diz que `A` e `B` estão dentro de `E`. Essa exigência aparece
   como as hipóteses `A ⊆ E` e `B ⊆ E` em cada uma das três condições.
 - Não confundir {name}`DET` com `GQ.Det`. {name}`DET` é a categoria sintática
-  de {ref "ModelChecking"}[Verificação de Modelos com Lógica de Primeira Ordem], com as palavras *a*, *the*,
+  de {cref "ModelChecking"}[], com as palavras *a*, *the*,
   *every*, …. `GQ.Det` é o tipo dos significados dessas palavras. O tipo é
   amplo de propósito: todo quantificador é um `GQ.Det`, mas nem todo `GQ.Det` é
   um quantificador.
@@ -474,19 +472,11 @@ desses casos:
 
 ::::full
 Nem toda relação entre conjuntos se comporta como um quantificador de
-quantidade. Usaremos três condições para delimitar essa noção. A extensão, EXT,
-exige que aumentar o universo, mantendo restrição e escopo, preserve o
-resultado. A conservatividade, CONS, exige que só a parte do escopo situada na
-restrição importe. A invariância por isomorfismo, ISOM, exige que renomear os
-elementos por uma bijeção preserve a relação.
-
-Cada condição exclui uma dependência. Uma leitura de *many* relativa ao tamanho
-total do universo pode falhar em EXT. *Only* depende de elementos fora da
-restrição e falha em CONS. Um possessivo como
-*Alice's* pode depender da identidade das entidades e falhar em ISOM.
-Chamaremos de quantificadores as relações que satisfazem as três condições. Para
-conjuntos finitos, essas condições permitem reduzir a informação relevante às
-contagens $`|A-B|` e $`|A\cap B|`.
+quantidade. Usaremos três condições para delimitar essa noção: a extensão, EXT,
+a conservatividade, CONS, e a invariância por isomorfismo, ISOM. Cada uma exclui
+um tipo de dependência, que veremos em *many*, em *only* e no possessivo
+*Alice's*. Chamaremos de quantificadores as relações que satisfazem as três
+condições.
 
 Para enunciar e provar as condições, usamos proposições sobre conjuntos. O tipo
 `GQ.Det α` abrevia `Set α → Set α → Set α → Prop`. Em `D E A B`, `E` é o
@@ -547,7 +537,7 @@ theorem every_iff_all (p q : OnePlacePred) :
 
 ::::exercise (rating := 2) (name := "subalternation")
 
-Em {ref "comp-quantification"}[Quantificação] vimos que, sem a pressuposição
+Em {cref "comp-quantification"}[] vimos que, sem a pressuposição
 existencial, "todo A é B" não implica "algum A é B". Prove as duas coisas: a
 subalternação vale quando `A` tem um elemento, e falha em geral.
 
@@ -662,12 +652,10 @@ theorem no_cons {α : Type} : Cons (no : Det α) := by
 ::::full
 Uma leitura de *many* pode depender do tamanho do universo. Vamos representar
 uma versão simples em que «muitos A são B» significa que os elementos de `A ∩ B`
-são mais da metade dos elementos de `E`. Ao aumentar `E` sem alterar `A` e `B`
-, a relação pode deixar de valer, violando EXT.
+são mais da metade dos elementos de `E`. Ao aumentar `E` sem alterar `A` e `B`,
+a relação pode deixar de valer, violando EXT.
 
-Usamos {name}`Set.ncard` para expressar as cardinalidades finitas. O exercício
-pede um contraexemplo com universos finitos, de modo que essas contagens tenham
-a interpretação pretendida.
+Usamos {name}`Set.ncard` para expressar as cardinalidades finitas.
 ::::
 
 ```lean
@@ -697,10 +685,7 @@ theorem many_not_ext : ¬ Ext (many : Det Nat) := by
 
 ::::full
 Em *Only dwarfs sing during work*, todos os que cantam durante o trabalho devem
-ser anões. A relação {name}`GQ.only` exige, portanto, `B ⊆ A`. Um cantor fora
-de `A` torna a sentença falsa. Ao substituir `B` por `A ∩ B`, esse elemento é
-descartado e a inclusão passa a valer. Esse contraste permite construir o
-contraexemplo à conservatividade pedido no exercício.
+ser anões. A relação {name}`GQ.only` exige, portanto, `B ⊆ A`.
 ::::
 
 ::::exercise (rating := 2) (name := "only-not-cons")
@@ -732,7 +717,7 @@ theorem only_not_cons : ¬ Cons (only : Det Entity) := by
   `D E A B` depende então só de $`|A - B|` e $`|A \cap B|`.
 - Os artigos também são quantificadores no sentido técnico desta seção. *a* tem
   o mesmo significado que *some*: vale quando $`|A \cap B| \geq 1`. *the*, na
-  leitura russelliana de {ref "ModelChecking"}[Verificação de Modelos com Lógica de Primeira Ordem], vale quando
+  leitura russelliana de {cref "ModelChecking"}[], vale quando
   $`|A \cap B| = 1` e $`|A - B| = 0`. A gramática tradicional, porém, não vê
   *the* como expressão de quantidade, e sim como um modo de identificar um
   referente. Quantificador, aqui, é uma propriedade semântica; determinante é
@@ -749,10 +734,8 @@ universos.
 Com EXT, CONS e ISOM, uma relação sobre conjuntos finitos depende somente das
 quantidades nas regiões `A - B` e `A ∩ B`. Isso inclui artigos. *A* tem a
 condição existencial de *some*. Na leitura de Russell, *the* exige que `A` tenha
-um único elemento e que ele pertença a `B`, isto é, $`|A-B|=0` e $`|A\cap B|=1`
-. O exercício verifica as três condições para essa interpretação. Outro
-exercício mostra como um possessivo pode satisfazer EXT e CONS e ainda depender
-de quem são os elementos, violando ISOM.
+um único elemento e que ele pertença a `B`, isto é, $`|A-B|=0` e
+$`|A\cap B|=1`.
 ::::
 
 ```lean
@@ -772,7 +755,7 @@ theorem some_isom {α : Type} : Isom (some : Det α) := by
 
 ::::exercise (rating := 2) (name := "the-quant")
 
-Na leitura de {ref "ModelChecking"}[Verificação de Modelos com Lógica de Primeira Ordem], *The dwarf laughed* diz
+Na leitura de {cref "ModelChecking"}[], *The dwarf laughed* diz
 que há exatamente um anão e que ele riu. Como relação entre conjuntos,
 `the E A B` diz que `A` tem um único elemento e que ele está em `B`. Mostre que
 `the` satisfaz EXT, CONS e ISOM. Assim, o artigo *the* é, no sentido técnico
@@ -983,8 +966,8 @@ theorem treeOfNumbers_three :
   verdadeiro. Aqui o quantificador é dado direto como uma função de `m` e `n`.
 - Para saber se `q` vale num caso, basta saber se o par foi escolhido. Então a
   árvore de pares vira uma árvore de `+` e `-`. A função `patternTree k q` é o
-  par de `numberTree k`: o mesmo {name}`labelTree`, trocando cada par por `+`
-  , se `q` vale nele, ou por `-`. Essa árvore é o *padrão* de `q`.
+  par de `numberTree k`: o mesmo {name}`labelTree`, trocando cada par por `+`,
+  se `q` vale nele, ou por `-`. Essa árvore é o *padrão* de `q`.
 - Três exemplos de padrão: *at least three* ($`n \geq 3`), *less than half*
   ($`2n < m + n`) e *an even number of* ($`n` par).
 :::
@@ -1033,10 +1016,7 @@ possamos montar universos de teste. As funções {name}`List.all` e
 propriedade.
 
 Essa apresentação toma a própria restrição como universo da consulta, usando a
-redução permitida por CONS. Para recuperar uma posição `(m, n)`, o exercício
-constrói uma lista com `m + n` elementos distintos e uma propriedade verdadeira
-para exatamente `n` deles. Quando a função respeita ISOM, qualquer outra escolha
-de objetos com essas mesmas contagens fornece o mesmo resultado.
+redução permitida por CONS.
 ::::
 
 ```lean
@@ -1080,7 +1060,7 @@ tag := "comp-num-repr"
 - O objetivo desta subseção é representar cada quantificador por uma expressão
   aritmética em `m` e `n`. Para conjuntos finitos, com EXT, CONS e ISOM, o
   valor de `Q A B` depende só de $`m = |A - B|` e $`n = |A \cap B|`.
-- Os padrões de {ref "comp-trees"}[Árvores Numéricas] já eram desenhados a
+- Os padrões de {cref "comp-trees"}[] já eram desenhados a
   partir de funções de `m` e `n`, como `fun _ n => n ≥ 3`: é o tipo do
   argumento de {name}`patternTree`. `NumQuant` dá um nome a esse tipo. Por isso
   todo `NumQuant` pode ser desenhado como árvore.
@@ -1110,7 +1090,7 @@ def atMostNum  (k : Nat) : NumQuant := fun _ n => n ≤ k
 :::terse
 - Um {name}`ListQuant` também vira um {name}`NumQuant`: na posição `(m, n)`,
   `toNum q` aplica `q` a um universo de `m + n` objetos, `[1, …, m + n]`, com
-  uma propriedade que vale para exatamente `n` deles, "ser no máximo `n` ".
+  uma propriedade que vale para exatamente `n` deles, "ser no máximo `n`".
 - Se `q` respeita ISOM, qualquer universo com essas contagens dá a mesma
   resposta. O tipo {name}`ListQuant`, por si só, não exige essa propriedade.
 - Assim podemos comparar as duas formas: o padrão de {name}`List.all` é o de
@@ -1120,7 +1100,7 @@ def atMostNum  (k : Nat) : NumQuant := fun _ n => n ≤ k
 ::::full
 A função `toNum` constrói uma representação numérica a partir de um
 {name}`ListQuant`. Para cada par `(m, n)`, fornece à função uma lista dos
-naturais de um até `m + n` e a propriedade «ser menor ou igual a `n` ». Nessa
+naturais de um até `m + n` e a propriedade «ser menor ou igual a `n`». Nessa
 lista, exatamente `n` elementos têm a propriedade.
 
 Se a função representa um quantificador invariante por isomorfismo, essa
@@ -1250,8 +1230,7 @@ tag := "comp-rel-props"
   {lean}`Prop` sobre {name}`NumQuant`.
 - A pergunta que se repete: se `Q` tem a propriedade, como é o seu padrão?
 
-Começamos avaliando se {lean}`GQ.all` é reflexiva. O quantificador
-{lean}`GQ.some` não é reflexivo se aceitarmos a restrição vazia.
+Começamos avaliando se {lean}`GQ.all` e {lean}`GQ.some` são reflexivos.
 :::
 
 ::::full
@@ -1262,8 +1241,7 @@ correspondentes.
 
 A reflexividade exige que `Q A A` valha para toda restrição `A`. Isso vale para
 *all*, pois todo conjunto está contido em si mesmo. Para *some*, a interseção de
-`A` consigo mesmo precisa ter um elemento. A restrição vazia fornece, portanto,
-um contraexemplo à reflexividade, como pede o exercício.
+`A` consigo mesmo precisa ter um elemento.
 ::::
 
 ```lean
@@ -1293,8 +1271,8 @@ theorem some_not_refl : ¬ Refl (some : Det Entity) := by
 - Em `Q A A`, o escopo é a própria restrição. Nenhum elemento de `A` fica fora
   de `A`, então $`m = 0`; todos ficam dentro, então $`n = |A|`. `Q A A` é a
   posição `(0, |A|)`.
-- Variando o tamanho de `A`, essas posições são `(0, 0)`, `(0, 1)`, `(0, 2)`
-  , …: a borda direita da árvore. `Q` é reflexivo quando essa borda é toda `+`.
+- Variando o tamanho de `A`, essas posições são `(0, 0)`, `(0, 1)`, `(0, 2)`,
+  …: a borda direita da árvore. `Q` é reflexivo quando essa borda é toda `+`.
 - A borda inclui o topo, `(0, 0)`, o caso em que `A` é vazio. É ali que
   *some* falha.
 :::
@@ -1492,15 +1470,11 @@ linha só há `+`. Num padrão MON↓, o mesmo vale à esquerda.
 :::
 
 ::::full
-Nos padrões numéricos, acrescentar ao escopo um elemento da restrição transforma
-`(m + 1, n)` em `(m, n + 1)`. Esse é um passo para a direita na mesma linha. A
-condição `MonUpNum` exige que um `+` continue sendo `+` depois desse passo.
-`MonDownNum` exige a preservação no sentido inverso.
+As definições `MonUpNum` e `MonDownNum` escrevem essas formas como proposições
+sobre {name}`NumQuant`.
 
 O padrão de *an even number of* alterna entre `+` e `-` nas linhas. Acrescentar
-ou retirar um elemento do escopo pode mudar a paridade. O exercício usa posições
-concretas para mostrar que o quantificador não tem nenhuma das duas
-monotonicidades.
+ou retirar um elemento do escopo pode mudar a paridade.
 ::::
 
 ```lean
@@ -1551,8 +1525,6 @@ theorem evenNum_not_monDown : ¬ MonDownNum evenNum := by
   escopo de sintagmas MON↓: *No dwarf liked any of the elves*, mas não
   *Every dwarf liked any of the elves*. Os de polaridade positiva, como
   *hardly*, fazem o contrário.
-- Pelos padrões, dá para responder como negação, conjunção e disjunção afetam a
-  monotonicidade.
 :::
 
 ::::full
@@ -1572,12 +1544,6 @@ Há também contrastes associados à polaridade positiva.
 considerada, enquanto *Nobody could hardly believe it* é marcada como
 inaceitável nessa mesma leitura. A comparação muda a orientação do sintagma que
 toma a expressão em seu escopo.
-
-Os exercícios examinam como a negação, a conjunção e a disjunção transformam os
-padrões. A negação inverte a orientação. A conjunção e a disjunção preservam uma
-orientação compartilhada pelos dois argumentos. Quando as orientações são
-opostas, os padrões permitem procurar contraexemplos a uma regra geral de
-preservação.
 ::::
 
 ::::exercise (rating := 2) (name := "mon-not")
@@ -1716,14 +1682,13 @@ theorem orNum_up_down :
 
 ::::full
 Também podemos variar a restrição e manter o escopo. Um quantificador é ↑MON se
-a verdade é preservada ao aumentar `A`, e ↓MON se é preservada ao diminuir `A`
-. *Some* e *not all* são crescentes na restrição; *all* e *no* são decrescentes
+a verdade é preservada ao aumentar `A`, e ↓MON se é preservada ao diminuir `A`.
+*Some* e *not all* são crescentes na restrição; *all* e *no* são decrescentes
 nela.
 
 Por exemplo, se algum A é B, aumentar A conserva esse elemento. Se todo A é B,
 restringir A conserva a inclusão. Na árvore, acrescentar um elemento a A aumenta
-`n` quando ele está em B e aumenta `m` quando está fora de B. O exercício pede
-que essas duas possibilidades sejam expressas nas condições numéricas.
+`n` quando ele está em B e aumenta `m` quando está fora de B.
 
 A orientação na restrição também aparece em fenômenos de polaridade.
 *All dwarfs who liked any of the elves were mistrusted* coloca
@@ -1861,12 +1826,10 @@ theorem langOf_perm (q : NumQuant) {v w : Word}
 ::::full
 As operações lógicas sobre quantificadores também se expressam nas linguagens
 que eles aceitam. Negar um quantificador aceita exatamente as palavras que ele
-recusava. Assim, a linguagem de {name}`notNum` é o complemento, indicado por `ᶜ`
-, da linguagem original.
+recusava. Assim, a linguagem de {name}`notNum` é o complemento, indicado por `ᶜ`,
+da linguagem original.
 
-O teorema verifica essa correspondência palavra por palavra. O exercício pede as
-correspondências para a conjunção e a disjunção, que dão, respectivamente,
-interseção e união de linguagens.
+O teorema verifica essa correspondência palavra por palavra.
 ::::
 
 ```lean
@@ -1910,10 +1873,7 @@ O quantificador *all* exige que a palavra não contenha nenhum zero. Suas
 palavras são sequências de uns, incluindo a palavra vazia. Essa linguagem é o
 fecho de Kleene da linguagem formada apenas pela palavra `[true]`.
 
-A notação `∗` permite concatenar zero ou mais palavras da linguagem. No
-exercício, cada palavra não vazia aceita por *all* pode ser decomposta em
-palavras unitárias `[true]`, e a palavra vazia corresponde à concatenação de
-zero palavras.
+A notação `∗` permite concatenar zero ou mais palavras da linguagem.
 ::::
 
 ::::exercise (rating := 3) (name := "all-kstar")
@@ -1954,8 +1914,7 @@ theorem langOf_allNum :
 ::::
 
 :::terse
-- Um autômato finito que aceita exatamente as palavras de `langOf q` computa `q`
-  .
+- Um autômato finito que aceita exatamente as palavras de `langOf q` computa `q`.
 - Os quantificadores definíveis em primeira ordem (com $`\forall`, $`\exists`,
   igualdade e os predicados da restrição e do escopo) são exatamente os
   computados por um autômato finito invariante por permutação e sem ciclos,
@@ -1964,7 +1923,7 @@ theorem langOf_allNum :
   nenhum: é preciso memória para comparar $`|A - B|` e $`|A \cap B|`. Nenhum
   dos dois é definível em primeira ordem.
 - Por isso *most* ficou fora da tradução para a lógica de primeira ordem em
-  {ref "ModelChecking"}[Verificação de Modelos com Lógica de Primeira Ordem]. Na interpretação direta, ele é uma
+  {cref "ModelChecking"}[]. Na interpretação direta, ele é uma
   função como as outras.
 :::
 

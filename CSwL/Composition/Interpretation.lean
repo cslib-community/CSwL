@@ -18,19 +18,19 @@ open ModelChecking
 ```
 
 :::terse
-- Em {ref "comp-typed-meanings"}[Significados Tipados para a Língua Natural],
+- Em {cref "comp-typed-meanings"}[],
   quem escolhia a regra para cada nó da árvore éramos nós. Agora uma função de
   interpretação faz isso: ela recebe a árvore sintática, um valor de
   {name}`Sent`, e devolve o seu valor de verdade.
 - Há uma função para cada categoria, com o tipo da categoria. Elas começam pelo
   *léxico*: cada palavra ganha o seu significado no modelo.
 - *Some* e *a* têm a mesma interpretação. Os adjetivos e *caught* não são
-  interpretados no modelo, como em {ref "ModelChecking"}[Verificação de Modelos com Lógica de Primeira Ordem]: são
+  interpretados no modelo, como em {cref "ModelChecking"}[]: são
   falsos para todos.
 :::
 
 ::::full
-Em {ref "comp-typed-meanings"}[Significados Tipados para a Língua Natural],
+Em {cref "comp-typed-meanings"}[],
 escolhemos as regras semânticas ao montar cada expressão. Agora vamos definir
 funções que percorrem a árvore sintática e escolhem a regra correspondente a
 cada construtor. A interpretação de uma sentença, um valor de {name}`Sent`,
@@ -42,7 +42,7 @@ relação. Os determinantes recebem as funções já definidas; em particular, *
 e *a* têm a mesma interpretação.
 
 O modelo não fornece interpretações para os adjetivos nem para *caught*. Como em
-{ref "ModelChecking"}[Verificação de Modelos com Lógica de Primeira Ordem],
+{cref "ModelChecking"}[],
 atribuímos a eles propriedades ou relações que são falsas para todos os
 argumentos.
 ::::
@@ -80,8 +80,9 @@ def intDET : DET → OnePlacePred → OnePlacePred → Bool
 ```
 
 :::terse
-- As quatro categorias que se referem umas às outras são interpretadas num bloco
-  `mutual`, como os seus tipos foram declarados.
+- As três categorias que se referem umas às outras, {name}`NP`, {name}`VP` e
+  {name}`RCN`, são interpretadas num bloco `mutual`, como os seus tipos foram
+  declarados. `intSent` vem depois do bloco.
 - Cada caso é uma linha: a regra semântica de `Rule` com o mesmo nome do
   construtor, aplicada às interpretações dos filhos. A recursão segue a árvore.
 - *Everyone* e *someone* são *every* e *a* restritos a {name}`person`.
@@ -90,9 +91,10 @@ def intDET : DET → OnePlacePred → OnePlacePred → Bool
 :::
 
 ::::full
-As interpretações de {name}`Sent`, {name}`NP`, {name}`VP` e {name}`RCN`
-dependem umas das outras, acompanhando a definição das categorias sintáticas.
-Por isso, são definidas em um bloco `mutual`. Em cada caso, interpretamos os
+As interpretações de {name}`NP`, {name}`VP` e {name}`RCN` dependem umas das
+outras, acompanhando a definição das categorias sintáticas. Por isso, são
+definidas em um bloco `mutual`. A interpretação de {name}`Sent` vem depois do
+bloco e aplica a de {name}`NP` à de {name}`VP`. Em cada caso, interpretamos os
 constituintes e aplicamos a regra semântica correspondente. A recursão segue as
 subárvores da expressão recebida.
 
@@ -110,44 +112,46 @@ adjetivos, essa propriedade será falsa para toda entidade.
 
 ```lean
 mutual
-  def intSent : Sent → Bool
-    | .sent np vp => Rule.sent (intNP np) (intVP vp)
 
-  def intNP : NP → OnePlacePred → Bool
-    | .snowWhite => Rule.npName snowWhite
-    | .alice => Rule.npName alice
-    | .dorothy => Rule.npName dorothy
-    | .goldilocks => Rule.npName goldilocks
-    | .littleMook => Rule.npName littleMook
-    | .atreyu => Rule.npName atreyu
-    | .everyone => every person
-    | .someone => a person
-    | .npDet det cn =>
-      Rule.npDet (intDET det) (intCN cn)
-    | .npDetRel det rcn =>
-      Rule.npDet (intDET det) (intRCN rcn)
+def intNP : NP → OnePlacePred → Bool
+  | .snowWhite => Rule.npName snowWhite
+  | .alice => Rule.npName alice
+  | .dorothy => Rule.npName dorothy
+  | .goldilocks => Rule.npName goldilocks
+  | .littleMook => Rule.npName littleMook
+  | .atreyu => Rule.npName atreyu
+  | .everyone => every person
+  | .someone => a person
+  | .npDet det cn =>
+    Rule.npDet (intDET det) (intCN cn)
+  | .npDetRel det rcn =>
+    Rule.npDet (intDET det) (intRCN rcn)
 
-  def intVP : VP → OnePlacePred
-    | .laughed => laugh
-    | .cheered => cheer
-    | .shuddered => shudder
-    | .vpTrans tv np => Rule.vpTrans (intTV tv) (intNP np)
-    | .vpDitrans dv np₁ np₂ =>
-      Rule.vpDitrans (intDV dv) (intNP np₁) (intNP np₂)
+def intVP : VP → OnePlacePred
+  | .laughed => laugh
+  | .cheered => cheer
+  | .shuddered => shudder
+  | .vpTrans tv np => Rule.vpTrans (intTV tv) (intNP np)
+  | .vpDitrans dv np₁ np₂ =>
+    Rule.vpDitrans (intDV dv) (intNP np₁) (intNP np₂)
 
-  def intRCN : RCN → OnePlacePred
-    | .rcnSubj cn _ vp => Rule.rcnSubj (intCN cn) (intVP vp)
-    | .rcnObj cn _ np tv =>
-      Rule.rcnObj (intCN cn) (intNP np) (intTV tv)
-    | .rcnAdj adj cn => Rule.rcnSubj (intADJ adj) (intCN cn)
+def intRCN : RCN → OnePlacePred
+  | .rcnSubj cn _ vp => Rule.rcnSubj (intCN cn) (intVP vp)
+  | .rcnObj cn _ np tv =>
+    Rule.rcnObj (intCN cn) (intNP np) (intTV tv)
+  | .rcnAdj adj cn => Rule.rcnSubj (intADJ adj) (intCN cn)
+
 end
+
+def intSent : Sent → Bool
+  | .sent np vp => Rule.sent (intNP np) (intVP vp)
 ```
 
 :::terse
 - *Alice admired Dorothy* de novo, agora como árvore: um valor de {name}`Sent`,
   com as palavras `.alice`, `.admired` e `.dorothy`.
 - O `rfl` mostra que `intSent` monta a mesma composição que fizemos à mão em
-  {ref "comp-typed-meanings"}[Significados Tipados para a Língua Natural].
+  {cref "comp-typed-meanings"}[].
 :::
 
 ::::full
@@ -173,7 +177,7 @@ example :
 
 :::terse
 - {name}`sent1` é a árvore de *The dwarf that Snow White helped admired every
-  princess*, de {ref "ModelChecking"}[Verificação de Modelos com Lógica de Primeira Ordem].
+  princess*, de {cref "ModelChecking"}[].
 - Lá, a sentença era traduzida para uma fórmula, e a fórmula avaliada no modelo.
   Aqui não há fórmula: a interpretação consulta o modelo diretamente.
 - Os dois caminhos dão o mesmo valor. `sentences` gera trinta e duas sentenças
@@ -187,7 +191,7 @@ every princess*. Podemos avaliá-la diretamente com {name}`intSent` ou traduzi-l
 com {name}`lfSent` e avaliar a fórmula resultante no modelo.
 
 O segundo comando `#eval` compara os dois caminhos para as trinta e duas
-sentenças de {name}`sentences`. Essa verificação avalia os exemplos da lista;
+sentenças de `sentences`. Essa verificação avalia os exemplos da lista;
 uma prova de equivalência para toda árvore exigiria demonstrar uma afirmação
 geral sobre as funções de interpretação e tradução.
 ::::
@@ -217,7 +221,7 @@ open FOL in
 
 :::terse
 - *Most* não tem tradução na lógica de primeira ordem, e por isso ficou fora de
-  {name}`DET` em {ref "ModelChecking"}[Verificação de Modelos com Lógica de Primeira Ordem]. Na interpretação direta
+  {name}`DET` em {cref "ModelChecking"}[]. Na interpretação direta
   ele é uma função como as outras: compara quantos `p` têm `q` com quantos não
   têm.
 - Sem mexer na gramática, ele entra pelas regras semânticas: *Most girls
