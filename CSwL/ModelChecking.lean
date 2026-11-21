@@ -7,7 +7,7 @@ open CSwLMeta
 
 #doc (Manual) "Verificação de Modelos com Lógica de Primeira Ordem" =>
 %%%
-tag := "ModelChecking"
+tag := "mc"
 htmlSplit := .never
 file := "ModelChecking"
 %%%
@@ -18,12 +18,12 @@ namespace ModelChecking
 
 Nas linguagens formais construídas artificialmente, como a lógica proposicional e a lógica de predicados, as regras de formação de fórmulas são perfeitamente estritas, unívocas e livres de ambiguidade. A língua natural humana, por outro lado, é rica e expressiva, mas repleta de nuances estruturais. Para que um computador possa manipular e verificar sentenças em inglês, precisamos construir uma ponte entre a gramática das línguas humanas e a precisão da lógica formal.
 
-Este capítulo constrói o pipeline clássico da semântica computacional para um fragmento do inglês. Primeiro, em {ref "english-fragment"}[Um Fragmento do Inglês], especificamos a sintaxe do fragmento por meio de uma gramática livre de contexto, implementada em Lean como tipos indutivos que representam diretamente árvores de análise sintática. Em seguida, em {ref "english-lf"}[FOL como Linguagem de Representação], traduzimos essas árvores sintáticas para fórmulas da lógica de primeira ordem, guiados pelo princípio da composicionalidade e por ferramentas do cálculo lambda. Por fim, em {ref "english-model"}[Uma Estrutura de Primeira Ordem], avaliamos as fórmulas obtidas em um modelo concreto, conectando sentenças sobre um micromundo ficcional aos seus valores de verdade. Decidir se uma fórmula é verdadeira em uma estrutura dada é o que se chama _verificação de modelos_ (_model checking_), e é isso que dá nome ao capítulo.
+Este capítulo constrói o pipeline clássico da semântica computacional para um fragmento do inglês. Primeiro, em {cref "mc-fragment"}[], especificamos a sintaxe do fragmento por meio de uma gramática livre de contexto, implementada em Lean como tipos indutivos que representam diretamente árvores de análise sintática. Em seguida, em {cref "mc-lf"}[], traduzimos essas árvores sintáticas para fórmulas da lógica de primeira ordem, guiados pelo princípio da composicionalidade e por ferramentas do cálculo lambda. Por fim, em {cref "mc-model"}[], avaliamos as fórmulas obtidas em um modelo concreto, conectando sentenças sobre um micromundo ficcional aos seus valores de verdade. Decidir se uma fórmula é verdadeira em uma estrutura dada é o que se chama _verificação de modelos_ (_model checking_), e é isso que dá nome ao capítulo.
 
 
 # Formas Linguísticas e Traduções para Lógica
 %%%
-tag := "english-form"
+tag := "mc-form"
 %%%
 
 Da sentença *Alice walked on the road* segue-se que alguém caminhou na estrada, mas de *No one walked on the road* não se segue que alguém caminhou na estrada. Por isso lógicos como Gottlob Frege (1848–1925), Bertrand Russell (1872–1970), Alfred Tarski (1902–1983) e Willard Van Orman Quine (1908–2000) sustentaram que a estrutura dessas duas sentenças deveria ser diferente, e que não basta dizer que ambas são a composição de um sujeito e um predicado.
@@ -43,7 +43,7 @@ Contudo, ao dizermos _Every dwarf_, não estamos nos referindo a um anão em par
 
 Essa discrepância levou muitos lógicos do início do século XX a supor que a língua natural era inerentemente imperfeita ou enganosa. Contudo, a aplicação das ferramentas lógicas de abstração e redução do cálculo lambda permite ver que essa conclusão era injustificada.
 
-A chave para resolver esse impasse está em retomar o princípio da composicionalidade (visto em {ref "IntroCS"}[IntroCS]) sob a ótica do cálculo lambda (apresentado em {ref "lambda"}[IntroL]). Quando traduzimos a língua natural para uma lógica tipada, cada constituinte da oração corresponde a uma expressão funcional bem tipada. A combinação gramatical das palavras passa a refletir diretamente a aplicação de _funções aos seus argumentos_. A eliminação contextual das expressões quantificadas é simplesmente o resultado da computação dessas funções (a β-redução), e não uma falha estrutural da sentença original.
+A chave para resolver esse impasse está em retomar o princípio da composicionalidade (visto no capítulo {cref "cs"}[]) sob a ótica do cálculo lambda (apresentado na seção {cref "lean-lambda"}[]). Quando traduzimos a língua natural para uma lógica tipada, cada constituinte da oração corresponde a uma expressão funcional bem tipada. A combinação gramatical das palavras passa a refletir diretamente a aplicação de _funções aos seus argumentos_. A eliminação contextual das expressões quantificadas é simplesmente o resultado da computação dessas funções (a β-redução), e não uma falha estrutural da sentença original.
 
 Para ilustrar como o cálculo lambda harmoniza a análise lógica, considere a combinação de sujeitos e predicados:
 
@@ -60,12 +60,12 @@ Assim, tanto _Goldilocks laughed_ quanto _no one laughed_ combinam-se sintática
 
 Esse método nos permite realizar a _interpretação indireta_ da língua natural: em vez de tentar avaliar sentenças em inglês diretamente em um modelo, nós as traduzimos primeiro para fórmulas da lógica de primeira ordem, cuja semântica formal já dominamos.
 
-Para que essa tradução composicional seja viável, porém, precisamos de um ponto de partida indispensável: delimitar a estrutura sintática das sentenças que queremos analisar. É a essa tarefa de modelagem gramatical que nos dedicamos a seguir em {ref "english-fragment"}[Um Fragmento do Inglês].
+Para que essa tradução composicional seja viável, porém, precisamos de um ponto de partida indispensável: delimitar a estrutura sintática das sentenças que queremos analisar. É a essa tarefa de modelagem gramatical que nos dedicamos a seguir em {cref "mc-fragment"}[].
 
 
 # Um Fragmento do Inglês
 %%%
-tag := "english-fragment"
+tag := "mc-fragment"
 %%%
 
 Suponha que queiramos escrever regras gramaticais para sentenças do inglês como as seguintes:
@@ -242,7 +242,10 @@ def sent1 : Sent :=
 
 Ir da sentença de superfície para a árvore é o problema inverso, chamado de *análise sintática*. Não o trataremos aqui: neste capítulo as árvores são construídas à mão, e o que nos interessa é o que fazer com elas depois de construídas.
 
-## Estender uma Gramática
+## A Extensão da Gramática
+%%%
+tag := "mc-grammar-extension"
+%%%
 
 Um tipo indutivo em Lean é fechado. Seus construtores são fixados na declaração. Isso permite que Lean verifique se uma função definida por casos sobre `VP` cobre todos os seus cinco construtores. Para acrescentar uma alternativa diretamente a uma regra da gramática, seria preciso alterar a declaração do tipo correspondente.
 
@@ -481,10 +484,10 @@ example :
 
 # FOL como Linguagem de Representação
 %%%
-tag := "english-lf"
+tag := "mc-lf"
 %%%
 
-A lógica de predicados nos dá representações para dois tipos: o tipo das entidades é representado pelos termos, e o tipo dos valores de verdade pelas fórmulas. Chamaremos de `LF` — *forma lógica* — o tipo das fórmulas de primeira ordem cujos termos são termos estruturados, o {name}`FOL.Formula` de {ref "FOL"}[FOL] com {name}`FOL.Term` no lugar do parâmetro.
+A lógica de predicados nos dá representações para dois tipos: o tipo das entidades é representado pelos termos, e o tipo dos valores de verdade pelas fórmulas. Chamaremos de `LF` — *forma lógica* — o tipo das fórmulas de primeira ordem cujos termos são termos estruturados, o {name}`FOL.Formula` da seção {cref "fol"}[] com {name}`FOL.Term` no lugar do parâmetro.
 
 ```lean
 open FOL
@@ -492,7 +495,7 @@ open FOL
 abbrev LF := Formula Term
 ```
 
-Traduzimos cada sentença do fragmento para uma fórmula de tipo `LF`. As traduções de `VP` e `RCN` têm tipo `Term → LF`. Elas recebem um termo e constroem uma fórmula sobre ele. Pela elevação de tipo apresentada em {ref "english-form"}[Formas Linguísticas e Traduções para Lógica], a tradução de `NP` tem tipo `(Term → LF) → LF`. Para traduzir a regra `S ::= NP VP`, aplicamos a tradução do sujeito à do sintagma verbal, como em `lfNP np (lfVP vp)`.
+Traduzimos cada sentença do fragmento para uma fórmula de tipo `LF`. As traduções de `VP` e `RCN` têm tipo `Term → LF`. Elas recebem um termo e constroem uma fórmula sobre ele. Pela elevação de tipo apresentada em {cref "mc-form"}[], a tradução de `NP` tem tipo `(Term → LF) → LF`. Para traduzir a regra `S ::= NP VP`, aplicamos a tradução do sujeito à do sintagma verbal, como em `lfNP np (lfVP vp)`.
 
 Começamos pelas funções de tradução das categorias lexicais. Em seguida, definimos `lfNP`, `lfVP` e `lfRCN` em um bloco `mutual`. `lfSent` vem depois do bloco e combina as traduções de `NP` e `VP`.
 
@@ -530,8 +533,11 @@ def lfDV : DV → Term → Term → Term → LF
 ```
 
 ## Variáveis Novas
+%%%
+tag := "mc-fresh-variables"
+%%%
 
-A tradução de um determinante toma dois argumentos de tipo `Term → LF`, formas lógicas obtidas a partir de um termo, e produz uma forma lógica. No caso dos quantificadores, o primeiro argumento é a *restrição* e o segundo o *escopo*. Falaremos disso em {ref "comp-relational"}[A Visão Relacional dos Quantificadores].
+A tradução de um determinante toma dois argumentos de tipo `Term → LF`, formas lógicas obtidas a partir de um termo, e produz uma forma lógica. No caso dos quantificadores, o primeiro argumento é a *restrição* e o segundo o *escopo*. Falaremos disso em {cref "comp-relational"}[].
 
 A tradução dos determinantes precisa evitar a captura de variáveis. Em *Every dwarf defeated some giant*, por exemplo, a tradução de *defeated some giant* introduz o quantificador do objeto, enquanto a variável do sujeito só será ligada pelo quantificador externo, de *every dwarf*. Para escolher o índice da variável do sujeito, examinamos os índices dos quantificadores internos e escolhemos um índice maior. Assim, nenhum quantificador interno pode capturar uma ocorrência da variável do sujeito.
 
@@ -604,6 +610,9 @@ Para o determinante definido usamos a teoria das descrições definidas proposta
 Nem todo determinante do inglês admite uma tradução para a lógica de predicados. *Most* é o exemplo clássico: não há como dizer, com os quantificadores `∀` e `∃`, que a maioria dos anões riu. Determinantes como *at least n* e *at most n* têm tradução, mas as formas lógicas ficam muito pesadas. É por isso que `DET` traz apenas os cinco determinantes acima.
 
 ## O Bloco Mutuamente Recursivo
+%%%
+tag := "mc-mutual-block"
+%%%
 
 Em `lfNP`, cada nome próprio é representado por uma constante, isto é, um símbolo funcional de aridade zero. Para *Snow White*, `lfNP` aplica a propriedade recebida ao termo `SnowWhite`.
 
@@ -773,7 +782,7 @@ Temos agora representações de sentenças declarativas da língua natural como 
 
 # Uma Estrutura de Primeira Ordem
 %%%
-tag := "english-model"
+tag := "mc-model"
 %%%
 
 Tudo o que precisamos para especificar uma estrutura de primeira ordem é um domínio de entidades e interpretações apropriadas para os nomes próprios e para os predicados. Começamos construindo um pequeno domínio de exemplo, formado pelos indivíduos `A`, …, `Z`, mais uma entidade especial.
@@ -789,7 +798,7 @@ deriving Repr, DecidableEq
 
 A entidade especial `Unspec` terá um papel importante no tratamento das relações subespecificadas: ela nos permitirá definir relações com algumas posições de argumento deixadas em aberto.
 
-Para avaliar uma fórmula quantificada é preciso percorrer o domínio, e percorrer exige uma coleção. Como em {ref "FOL"}[FOL], o tipo indutivo declara quais são os objetos e a lista os exibe na ordem em que serão percorridos.
+Para avaliar uma fórmula quantificada é preciso percorrer o domínio, e percorrer exige uma coleção. Como na seção {cref "fol"}[], o tipo indutivo declara quais são os objetos e a lista os exibe na ordem em que serão percorridos.
 
 ```lean
 def entities : List Entity :=
@@ -823,7 +832,7 @@ abbrev TwoPlacePred := Entity → Entity → Bool
 abbrev ThreePlacePred := Entity → Entity → Entity → Bool
 ```
 
-Como o capítulo {ref "Sets"}[Conjuntos e Relações] mostrou, um predicado de um lugar é a função característica de um conjunto, e é natural pensá-lo como a lista das entidades para as quais ele vale. Definimos então funções de conversão que transformam listas em predicados.
+Como o capítulo {cref "sets"}[] mostrou, um predicado de um lugar é a função característica de um conjunto, e é natural pensá-lo como a lista das entidades para as quais ele vale. Definimos então funções de conversão que transformam listas em predicados.
 
 ```lean
 def list1 (xs : List Entity) : OnePlacePred :=
@@ -961,9 +970,12 @@ theorem self3IO_introduced :
 ::::
 
 
-## Interpretando os Símbolos
+## A Interpretação dos Símbolos
+%%%
+tag := "mc-interpretation"
+%%%
 
-Já temos, em {ref "fol-semantics"}[Semântica de FOL], tudo o que é preciso para avaliar fórmulas: {name}`FOL.Interp` interpreta os símbolos de predicado, {name}`FOL.FInterp` os símbolos funcionais, {name}`FOL.Assign` as variáveis, e {name}`FOL.Formula.eval` percorre a fórmula. Falta apenas ligar os nomes que a tradução produz às relações que acabamos de definir.
+Já temos, em {cref "fol-semantics"}[], tudo o que é preciso para avaliar fórmulas: {name}`FOL.Interp` interpreta os símbolos de predicado, {name}`FOL.FInterp` os símbolos funcionais, {name}`FOL.Assign` as variáveis, e {name}`FOL.Formula.eval` percorre a fórmula. Falta apenas ligar os nomes que a tradução produz às relações que acabamos de definir.
 
 Esses nomes e essas relações são coisas diferentes, embora sejam escritos de forma parecida. Na fórmula, `"laugh"` é um símbolo de predicado: uma string produzida pela tradução, que sozinha não diz nada sobre o mundo. Na estrutura, {name}`laugh` é uma função Lean de tipo {name}`OnePlacePred`, que diz quais entidades riram. A interpretação `intFairy` associa o primeiro à segunda.
 
@@ -1072,7 +1084,7 @@ theorem eval_iff_denote_fairy (I : Interp Entity)
     (liftAssign fintFairy) g f
 ```
 
-O teorema diz que a avaliação de uma fórmula devolve {lean}`true` se e somente se a proposição dada por {name}`FOL.Formula.denote` vale. Em particular, no exercício {cref "check-sentence"}[] vimos que {name}`checkSentence` devolve {lean}`true` exatamente quando a forma lógica da sentença é verdadeira nesta estrutura. Mas no capítulo {cref "FOL"}[], vimos que nenhuma lista finita contém todos os números naturais.
+O teorema diz que a avaliação de uma fórmula devolve {lean}`true` se e somente se a proposição dada por {name}`FOL.Formula.denote` vale. Em particular, no exercício {cref "check-sentence"}[] vimos que {name}`checkSentence` devolve {lean}`true` exatamente quando a forma lógica da sentença é verdadeira nesta estrutura. Mas na seção {cref "fol"}[], vimos que nenhuma lista finita contém todos os números naturais.
 
 ::::exercise (rating := 2) (name := "help-model")
 Até aqui a estrutura estava dada e perguntávamos que sentenças são verdadeiras nela. Agora o caminho é o inverso. A interpretação `intHelp h` coincide com `intFairy` em tudo, exceto em *help*, que passa a ser interpretado pela relação `h`. A função `holdsWithHelp h` avalia uma sentença na estrutura com essa interpretação.

@@ -8,7 +8,7 @@ set_option verso.code.warnLineLength 100
 
 #doc (Manual) "Traços e Categorias" =>
 %%%
-tag := "features-categories"
+tag := "parsing-features"
 file := "Features"
 %%%
 

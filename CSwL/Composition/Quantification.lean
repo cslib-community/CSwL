@@ -25,7 +25,7 @@ open ModelChecking
   quantificadores. A de Frege é muito superior, mas deixa três problemas em
   aberto, e o resto do capítulo trata deles.
 - A teoria da quantificação de Aristóteles, que vimos em
-  {cref "InfEngine"}[], tem dois defeitos lógicos e uma
+  {cref "engine"}[], tem dois defeitos lógicos e uma
   falha menor:
   1. ela não trata combinações de quantificadores, pois só admite um
      quantificador por sentença;
@@ -51,7 +51,7 @@ open ModelChecking
 
 ::::full
 A quantificação é central para explicar as inferências em língua natural. A
-teoria aristotélica apresentada em {cref "InfEngine"}[]
+teoria aristotélica apresentada em {cref "engine"}[]
 trata sentenças com um único quantificador. Ela não permite combinar
 quantificadores na mesma sentença nem abrange expressões como
 *most*, *half of* e *at least five*. Além disso, algumas de suas
@@ -78,10 +78,10 @@ inferência como *Darapti* pode falhar na lógica de primeira ordem.
   numéricos. "Pelo menos dois A são B" é
   $`\exists x \exists y (x \neq y \land Ax \land Ay \land Bx \land By)`.
 - A fórmula de "pelo menos dois A são B" em Lean é um valor do tipo {name}`LF`,
-  o mesmo de {cref "ModelChecking"}[]. Os predicados `a` e `b` são
+  o mesmo de {cref "mc"}[]. Os predicados `a` e `b` são
   parâmetros, e a função devolve uma fórmula para cada par de predicados.
 - `.neg (.eq tx ty)` é $`x \neq y`. A igualdade já é um construtor de `Formula`
-  desde o capítulo {cref "FOL"}[].
+  desde o capítulo {cref "fol"}[].
 - No modelo do capítulo há três pessoas que riem e só duas meninas que riem.
 :::
 
@@ -237,7 +237,7 @@ $`\exists y\,(Ballad(y)\land\forall x\,(Prince(x)\to Sang(x,y)))`. A sentença
 passiva *A ballad was sung by every prince* também permite examinar esse
 contraste.
 
-Como em {cref "english-form"}[], a estrutura da
+Como em {cref "mc-form"}[], a estrutura da
 fórmula pode diferir da estrutura sintática da sentença. Os sintagmas nominais
 deixam de aparecer como unidades na representação. Queremos preservar suas
 contribuições semânticas como componentes da composição e obter um procedimento
@@ -259,7 +259,7 @@ tag := "comp-relational"
   (Mostowski {citep Bib.mostowski1957}[]; Barwise e Cooper
   {citep Bib.barwise1981}[] ).
 - A relação já apareceu em
-  {cref "english-lf"}[]: os dois argumentos
+  {cref "mc-lf"}[]: os dois argumentos
   de {name}`lfDET` são a restrição e o escopo. Lá, porém, o determinante
   construía uma fórmula. Aqui ele relaciona diretamente dois conjuntos de
   entidades.
@@ -298,7 +298,7 @@ def every (p q : OnePlacePred) : Bool :=
 ```
 
 :::terse
-- Lembre de {cref "Sets"}[]: a função característica de um
+- Lembre de {cref "sets"}[]: a função característica de um
   conjunto responde, para cada elemento, se ele pertence ao conjunto.
   `princess : Entity → Bool` é a função característica do conjunto das
   princesas.
@@ -313,7 +313,7 @@ def every (p q : OnePlacePred) : Bool :=
 ::::full
 Uma propriedade como {name}`princess` pode ser vista como a função
 característica de um conjunto de entidades, conforme
-{cref "Sets"}[]. Aplicamos a mesma ideia às propriedades:
+{cref "sets"}[]. Aplicamos a mesma ideia às propriedades:
 `every princess` é a função característica do conjunto das propriedades que
 todas as princesas têm.
 
@@ -458,13 +458,13 @@ desses casos:
   $`|A - B|` e $`|A \cap B|`. É isso que permite a árvore de números de
   {cref "comp-trees"}[].
 - Para enunciar as condições, saímos de {name}`Bool` e passamos a {lean}`Prop`
-  sobre {name}`Set`, como em {cref "Sets"}[]: `D E A B` diz que o
+  sobre {name}`Set`, como em {cref "sets"}[]: `D E A B` diz que o
   determinante `D` relaciona a *restrição* `A` e o *escopo* `B` no universo `E`.
 - O tipo `GQ.Det α` é só uma abreviação para `Set α → Set α → Set α → Prop`.
   Nada no tipo diz que `A` e `B` estão dentro de `E`. Essa exigência aparece
   como as hipóteses `A ⊆ E` e `B ⊆ E` em cada uma das três condições.
 - Não confundir {name}`DET` com `GQ.Det`. {name}`DET` é a categoria sintática
-  de {cref "ModelChecking"}[], com as palavras *a*, *the*,
+  de {cref "mc"}[], com as palavras *a*, *the*,
   *every*, …. `GQ.Det` é o tipo dos significados dessas palavras. O tipo é
   amplo de propósito: todo quantificador é um `GQ.Det`, mas nem todo `GQ.Det` é
   um quantificador.
@@ -717,7 +717,7 @@ theorem only_not_cons : ¬ Cons (only : Det Entity) := by
   `D E A B` depende então só de $`|A - B|` e $`|A \cap B|`.
 - Os artigos também são quantificadores no sentido técnico desta seção. *a* tem
   o mesmo significado que *some*: vale quando $`|A \cap B| \geq 1`. *the*, na
-  leitura russelliana de {cref "ModelChecking"}[], vale quando
+  leitura russelliana de {cref "mc"}[], vale quando
   $`|A \cap B| = 1` e $`|A - B| = 0`. A gramática tradicional, porém, não vê
   *the* como expressão de quantidade, e sim como um modo de identificar um
   referente. Quantificador, aqui, é uma propriedade semântica; determinante é
@@ -755,7 +755,7 @@ theorem some_isom {α : Type} : Isom (some : Det α) := by
 
 ::::exercise (rating := 2) (name := "the-quant")
 
-Na leitura de {cref "ModelChecking"}[], *The dwarf laughed* diz
+Na leitura de {cref "mc"}[], *The dwarf laughed* diz
 que há exatamente um anão e que ele riu. Como relação entre conjuntos,
 `the E A B` diz que `A` tem um único elemento e que ele está em `B`. Mostre que
 `the` satisfaz EXT, CONS e ISOM. Assim, o artigo *the* é, no sentido técnico
@@ -1923,7 +1923,7 @@ theorem langOf_allNum :
   nenhum: é preciso memória para comparar $`|A - B|` e $`|A \cap B|`. Nenhum
   dos dois é definível em primeira ordem.
 - Por isso *most* ficou fora da tradução para a lógica de primeira ordem em
-  {cref "ModelChecking"}[]. Na interpretação direta, ele é uma
+  {cref "mc"}[]. Na interpretação direta, ele é uma
   função como as outras.
 :::
 

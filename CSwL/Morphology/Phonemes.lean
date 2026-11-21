@@ -4,9 +4,9 @@ import Bib
 open Verso.Genre Manual
 open CSwLMeta
 
-#doc (Manual) "Aplicação: representando fonemas" =>
+#doc (Manual) "A Representação de Fonemas" =>
 %%%
-tag := "Phonemes"
+tag := "morph-phonemes"
 %%%
 
 Vimos uma implementação simples da harmonia vocálica do finlandês por

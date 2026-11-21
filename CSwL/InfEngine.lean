@@ -5,9 +5,9 @@ import CSwL.Sets
 open Verso.Genre Manual
 open CSwLMeta
 
-#doc (Manual) "Um motor de inferência" =>
+#doc (Manual) "Um Motor de Inferência" =>
 %%%
-tag := "InfEngine"
+tag := "engine"
 htmlSplit := .never
 file := "InfEngine"
 %%%
@@ -64,7 +64,10 @@ quantificadores com *importe existencial*: "todo A é B" e "nenhum A é B" são
 tomados como implicando que há A. Sob essa suposição, as expressões da aresta
 superior implicam as imediatamente abaixo delas.
 
-# Uma língua para falar de classes
+# Uma Língua sobre Classes
+%%%
+tag := "engine-language"
+%%%
 
 A gramática é um fragmento minúsculo para perguntar e afirmar coisas sobre
 classes:
@@ -129,7 +132,10 @@ def Statement.toStringImpl : Statement → String
 instance : ToString Statement := ⟨Statement.toStringImpl⟩
 ```
 
-# A base de conhecimento e as regras
+# A Base de Conhecimento e as Regras
+%%%
+tag := "engine-knowledge-base"
+%%%
 
 Nossa aplicação é uma extensão ligeira da lógica aristotélica, pois consideramos
 o caso em que há toda uma base de conhecimento de premissas possíveis, em vez de
@@ -177,7 +183,10 @@ A ⟹ A            ────────────────────�
                        A ⇏ não-A
 ```
 
-# O motor
+# O Motor
+%%%
+tag := "engine-core"
+%%%
 
 A implementação usa listas de pares para relações. A *seção à direita* de uma
 relação num ponto dá tudo que se relaciona com ele.
@@ -323,7 +332,10 @@ def tellAbout (kb : KB) (a : Class) : List Statement :=
 ["All greeks are humans.", "All greeks are mortals.", "Some greeks are philosophers."]
 ```
 
-# A interface em língua natural
+# A Interface em Língua Natural
+%%%
+tag := "engine-interface"
+%%%
 
 Falta ligar o motor à língua. São três peças: reconhecer uma sentença escrita,
 incorporá-la à base, e responder a uma pergunta.
@@ -540,7 +552,10 @@ example :
 
 ::::
 
-# A validade dos silogismos, demonstrada
+# A Prova da Validade dos Silogismos
+%%%
+tag := "engine-validity"
+%%%
 
 O motor acima *decide* se uma conclusão se segue de uma base: ele responde `true`
 ou `false`, e a resposta se confere rodando. Mas a validade de um silogismo é uma

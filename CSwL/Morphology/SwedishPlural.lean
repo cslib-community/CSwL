@@ -7,7 +7,7 @@ open CSwLMeta
 
 #doc (Manual) "Plural do Sueco" =>
 %%%
-tag := "SwedishPlural"
+tag := "morph-swedish"
 %%%
 
 ```lean

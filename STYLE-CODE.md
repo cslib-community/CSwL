@@ -173,15 +173,26 @@ block:
 ```
 #doc (Manual) "Title in Portuguese" =>
 %%%
-tag := "ChapterTag"
+tag := "prefix"
 htmlSplit := .never
-file := "ChapterTag"
+file := "ChapterFile"
 %%%
 ```
 
 Mnemonic names, never numbers — for files, tags, and exercise names alike.
 Material moves between chapters, and a number would be wrong the moment it
 did.
+
+Every chapter, section and subsection has a `tag`, at every heading level.
+Tags are lowercase, with `-` between words. A chapter's tag is a short
+prefix (`sets`, `mc`, `comp`), and the tag of every part below it starts with
+that prefix (`sets-relations`, `mc-fragment`). The tag then tells which
+chapter a section belongs to. The sections of `Logic` keep prefixes of their
+own (`proof-`, `pl-`, `fol-`). A section moved to another chapter takes the
+new chapter's prefix, and its `{cref}`s are updated with it. The tag is the
+anchor in the HTML, so renaming one breaks outside links to it. `file :=` is
+a different key: it names the page and the generated module, and follows the
+file name (`Sets`, `Logic/PL`).
 
 A short chapter is a single file (`CSwL/Sets.lean`). A chapter whose sections
 are long enough to deserve their own files is a "glue" file (`CSwL/Logic.lean`)
@@ -350,8 +361,9 @@ each gets its cues when it is next revised.
 - A tag that names neither a section nor an exercise, or both, fails the
   build. Exercise names must therefore be unique across the book, and must
   not coincide with a section tag.
-- Verso's `{ref "tag"}[texto]` still works for sections, but its text is
-  always hand-written and can drift from the title.
+- Verso's `{ref "tag"}[texto]` is not used in the book: its text is always
+  hand-written and can drift from the title. Every cross-reference is a
+  `{cref}`.
 
 ## Lean style
 

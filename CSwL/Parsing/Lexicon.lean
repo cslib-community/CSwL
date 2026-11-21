@@ -9,7 +9,7 @@ set_option verso.code.warnLineLength 100
 
 #doc (Manual) "Consulta ao Léxico e Análise Léxica" =>
 %%%
-tag := "lexicon-scanning"
+tag := "parsing-lexicon"
 file := "Lexicon"
 %%%
 
@@ -271,7 +271,7 @@ def verbs : List Cat :=
   duas orações. As palavras `if` e `then`, com os rótulos `COND` e
   `THEN`, também ligam orações.
 - O léxico registra mais do que o parser da seção
-  {ref "parsing-categories"}[Análise Sintática com Categorias] analisa.
+  {cref "parsing-categories"}[] analisa.
   Esse parser só tem a regra `S → NP VP`, então não aceita orações
   coordenadas nem condicionais. As entradas `CONJ`, `COND`, `THEN` e
   `REL` serão usadas por regras que vamos acrescentar depois.
@@ -291,7 +291,7 @@ Registramos também as palavras que conectam orações. A palavra
 recebem os rótulos `COND` e `THEN`. Essas palavras ligam orações
 dentro de uma mesma sentença: _Alice smiled and Dorothy laughed_
 é uma única sentença, com duas orações. O parser da seção
-{ref "parsing-categories"}[Análise Sintática com Categorias], porém,
+{cref "parsing-categories"}[], porém,
 só tem a regra `S → NP VP` e não aceita orações coordenadas
 nem condicionais. As entradas com os rótulos `CONJ`, `COND`, `THEN`
 e `REL` serão usadas por regras que acrescentaremos depois.

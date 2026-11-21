@@ -63,7 +63,7 @@ should not be locked out of the next chapter.
 **Prefer naming a chapter over naming a position.** "O capítulo anterior",
 "mais adiante", "já vimos" are true only of one arrangement, and material
 moves between chapters — that is why nothing in this book is numbered. A
-`{ref "Tag"}[…]` survives a reorder; "the previous chapter" silently becomes
+`{cref "tag"}[]` survives a reorder; "the previous chapter" silently becomes
 false.
 
 **Prefer `{cref "tag"}[]` for cross-references.** It links to a section or
@@ -84,7 +84,7 @@ capítulo anterior | capítulos anteriores | próximo capítulo |
 no capítulo seguinte | adiante | mais adiante | já vimos | vimos no | visto no
 ```
 
-plus every `{ref "…"}`, whose target still resolves but may now be so far away
+plus every `{cref "…"}`, whose target still resolves but may now be so far away
 that the sentence around it stops making sense.
 
 ## Writing advice
@@ -202,8 +202,12 @@ writing pedagogical material.
 - Titles of chapters, sections and subsections are capitalized: every word
   takes a capital except articles, prepositions and conjunctions, which stay
   in lowercase unless they open the title ("A Visão Relacional dos
-  Quantificadores", "Parsers e Combinadores de Parsers"). The text of a
-  `{ref "…"}[…]` that quotes a title follows the title.
+  Quantificadores", "Parsers e Combinadores de Parsers"). A
+  `{cref "…"}[]` copies the title into the running text, so the title must
+  read well there too.
+- Titles are noun phrases, without verbs: "A Interpretação dos Símbolos",
+  not "Interpretando os Símbolos"; "A Extensão da Gramática", not "Estender
+  uma Gramática". Nor are they questions.
 - Every sentence starts with a capital letter. If a sentence would open with a
   lowercase Lean identifier, rephrase it — `Nat.add` may open a sentence,
   `omega` may not.

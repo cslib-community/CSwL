@@ -5,7 +5,7 @@ import CSwL.Composition.TypedMeanings
 open Verso.Genre Manual
 open CSwLMeta
 
-#doc (Manual) "Implementando a Interpretação Semântica" =>
+#doc (Manual) "A Implementação da Interpretação Semântica" =>
 %%%
 tag := "comp-interpretation"
 file := "Interpretation"
@@ -25,7 +25,7 @@ open ModelChecking
 - Há uma função para cada categoria, com o tipo da categoria. Elas começam pelo
   *léxico*: cada palavra ganha o seu significado no modelo.
 - *Some* e *a* têm a mesma interpretação. Os adjetivos e *caught* não são
-  interpretados no modelo, como em {cref "ModelChecking"}[]: são
+  interpretados no modelo, como em {cref "mc"}[]: são
   falsos para todos.
 :::
 
@@ -42,7 +42,7 @@ relação. Os determinantes recebem as funções já definidas; em particular, *
 e *a* têm a mesma interpretação.
 
 O modelo não fornece interpretações para os adjetivos nem para *caught*. Como em
-{cref "ModelChecking"}[],
+{cref "mc"}[],
 atribuímos a eles propriedades ou relações que são falsas para todos os
 argumentos.
 ::::
@@ -177,7 +177,7 @@ example :
 
 :::terse
 - {name}`sent1` é a árvore de *The dwarf that Snow White helped admired every
-  princess*, de {cref "ModelChecking"}[].
+  princess*, de {cref "mc"}[].
 - Lá, a sentença era traduzida para uma fórmula, e a fórmula avaliada no modelo.
   Aqui não há fórmula: a interpretação consulta o modelo diretamente.
 - Os dois caminhos dão o mesmo valor. `sentences` gera trinta e duas sentenças
@@ -221,7 +221,7 @@ open FOL in
 
 :::terse
 - *Most* não tem tradução na lógica de primeira ordem, e por isso ficou fora de
-  {name}`DET` em {cref "ModelChecking"}[]. Na interpretação direta
+  {name}`DET` em {cref "mc"}[]. Na interpretação direta
   ele é uma função como as outras: compara quantos `p` têm `q` com quantos não
   têm.
 - Sem mexer na gramática, ele entra pelas regras semânticas: *Most girls

@@ -18,14 +18,14 @@ open ModelChecking
 ```
 
 :::terse
-- Cada regra da gramática de {cref "ModelChecking"}[] ganha uma
+- Cada regra da gramática de {cref "mc"}[] ganha uma
   regra semântica: como o significado do todo se constrói a partir dos
   significados das partes. Escrevemos `⟦X⟧` para o significado de `X`.
 - Os significados vivem na *lógica tipada*. Há dois tipos básicos, `e` para
   entidades e `t` para valores de verdade, e os tipos de função
   $`\tau_1 \to \tau_2`.
 - Em Lean, `e` é {name}`Entity` e $`t` é {name}`Bool`, e os termos da lógica
-  tipada são funções do Lean, como em {cref "lambda"}[].
+  tipada são funções do Lean, como em {cref "lean-lambda"}[].
 - O tipo de cada categoria:
   - `S`: {name}`Bool`;
   - {name}`CN`, {name}`RCN` e {name}`VP`: `Entity → Bool`, isto é,
@@ -37,7 +37,7 @@ open ModelChecking
 
 ::::full
 Cada regra sintática da gramática de
-{cref "ModelChecking"}[]
+{cref "mc"}[]
 recebe uma regra semântica que combina os significados de seus constituintes.
 Escrevemos `⟦X⟧` para o significado de uma expressão `X`. Para saber quais
 combinações fazem sentido, atribuímos tipos a esses significados.
@@ -45,7 +45,7 @@ combinações fazem sentido, atribuímos tipos a esses significados.
 A lógica tipada usa dois tipos básicos, `e` para entidades e `t` para valores de
 verdade, e forma novos tipos de função a partir deles. Aqui, eles são
 representados por {name}`Entity` e {name}`Bool`. As expressões dessa lógica são
-funções do Lean, como em {cref "lambda"}[].
+funções do Lean, como em {cref "lean-lambda"}[].
 
 Uma sentença, de categoria `S`, tem significado de tipo {name}`Bool`. Um
 substantivo comum, um substantivo com modificadores ou um sintagma verbal, de

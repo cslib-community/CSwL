@@ -11,7 +11,7 @@ set_option verso.code.warnLineLength 100
 
 #doc (Manual) "Provas em Lean" =>
 %%%
-tag := "Proof"
+tag := "proof"
 file := "Proof"
 %%%
 
@@ -23,7 +23,10 @@ Supomos conhecida a lógica proposicional e a de predicados — sintaxe, semânt
 namespace Proof
 ```
 
-# O tipo {lean}`Prop` e Provas
+# O Tipo {lean}`Prop` e Provas
+%%%
+tag := "proof-prop"
+%%%
 
 O que diferencia Lean de outras linguagens como Python ou Java, é a capacidade de usarmos a mesma linguagem para programar funções e escrever provas sobre estas funções.
 
@@ -39,7 +42,7 @@ open IntroL in
 #check square₁ 12 = 2
 ```
 
-Em Lean, proposições são tipos e provas são termos desses tipos. Ou seja, provar algo é exatamente o mesmo ato de construir um valor em `Prop`. Por isso a forma mais direta de provar é escrever o termo à mão, do mesmo jeito que definimos qualquer função. Provar `1 = 1` é exibir um termo de tipo `1 = 1`, exatamente o que o construtor {name}`refl` do tipo {lean}`Eq` faz abaixo. Este tipo representa a relação de igualdade. Podemos notar que declarar um teorema é muito parecido com declarar uma função, como vimos em {ref "IntroL"}[IntroL].
+Em Lean, proposições são tipos e provas são termos desses tipos. Ou seja, provar algo é exatamente o mesmo ato de construir um valor em `Prop`. Por isso a forma mais direta de provar é escrever o termo à mão, do mesmo jeito que definimos qualquer função. Provar `1 = 1` é exibir um termo de tipo `1 = 1`, exatamente o que o construtor {name}`refl` do tipo {lean}`Eq` faz abaixo. Este tipo representa a relação de igualdade. Podemos notar que declarar um teorema é muito parecido com declarar uma função, como vimos no capítulo {cref "lean"}[].
 
 ```lean
 theorem OneEqSelf : 1 = 1 := Eq.refl 1
@@ -77,7 +80,7 @@ example (x q : Nat) : 37 * x + q = 37 * x + q :=
 
 # Lógica Proposicional em Lean
 %%%
-tag := "pl-lean"
+tag := "proof-pl"
 %%%
 
 ```lean
@@ -437,9 +440,9 @@ end Dresses
 end PL
 ```
 
-# As regras dos Quantificadores em Lean
+# As Regras dos Quantificadores em Lean
 %%%
-tag := "quantificadores-lean"
+tag := "proof-quantifiers"
 %%%
 
 O tipo {lean}`Prop` não está limitado ao raciocínio proposicional; ele também nos permite representar proposições da lógica de primeira ordem. Como vimos, o Lean é fundamentado na teoria dos tipos, na qual toda variável pertence a algum tipo. Podemos entender um tipo como o "universo" ou "domínio de discurso" da lógica formal. No entanto, como veremos, há uma diferença importante: enquanto a lógica de primeira ordem clássica exige que o domínio de interpretação seja sempre um conjunto não-vazio, em Lean um tipo não precisa ser necessariamente habitado.
@@ -532,7 +535,7 @@ end FOL
 
 # Argumentos Inválidos e Contraexemplos
 %%%
-tag := "counterexamples"
+tag := "proof-counterexamples"
 %%%
 
 Considere o argumento: "se chover, a rua fica molhada. A rua está molhada. Logo, choveu."
@@ -577,7 +580,7 @@ A tática {tactic}`trivial` tenta fechar o goal com algumas outras táticas e te
 
 # Provas por Indução
 %%%
-tag := "induction"
+tag := "proof-induction"
 %%%
 
 Uma das ferramentas fundamentais no Lean é a tática {tactic}`induction`. Em vez de provar uma propriedade para elementos individuais, ela permite demonstrar que uma afirmação é válida para todos os valores de um tipo indutivo (como os `Nat`).
@@ -594,7 +597,7 @@ example (n : Nat) : n + 0 = n := by
 
 # Extensionalidade de Funções
 %%%
-tag := "funext"
+tag := "proof-funext"
 %%%
 
 Uma função pode ser compreendida sob duas perspectivas. Na perspectiva extensional, a função é vista como uma relação ou tabela de mapeamento — o conjunto de todos os pares de entrada e saída, como a tabela `{(0, 32), (100, 212), ...}`. Na perspectiva intensional, a função é o próprio algoritmo ou instrução que calcula a saída a partir da entrada, como a expressão {lean}`λ x ↦ x * 9 / 5 + 32`, uma "receita" que gera a tabela sem precisar enumerá-la.
@@ -613,7 +616,7 @@ example : double₁ = double₂ := by
 
 # Outras Táticas
 %%%
-tag := "tactics"
+tag := "proof-tactics"
 %%%
 
 No Lean, as táticas {tactic}`decide` e {tactic}`native_decide` têm a mesma ideia básica. São usadas para provar uma proposição por computação, como existe uma instância {name}`Decidable`. Mas executam essa computação de formas diferentes. A {tactic}`decide` executa dentro do próprio kernel do Lean. É simples e totalmente baseada na redução dos termos para formas normais do Lean, mas pode ser lenta para computações grandes. A {tactic}`native_decide` faz a mesma decisão, porém compila a computação para código nativo antes de executá-la.

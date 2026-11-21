@@ -4,9 +4,9 @@ import Bib
 open Verso.Genre Manual
 open CSwLMeta
 
-#doc (Manual) "O estudo formal da língua natural" =>
+#doc (Manual) "O Estudo Formal da Língua Natural" =>
 %%%
-tag := "IntroCS"
+tag := "cs"
 htmlSplit := .never
 file := "IntroCS"
 %%%
@@ -29,7 +29,10 @@ para a semântica computacional e com uma visão geral do restante do livro.
 namespace IntroCS
 ```
 
-# O estudo da língua natural
+# O Estudo da Língua Natural
+%%%
+tag := "cs-study"
+%%%
 
 A língua é uma das capacidades mais notáveis do ser humano e um dos traços
 distintivos que nos separam dos demais habitantes deste planeta. As línguas
@@ -103,7 +106,10 @@ categoria, e determinar sua estrutura interna. A estrutura, por sua vez, ajudar�
 a relacionar as formas linguísticas com o mundo extralinguístico (aquilo de que
 elas tratam).
 
-# Sintaxe, semântica e pragmática
+# Sintaxe, Semântica e Pragmática
+%%%
+tag := "cs-syntax-semantics"
+%%%
 
 Uma tricotomia básica no estudo da língua é a que se faz entre sintaxe,
 semântica e pragmática. Grosso modo, a sintaxe diz respeito ao aspecto de forma
@@ -189,7 +195,10 @@ sua professora, a senhorita Sullivan:
 >
 > {citep Bib.keller1902}[p. 34]
 
-## Saber "que" e "como"
+## Significado Operacional e Significado Denotacional
+%%%
+tag := "cs-operational-denotational"
+%%%
 
 As explicações de significado caem em duas classes amplas: significado como
 _saber como_ e significado como _saber que_. Se dizemos que Joãozinho não sabe o
@@ -242,7 +251,10 @@ como se lê uma fotografia do destino no começo da viagem: se despertar
 curiosidade, cumpriu seu papel; se não disser nada por enquanto, siga em frente
 sem preocupação.
 
-# Os propósitos da comunicação
+# Os Propósitos da Comunicação
+%%%
+tag := "cs-purposes"
+%%%
 
 O objetivo mais elevado da comunicação é usar a língua como instrumento para a
 busca coletiva da verdade. Mas a língua é também um instrumento para fazer seus
@@ -360,7 +372,10 @@ nosso relato impõe restrições sobre a aparência que os processos cognitivos
 reais podem ter. No resto deste capítulo, vamos explorar os meios que nos
 ajudarão a cumprir esse objetivo.
 
-# Línguas naturais e línguas formais
+# Línguas Naturais e Línguas Formais
+%%%
+tag := "cs-natural-formal"
+%%%
 
 O inglês, o sueco, o russo e o híndi são línguas naturais. A linguagem da
 aritmética do ensino fundamental, a linguagem da lógica proposicional e a
@@ -527,7 +542,10 @@ example : eval sevenPlusFive = eval twoTimesSix := by
   rfl -- ou simplesmente `rfl`
 ```
 
-# O que a semântica formal não é
+# Equívocos sobre a Semântica Formal
+%%%
+tag := "cs-misconceptions"
+%%%
 
 Um preconceito difundido contra a semântica formal para a língua natural é o de
 que ela não passa de um exercício de tipografia. Explica-se o significado de
@@ -591,7 +609,10 @@ está acostumado a ler coisas escritas em estilo formal, pode ter a sensação d
 que as explicações vão rápido demais. A culpa não é sua e, além disso, o remédio
 é fácil: basta lembrar-se de ir mais devagar.
 
-# Semântica computacional e programação funcional
+# Semântica Computacional e Programação Funcional
+%%%
+tag := "cs-functional"
+%%%
 
 A abordagem da semântica de língua natural propagada por Richard Montague — às
 vezes chamada de programa montagoviano — mostrou-se muito fecunda nas últimas
