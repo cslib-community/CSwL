@@ -8,7 +8,7 @@ open CSwLMeta
 
 #doc (Manual) "Parsers e Combinadores de Parsers" =>
 %%%
-tag := "parser-combinators"
+tag := "parsing-combinators"
 file := "Combinators"
 %%%
 
@@ -705,7 +705,7 @@ mesma entrada, antes de tentar reconhecer `a`, como ilustra
 recursiva aceitarem a entrada vazia.
 
 No reconhecedor por divisão da seção
-{cref "cf-recognition"}[],
+{cref "parsing-recognition"}[],
 os pedaços externos das regras recursivas têm um símbolo cada, o que
 permitia provar que as chamadas recursivas recebiam entradas menores. Existem
 combinadores de parsers que garantem a terminação e aceitam recursão à esquerda

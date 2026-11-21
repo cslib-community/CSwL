@@ -10,7 +10,7 @@ set_option verso.code.warnLineLength 100
 
 #doc (Manual) "Programação Funcional no Lean" =>
 %%%
-tag := "IntroL"
+tag := "lean"
 htmlSplit := .never
 file := "IntroL"
 %%%
@@ -22,6 +22,9 @@ namespace IntroL
 ```
 
 # Termos e Tipos
+%%%
+tag := "lean-terms-types"
+%%%
 
 Em Lean, um termo é uma expressão sintaticamente válida que representa um objeto e possui um tipo. Podemos pensar nos tipos como categorias que classificam os termos. Na matemática do dia a dia, escrever `1 ∈ 2` soa estranho. O símbolo `∈` significa "pertence a" ou "é elemento de" e espera um conjunto à sua direita, e normalmente não usamos o literal `2` para representar um conjunto. A disciplina de tipos de Lean nos permite formalizar este conhecimento intuitivo.
 
@@ -90,6 +93,9 @@ Tipos também são termos, e portanto têm tipo. O tipo de `true` é `Bool`, o t
 ```
 
 # Funções
+%%%
+tag := "lean-functions"
+%%%
 
 O tipo {lean}`Nat → Nat` representa todas as funções que recebem um número natural e devolvem um número natural. O termo {lean}`fun x : Nat => x * x` é uma particular função deste tipo. Ao aplicar o termo `12 : Nat`, temos o `144 : Nat` como resposta. Ao invés de `fun` podemos usar o unicode `λ` e ao invés de `=>` podemos usar o unicode `↦`, sempre que possível preferimos usar os símbolos unicode.
 
@@ -152,7 +158,7 @@ Conferir o tipo de uma expressão não demanda computar a expressão, logo o com
 #check g a
 ```
 
-Os exercícios deste capítulo vêm com *testes* escritos como teoremas simples. Um `example` enuncia uma afirmação sem lhe dar nome; o que vem depois do `:=` é a justificativa. A tática `rfl` fecha uma igualdade quando os dois lados *calculam* o mesmo valor — é o que confere se a definição pedida faz o que se pediu. Um `theorem` é um `example` com nome, e o nome serve para que o enunciado possa ser referenciado depois, possivelmente na prova de outro teorema.  Aqui esses três recursos aparecem só como ferramenta de teste. O que significa provar em Lean, e como se constrói uma prova que {tactic}`rfl` não fecha sozinha, é o assunto da seção {cref "Proof"}[].
+Os exercícios deste capítulo vêm com *testes* escritos como teoremas simples. Um `example` enuncia uma afirmação sem lhe dar nome; o que vem depois do `:=` é a justificativa. A tática `rfl` fecha uma igualdade quando os dois lados *calculam* o mesmo valor — é o que confere se a definição pedida faz o que se pediu. Um `theorem` é um `example` com nome, e o nome serve para que o enunciado possa ser referenciado depois, possivelmente na prova de outro teorema.  Aqui esses três recursos aparecem só como ferramenta de teste. O que significa provar em Lean, e como se constrói uma prova que {tactic}`rfl` não fecha sozinha, é o assunto da seção {cref "proof"}[].
 
 ::::exercise (rating := 1) (name := "sum-of-squares")
 Defina `sumOfSquares` que recebe dois naturais e devolve `m² + n²`. Para fechar o exemplo, use `rfl`.
@@ -220,7 +226,7 @@ def h₂ (x : Nat) : (Nat → Nat) :=
 
 # Expressões
 %%%
-tag := "expressions"
+tag := "lean-expressions"
 %%%
 
 Uma _expressão_ é  uma construção sintática da linguagem. Toda expressão é um termo. Um _termo canônico_ é um termo que já está na forma final de sua computação, não podendo ser reduzido. Construções sintáticas que normalmente não tem valor em linguagens imperativas, também são termos em Lean.
@@ -243,7 +249,7 @@ O `if-then-else` também é expressão. Os dois ramos têm de ter o mesmo tipo. 
 
 # Estruturas
 %%%
-tag := "structures"
+tag := "lean-structures"
 %%%
 
 Uma `structure` agrupa vários valores num só, dando nome a cada campo. `Point` tem dois campos, `x` e `y`, ambos `Float`. E a estrutura introduz um novo tipo chamado `Point` e um `namespace` de mesmo nome.
@@ -297,7 +303,7 @@ def scaleX (p : Point) (factor : Float) : Point :=
 
 # Tipos Indutivos
 %%%
-tag := "tipos-indutivos"
+tag := "lean-inductive"
 %%%
 
 A palavra-chave `inductive` declara um tipo listando as formas que seus valores podem ter. Essa é a construção mais importante do curso. Como veremos nos capítulos a seguir, uma gramática escrita na Forma de Backus-Naur (BNF) é formalizada como um tipo `inductive`.
@@ -308,7 +314,7 @@ Quando nenhuma forma carrega argumento, o tipo é uma enumeração. O tipo {lean
 #print Bool
 ```
 
-Outro exemplo muito comum é dado abaixo, o final `deriving Repr` pede que Lean gere automaticamente uma instância da classe {lean}`Repr` para `Day`, vide a seção {cref "classes"}[], para exibição dos valores do tipo.
+Outro exemplo muito comum é dado abaixo, o final `deriving Repr` pede que Lean gere automaticamente uma instância da classe {lean}`Repr` para `Day`, vide a seção {cref "lean-classes"}[], para exibição dos valores do tipo.
 
 ```lean
 inductive Day where
@@ -337,6 +343,9 @@ example : 2 = Nat.succ (Nat.succ Nat.zero) := rfl
 Além dos construtores poderem ter parâmetros, um tipo indutivo também pode ser parametrizado por outro tipo, exemplos serão vistos nos capítulos seguintes.
 
 # Casamento de Padrões, Recursão e Tipos Indutivos
+%%%
+tag := "lean-pattern-matching"
+%%%
 
 A forma mais natural em Lean de escrevermos funções para manipular tipos indutivos é via casamento de padrões (_pattern matching_). Na função abaixo, o operador `match` faz o casamento do parâmetro `d` do tipo {name}`Day`. As equações `| ... => ...` devem cobrir todos os possíveis construtores do tipo  {lean}`Day`, devem ser exaustivas. Abaixo, a última equação usa o _underscore_ como um coringa, para indicar qualquer outro construtor diferente dos usados nas equações acima, cobrindo assim todos os 7 construtores de {name}`Day` {citep Bib.LLR}[Pattern Matching].
 
@@ -415,6 +424,9 @@ theorem sumTo_test : sumTo 4 = 10 := solution!(by rfl)
 ::::
 
 # Listas e Polimorfismo
+%%%
+tag := "lean-polymorphism"
+%%%
 
 `List α` é o tipo das listas de elementos do tipo `α`, e é um tipo indutivo como os da seção anterior: uma lista é vazia, `[]` (`List.nil`), ou é um elemento seguido de uma lista, `x :: xs` (`List.cons`). Nada mais é uma lista.
 
@@ -464,6 +476,9 @@ theorem countZeros_test : countZeros [0, 1, 0, 2, 0] = 3 :=
 ::::
 
 # O Tipo {lean}`Option`
+%%%
+tag := "lean-option"
+%%%
 
 Uma função de tipo `List α → α` promete devolver um elemento para qualquer lista que receba. Para a lista vazia não existe elemento nenhum, e a promessa é impossível.  A correção é no tipo, não no corpo: `List α → Option α` promete devolver _ou_ um elemento (`some x`) _ou_ nada (`none`). Quem chama fica obrigado a tratar os dois casos. O ganho é que o caso sem resposta deixa de ser invisível: ele está na assinatura, não pode ser ignorado.
 
@@ -488,7 +503,7 @@ Como alternativa ao retorno de um {lean}`Option`, algumas funções como {lean}`
 
 # Processamento de Listas
 %%%
-tag := "processamento-listas"
+tag := "lean-lists"
 %%%
 
 Algumas operações cobrem quase todo uso de lista no curso. Todas se escreveriam por recursão, como `size` acima, mas estas função de ordem superior simplificam nosso trabalho.
@@ -513,7 +528,7 @@ As funções {lean}`List.all` e {lean}`List.any` perguntam se _todos_ os element
 
 # Composição de Funções
 %%%
-tag := "composicao-funcoes"
+tag := "lean-composition"
 %%%
 
 E a composição: `f ∘ g` é a função que aplica `g` e depois `f`, de modo que `(f ∘ g) x` é `f (g x)`. Podemos compor duas conversões, de Kelvin para Celsius, depois de Celsius para Fahrenheit.
@@ -530,7 +545,7 @@ def kelvinToFahrenheit : Int → Int := celsiusToFahrenheit ∘ kelvinToCelsius
 
 # Classes de Tipos
 %%%
-tag := "classes"
+tag := "lean-classes"
 %%%
 
 Vamos definir uma função para contar as ocorrências de um valor de um tipo `α`, em qualquer lista de valores do tipo `α`. Para esta função, nossa única exigência é garantir que poderemos comparar valores do tipo `α`. Essa exigência entra na assinatura entre colchetes, `[BEq α]`. Isto significa que uma instância de igualdade para `α` deve estar disponível para o Lean encontrar no ponto de uso. Tente remover `[BEq α]` na definição abaixo, o erro irá aparecer no uso do operador `==`.
@@ -595,7 +610,7 @@ instance insReprDay : Repr Day where
 
 # Cadeias de Textos
 %%%
-tag := "strings"
+tag := "lean-strings"
 %%%
 
 `String` é uma sequência UTF-8 empacotada, não uma lista de caracteres. Isso a torna eficiente para guardar texto e inadequada para percorrer a cadeia. Não há padrão `c :: cs` para casar diretamente numa `String`. Mas podemos converter uma `String` em uma lista de caracteres e uma lista de caracteres em uma `String`.
@@ -623,7 +638,7 @@ def initS (s : String) : String :=
 
 # Lean e o Cálculo Lambda
 %%%
-tag := "lambda"
+tag := "lean-lambda"
 %%%
 
 No [cálculo lambda](https://en.wikipedia.org/wiki/Lambda_calculus) (LC) temos três formas de construir expressões. Usando a Forma de Backus-Naur (BNF) para representar a linguagem de LC.
@@ -661,7 +676,7 @@ def omega := (fun x => x x) (fun x => x x)
 
 No _cálculo lambda tipado_ (LCT) no qual Lean é baseado todo termo bem tipado tem forma normal, e a redução sempre termina. A contrapositiva é o que se observa aqui: um termo cuja redução não termina não pode ser bem tipado. É por isso que Lean pode ser ao mesmo tempo uma linguagem de programação e uma lógica consistente: a terminação é garantida pelos tipos. O preço é que Lean pode não conseguir determinar sozinho que uma função sempre termina, e nestes casos teremos que ajudar Lean fornecendo a prova de terminação.
 
-Para além dos tipos simples, em Lean, temos também os *tipos indutivos* (como apresentado), *tipos dependentes* (um tipo pode depender de um valor, como {lean}`Vector`), *proposições como tipos*, o tipo `Prop` como veremos na seção {cref "Proof"}[], e os *universos* de tipos {lean}`Type`, {lean}`Type 1`, e assim por diante, o que evita os paradoxos que apareceriam se tivéssemos um tipo de todos os tipos.
+Para além dos tipos simples, em Lean, temos também os *tipos indutivos* (como apresentado), *tipos dependentes* (um tipo pode depender de um valor, como {lean}`Vector`), *proposições como tipos*, o tipo `Prop` como veremos na seção {cref "proof"}[], e os *universos* de tipos {lean}`Type`, {lean}`Type 1`, e assim por diante, o que evita os paradoxos que apareceriam se tivéssemos um tipo de todos os tipos.
 
 
 ```lean

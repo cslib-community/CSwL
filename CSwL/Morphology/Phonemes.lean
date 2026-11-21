@@ -6,7 +6,7 @@ open CSwLMeta
 
 #doc (Manual) "A Representação de Fonemas" =>
 %%%
-tag := "Phonemes"
+tag := "morph-phonemes"
 %%%
 
 Vimos uma implementação simples da harmonia vocálica do finlandês por

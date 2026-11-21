@@ -9,7 +9,7 @@ set_option verso.code.warnLineLength 100
 
 #doc (Manual) "Consulta ao Léxico e Análise Léxica" =>
 %%%
-tag := "lexicon-scanning"
+tag := "parsing-lexicon"
 file := "Lexicon"
 %%%
 

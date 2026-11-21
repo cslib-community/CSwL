@@ -6,7 +6,7 @@ open CSwLMeta
 
 #doc (Manual) "Harmonia Vocálica do Finlandês" =>
 %%%
-tag := "FinnishVowelHarmony"
+tag := "morph-finnish"
 %%%
 
 ```lean

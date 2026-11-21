@@ -13,7 +13,7 @@ open CSwLMeta
 
 #doc (Manual) "Análise Sintática" =>
 %%%
-tag := "Parsing"
+tag := "parsing"
 file := "Parsing"
 %%%
 

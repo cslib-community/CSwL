@@ -14,12 +14,12 @@ open CSwLMeta
 
 #doc (Manual) "A Composição do Significado na Língua Natural" =>
 %%%
-tag := "Composition"
+tag := "comp"
 file := "Composition"
 %%%
 
 :::terse
-- Em {cref "ModelChecking"}[]
+- Em {cref "mc"}[]
   o caminho era indireto: sentença, depois fórmula, depois avaliação no modelo.
 - Agora o caminho é direto: cada expressão da língua é ligada ao modelo, sem
   fórmula intermediária.
@@ -30,7 +30,7 @@ file := "Composition"
 :::
 
 ::::full
-Em {cref "ModelChecking"}[],
+Em {cref "mc"}[],
 interpretamos as sentenças em duas etapas. Primeiro, construímos uma fórmula a
 partir da árvore sintática. Depois, avaliamos essa fórmula em um modelo. Neste
 capítulo, vamos construir os significados diretamente no modelo, compondo as

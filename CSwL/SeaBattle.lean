@@ -12,7 +12,7 @@ set_option verso.code.warnLineLength 80
 
 #doc (Manual) "Batalha Naval" =>
 %%%
-tag := "SeaBattle"
+tag := "battle"
 htmlSplit := .never
 file := "SeaBattle"
 %%%
@@ -20,6 +20,9 @@ file := "SeaBattle"
 Como definir uma língua — no sentido amplo: um conjunto de strings bem formadas — por meio de uma gramática. O exemplo é a linguagem de um jogo.
 
 # Sintaxe
+%%%
+tag := "battle-syntax"
+%%%
 
 Batalha naval é um jogo de tabuleiro de dois jogadores, no qual os jogadores têm de adivinhar em que quadrados estão os navios do oponente. O jogo pode ser jogado com uma comunicação bastante limitada entre os jogadores.
 
@@ -193,6 +196,9 @@ example : ¬ WellFormed badDerivation := by
 ```
 
 # Semântica
+%%%
+tag := "battle-semantics"
+%%%
 
 Dar semântica a Batalha Naval exige um modelo do que existe fora da linguagem — o estado do tabuleiro — e uma regra que ligue cada expressão da sintaxe a esse estado. Um estado do jogo é um tabuleiro com a posição dos navios marcada, mais o registro das células já atacadas até aquele ponto.
 
@@ -398,6 +404,9 @@ end Battleship
 ```
 
 # Pragmática
+%%%
+tag := "battle-pragmatics"
+%%%
 
 As definições da seção anterior para `hit`, `missed`, `defeated` e `sunk` seguem uma hierarquia entre as reações: todo ataque que termina uma partida (`defeated`) também é um ataque de afundamento (`sunk`), e todo ataque de afundamento também é um acerto (`hit`). Segue daí que a regra de jogo "reaja corretamente a um ataque" não determina, por si só, a reação apropriada em todos os casos. Pode haver mais de uma reação verdadeira ao mesmo tempo. Escolher entre elas não é questão de semântica — a semântica só diz quais reações são verdadeiras, não qual delas devemos usar. Regras de jogo desse tipo são assunto de pragmática.
 

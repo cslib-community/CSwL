@@ -15,7 +15,7 @@ open CSwLMeta
 
 #doc (Manual) "Conjuntos e Relações" =>
 %%%
-tag := "Sets"
+tag := "sets"
 htmlSplit := .never
 file := "Sets"
 %%%
@@ -31,6 +31,9 @@ open Set
 ```
 
 # Conjuntos e Notação de Conjuntos
+%%%
+tag := "sets-notation"
+%%%
 
 Um conjunto de elementos de `α` por sua função característica: a função
 que, dado um elemento, responde se ele pertence ao conjunto. Há duas
@@ -133,6 +136,9 @@ example : 3 ∈ above2 := by
 ```
 
 ## Aquecimento: Conjuntos com Nome
+%%%
+tag := "sets-named"
+%%%
 
 ```lean
 def above5 : Set Nat := {n | n > 5}
@@ -214,6 +220,9 @@ escrever a prova, não encontrá-los — mas vale procurar depois, para ver
 como as coisas se chamam.
 
 ## Mais Teoria dos Conjuntos
+%%%
+tag := "sets-theory"
+%%%
 
 ```lean
 section
@@ -352,6 +361,9 @@ end
 ::::
 
 ### Cálculo ou Enunciado
+%%%
+tag := "sets-compute-state"
+%%%
 
 `α → Prop` enuncia a pertinência. Existe também `α → Bool`, que a
 calcula, e é o que se usa quando o conjunto é finito e a resposta tem
@@ -429,9 +441,12 @@ Vale reparar no que acabou de acontecer. `Even 4` é uma afirmação, não
 um programa; ainda assim o `#eval` respondeu `true`. Há um mecanismo por
 trás disso, que registra quais afirmações admitem esse cálculo e como
 fazê-lo — e ele é uma classe de tipos, como o `BEq` e o `DecidableEq` de
-{cref "IntroL"}[]. A classe se chama `Decidable`.
+{cref "lean"}[]. A classe se chama `Decidable`.
 
 # Relações
+%%%
+tag := "sets-relations"
+%%%
 
 Um conjunto representa a função que responde se um elemento pertence.
 Uma relação binária faz o mesmo com _pares_: é a função que, dados dois
@@ -473,6 +488,9 @@ likesR : Entity → Entity → Prop
 ```
 
 ## Inversa
+%%%
+tag := "sets-inverse"
+%%%
 
 A inversa de uma relação troca a ordem dos argumentos, e é `flip` quem
 faz isso. Em língua, é o que a voz passiva faz: _Dorothy likes Toto_ e
@@ -493,6 +511,9 @@ example :
 ```
 
 ## Composição
+%%%
+tag := "sets-composition"
+%%%
 
 Compor duas relações é encadeá-las por um elemento intermediário: `R`
 composta com `S` relaciona `x` a `z` quando existe um `y` com `x R y` e
@@ -508,6 +529,9 @@ example : Relation.Comp likesR likesR .dorothy .dorothy :=
 ```
 
 ## Propriedades
+%%%
+tag := "sets-properties"
+%%%
 
 Reflexividade, simetria e transitividade se enunciam com quantificador e
 conectivo, e são afirmações sobre a relação inteira — não sobre um par.
@@ -548,6 +572,9 @@ example :
 ```
 
 ## Cálculo ou Enunciado com Relações
+%%%
+tag := "sets-relations-compute-state"
+%%%
 
 Vale a mesma escolha da seção de conjuntos. A divisibilidade vem na
 biblioteca na versão que enuncia — `m ∣ n` afirma que existe um fator
@@ -770,6 +797,9 @@ theorem counterexample_different :
 ::::
 
 # Funções
+%%%
+tag := "sets-functions"
+%%%
 
 Funções já apareceram — o capítulo sobre Lean as apresentou como tipo
 primitivo, `α → β`. O que se acrescenta aqui é a ligação com as relações:
@@ -781,6 +811,9 @@ entidades diferentes. Uma função é o caso particular em que a resposta é
 "algum `b` tal que `(x, b) ∈ f`".
 
 ## Função Característica
+%%%
+tag := "sets-characteristic"
+%%%
 
 Toda relação, vista como conjunto de pares, tem uma função
 característica: a função que decide se um par está nela. Reaproveitando

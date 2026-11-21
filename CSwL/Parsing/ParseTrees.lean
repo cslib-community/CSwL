@@ -8,7 +8,7 @@ set_option verso.code.warnLineLength 100
 
 #doc (Manual) "Árvores Sintáticas" =>
 %%%
-tag := "parse-trees"
+tag := "parsing-trees"
 file := "ParseTrees"
 %%%
 

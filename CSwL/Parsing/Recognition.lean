@@ -9,7 +9,7 @@ open CSwLMeta
 
 #doc (Manual) "Reconhecimento e Análise de Linguagens Livres de Contexto" =>
 %%%
-tag := "cf-recognition"
+tag := "parsing-recognition"
 file := "Recognition"
 %%%
 

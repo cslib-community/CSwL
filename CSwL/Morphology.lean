@@ -19,7 +19,7 @@ open Verso Genre Manual
 -- Lean apresentado em `IntroL` a fenômenos linguísticos concretos.
 #doc (Manual) "Morfologia" =>
 %%%
-tag := "Morphology"
+tag := "morph"
 htmlSplit := .never
 file := "Morphology"
 %%%

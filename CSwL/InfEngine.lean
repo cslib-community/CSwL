@@ -7,7 +7,7 @@ open CSwLMeta
 
 #doc (Manual) "Um Motor de Inferência" =>
 %%%
-tag := "InfEngine"
+tag := "engine"
 htmlSplit := .never
 file := "InfEngine"
 %%%
@@ -65,6 +65,9 @@ tomados como implicando que há A. Sob essa suposição, as expressões da arest
 superior implicam as imediatamente abaixo delas.
 
 # Uma Língua sobre Classes
+%%%
+tag := "engine-language"
+%%%
 
 A gramática é um fragmento minúsculo para perguntar e afirmar coisas sobre
 classes:
@@ -130,6 +133,9 @@ instance : ToString Statement := ⟨Statement.toStringImpl⟩
 ```
 
 # A Base de Conhecimento e as Regras
+%%%
+tag := "engine-knowledge-base"
+%%%
 
 Nossa aplicação é uma extensão ligeira da lógica aristotélica, pois consideramos
 o caso em que há toda uma base de conhecimento de premissas possíveis, em vez de
@@ -178,6 +184,9 @@ A ⟹ A            ────────────────────�
 ```
 
 # O Motor
+%%%
+tag := "engine-core"
+%%%
 
 A implementação usa listas de pares para relações. A *seção à direita* de uma
 relação num ponto dá tudo que se relaciona com ele.
@@ -324,6 +333,9 @@ def tellAbout (kb : KB) (a : Class) : List Statement :=
 ```
 
 # A Interface em Língua Natural
+%%%
+tag := "engine-interface"
+%%%
 
 Falta ligar o motor à língua. São três peças: reconhecer uma sentença escrita,
 incorporá-la à base, e responder a uma pergunta.
@@ -541,6 +553,9 @@ example :
 ::::
 
 # A Prova da Validade dos Silogismos
+%%%
+tag := "engine-validity"
+%%%
 
 O motor acima *decide* se uma conclusão se segue de uma base: ele responde `true`
 ou `false`, e a resposta se confere rodando. Mas a validade de um silogismo é uma
