@@ -1072,7 +1072,7 @@ theorem eval_iff_denote_fairy (I : Interp Entity)
     (liftAssign fintFairy) g f
 ```
 
-O teorema diz que a avaliação de uma fórmula devolve {lean}`true` se e somente se a proposição dada por {name}`FOL.Formula.denote` vale. Em particular, no exercício {cref "check-sentence"}[] vimos que {name}`checkSentence` devolve {lean}`true` exatamente quando a forma lógica da sentença é verdadeira nesta estrutura. Mas no capítulo {cref "FOL"}[], vimos que nenhuma lista finita contém todos os números naturais.
+O teorema diz que a avaliação de uma fórmula devolve {lean}`true` se e somente se a proposição dada por {name}`FOL.Formula.denote` vale. Em particular, no exercício {cref "check-sentence"}[] vimos que {name}`checkSentence` devolve {lean}`true` exatamente quando a forma lógica da sentença é verdadeira nesta estrutura. Mas na seção {cref "FOL"}[], vimos que nenhuma lista finita contém todos os números naturais.
 
 ::::exercise (rating := 2) (name := "help-model")
 Até aqui a estrutura estava dada e perguntávamos que sentenças são verdadeiras nela. Agora o caminho é o inverso. A interpretação `intHelp h` coincide com `intFairy` em tudo, exceto em *help*, que passa a ser interpretado pela relação `h`. A função `holdsWithHelp h` avalia uma sentença na estrutura com essa interpretação.
