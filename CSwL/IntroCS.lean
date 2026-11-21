@@ -195,9 +195,9 @@ sua professora, a senhorita Sullivan:
 >
 > {citep Bib.keller1902}[p. 34]
 
-## O Saber "que" e o Saber "como"
+## Significado Operacional e Significado Denotacional
 %%%
-tag := "cs-knowing"
+tag := "cs-operational-denotational"
 %%%
 
 As explicações de significado caem em duas classes amplas: significado como

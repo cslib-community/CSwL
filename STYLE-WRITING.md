@@ -202,8 +202,7 @@ writing pedagogical material.
 - Titles of chapters, sections and subsections are capitalized: every word
   takes a capital except articles, prepositions and conjunctions, which stay
   in lowercase unless they open the title ("A Visão Relacional dos
-  Quantificadores", "Parsers e Combinadores de Parsers"). Words quoted in a
-  title keep their own case (O Saber "que" e o Saber "como"). A
+  Quantificadores", "Parsers e Combinadores de Parsers"). A
   `{cref "…"}[]` copies the title into the running text, so the title must
   read well there too.
 - Titles are noun phrases, without verbs: "A Interpretação dos Símbolos",
