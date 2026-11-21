@@ -4,7 +4,7 @@ import Bib
 open Verso.Genre Manual
 open CSwLMeta
 
-#doc (Manual) "Harmonia vocálica do finlandês" =>
+#doc (Manual) "Harmonia Vocálica do Finlandês" =>
 %%%
 tag := "FinnishVowelHarmony"
 %%%

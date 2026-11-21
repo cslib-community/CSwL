@@ -28,7 +28,7 @@ set_option verso.code.warnLineLength 80
 -- The book is only built from here, in the four variants of
 -- `make all`/`Makefile`.
 
-#doc (Manual) "Semântica computacional com Lean" =>
+#doc (Manual) "Semântica Computacional com Lean" =>
 {include CSwL.IntroCS}
 {include CSwL.IntroL}
 {include CSwL.Logic}

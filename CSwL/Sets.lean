@@ -30,7 +30,7 @@ namespace Sets
 open Set
 ```
 
-# Conjuntos e notação de conjuntos
+# Conjuntos e Notação de Conjuntos
 
 Um conjunto de elementos de `α` por sua função característica: a função
 que, dado um elemento, responde se ele pertence ao conjunto. Há duas
@@ -132,7 +132,7 @@ example : 3 ∈ above2 := by
   decide
 ```
 
-## Aquecimento: conjuntos com nome
+## Aquecimento: Conjuntos com Nome
 
 ```lean
 def above5 : Set Nat := {n | n > 5}
@@ -213,7 +213,7 @@ A Mathlib {citep Bib.mathlib2020}[] tem esses dois últimos prontos, com os nome
 escrever a prova, não encontrá-los — mas vale procurar depois, para ver
 como as coisas se chamam.
 
-## Mais teoria dos conjuntos
+## Mais Teoria dos Conjuntos
 
 ```lean
 section
@@ -351,7 +351,7 @@ end
 
 ::::
 
-### Calcular ou enunciar
+### Calcular ou Enunciar
 
 `α → Prop` enuncia a pertinência. Existe também `α → Bool`, que a
 calcula, e é o que se usa quando o conjunto é finito e a resposta tem
@@ -547,7 +547,7 @@ example :
   eq_equivalence
 ```
 
-## Calcular ou enunciar, outra vez
+## Calcular ou Enunciar, Outra Vez
 
 Vale a mesma escolha da seção de conjuntos. A divisibilidade vem na
 biblioteca na versão que enuncia — `m ∣ n` afirma que existe um fator
@@ -780,7 +780,7 @@ entidades diferentes. Uma função é o caso particular em que a resposta é
 única, e é justamente essa unicidade que permite escrever `f x` em vez de
 "algum `b` tal que `(x, b) ∈ f`".
 
-## Função característica
+## Função Característica
 
 Toda relação, vista como conjunto de pares, tem uma função
 característica: a função que decide se um par está nela. Reaproveitando

@@ -463,7 +463,7 @@ theorem countZeros_test : countZeros [0, 1, 0, 2, 0] = 3 :=
 :::
 ::::
 
-# O tipo {lean}`Option`
+# O Tipo {lean}`Option`
 
 Uma função de tipo `List α → α` promete devolver um elemento para qualquer lista que receba. Para a lista vazia não existe elemento nenhum, e a promessa é impossível.  A correção é no tipo, não no corpo: `List α → Option α` promete devolver _ou_ um elemento (`some x`) _ou_ nada (`none`). Quem chama fica obrigado a tratar os dois casos. O ganho é que o caso sem resposta deixa de ser invisível: ele está na assinatura, não pode ser ignorado.
 

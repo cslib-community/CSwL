@@ -23,7 +23,7 @@ Supomos conhecida a lógica proposicional e a de predicados — sintaxe, semânt
 namespace Proof
 ```
 
-# O tipo {lean}`Prop` e Provas
+# O Tipo {lean}`Prop` e Provas
 
 O que diferencia Lean de outras linguagens como Python ou Java, é a capacidade de usarmos a mesma linguagem para programar funções e escrever provas sobre estas funções.
 
@@ -437,7 +437,7 @@ end Dresses
 end PL
 ```
 
-# As regras dos Quantificadores em Lean
+# As Regras dos Quantificadores em Lean
 %%%
 tag := "quantificadores-lean"
 %%%
