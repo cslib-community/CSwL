@@ -18,7 +18,7 @@ namespace ModelChecking
 
 Nas linguagens formais construídas artificialmente, como a lógica proposicional e a lógica de predicados, as regras de formação de fórmulas são perfeitamente estritas, unívocas e livres de ambiguidade. A língua natural humana, por outro lado, é rica e expressiva, mas repleta de nuances estruturais. Para que um computador possa manipular e verificar sentenças em inglês, precisamos construir uma ponte entre a gramática das línguas humanas e a precisão da lógica formal.
 
-Este capítulo constrói o pipeline clássico da semântica computacional para um fragmento do inglês. Primeiro, em {ref "english-fragment"}[Um Fragmento do Inglês], especificamos a sintaxe do fragmento por meio de uma gramática livre de contexto, implementada em Lean como tipos indutivos que representam diretamente árvores de análise sintática. Em seguida, em {ref "english-lf"}[FOL como Linguagem de Representação], traduzimos essas árvores sintáticas para fórmulas da lógica de primeira ordem, guiados pelo princípio da composicionalidade e por ferramentas do cálculo lambda. Por fim, em {ref "english-model"}[Uma Estrutura de Primeira Ordem], avaliamos as fórmulas obtidas em um modelo concreto, conectando sentenças sobre um micromundo ficcional aos seus valores de verdade. Decidir se uma fórmula é verdadeira em uma estrutura dada é o que se chama _verificação de modelos_ (_model checking_), e é isso que dá nome ao capítulo.
+Este capítulo constrói o pipeline clássico da semântica computacional para um fragmento do inglês. Primeiro, em {cref "english-fragment"}[], especificamos a sintaxe do fragmento por meio de uma gramática livre de contexto, implementada em Lean como tipos indutivos que representam diretamente árvores de análise sintática. Em seguida, em {cref "english-lf"}[], traduzimos essas árvores sintáticas para fórmulas da lógica de primeira ordem, guiados pelo princípio da composicionalidade e por ferramentas do cálculo lambda. Por fim, em {cref "english-model"}[], avaliamos as fórmulas obtidas em um modelo concreto, conectando sentenças sobre um micromundo ficcional aos seus valores de verdade. Decidir se uma fórmula é verdadeira em uma estrutura dada é o que se chama _verificação de modelos_ (_model checking_), e é isso que dá nome ao capítulo.
 
 
 # Formas Linguísticas e Traduções para Lógica
@@ -43,7 +43,7 @@ Contudo, ao dizermos _Every dwarf_, não estamos nos referindo a um anão em par
 
 Essa discrepância levou muitos lógicos do início do século XX a supor que a língua natural era inerentemente imperfeita ou enganosa. Contudo, a aplicação das ferramentas lógicas de abstração e redução do cálculo lambda permite ver que essa conclusão era injustificada.
 
-A chave para resolver esse impasse está em retomar o princípio da composicionalidade (visto em {ref "IntroCS"}[IntroCS]) sob a ótica do cálculo lambda (apresentado em {ref "lambda"}[IntroL]). Quando traduzimos a língua natural para uma lógica tipada, cada constituinte da oração corresponde a uma expressão funcional bem tipada. A combinação gramatical das palavras passa a refletir diretamente a aplicação de _funções aos seus argumentos_. A eliminação contextual das expressões quantificadas é simplesmente o resultado da computação dessas funções (a β-redução), e não uma falha estrutural da sentença original.
+A chave para resolver esse impasse está em retomar o princípio da composicionalidade (visto no capítulo {cref "IntroCS"}[]) sob a ótica do cálculo lambda (apresentado na seção {cref "lambda"}[]). Quando traduzimos a língua natural para uma lógica tipada, cada constituinte da oração corresponde a uma expressão funcional bem tipada. A combinação gramatical das palavras passa a refletir diretamente a aplicação de _funções aos seus argumentos_. A eliminação contextual das expressões quantificadas é simplesmente o resultado da computação dessas funções (a β-redução), e não uma falha estrutural da sentença original.
 
 Para ilustrar como o cálculo lambda harmoniza a análise lógica, considere a combinação de sujeitos e predicados:
 
@@ -60,7 +60,7 @@ Assim, tanto _Goldilocks laughed_ quanto _no one laughed_ combinam-se sintática
 
 Esse método nos permite realizar a _interpretação indireta_ da língua natural: em vez de tentar avaliar sentenças em inglês diretamente em um modelo, nós as traduzimos primeiro para fórmulas da lógica de primeira ordem, cuja semântica formal já dominamos.
 
-Para que essa tradução composicional seja viável, porém, precisamos de um ponto de partida indispensável: delimitar a estrutura sintática das sentenças que queremos analisar. É a essa tarefa de modelagem gramatical que nos dedicamos a seguir em {ref "english-fragment"}[Um Fragmento do Inglês].
+Para que essa tradução composicional seja viável, porém, precisamos de um ponto de partida indispensável: delimitar a estrutura sintática das sentenças que queremos analisar. É a essa tarefa de modelagem gramatical que nos dedicamos a seguir em {cref "english-fragment"}[].
 
 
 # Um Fragmento do Inglês
@@ -484,7 +484,7 @@ example :
 tag := "english-lf"
 %%%
 
-A lógica de predicados nos dá representações para dois tipos: o tipo das entidades é representado pelos termos, e o tipo dos valores de verdade pelas fórmulas. Chamaremos de `LF` — *forma lógica* — o tipo das fórmulas de primeira ordem cujos termos são termos estruturados, o {name}`FOL.Formula` de {ref "FOL"}[FOL] com {name}`FOL.Term` no lugar do parâmetro.
+A lógica de predicados nos dá representações para dois tipos: o tipo das entidades é representado pelos termos, e o tipo dos valores de verdade pelas fórmulas. Chamaremos de `LF` — *forma lógica* — o tipo das fórmulas de primeira ordem cujos termos são termos estruturados, o {name}`FOL.Formula` da seção {cref "FOL"}[] com {name}`FOL.Term` no lugar do parâmetro.
 
 ```lean
 open FOL
@@ -492,7 +492,7 @@ open FOL
 abbrev LF := Formula Term
 ```
 
-Traduzimos cada sentença do fragmento para uma fórmula de tipo `LF`. As traduções de `VP` e `RCN` têm tipo `Term → LF`. Elas recebem um termo e constroem uma fórmula sobre ele. Pela elevação de tipo apresentada em {ref "english-form"}[Formas Linguísticas e Traduções para Lógica], a tradução de `NP` tem tipo `(Term → LF) → LF`. Para traduzir a regra `S ::= NP VP`, aplicamos a tradução do sujeito à do sintagma verbal, como em `lfNP np (lfVP vp)`.
+Traduzimos cada sentença do fragmento para uma fórmula de tipo `LF`. As traduções de `VP` e `RCN` têm tipo `Term → LF`. Elas recebem um termo e constroem uma fórmula sobre ele. Pela elevação de tipo apresentada em {cref "english-form"}[], a tradução de `NP` tem tipo `(Term → LF) → LF`. Para traduzir a regra `S ::= NP VP`, aplicamos a tradução do sujeito à do sintagma verbal, como em `lfNP np (lfVP vp)`.
 
 Começamos pelas funções de tradução das categorias lexicais. Em seguida, definimos `lfNP`, `lfVP` e `lfRCN` em um bloco `mutual`. `lfSent` vem depois do bloco e combina as traduções de `NP` e `VP`.
 
@@ -531,7 +531,7 @@ def lfDV : DV → Term → Term → Term → LF
 
 ## Variáveis Novas
 
-A tradução de um determinante toma dois argumentos de tipo `Term → LF`, formas lógicas obtidas a partir de um termo, e produz uma forma lógica. No caso dos quantificadores, o primeiro argumento é a *restrição* e o segundo o *escopo*. Falaremos disso em {ref "comp-relational"}[A Visão Relacional dos Quantificadores].
+A tradução de um determinante toma dois argumentos de tipo `Term → LF`, formas lógicas obtidas a partir de um termo, e produz uma forma lógica. No caso dos quantificadores, o primeiro argumento é a *restrição* e o segundo o *escopo*. Falaremos disso em {cref "comp-relational"}[].
 
 A tradução dos determinantes precisa evitar a captura de variáveis. Em *Every dwarf defeated some giant*, por exemplo, a tradução de *defeated some giant* introduz o quantificador do objeto, enquanto a variável do sujeito só será ligada pelo quantificador externo, de *every dwarf*. Para escolher o índice da variável do sujeito, examinamos os índices dos quantificadores internos e escolhemos um índice maior. Assim, nenhum quantificador interno pode capturar uma ocorrência da variável do sujeito.
 
@@ -789,7 +789,7 @@ deriving Repr, DecidableEq
 
 A entidade especial `Unspec` terá um papel importante no tratamento das relações subespecificadas: ela nos permitirá definir relações com algumas posições de argumento deixadas em aberto.
 
-Para avaliar uma fórmula quantificada é preciso percorrer o domínio, e percorrer exige uma coleção. Como em {ref "FOL"}[FOL], o tipo indutivo declara quais são os objetos e a lista os exibe na ordem em que serão percorridos.
+Para avaliar uma fórmula quantificada é preciso percorrer o domínio, e percorrer exige uma coleção. Como na seção {cref "FOL"}[], o tipo indutivo declara quais são os objetos e a lista os exibe na ordem em que serão percorridos.
 
 ```lean
 def entities : List Entity :=
@@ -823,7 +823,7 @@ abbrev TwoPlacePred := Entity → Entity → Bool
 abbrev ThreePlacePred := Entity → Entity → Entity → Bool
 ```
 
-Como o capítulo {ref "Sets"}[Conjuntos e Relações] mostrou, um predicado de um lugar é a função característica de um conjunto, e é natural pensá-lo como a lista das entidades para as quais ele vale. Definimos então funções de conversão que transformam listas em predicados.
+Como o capítulo {cref "Sets"}[] mostrou, um predicado de um lugar é a função característica de um conjunto, e é natural pensá-lo como a lista das entidades para as quais ele vale. Definimos então funções de conversão que transformam listas em predicados.
 
 ```lean
 def list1 (xs : List Entity) : OnePlacePred :=
@@ -963,7 +963,7 @@ theorem self3IO_introduced :
 
 ## Interpretando os Símbolos
 
-Já temos, em {ref "fol-semantics"}[Semântica de FOL], tudo o que é preciso para avaliar fórmulas: {name}`FOL.Interp` interpreta os símbolos de predicado, {name}`FOL.FInterp` os símbolos funcionais, {name}`FOL.Assign` as variáveis, e {name}`FOL.Formula.eval` percorre a fórmula. Falta apenas ligar os nomes que a tradução produz às relações que acabamos de definir.
+Já temos, em {cref "fol-semantics"}[], tudo o que é preciso para avaliar fórmulas: {name}`FOL.Interp` interpreta os símbolos de predicado, {name}`FOL.FInterp` os símbolos funcionais, {name}`FOL.Assign` as variáveis, e {name}`FOL.Formula.eval` percorre a fórmula. Falta apenas ligar os nomes que a tradução produz às relações que acabamos de definir.
 
 Esses nomes e essas relações são coisas diferentes, embora sejam escritos de forma parecida. Na fórmula, `"laugh"` é um símbolo de predicado: uma string produzida pela tradução, que sozinha não diz nada sobre o mundo. Na estrutura, {name}`laugh` é uma função Lean de tipo {name}`OnePlacePred`, que diz quais entidades riram. A interpretação `intFairy` associa o primeiro à segunda.
 

@@ -429,7 +429,7 @@ Vale reparar no que acabou de acontecer. `Even 4` é uma afirmação, não
 um programa; ainda assim o `#eval` respondeu `true`. Há um mecanismo por
 trás disso, que registra quais afirmações admitem esse cálculo e como
 fazê-lo — e ele é uma classe de tipos, como o `BEq` e o `DecidableEq` de
-{ref "IntroL"}[Programação Funcional no Lean]. A classe se chama `Decidable`.
+{cref "IntroL"}[]. A classe se chama `Decidable`.
 
 # Relações
 

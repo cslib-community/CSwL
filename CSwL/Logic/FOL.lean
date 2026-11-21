@@ -37,7 +37,7 @@ Se usarmos lógica proposicional para formalizar a sentença "Toda maçã é ver
 tag := "fol-syntax"
 %%%
 
-Nossa sintaxe terá dois elementos principais, *termos* e *fórmulas*. Como fizemos em {ref "pl-syntax"}[pl-syntax], nossa sintaxe será formalizada como tipos indutivos.
+Nossa sintaxe terá dois elementos principais, *termos* e *fórmulas*. Como fizemos na seção {cref "pl-syntax"}[], nossa sintaxe será formalizada como tipos indutivos.
 
 Os _termos_ podem ser variáveis ou funções aplicadas a outros termos. Uma variável carrega nome e um índice (lista de naturais usada para gerar "novas" variáveis a partir de uma dada variável):
 
@@ -60,14 +60,14 @@ def y : Variable := ⟨"y", []⟩
 def z : Variable := ⟨"z", []⟩
 ```
 
-A instrução `deriving Repr` gera, como em {ref "IntroL"}[IntroL], uma instância de {lean}`Repr`, que o `#eval` usa para exibir o valor como um termo Lean, mostrando sua estrutura. Para exibir uma variável na notação usual da lógica, implementamos também uma instância da classe {lean}`ToString`, que converte um valor em `String`. Quando um tipo tem as duas instâncias, `#eval` usa a de `Repr`; para ver a notação, escrevemos `#eval toString`. As cadeias `s!"…"` funcionam como as `f!"…"` de {ref "IntroL"}[IntroL], mas produzem uma `String`.
+A instrução `deriving Repr` gera, como no capítulo {cref "IntroL"}[], uma instância de {lean}`Repr`, que o `#eval` usa para exibir o valor como um termo Lean, mostrando sua estrutura. Para exibir uma variável na notação usual da lógica, implementamos também uma instância da classe {lean}`ToString`, que converte um valor em `String`. Quando um tipo tem as duas instâncias, `#eval` usa a de `Repr`; para ver a notação, escrevemos `#eval toString`. As cadeias `s!"…"` funcionam como as `f!"…"` do capítulo {cref "IntroL"}[], mas produzem uma `String`.
 
 ```lean
 #eval Variable.mk "x" [1]
 #eval toString <| Variable.mk "x" [1]
 ```
 
-No segundo `#eval`, o operador `<|`, que já usamos em {ref "IntroL"}[IntroL], aplica a função à sua esquerda a tudo o que está à sua direita e dispensa os parênteses.
+No segundo `#eval`, o operador `<|`, que já usamos no capítulo {cref "IntroL"}[], aplica a função à sua esquerda a tudo o que está à sua direita e dispensa os parênteses.
 
 Termos denotam objetos do domínio, e diferentes termos podem denotar um mesmo objeto como os termos `(5 + 3) × 4`, `8 × 4` e `32`. Para representar termos mais complexos que apenas variáveis, a solução é introduzir símbolos funcionais para as operações entre termos.
 
@@ -118,7 +118,7 @@ inductive Formula (α : Type) where
 
 A conjunção e a disjunção são binárias, e `top` e `bot` são construtores próprios, o mesmo que fizemos para as fórmulas proposicionais.
 
-Note que o tipo {lean}`Formula` é diferente do tipo {lean}`PL.Formula` definido em {ref "pl-syntax"}[pl-syntax], cada um em seu próprio `namespace`. Mais uma vez, estamos usando Lean como metalinguagem para implementar FOL. Em tipos dependentes, não fazemos a distinção entre termos e fórmulas. Como vimos em {ref "IntroL"}[IntroL], em Lean toda expressão é um termo e todo termo tem um tipo. Então quando falarmos em termos, ora estamos falando do termo Lean que pode representar uma {lean}`Formula` ou {lean}`Term` de FOL.
+Note que o tipo {lean}`Formula` é diferente do tipo {lean}`PL.Formula` definido na seção {cref "pl-syntax"}[], cada um em seu próprio `namespace`. Mais uma vez, estamos usando Lean como metalinguagem para implementar FOL. Em tipos dependentes, não fazemos a distinção entre termos e fórmulas. Como vimos no capítulo {cref "IntroL"}[], em Lean toda expressão é um termo e todo termo tem um tipo. Então quando falarmos em termos, ora estamos falando do termo Lean que pode representar uma {lean}`Formula` ou {lean}`Term` de FOL.
 
 Também como fizemos para {lean}`PL.Formula`, as funções abaixo introduzem as notações n-árias de {name}`Formula.conj` e {name}`Formula.disj`.
 
@@ -172,7 +172,7 @@ def R_simetric : Formula Variable :=
     (.impl (.atom "R" [x, y]) (.atom "R" [y, x])))
 ```
 
-Assim como definimos em {ref "pl-syntax"}[pl-syntax], chamamos de uma linguagem de primeira ordem o conjunto de todas as fórmulas que podem ser construídas a partir de um vocabulário de símbolos predicativos e funcionais.
+Assim como definimos na seção {cref "pl-syntax"}[], chamamos de uma linguagem de primeira ordem o conjunto de todas as fórmulas que podem ser construídas a partir de um vocabulário de símbolos predicativos e funcionais.
 
 ::::exercise (rating := 2) (name := "ex-fol-translate")
 Considere a linguagem de primeira ordem com o vocabulário definido pelos símbolos abaixo.
@@ -257,7 +257,7 @@ A raiz tem três filhos: P[x], ∧ e um nó interno. Esse nó tem os filhos ∀x
 ```
 :::
 
-O `∀x` liga as ocorrências de `x` em `Q[x]` e em `R[x,y]`, que estão abaixo do seu irmão na árvore, mas não a de `P[x]`, que está fora desse ramo. Essa relação entre um nó e os nós abaixo dos seus irmãos se chama *c-comando*. Ela vem da sintaxe das línguas naturais, e voltaremos a ela em {ref "Parsing"}[Análise Sintática].
+O `∀x` liga as ocorrências de `x` em `Q[x]` e em `R[x,y]`, que estão abaixo do seu irmão na árvore, mas não a de `P[x]`, que está fora desse ramo. Essa relação entre um nó e os nós abaixo dos seus irmãos se chama *c-comando*. Ela vem da sintaxe das línguas naturais, e voltaremos a ela em {cref "Parsing"}[].
 ::::
 
 Coletar as variáveis livres de uma fórmula é uma operação recorrente. Abaixo, definimos a função freeVars que recebe como parâmetro uma função que extrai as variáveis de um termo. Para {lean}`R_reflexive`, só precisamos de uma função que transforme uma variável em uma lista com ela mesma. Para fórmulas que podem conter termos complexos, {lean}`Formula Term`, nossa função terá que percorrer todo o termo coletando as variáveis. Nos quantificadores, `filter` preserva apenas as variáveis diferentes da variável que o quantificador introduz.
@@ -450,7 +450,7 @@ def openForm (f : Formula Term) : Bool :=
 tag := "fol-semantics"
 %%%
 
-Em {ref "PL"}[PL], uma valoração dos símbolos proposicionais nos permite determinar o valor de verdade de uma fórmula. Em FOL, esse papel cabe a uma _estrutura_, que dá significado aos símbolos do vocabulário (ou assinatura) da linguagem: os símbolos predicativos e funcionais, cada um com sua aridade.
+Na seção {cref "PL"}[], uma valoração dos símbolos proposicionais nos permite determinar o valor de verdade de uma fórmula. Em FOL, esse papel cabe a uma _estrutura_, que dá significado aos símbolos do vocabulário (ou assinatura) da linguagem: os símbolos predicativos e funcionais, cada um com sua aridade.
 
 Uma estrutura $`\mathcal A` é como um dicionário para traduzir a linguagem de primeira ordem $`L`. Ela nos diz sobre qual coleção de coisas os símbolos `∀` e `∃` quantificam, isto é, o domínio $`D`, e, por meio de uma _interpretação_ $`I`, associa os símbolos predicativos de $`L` a relações no domínio e os símbolos funcionais a funções no domínio. Formalmente, a estrutura é o par $`\mathcal A = (D, I)`. Quando for preciso separar a interpretação dos símbolos funcionais, escreveremos a tripla $`\mathcal A = (D, I, F)`, como faremos na seção de consequência lógica.
 
@@ -495,7 +495,7 @@ O tipo `Interp` define o que é a interpretação de símbolos predicativos e se
 abbrev Interp (D : Type) := String → List D → Bool
 ```
 
-Em seguida definimos como avaliar fórmulas. Como em {ref "PL"}[lógica proposicional], a definição calcula o resultado `Bool`. As cláusulas dos quantificadores são as que alteram a atribuição de valores à variáveis. `∀v F` vale quando `F` vale para toda escolha de valor de `v`, e `∃v F` quando vale para ao menos uma.
+Em seguida definimos como avaliar fórmulas. Como na seção {cref "PL"}[], a definição calcula o resultado `Bool`. As cláusulas dos quantificadores são as que alteram a atribuição de valores à variáveis. `∀v F` vale quando `F` vale para toda escolha de valor de `v`, e `∃v F` quando vale para ao menos uma.
 
 Aqui aparece a diferença em relação à lógica proposicional. Em nossa implementação, para avaliar uma fórmula com quantificador é preciso percorrer o domínio, e percorrer exige que o domínio seja enumerável e finito. Por isso `eval` recebe um argumento a mais, `dom`, e usa `List.all` e `List.any`, versões computáveis de `∀` e `∃`. Em FOL, domínios não precisam ser finitos, mas não existe processo de decisão para avaliação de fórmulas em domínios infinitos e não enumeráveis.
 
@@ -802,14 +802,14 @@ A definição de verdade faz uso essencial das atribuições e, ainda assim, par
 1. Todo mestre tem um aprendiz.
 2. Ele tem um aprendiz.
 
-Assim como definimos em {ref "PL"}[PL]. Uma sentença $`α` em FOL é *válida*, $`⊨ α`, se é verdadeira em toda estrutura para a linguagem de $`α`. Uma estrutura $`\mathcal A` com $`\mathcal A ⊨ α` é um *modelo* de $`α`. Escrevemos $`P ⊨ C` para indicar que a sentença $`C` é consequência lógica da sentença $`P` ($`P` de premissa, $`C` de conclusão). Isto ocorre se todo modelo de $`P` é também modelo de $`C`.
+Assim como definimos na seção {cref "PL"}[]. Uma sentença $`α` em FOL é *válida*, $`⊨ α`, se é verdadeira em toda estrutura para a linguagem de $`α`. Uma estrutura $`\mathcal A` com $`\mathcal A ⊨ α` é um *modelo* de $`α`. Escrevemos $`P ⊨ C` para indicar que a sentença $`C` é consequência lógica da sentença $`P` ($`P` de premissa, $`C` de conclusão). Isto ocorre se todo modelo de $`P` é também modelo de $`C`.
 
 Mas como julgar afirmações da forma $`P ⊨ C`? Em FOL não temos a função {name}`PL.Formula.allVals`, que enumera todas as possíveis valorações. Logo não podemos decidir $`P ⊨ C`. Podemos refutar a afirmação achando um contraexemplo. Um contraexemplo para $`P ⊨ C` é uma estrutura $`\mathcal A` com $`\mathcal A ⊨ P` mas $`\mathcal A ⊭ C`.
 
 
 # Traduzindo `Formula` para `Prop`
 
-Como fizemos em {ref "PL"}[PL], agora podemos mapear termos do tipo `Formula` em `Prop`. Temos {name}`Formula.eval` que calcula o valor verdade de uma fórmula para uma dada estrutura e atribuição em {name}`Bool`; `Formula.denote` produz a proposição que a fórmula afirma. O tipo para interpretação também precisa mudar, {name}`Interp` devolvia um `Bool`, `Denot` devolve uma `Prop`.
+Como fizemos na seção {cref "PL"}[], agora podemos mapear termos do tipo `Formula` em `Prop`. Temos {name}`Formula.eval` que calcula o valor verdade de uma fórmula para uma dada estrutura e atribuição em {name}`Bool`; `Formula.denote` produz a proposição que a fórmula afirma. O tipo para interpretação também precisa mudar, {name}`Interp` devolvia um `Bool`, `Denot` devolve uma `Prop`.
 
 ```lean
 abbrev Denot (D : Type) := String → List D → Prop
@@ -1051,10 +1051,10 @@ def Formula.ValidT (f : Formula Term) : Prop :=
     f.denote I g (liftAssign F)
 ```
 
-Até aqui, nossa noção de consequência lógica relaciona *duas* fórmulas. Mas o argumento mais comum tem várias premissas: dizemos que `C` é consequência de `P₁, …, Pₙ` quando toda estrutura que é modelo de todas as premissas também é modelo de $`C`. Assim como fizemos em {ref "PL"}[PL], no próximo exercício vamos definir a consequência lógica de um conjunto de premissas em uma conclusão.
+Até aqui, nossa noção de consequência lógica relaciona *duas* fórmulas. Mas o argumento mais comum tem várias premissas: dizemos que `C` é consequência de `P₁, …, Pₙ` quando toda estrutura que é modelo de todas as premissas também é modelo de $`C`. Assim como fizemos na seção {cref "PL"}[], no próximo exercício vamos definir a consequência lógica de um conjunto de premissas em uma conclusão.
 
 ::::exercise (rating := 2) (name := "ex-fol-implies-from-list")
-Assim como {name}`PL.Formula.impliesL` fez em {ref "PL"}[PL], complete a definição abaixo para que possamos falar de $`Δ ⊨ α`, a consequência lógica de uma lista de fórmulas. Use {name}`Formula.ValidT` e {name}`Formula.conjs`.
+Assim como {name}`PL.Formula.impliesL` fez na seção {cref "PL"}[], complete a definição abaixo para que possamos falar de $`Δ ⊨ α`, a consequência lógica de uma lista de fórmulas. Use {name}`Formula.ValidT` e {name}`Formula.conjs`.
 
 ```lean
 def Formula.ImpliesL (hs : List (Formula Term)) (c : Formula Term) : Prop :=

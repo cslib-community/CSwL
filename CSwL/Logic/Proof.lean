@@ -39,7 +39,7 @@ open IntroL in
 #check square₁ 12 = 2
 ```
 
-Em Lean, proposições são tipos e provas são termos desses tipos. Ou seja, provar algo é exatamente o mesmo ato de construir um valor em `Prop`. Por isso a forma mais direta de provar é escrever o termo à mão, do mesmo jeito que definimos qualquer função. Provar `1 = 1` é exibir um termo de tipo `1 = 1`, exatamente o que o construtor {name}`refl` do tipo {lean}`Eq` faz abaixo. Este tipo representa a relação de igualdade. Podemos notar que declarar um teorema é muito parecido com declarar uma função, como vimos em {ref "IntroL"}[IntroL].
+Em Lean, proposições são tipos e provas são termos desses tipos. Ou seja, provar algo é exatamente o mesmo ato de construir um valor em `Prop`. Por isso a forma mais direta de provar é escrever o termo à mão, do mesmo jeito que definimos qualquer função. Provar `1 = 1` é exibir um termo de tipo `1 = 1`, exatamente o que o construtor {name}`refl` do tipo {lean}`Eq` faz abaixo. Este tipo representa a relação de igualdade. Podemos notar que declarar um teorema é muito parecido com declarar uma função, como vimos no capítulo {cref "IntroL"}[].
 
 ```lean
 theorem OneEqSelf : 1 = 1 := Eq.refl 1

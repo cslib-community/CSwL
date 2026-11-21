@@ -25,7 +25,7 @@ namespace PL
 tag := "pl-intro"
 %%%
 
-Em {ref "Proof"}["Proof"] as fórmulas proposicionais foram escritas diretamente como termos do tipo `Prop`, e usando táticas construimos provas de proposições `α` a partir de um conjunto de hipóteses `Γ`. Isto é, mostramos como derivar `α` a partir de `Γ`, isto é `Γ ⊢ α`.
+Na seção {cref "Proof"}[] as fórmulas proposicionais foram escritas diretamente como termos do tipo `Prop`, e usando táticas construimos provas de proposições `α` a partir de um conjunto de hipóteses `Γ`. Isto é, mostramos como derivar `α` a partir de `Γ`, isto é `Γ ⊢ α`.
 
 Em Lean, `Prop` é um tipo assim como qualquer particular proposição também é um tipo. A variável `h` abaixo pode ser entendida como um identificador para uma "prova qualquer" da proposição `p ∧ q`. E Lean adota o princípio da "irrelevância da prova", ou seja, Lean não distingue diferentes provas de uma proposição. Como consequência, o tipo `Prop` não é computável, não é um "dado" que pode ser manipulado. Por exemplo, não conseguimos extrair os componentes de uma conjunção `a ∧ b`. Lean sabe que todas as provas de `a ∧ b` são irrelevantes e iguais, então ele não permite que você use uma prova como qualquer outro dado de um `Type`. Não podemos, por exemplo, realizar casamento de padrões em `h` abaixo.
 
@@ -277,7 +277,7 @@ example : form2.depth = 3 := solution!(by decide)
 tag := "pl-semantics"
 %%%
 
-Todas as regras de derivação que usamos em {ref "Proof"}["Proof"] são justificadas por uma noção semântica de *consequência lógica*. Entendemos que `P` deve ser verdade sempre que `P ∧ Q` for verdade, para qualquer possível tradução de `P` e `Q` de volta para expressões em uma linguagem natural, por isso aceitamos `P ∧ Q ⊨ P`.  Para formalizar esta noção de "todas as possíveis traduções", vamos precisar de um processo para avaliar fórmulas lógicas em valores verdade.
+Todas as regras de derivação que usamos na seção {cref "Proof"}[] são justificadas por uma noção semântica de *consequência lógica*. Entendemos que `P` deve ser verdade sempre que `P ∧ Q` for verdade, para qualquer possível tradução de `P` e `Q` de volta para expressões em uma linguagem natural, por isso aceitamos `P ∧ Q ⊨ P`.  Para formalizar esta noção de "todas as possíveis traduções", vamos precisar de um processo para avaliar fórmulas lógicas em valores verdade.
 
 A partir de um mapeamento inicial de símbolos proposicionais em valores boleanos, o tipo {name}`Bool` em Lean, obtemos de forma recursiva o valor verdade de qualquer termo do tipo {name}`Formula`. Os construtores {name}`Formula.top` e {name}`Formula.bot` são constantes, nenhuma valoração os afeta. Podemos perceber que, de todos os casos da recursão, só o caso do átomo (construtor {name}`Formula.atom`) consulta a valoração passada; os outros casos apenas combinam os valores verdade das subfórmulas.
 

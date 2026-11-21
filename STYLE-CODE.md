@@ -350,8 +350,9 @@ each gets its cues when it is next revised.
 - A tag that names neither a section nor an exercise, or both, fails the
   build. Exercise names must therefore be unique across the book, and must
   not coincide with a section tag.
-- Verso's `{ref "tag"}[texto]` still works for sections, but its text is
-  always hand-written and can drift from the title.
+- Verso's `{ref "tag"}[texto]` is not used in the book: its text is always
+  hand-written and can drift from the title. Every cross-reference is a
+  `{cref}`.
 
 ## Lean style
 

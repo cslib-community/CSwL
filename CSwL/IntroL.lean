@@ -152,7 +152,7 @@ Conferir o tipo de uma expressão não demanda computar a expressão, logo o com
 #check g a
 ```
 
-Os exercícios deste capítulo vêm com *testes* escritos como teoremas simples. Um `example` enuncia uma afirmação sem lhe dar nome; o que vem depois do `:=` é a justificativa. A tática `rfl` fecha uma igualdade quando os dois lados *calculam* o mesmo valor — é o que confere se a definição pedida faz o que se pediu. Um `theorem` é um `example` com nome, e o nome serve para que o enunciado possa ser referenciado depois, possivelmente na prova de outro teorema.  Aqui esses três recursos aparecem só como ferramenta de teste. O que significa provar em Lean, e como se constrói uma prova que {tactic}`rfl` não fecha sozinha, é o assunto de {ref "Proof"}[Prova em Lean].
+Os exercícios deste capítulo vêm com *testes* escritos como teoremas simples. Um `example` enuncia uma afirmação sem lhe dar nome; o que vem depois do `:=` é a justificativa. A tática `rfl` fecha uma igualdade quando os dois lados *calculam* o mesmo valor — é o que confere se a definição pedida faz o que se pediu. Um `theorem` é um `example` com nome, e o nome serve para que o enunciado possa ser referenciado depois, possivelmente na prova de outro teorema.  Aqui esses três recursos aparecem só como ferramenta de teste. O que significa provar em Lean, e como se constrói uma prova que {tactic}`rfl` não fecha sozinha, é o assunto da seção {cref "Proof"}[].
 
 ::::exercise (rating := 1) (name := "sum-of-squares")
 Defina `sumOfSquares` que recebe dois naturais e devolve `m² + n²`. Para fechar o exemplo, use `rfl`.
@@ -308,7 +308,7 @@ Quando nenhuma forma carrega argumento, o tipo é uma enumeração. O tipo {lean
 #print Bool
 ```
 
-Outro exemplo muito comum é dado abaixo, o final `deriving Repr` pede que Lean gere automaticamente uma instância da classe {lean}`Repr` para `Day`, vide {ref "classes"}[classes], para exibição dos valores do tipo.
+Outro exemplo muito comum é dado abaixo, o final `deriving Repr` pede que Lean gere automaticamente uma instância da classe {lean}`Repr` para `Day`, vide a seção {cref "classes"}[], para exibição dos valores do tipo.
 
 ```lean
 inductive Day where
@@ -661,7 +661,7 @@ def omega := (fun x => x x) (fun x => x x)
 
 No _cálculo lambda tipado_ (LCT) no qual Lean é baseado todo termo bem tipado tem forma normal, e a redução sempre termina. A contrapositiva é o que se observa aqui: um termo cuja redução não termina não pode ser bem tipado. É por isso que Lean pode ser ao mesmo tempo uma linguagem de programação e uma lógica consistente: a terminação é garantida pelos tipos. O preço é que Lean pode não conseguir determinar sozinho que uma função sempre termina, e nestes casos teremos que ajudar Lean fornecendo a prova de terminação.
 
-Para além dos tipos simples, em Lean, temos também os *tipos indutivos* (como apresentado), *tipos dependentes* (um tipo pode depender de um valor, como {lean}`Vector`), *proposições como tipos*, o tipo `Prop` como veremos em {ref "Proof"}[Proof], e os *universos* de tipos {lean}`Type`, {lean}`Type 1`, e assim por diante, o que evita os paradoxos que apareceriam se tivéssemos um tipo de todos os tipos.
+Para além dos tipos simples, em Lean, temos também os *tipos indutivos* (como apresentado), *tipos dependentes* (um tipo pode depender de um valor, como {lean}`Vector`), *proposições como tipos*, o tipo `Prop` como veremos na seção {cref "Proof"}[], e os *universos* de tipos {lean}`Type`, {lean}`Type 1`, e assim por diante, o que evita os paradoxos que apareceriam se tivéssemos um tipo de todos os tipos.
 
 
 ```lean

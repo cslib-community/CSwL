@@ -27,7 +27,7 @@ file := "FurtherReading"
 Lógicas para falar de relações em árvores foram propostas em
 {citet Bib.blackburn1993}[] (lógica modal) e em {citet Bib.backofen1995}[]
 (lógica de primeira ordem). As relações binárias entre posições que
-usamos na seção {ref "parse-trees"}[Árvores Sintáticas] podem ser
+usamos na seção {cref "parse-trees"}[] podem ser
 facilmente descritas em termos lógicos.
 
 A análise sintática de língua natural pode ser também entendida como um processo
