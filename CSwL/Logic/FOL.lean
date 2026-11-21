@@ -807,7 +807,7 @@ Assim como definimos na seção {cref "PL"}[]. Uma sentença $`α` em FOL é *v�
 Mas como julgar afirmações da forma $`P ⊨ C`? Em FOL não temos a função {name}`PL.Formula.allVals`, que enumera todas as possíveis valorações. Logo não podemos decidir $`P ⊨ C`. Podemos refutar a afirmação achando um contraexemplo. Um contraexemplo para $`P ⊨ C` é uma estrutura $`\mathcal A` com $`\mathcal A ⊨ P` mas $`\mathcal A ⊭ C`.
 
 
-# Traduzindo `Formula` para `Prop`
+# Tradução de `Formula` em `Prop`
 
 Como fizemos na seção {cref "PL"}[], agora podemos mapear termos do tipo `Formula` em `Prop`. Temos {name}`Formula.eval` que calcula o valor verdade de uma fórmula para uma dada estrutura e atribuição em {name}`Bool`; `Formula.denote` produz a proposição que a fórmula afirma. O tipo para interpretação também precisa mudar, {name}`Interp` devolvia um `Bool`, `Denot` devolve uma `Prop`.
 

@@ -242,7 +242,7 @@ def sent1 : Sent :=
 
 Ir da sentença de superfície para a árvore é o problema inverso, chamado de *análise sintática*. Não o trataremos aqui: neste capítulo as árvores são construídas à mão, e o que nos interessa é o que fazer com elas depois de construídas.
 
-## Estender uma Gramática
+## A Extensão da Gramática
 
 Um tipo indutivo em Lean é fechado. Seus construtores são fixados na declaração. Isso permite que Lean verifique se uma função definida por casos sobre `VP` cobre todos os seus cinco construtores. Para acrescentar uma alternativa diretamente a uma regra da gramática, seria preciso alterar a declaração do tipo correspondente.
 
@@ -961,7 +961,7 @@ theorem self3IO_introduced :
 ::::
 
 
-## Interpretando os Símbolos
+## A Interpretação dos Símbolos
 
 Já temos, em {cref "fol-semantics"}[], tudo o que é preciso para avaliar fórmulas: {name}`FOL.Interp` interpreta os símbolos de predicado, {name}`FOL.FInterp` os símbolos funcionais, {name}`FOL.Assign` as variáveis, e {name}`FOL.Formula.eval` percorre a fórmula. Falta apenas ligar os nomes que a tradução produz às relações que acabamos de definir.
 

@@ -189,7 +189,7 @@ sua professora, a senhorita Sullivan:
 >
 > {citep Bib.keller1902}[p. 34]
 
-## Saber "que" e "como"
+## O Saber "que" e o Saber "como"
 
 As explicações de significado caem em duas classes amplas: significado como
 _saber como_ e significado como _saber que_. Se dizemos que Joãozinho não sabe o
@@ -527,7 +527,7 @@ example : eval sevenPlusFive = eval twoTimesSix := by
   rfl -- ou simplesmente `rfl`
 ```
 
-# O que não é Semântica Formal?
+# Equívocos sobre a Semântica Formal
 
 Um preconceito difundido contra a semântica formal para a língua natural é o de
 que ela não passa de um exercício de tipografia. Explica-se o significado de

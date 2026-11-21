@@ -4,7 +4,7 @@ import Bib
 open Verso.Genre Manual
 open CSwLMeta
 
-#doc (Manual) "Aplicação: Representando Fonemas" =>
+#doc (Manual) "A Representação de Fonemas" =>
 %%%
 tag := "Phonemes"
 %%%

@@ -540,7 +540,7 @@ Atualizar o estado de todas as valorações com uma contradição não deixa nad
 ```
 
 
-# Traduzindo `Formula` para `Prop`
+# Tradução de `Formula` em `Prop`
 %%%
 tag := "pl-to-prop"
 %%%

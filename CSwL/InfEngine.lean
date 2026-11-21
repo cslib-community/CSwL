@@ -64,7 +64,7 @@ quantificadores com *importe existencial*: "todo A é B" e "nenhum A é B" são
 tomados como implicando que há A. Sob essa suposição, as expressões da aresta
 superior implicam as imediatamente abaixo delas.
 
-# Uma Língua para Falar de Classes
+# Uma Língua sobre Classes
 
 A gramática é um fragmento minúsculo para perguntar e afirmar coisas sobre
 classes:
@@ -540,7 +540,7 @@ example :
 
 ::::
 
-# A Validade dos Silogismos, Demonstrada
+# A Prova da Validade dos Silogismos
 
 O motor acima *decide* se uma conclusão se segue de uma base: ele responde `true`
 ou `false`, e a resposta se confere rodando. Mas a validade de um silogismo é uma

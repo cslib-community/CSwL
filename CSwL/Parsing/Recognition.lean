@@ -7,7 +7,7 @@ import CSwLCompat
 open Verso.Genre Manual
 open CSwLMeta
 
-#doc (Manual) "Reconhecendo e Analisando Linguagens Livres de Contexto" =>
+#doc (Manual) "Reconhecimento e Análise de Linguagens Livres de Contexto" =>
 %%%
 tag := "cf-recognition"
 file := "Recognition"

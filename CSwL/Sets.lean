@@ -351,7 +351,7 @@ end
 
 ::::
 
-### Calcular ou Enunciar
+### Cálculo ou Enunciado
 
 `α → Prop` enuncia a pertinência. Existe também `α → Bool`, que a
 calcula, e é o que se usa quando o conjunto é finito e a resposta tem
@@ -547,7 +547,7 @@ example :
   eq_equivalence
 ```
 
-## Calcular ou Enunciar, Outra Vez
+## Cálculo ou Enunciado com Relações
 
 Vale a mesma escolha da seção de conjuntos. A divisibilidade vem na
 biblioteca na versão que enuncia — `m ∣ n` afirma que existe um fator
